@@ -81,6 +81,12 @@ vpc_endpoints = {
     subnet_ids          = ["lambda-1a", "lambda-1b"]
     private_dns_enabled = true
   }
+  s3-endpoint = {
+    name                = "s3-endpoint"
+    service_name        = "com.amazonaws.us-east-1.s3"
+    vpc_endpoint_type   = "Gateway"
+    route_table_ids          = ["mgmt"]
+  }
 }
 
 security_groups = {

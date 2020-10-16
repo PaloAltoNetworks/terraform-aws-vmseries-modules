@@ -240,7 +240,7 @@ resource "aws_security_group" "this" {
   name     = "${var.prefix_name_tag}${each.value.name}"
   vpc_id   = local.combined_vpc["vpc_id"]
   tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
-
+  
   dynamic "ingress" {
     for_each = each.value.rules
     content {
@@ -264,8 +264,14 @@ resource "aws_security_group" "this" {
 # VPC Endpoint
 ##########################
 
+// TODO: Add support for optional policy attachment
+// TODO: Better way to detect service_names for different endpoint / regions?
+
 resource "aws_vpc_endpoint" "interface" {
-  for_each          = var.vpc_endpoints
+  for_each = {
+    for k, endpoint in var.vpc_endpoints : k => endpoint
+    if lookup(endpoint, "vpc_endpoint_type", null) == "Interface" ? true : false
+  }
   vpc_id            = local.combined_vpc["vpc_id"]
   service_name      = each.value.service_name
   vpc_endpoint_type = each.value.vpc_endpoint_type
@@ -276,6 +282,22 @@ resource "aws_vpc_endpoint" "interface" {
   subnet_ids = [
     for subnet in each.value.subnet_ids :
     local.combined_subnets[subnet]
+  ]
+  private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
+  tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+resource "aws_vpc_endpoint" "gateway" {
+  for_each = {
+    for k, endpoint in var.vpc_endpoints : k => endpoint
+    if lookup(endpoint, "vpc_endpoint_type", null) == "Gateway" ? true : false
+  }
+  vpc_id            = local.combined_vpc["vpc_id"]
+  service_name      = each.value.service_name
+  vpc_endpoint_type = each.value.vpc_endpoint_type
+  route_table_ids = [
+    for rt in each.value.route_table_ids :
+    aws_route_table.this[rt].id
   ]
   private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
   tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
