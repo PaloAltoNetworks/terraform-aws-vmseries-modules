@@ -28,4 +28,10 @@ variable vgws {
   default = {}
 }
 
+variable vpc_endpoints {
+  default = {}
+}
 
+variable security_groups {
+  default = {}
+}

@@ -17,7 +17,7 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
     secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
     instance_tenancy      = "default"
     enable_dns_support    = true
-    enable_dns_hostname   = true
+    enable_dns_hostnames  = true
     igw                   = true
     local_tags            = { "vpc_tag" = "whatever" }
   }
@@ -53,12 +53,47 @@ vgws = {
     name            = "vmseries_vgw"
     vpc_attached    = true
     amazon_side_asn = "7224"
-    # dx_gateway_id = "3d3388c7-eab9-408b-a33d-796dcfa231d4"
-    local_tags = { "vgw_tag" = "whatever" }
+    dx_gateway_id   = "3d3388c7-eab9-408b-a33d-796dcfa231d4"
+    local_tags      = { "vgw_tag" = "whatever" }
   }
   detached_vgw = {
     name            = "detached_vgw"
     vpc_attached    = false
     amazon_side_asn = "65200"
+  }
+}
+
+vpc_endpoints = {
+  ec2-endpoint = {
+    name                = "ec2-endpoint"
+    local_tags          = { "endpoint-tag" = "whatever" }
+    service_name        = "com.amazonaws.us-east-1.ec2"
+    vpc_endpoint_type   = "Interface"
+    security_groups     = ["vpc-endpoint"]
+    subnet_ids          = ["lambda-1a", "lambda-1b"]
+    private_dns_enabled = false
+  }
+  apigw-endpoint = {
+    name                = "apigw-endpoint"
+    service_name        = "com.amazonaws.us-east-1.execute-api"
+    vpc_endpoint_type   = "Interface"
+    security_groups     = ["vpc-endpoint"]
+    subnet_ids          = ["lambda-1a", "lambda-1b"]
+    private_dns_enabled = true
+  }
+}
+
+security_groups = {
+  vpc-endpoint = {
+    name = "vpc-endpoint"
+    rules = {
+      https-inbound = {
+        type        = "ingress"
+        from_port   = "443"
+        to_port     = "443"
+        protocol    = "tcp"
+        cidr_blocks = ["172.28.3.0/25", "172.28.3.128/25"]
+      }
+    }
   }
 }

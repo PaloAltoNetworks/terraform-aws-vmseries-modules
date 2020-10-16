@@ -191,7 +191,7 @@ resource "aws_route_table_association" "this" {
 }
 
 ##########################
-# Create VGW
+# VGWs
 ##########################
 
 resource "aws_vpn_gateway" "this" {
@@ -228,4 +228,55 @@ resource "aws_route_table_association" "igw_ingress" {
   for_each       = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "igw_association") }
   route_table_id = aws_route_table.this[each.key].id
   gateway_id     = aws_internet_gateway.this[each.value.igw_association].id
+}
+
+
+################
+# Security Groups
+################
+
+resource "aws_security_group" "this" {
+  for_each = var.security_groups
+  name     = "${var.prefix_name_tag}${each.value.name}"
+  vpc_id   = local.combined_vpc["vpc_id"]
+  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+
+  dynamic "ingress" {
+    for_each = each.value.rules
+    content {
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+      from_port   = ingress.value.from_port
+      to_port     = ingress.value.to_port
+      description = ingress.key
+    }
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+##########################
+# VPC Endpoint
+##########################
+
+resource "aws_vpc_endpoint" "interface" {
+  for_each          = var.vpc_endpoints
+  vpc_id            = local.combined_vpc["vpc_id"]
+  service_name      = each.value.service_name
+  vpc_endpoint_type = each.value.vpc_endpoint_type
+  security_group_ids = [
+    for sg in each.value.security_groups :
+    aws_security_group.this[sg].id
+  ]
+  subnet_ids = [
+    for subnet in each.value.subnet_ids :
+    local.combined_subnets[subnet]
+  ]
+  private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
+  tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
