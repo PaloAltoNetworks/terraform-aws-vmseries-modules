@@ -34,6 +34,18 @@ variable vgws {
   default     = {}
 }
 
+variable vpc_endpoints {
+  type        = any
+  description = "Map of VPC endpoints"
+  default     = {}
+}
+
+variable security_groups {
+  type        = any
+  description = "Map of Security Groups"
+  default     = {}
+}
+
 
 ### Testing concept of explicit schema for map vars
 
