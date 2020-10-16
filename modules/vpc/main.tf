@@ -249,38 +249,61 @@ resource "aws_route_table_association" "igw_ingress" {
 }
 
 
-################
+############################################################
 # Security Groups
-################
+############################################################
+
+
+
 
 resource "aws_security_group" "this" {
   for_each = var.security_groups
   name     = "${var.prefix_name_tag}${each.value.name}"
   vpc_id   = local.combined_vpc["vpc_id"]
-  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
-  
+
   dynamic "ingress" {
-    for_each = each.value.rules
+    for_each = [
+      for rule in each.value.rules :
+      rule
+      if rule.type == "ingress"
+    ]
+
     content {
-      protocol    = ingress.value.protocol
-      cidr_blocks = ingress.value.cidr_blocks
       from_port   = ingress.value.from_port
       to_port     = ingress.value.to_port
-      description = ingress.key
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+      description = lookup(ingress.value, "description", "")
     }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "egress" {
+    for_each = [
+      for rule in each.value.rules :
+      rule
+      if rule.type == "egress"
+    ]
+
+    content {
+      from_port   = egress.value.from_port
+      to_port     = egress.value.to_port
+      protocol    = egress.value.protocol
+      cidr_blocks = egress.value.cidr_blocks
+      description = lookup(egress.value, "description", "")
+    }
+  }
+
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-##########################
-# VPC Endpoint
-##########################
+
+############################################################
+# VPC Endpoints
+############################################################
 
 // TODO: Add support for optional policy attachment
 // TODO: Better way to detect service_names for different endpoint / regions?

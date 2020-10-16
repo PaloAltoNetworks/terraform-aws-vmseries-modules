@@ -87,18 +87,28 @@ vpc_endpoints = {
     private_dns_enabled = true
   }
   s3-endpoint = {
-    name                = "s3-endpoint"
-    service_name        = "com.amazonaws.us-east-1.s3"
-    vpc_endpoint_type   = "Gateway"
-    route_table_ids          = ["mgmt"]
+    name              = "s3-endpoint"
+    service_name      = "com.amazonaws.us-east-1.s3"
+    vpc_endpoint_type = "Gateway"
+    route_table_ids   = ["mgmt"]
   }
 }
 
 security_groups = {
   vpc-endpoint = {
-    name = "vpc-endpoint"
+    name       = "vpc-endpoint"
+    local_tags = { "sg-tag" = "whatever" }
     rules = {
+      all-outbound = {
+        description = "Permit All traffic outbound"
+        type        = "egress"
+        from_port   = "0"
+        to_port     = "0"
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
       https-inbound = {
+        description = "Permit HTTPS from lambda subnets to VPC Interface Endpoints"
         type        = "ingress"
         from_port   = "443"
         to_port     = "443"
