@@ -16,7 +16,16 @@ variable vpc {
   default = {}
 }
 
+variable vpc_route_tables {
+  default = {}
+}
+
 variable subnets {
   default = {}
 }
+
+variable vgws {
+  default = {}
+}
+
 

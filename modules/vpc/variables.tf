@@ -16,12 +16,26 @@ variable vpc {
   default     = {}
 }
 
+variable vpc_route_tables {
+  type = any
+  description = "Map of VPC route Tables to create"
+  default = {}
+}
+
 variable subnets {
-  description = "Map of subnets to create in the vpc."
+  description = "Map of Subnets to create"
   type        = any
   default     = {}
 }
 
+variable vgws {
+  type = any
+  description = "Map of VGWs to create"
+  default = {}
+}
+
+
+### Testing concept of explicit schema for map vars
 
 # variable vpc {
 #   description = "Parameters for the VPC"
@@ -34,7 +48,6 @@ variable subnets {
 #   }))
 #   default     = {}
 # }
-
 
 # variable subnets {
 #   description = "Map of subnets to create in the vpc."

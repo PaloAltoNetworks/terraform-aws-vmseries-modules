@@ -62,7 +62,7 @@ terraform {
 ################
 
 
-### VPC ###
+####  VPC #### 
 locals {
   existing_vpc = {
     for k, vpc in data.aws_vpc.this:
@@ -87,7 +87,7 @@ data "aws_vpc" "this" {
   }
 }
 
-### Subnets ###
+####  Subnets #### 
 locals {
   existing_subnets = {
     for k, subnet in data.aws_subnet.this:
@@ -116,14 +116,15 @@ data "aws_subnet" "this" {
 # Resource Creation
 ################
 
-### Create VPC resources
+#### Create VPC resources #### 
+
 resource "aws_vpc" "this" {
   for_each               = {
     for k, vpc in var.vpc : k => vpc
     if lookup(vpc, "existing", null) != true ? true : false
   }
   cidr_block = each.value.cidr_block
-  tags       = merge(var.global_tags, { Name = "${var.prefix_name_tag}${each.value.name}" })
+  tags       = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
   enable_dns_hostnames = lookup(each.value, "enable_dns_hostnames", null)
   enable_dns_support = lookup(each.value, "enable_dns_support", null)
   instance_tenancy = lookup(each.value, "instance_tenancy", null)
@@ -147,15 +148,18 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
   cidr_block = each.value.cidr
 }
 
-#### Create IGW  #### 
+#### Create IGW #### 
+
 resource "aws_internet_gateway" "this" {
   for_each               = {
     for k, vpc in var.vpc : k => vpc
     if lookup(vpc, "igw", null) == null ? true : vpc.igw  // Defaults to true if not specified
   }
   vpc_id = local.combined_vpc["vpc_id"]
-  tags   = merge(var.global_tags, { Name = "${var.prefix_name_tag}igw" })
+  tags   = merge({ Name = "${var.prefix_name_tag}igw" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
+
+#### Create Subnets ####
 
 resource "aws_subnet" "this" {
   for_each               = {
@@ -164,16 +168,17 @@ resource "aws_subnet" "this" {
   }
   cidr_block        = each.value.cidr
   availability_zone = lookup(each.value, "az", null)
-  tags              = merge(var.global_tags, lookup(each.value, "tags", {}), { Name = "${var.prefix_name_tag}${each.value.name}" })
+  tags              = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
   vpc_id            = local.combined_vpc["vpc_id"]
   depends_on        = [aws_vpc_ipv4_cidr_block_association.this]
 }
 
-#### Create and associate Route tables#### 
+#### Create and associate Route tables #### 
+
 resource "aws_route_table" "this" {
-  for_each = { for rt in var.subnets : rt.rt => rt... }
+  for_each = var.vpc_route_tables
   vpc_id   = local.combined_vpc["vpc_id"]
-  tags     = merge(var.global_tags, { Name = "${var.prefix_name_tag}${each.key}" })
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
 
 resource "aws_route_table_association" "this" {
@@ -183,4 +188,44 @@ resource "aws_route_table_association" "this" {
   }
   subnet_id      = local.combined_subnets[each.key]
   route_table_id = aws_route_table.this[each.value.rt].id
+}
+
+##########################
+# Create VGW
+##########################
+
+resource "aws_vpn_gateway" "this" {
+  for_each          = var.vgws
+  vpc_id            = lookup(each.value, "vpc_attached", null) != false ? local.combined_vpc["vpc_id"] : null // Default is to attach to VPC
+  amazon_side_asn   = each.value.amazon_side_asn
+  tags              = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+resource "aws_dx_gateway_association" "this" {
+  for_each              = { for name, vgw in var.vgws : name => vgw if contains(keys(vgw), "dx_gateway_id")}
+  dx_gateway_id         = each.value.dx_gateway_id
+  associated_gateway_id = aws_vpn_gateway.this[each.key].id
+}
+
+#### Optionally enable VGW Propogation for Route Tables #### 
+resource "aws_vpn_gateway_route_propagation" "this" {
+  for_each = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "vgw_propagation")}
+  vpn_gateway_id = aws_vpn_gateway.this[each.value.vgw_propagation].id
+  route_table_id = aws_route_table.this[each.key].id
+}
+
+#### Associate RT to VGW for AWS Ingress Routing #### 
+
+resource "aws_route_table_association" "vgw_ingress" {
+  for_each = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "vgw_association")}
+  route_table_id   = aws_route_table.this[each.key].id
+  gateway_id = aws_vpn_gateway.this[each.value.vgw_association].id
+}
+
+#### Associate RT to IGW for AWS Ingress Routing #### 
+
+resource "aws_route_table_association" "igw_ingress" {
+  for_each = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "igw_association")}
+  route_table_id   = aws_route_table.this[each.key].id
+  gateway_id = aws_internet_gateway.this[each.value.igw_association].id
 }
