@@ -147,6 +147,16 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
   cidr_block = each.value.cidr
 }
 
+#### Create IGW  #### 
+resource "aws_internet_gateway" "this" {
+  for_each               = {
+    for k, vpc in var.vpc : k => vpc
+    if lookup(vpc, "igw", null) == null ? true : vpc.igw  // Defaults to true if not specified
+  }
+  vpc_id = local.combined_vpc["vpc_id"]
+  tags   = merge(var.global_tags, { Name = "${var.prefix_name_tag}igw" })
+}
+
 resource "aws_subnet" "this" {
   for_each               = {
     for k, subnet in var.subnets : k => subnet
@@ -163,7 +173,7 @@ resource "aws_subnet" "this" {
 resource "aws_route_table" "this" {
   for_each = { for rt in var.subnets : rt.rt => rt... }
   vpc_id   = local.combined_vpc["vpc_id"]
-  tags     = merge(var.global_tags, { Name = "${var.prefix_name_tag}-${each.key}" })
+  tags     = merge(var.global_tags, { Name = "${var.prefix_name_tag}${each.key}" })
 }
 
 resource "aws_route_table_association" "this" {

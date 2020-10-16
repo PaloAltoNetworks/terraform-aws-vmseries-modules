@@ -14,7 +14,6 @@ provider "aws" {
   profile = "default"
 }
 
-
 module "vpc_all_options" {
   source                          = "../../"
   global_tags                     = var.global_tags
