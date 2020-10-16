@@ -1,0 +1,7 @@
+.history
+**/.terraform/*
+*.DS_Store
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
