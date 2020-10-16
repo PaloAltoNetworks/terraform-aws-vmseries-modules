@@ -19,7 +19,7 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
     enable_dns_support    = true
     enable_dns_hostname   = true
     igw                   = true
-    local_tags = {"vpc_tag" = "whatever"}
+    local_tags            = {"vpc_tag" = "whatever"}
   }
 }
 

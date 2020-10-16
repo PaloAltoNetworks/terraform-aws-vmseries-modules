@@ -9,7 +9,7 @@ output subnet_ids {
 
 output route_table_ids {
   value = {
-    for key, route_table in aws_route_table.this:
+    for key, route_table in aws_route_table.this :
     key => route_table.id
   }
 }

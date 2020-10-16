@@ -17,9 +17,9 @@ variable vpc {
 }
 
 variable vpc_route_tables {
-  type = any
+  type        = any
   description = "Map of VPC route Tables to create"
-  default = {}
+  default     = {}
 }
 
 variable subnets {
@@ -29,9 +29,9 @@ variable subnets {
 }
 
 variable vgws {
-  type = any
+  type        = any
   description = "Map of VGWs to create"
-  default = {}
+  default     = {}
 }
 
 
