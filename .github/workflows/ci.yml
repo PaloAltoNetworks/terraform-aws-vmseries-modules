@@ -24,13 +24,13 @@ jobs:
           AWS_DEFAULT_REGION: us-west-2
         run: |
           cd ${GITHUB_WORKSPACE}/modules
-          for dir in $(find . -type d -maxdepth 1 -mindepth 1);
+          for dir in $(find . -type d -not \( -name ".?*" \) -maxdepth 1 -mindepth 1);
           do
-            cd ${dir}
-              terraform init -backend=false
-              terraform validate
-            fi
+            cd ${GITHUB_WORKSPACE}/modules/${dir}
+            terraform init -backend=false
+            terraform validate
           done
 
       - name: terraform fmt
+        run: |
           terraform fmt -check -recursive
