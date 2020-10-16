@@ -1,0 +1,36 @@
+
+---
+name: CI/CD
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: terraform validate
+        env:
+          AWS_DEFAULT_REGION: us-west-2
+        run: |
+          cd ${GITHUB_WORKSPACE}/modules
+          for dir in $(find . -type d -maxdepth 1 -mindepth 1);
+          do
+            cd ${dir}
+              terraform init -backend=false
+              terraform validate
+            fi
+          done
+
+      - name: terraform fmt
+          terraform fmt -check -recursive
