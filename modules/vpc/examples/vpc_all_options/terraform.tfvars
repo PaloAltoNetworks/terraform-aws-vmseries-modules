@@ -101,18 +101,12 @@ security_groups = {
     rules = {
       all-outbound = {
         description = "Permit All traffic outbound"
-        type        = "egress"
-        from_port   = "0"
-        to_port     = "0"
-        protocol    = "-1"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
       }
       https-inbound = {
         description = "Permit HTTPS from lambda subnets to VPC Interface Endpoints"
-        type        = "ingress"
-        from_port   = "443"
-        to_port     = "443"
-        protocol    = "tcp"
+        type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
         cidr_blocks = ["172.28.3.0/25", "172.28.3.128/25"]
       }
     }
@@ -122,18 +116,12 @@ security_groups = {
     rules = {
       all-outbound = {
         description = "Permit All traffic outbound"
-        type        = "egress"
-        from_port   = "0"
-        to_port     = "0"
-        protocol    = "-1"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
       }
       https-inbound = {
         description = "Permit HTTPS for VM-Series Management"
-        type        = "ingress"
-        from_port   = "443"
-        to_port     = "443"
-        protocol    = "tcp"
+        type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
         cidr_blocks = ["10.0.0.0/8"]
       }
     }

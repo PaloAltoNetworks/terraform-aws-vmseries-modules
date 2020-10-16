@@ -21,7 +21,7 @@
  *  Group       = "SecOps"
  *  Managed_By  = "Terraform"
  *  Description = "Example Usage"
- *}
+ * }
  *
  * vpc = {
  *  vmseries_vpc = {
@@ -34,14 +34,14 @@
  *    enable_dns_hostname   = true
  *    igw                   = true
  *  }
- *}
-
+ * }
+ *
  *subnets = {
  *  mgmt-1a       = { existing = false, name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt" }            # VM-Series management
  *  public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "vdss-outside" }    # interface in public subnet for internet
  *  mgmt-1b       = { name = "mgmt-1b", cidr = "10.100.0.128/25", az = "us-east-1b", rt = "mgmt" }            # VM-Series management
  *  public-1b     = { name = "public-1b", cidr = "10.100.1.128/25", az = "us-east-1b", rt = "vdss-outside" }    # interface in public subnet for internet
- *}
+ * }
  *
  * ```
  * 
@@ -252,9 +252,6 @@ resource "aws_route_table_association" "igw_ingress" {
 ############################################################
 # Security Groups
 ############################################################
-
-
-
 
 resource "aws_security_group" "this" {
   for_each = var.security_groups

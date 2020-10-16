@@ -19,7 +19,7 @@ global_tags = {
  Group       = "SecOps"
  Managed_By  = "Terraform"
  Description = "Example Usage"
-*}
+}
 
 vpc = {
  vmseries_vpc = {
@@ -32,7 +32,15 @@ vpc = {
    enable_dns_hostname   = true
    igw                   = true
  }
-*}
+}
+
+*subnets = {
+ mgmt-1a       = { existing = false, name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt" }            # VM-Series management
+ public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "vdss-outside" }    # interface in public subnet for internet
+ mgmt-1b       = { name = "mgmt-1b", cidr = "10.100.0.128/25", az = "us-east-1b", rt = "mgmt" }            # VM-Series management
+ public-1b     = { name = "public-1b", cidr = "10.100.1.128/25", az = "us-east-1b", rt = "vdss-outside" }    # interface in public subnet for internet
+}
+
 ```
 
 ## Requirements
@@ -53,9 +61,14 @@ vpc = {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | global\_tags | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
+| nat\_gateways | Map of NAT Gateways to create | `any` | `{}` | no |
 | prefix\_name\_tag | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| subnets | Map of subnets to create in the vpc. | `any` | `{}` | no |
+| security\_groups | Map of Security Groups | `any` | `{}` | no |
+| subnets | Map of Subnets to create | `any` | `{}` | no |
 | vpc | Map of parameters for the VPC. | `any` | `{}` | no |
+| vpc\_endpoints | Map of VPC endpoints | `any` | `{}` | no |
+| vpc\_route\_tables | Map of VPC route Tables to create | `any` | `{}` | no |
+| vpn\_gateways | Map of VGWs to create | `any` | `{}` | no |
 
 ## Outputs
 
