@@ -21,7 +21,8 @@ module "vpc_all_options" {
   vpc              = var.vpc
   vpc_route_tables = var.vpc_route_tables
   subnets          = var.subnets
-  vgws             = var.vgws
+  nat_gateways     = var.nat_gateways
+  vpn_gateways     = var.vpn_gateways
   vpc_endpoints    = var.vpc_endpoints
   security_groups  = var.security_groups
 }

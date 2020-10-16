@@ -45,10 +45,15 @@ subnets = {
   public-1b     = { name = "public-1b", cidr = "10.100.1.128/25", az = "us-east-1b", rt = "public" }
   inside-1b     = { name = "inside-1b", cidr = "10.100.2.128/25", az = "us-east-1b", rt = "tgw-return" }
   tgw-attach-1b = { name = "tgw-attach-1b", cidr = "10.100.3.128/25", az = "us-east-1b", rt = "tgw-attach" }
-  lambda-1b     = { name = "lambbda-1b", cidr = "10.100.4.128/25", az = "us-east-1b", rt = "lambda" }
+  lambda-1b     = { name = "lambda-1b", cidr = "10.100.4.128/25", az = "us-east-1b", rt = "lambda" }
 }
 
-vgws = {
+nat_gateways = {
+  public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "natgw_tag" = "whatever" } }
+  public-1b = { name = "public-1b-natgw", subnet = "public-1a" }
+}
+
+vpn_gateways = {
   vmseries_vgw = {
     name            = "vmseries_vgw"
     vpc_attached    = true
@@ -66,12 +71,12 @@ vgws = {
 vpc_endpoints = {
   ec2-endpoint = {
     name                = "ec2-endpoint"
-    local_tags          = { "endpoint-tag" = "whatever" }
     service_name        = "com.amazonaws.us-east-1.ec2"
     vpc_endpoint_type   = "Interface"
     security_groups     = ["vpc-endpoint"]
     subnet_ids          = ["lambda-1a", "lambda-1b"]
     private_dns_enabled = false
+    local_tags          = { "endpoint-tag" = "whatever" }
   }
   apigw-endpoint = {
     name                = "apigw-endpoint"
@@ -99,6 +104,27 @@ security_groups = {
         to_port     = "443"
         protocol    = "tcp"
         cidr_blocks = ["172.28.3.0/25", "172.28.3.128/25"]
+      }
+    }
+  }
+  vmseries-mgmt = {
+    name = "vmseries-mgmt"
+    rules = {
+      all-outbound = {
+        description = "Permit All traffic outbound"
+        type        = "egress"
+        from_port   = "0"
+        to_port     = "0"
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      https-inbound = {
+        description = "Permit HTTPS for VM-Series Management"
+        type        = "ingress"
+        from_port   = "443"
+        to_port     = "443"
+        protocol    = "tcp"
+        cidr_blocks = ["10.0.0.0/8"]
       }
     }
   }

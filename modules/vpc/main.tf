@@ -190,24 +190,42 @@ resource "aws_route_table_association" "this" {
   route_table_id = aws_route_table.this[each.value.rt].id
 }
 
-##########################
-# VGWs
-##########################
+############################################################
+# NAT Gateways
+############################################################
+
+resource "aws_eip" "nat_eip" {
+  for_each = var.nat_gateways
+  vpc      = true
+  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+resource "aws_nat_gateway" "this" {
+  for_each      = var.nat_gateways
+  allocation_id = aws_eip.nat_eip[each.key].id
+  subnet_id     = local.combined_subnets[each.key]
+  tags          = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+############################################################
+# VPN Gateways
+############################################################
 
 resource "aws_vpn_gateway" "this" {
-  for_each        = var.vgws
+  for_each        = var.vpn_gateways
   vpc_id          = lookup(each.value, "vpc_attached", null) != false ? local.combined_vpc["vpc_id"] : null // Default is to attach to VPC
   amazon_side_asn = each.value.amazon_side_asn
   tags            = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
 
 resource "aws_dx_gateway_association" "this" {
-  for_each              = { for name, vgw in var.vgws : name => vgw if contains(keys(vgw), "dx_gateway_id") }
+  for_each              = { for name, vgw in var.vpn_gateways : name => vgw if contains(keys(vgw), "dx_gateway_id") }
   dx_gateway_id         = each.value.dx_gateway_id
   associated_gateway_id = aws_vpn_gateway.this[each.key].id
 }
 
 #### Optionally enable VGW Propogation for Route Tables #### 
+
 resource "aws_vpn_gateway_route_propagation" "this" {
   for_each       = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "vgw_propagation") }
   vpn_gateway_id = aws_vpn_gateway.this[each.value.vgw_propagation].id
