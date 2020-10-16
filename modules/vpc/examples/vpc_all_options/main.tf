@@ -16,7 +16,7 @@ provider "aws" {
 
 
 module "vpc_all_options" {
-  source                          = "../../vpc"
+  source                          = "../../"
   global_tags                     = var.global_tags
   prefix_name_tag                 = var.prefix_name_tag
   vpc                             = var.vpc

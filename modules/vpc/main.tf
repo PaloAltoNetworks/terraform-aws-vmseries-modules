@@ -65,13 +65,13 @@ terraform {
 ### VPC ###
 locals {
   existing_vpc = {
-    for key, vpc_value in data.aws_vpc.this:
-    "vpc_id" => vpc_value.id 
+    for k, vpc in data.aws_vpc.this:
+    "vpc_id" => vpc.id 
   }
 
   new_vpc = {
-    for key, vpc_value in aws_vpc.this:
-    "vpc_id" => vpc_value.id 
+    for k, vpc in aws_vpc.this:
+    "vpc_id" => vpc.id 
   }
 
   combined_vpc = merge(local.existing_vpc, local.new_vpc)
@@ -79,8 +79,8 @@ locals {
 
 data "aws_vpc" "this" {
   for_each               = {
-    for k, v in var.vpc : k => v
-    if lookup(v, "existing", null) == true ? true : false
+    for k, vpc in var.vpc : k => vpc
+    if lookup(vpc, "existing", null) == true ? true : false
   }
   tags = {
     Name = each.value.name
@@ -90,13 +90,13 @@ data "aws_vpc" "this" {
 ### Subnets ###
 locals {
   existing_subnets = {
-    for key, subnet in data.aws_subnet.this:
-    key => subnet.id 
+    for k, subnet in data.aws_subnet.this:
+    k => subnet.id 
   }
 
   new_subnets = {
-    for key, subnet in aws_subnet.this:
-    key => subnet.id 
+    for k, subnet in aws_subnet.this:
+    k => subnet.id 
   }
 
   combined_subnets = merge(local.existing_subnets, local.new_subnets)
@@ -104,8 +104,8 @@ locals {
 
 data "aws_subnet" "this" {
   for_each               = {
-    for k, v in var.subnets : k => v
-    if lookup(v, "existing", null) == true ? true : false
+    for k, subnet in var.subnets : k => subnet
+    if lookup(subnet, "existing", null) == true ? true : false
   }
   tags = {
     Name = "${var.prefix_name_tag}${each.value.name}"
@@ -119,8 +119,8 @@ data "aws_subnet" "this" {
 ### Create VPC resources
 resource "aws_vpc" "this" {
   for_each               = {
-    for k, v in var.vpc : k => v
-    if lookup(v, "existing", null) != true ? true : false
+    for k, vpc in var.vpc : k => vpc
+    if lookup(vpc, "existing", null) != true ? true : false
   }
   cidr_block = each.value.cidr_block
   tags       = merge(var.global_tags, { Name = "${var.prefix_name_tag}${each.value.name}" })
@@ -131,13 +131,13 @@ resource "aws_vpc" "this" {
 
 locals {  // Create new list of optional secondary_cidr_blocks if key exists in var.vpc
   secondary_cidr_blocks = flatten ([
-    for vpc_key, vpc_value in var.vpc : [
-        for i, cidr in toset(vpc_value.secondary_cidr_blocks) : {
-            vpc = vpc_key
+    for vpc in var.vpc : [
+        for cidr in toset(vpc.secondary_cidr_blocks) : {
+            vpc = vpc.name
             cidr = cidr
         }
     ]
-    if lookup(vpc_value, "secondary_cidr_blocks", null) != null ? true : false
+    if lookup(vpc, "secondary_cidr_blocks", null) != null ? true : false
   ])
 }
 
@@ -149,8 +149,8 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
 
 resource "aws_subnet" "this" {
   for_each               = {
-    for k, v in var.subnets : k => v
-    if lookup(v, "existing", null) != true ? true : false
+    for k, subnet in var.subnets : k => subnet
+    if lookup(subnet, "existing", null) != true ? true : false
   }
   cidr_block        = each.value.cidr
   availability_zone = lookup(each.value, "az", null)
@@ -168,8 +168,8 @@ resource "aws_route_table" "this" {
 
 resource "aws_route_table_association" "this" {
   for_each               = {
-    for k, v in var.subnets : k => v
-    if lookup(v, "existing", null) != true ? true : false
+    for k, subnet in var.subnets : k => subnet
+    if lookup(subnet, "existing", null) != true ? true : false
   }
   subnet_id      = local.combined_subnets[each.key]
   route_table_id = aws_route_table.this[each.value.rt].id
