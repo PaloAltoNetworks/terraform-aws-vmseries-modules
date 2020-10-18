@@ -19,12 +19,12 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
     enable_dns_support    = true
     enable_dns_hostnames  = true
     igw                   = true
-    local_tags            = { "vpc_tag" = "whatever" }
+    local_tags            = { "foo" = "bar" }
   }
 }
 
 vpc_route_tables = {
-  mgmt        = { name = "mgmt", vgw_propagation = "vmseries_vgw" }
+  mgmt        = { name = "mgmt", vgw_propagation = "vmseries_vgw", local_tags = { "foo" = "bar" } }
   public      = { name = "public" }
   tgw-return  = { name = "tgw-return" }
   tgw-attach  = { name = "tgw-attach" }
@@ -35,7 +35,7 @@ vpc_route_tables = {
 
 subnets = {
   # mgmt-1a       = { existing = true, name = "mgmt-1a" } // For brownfield, set existing = true with name tag of existing subnet
-  mgmt-1a       = { name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt", local_tags = { "subnet_tag" = "whatever" } }
+  mgmt-1a       = { name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt", local_tags = { "foo" = "bar" } }
   public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "public" }
   inside-1a     = { name = "inside-1a", cidr = "10.100.2.0/25", az = "us-east-1a", rt = "tgw-return" }
   tgw-attach-1a = { name = "tgw-attach-1a", cidr = "10.100.3.0/25", az = "us-east-1a", rt = "tgw-attach" }
@@ -49,7 +49,7 @@ subnets = {
 }
 
 nat_gateways = {
-  public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "natgw_tag" = "whatever" } }
+  public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "foo" = "bar" } }
   public-1b = { name = "public-1b-natgw", subnet = "public-1a" }
 }
 
@@ -76,7 +76,7 @@ vpc_endpoints = {
     security_groups     = ["vpc-endpoint"]
     subnet_ids          = ["lambda-1a", "lambda-1b"]
     private_dns_enabled = false
-    local_tags          = { "endpoint-tag" = "whatever" }
+    local_tags = { "foo" = "bar" }
   }
   apigw-endpoint = {
     name                = "apigw-endpoint"
@@ -97,7 +97,7 @@ vpc_endpoints = {
 security_groups = {
   vpc-endpoint = {
     name       = "vpc-endpoint"
-    local_tags = { "sg-tag" = "whatever" }
+    local_tags = { "foo" = "bar" }
     rules = {
       all-outbound = {
         description = "Permit All traffic outbound"
