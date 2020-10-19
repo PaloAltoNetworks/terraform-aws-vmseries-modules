@@ -104,7 +104,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
 resource "aws_internet_gateway" "this" {
   for_each = {
     for k, vpc in var.vpc : k => vpc
-    if lookup(vpc, "igw", null) == null ? true : vpc.igw // Defaults to true if not specified
+    if lookup(vpc, "internet_gateway", null) == null ? true : vpc.internet_gateway // Defaults to true if not specified
   }
   vpc_id = local.combined_vpc["vpc_id"]
   tags   = merge({ Name = "${var.prefix_name_tag}igw" }, var.global_tags, lookup(each.value, "local_tags", {}))

@@ -18,7 +18,7 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
     instance_tenancy      = "default"
     enable_dns_support    = true
     enable_dns_hostnames  = true
-    igw                   = true
+    internet_gateway      = true
     local_tags            = { "foo" = "bar" }
   }
 }
