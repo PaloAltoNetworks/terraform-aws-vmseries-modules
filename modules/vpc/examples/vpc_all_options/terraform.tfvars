@@ -10,7 +10,7 @@ global_tags = {
 }
 
 vpc = { // Module only designed for a single VPC. Set all params here. If existing = true, specify the Name tag of existing VPC
-  vmseries_vpc = {
+  vmseries-vpc = {
     existing              = false
     name                  = "my-vpc"
     cidr_block            = "10.100.0.0/16"
@@ -24,13 +24,13 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
 }
 
 vpc_route_tables = {
-  mgmt        = { name = "mgmt", vgw_propagation = "vmseries_vgw", local_tags = { "foo" = "bar" } }
+  mgmt        = { name = "mgmt", vgw_propagation = "vmseries-vgw", local_tags = { "foo" = "bar" } }
   public      = { name = "public" }
   tgw-return  = { name = "tgw-return" }
   tgw-attach  = { name = "tgw-attach" }
   lambda      = { name = "lambda" }
-  igw-ingress = { name = "igw-ingress", igw_association = "vmseries_vpc" }
-  vgw-ingress = { name = "vgw-ingress", vgw_assocaiation = "vmseries_vgw" }
+  igw-ingress = { name = "igw-ingress", igw_association = "vmseries-vpc" }
+  vgw-ingress = { name = "vgw-ingress", vgw_association = "vmseries-vgw" }
 }
 
 subnets = {
@@ -54,15 +54,15 @@ nat_gateways = {
 }
 
 vpn_gateways = {
-  vmseries_vgw = {
-    name            = "vmseries_vgw"
+  vmseries-vgw = {
+    name            = "vmseries-vgw"
     vpc_attached    = true
     amazon_side_asn = "7224"
-    dx_gateway_id   = "3d3388c7-eab9-408b-a33d-796dcfa231d4"
-    local_tags      = { "vgw_tag" = "whatever" }
+    # dx_gateway_id   = "3d3388c7-eab9-408b-a33d-796dcfa231d4"
+    local_tags = { "vgw_tag" = "whatever" }
   }
-  detached_vgw = {
-    name            = "detached_vgw"
+  detached-vgw = {
+    name            = "detached-vgw"
     vpc_attached    = false
     amazon_side_asn = "65200"
   }
@@ -76,7 +76,7 @@ vpc_endpoints = {
     security_groups     = ["vpc-endpoint"]
     subnet_ids          = ["lambda-1a", "lambda-1b"]
     private_dns_enabled = false
-    local_tags = { "foo" = "bar" }
+    local_tags          = { "foo" = "bar" }
   }
   apigw-endpoint = {
     name                = "apigw-endpoint"
