@@ -88,7 +88,7 @@ subnets = {
 
 ## Nested Map Input Variable Definitions
 
-For each of the nested map variables, the key of each map will be the state resource identifier within terraform and must be unique, but is not used for resource naming.
+For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
 
 ### vpc
 
@@ -103,12 +103,12 @@ The vpc map has the following inputs available (please see examples folder for a
 | name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
 | existing | Flag only if referencing an existing VPC  | bool | `"false"` | yes | yes |
 | cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
-| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | null | no | no |
-| instance_tenancy | Tenancy option for instances | string | null (`"default"`) | no | no |
-| enable_dns_support | Enable DNS Support | bool | null (`"true"`) | no | no |
-| enable_dns_hostnames | Enable DNS hostnames | bool | null (`"false"`) | no | no |
-| internet_gateway | Enable IGW creation for this VPC  | bool | null (`"false"`) | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | no |
+| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | - | no | no |
+| instance_tenancy | Tenancy option for instances. `"default"`, `"dedicated"`, or `"host"` | string | `"default"` | no | no |
+| enable_dns_support | Enable DNS Support | bool | `"true"` | no | no |
+| enable_dns_hostnames | Enable DNS hostnames | bool | `"false"` | no | no |
+| internet_gateway | Enable IGW creation for this VPC  | bool | `"false"` | no | no |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
 
 
 ### vpc_route_tables
@@ -122,10 +122,10 @@ Each vpc_route_tables map has the following inputs available (please see example
 | Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new route table | string | - | yes | n/a |
-| igw_association | Name of internet gateway to associate for Ingress Routing | string | null | no | n/a |
-| vgw_association | Name of vpn gateway to associate for Ingress Routing | string | null | no | n/a |
-| vgw_propagation | Name of vpn gateway to enable propagation from  | string | null | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | no |
+| igw_association | Name of internet gateway to associate for Ingress Routing (using terraform resource identifier key) | string | - | no | n/a |
+| vgw_association | Name of vpn gateway to associate for Ingress Routing (using terraform resource identifier key) | string | - | no | n/a |
+| vgw_propagation | Name of vpn gateway to enable propagation from (using terraform resource identifier key) | string | - | no | n/a |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
 
 ### subnets
 
@@ -141,8 +141,8 @@ Each subnet map has the following inputs available (please see examples folder f
 | existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
 | rt | The Route Table to associate the subnet with | string | - | yes | no |
-| az | The availability zone for the subnet  | string | null (auto-selected) | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | no |
+| az | The availability zone for the subnet  | string | - | no | no |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
 
 ### nat_gateways
 
@@ -170,9 +170,9 @@ Each vpn_gateways map has the following inputs available (please see examples fo
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new VPN Gateway to create | string | - | yes | n/a |
 | amazon_side_asn | ASN for the VPN Gateway | string | - | yes | n/a |
-| vpc_attached | Enable attachment to this VPC. Only one VPN gateway can be attached to VPC | bool | null (`"true"`) | no | n/a |
-| dx_gateway_id | ID of existing Direct Connect Gateway to associate VGW with | string | null | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | n/a |
+| vpc_attached | Enable attachment to this VPC. Only one VPN gateway can be attached to VPC | bool | `"true"` | no | n/a |
+| dx_gateway_id | ID of existing Direct Connect Gateway to associate VGW with | string | - | no | n/a |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
 
 ### vpc_endpoints
 
@@ -188,8 +188,8 @@ Each vpc_endpoints map has the following inputs available (please see examples f
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new VPC Endpoint to create | string | - | yes | n/a |
 | service_name | AWS Service Name in format `com.amazonaws.<region>.<service>` | string | - | yes | n/a |
-| vpc_endpoint_type | "Interface" or "Gateway" | string | null (`"true"`) | yes | n/a |
-| security_groups | "Interface" type only. List of security groups to associate (using terraform resource identifier key) | list(string) | null | yes (for "Interface") | n/a |
-| subnet_ids | "Interface" type only. List of subnets to associate (using terraform resource identifier key) | list(string) | null | yes | n/a |
-| route_table_ids | "Gateway" type only. List of route tables to associate (using terraform resource identifier key) | list(string) | null | yes | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | n/a |
+| vpc_endpoint_type | "Interface" or "Gateway" | string | - | yes | n/a |
+| security_groups | "Interface" type only. List of security groups to associate (using terraform resource identifier key) | list(string) | - | yes (for "Interface") | n/a |
+| subnet_ids | "Interface" type only. List of subnets to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
+| route_table_ids | "Gateway" type only. List of route tables to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
