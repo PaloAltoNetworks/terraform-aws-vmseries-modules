@@ -2,7 +2,7 @@
 
 ## Overview  
 
-Module for sinlge VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. 
+Module for single VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. 
 
 
 
