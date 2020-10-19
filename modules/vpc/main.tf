@@ -1,13 +1,3 @@
-terraform {
-  required_version = "~> 0.13"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3"
-    }
-  }
-}
-
 ################
 # Locals to combine data source and resource references for optional browfield support
 ################
