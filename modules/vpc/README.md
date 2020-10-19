@@ -92,13 +92,30 @@ subnets = {
 
 ### vpc
 
+The vpc variable is a map of maps, where each map represents a vpc. Unlike the rest of the nested map vars for this module, the VPC variable is assumed for only a single VPC definition. The key of the map will be the state resource identifier within terraform and must be unique, but is not used for resource naming.
+
+There is brownfield support for existing vpc, for this only required to specify `name` and `existing = true`.
+
+Each subnet map has the following inputs available (please see examples folder for additional references):
+
+| Name | Description | Type | Default | Required | Brownfield Required
+|------|-------------|:----:|:-----:|:-----:|:-----:|
+| name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
+| existing | Flag only if referencing an existing VPC  | bool | `"false"` | yes | yes |
+| cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
+| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | null | no | no |
+| instance_tenancy | Tenancy option for instances | string | `"default"` | no | no |
+| az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | null | no | no |
+
+
 ### vpc_route_tables
 
 ### subnets
 
 The subnets variable is a map of maps, where each map represents a subnet. The key of each map will be the state resource identifier within terraform and must be unique, but is not used for resource naming.
 
-There is brownfield support for existing subnets, for this only required to specify `subnet_name` and `existing = true`.
+There is brownfield support for existing subnets, for this only required to specify `name` and `existing = true`.
 
 Each subnet map has the following inputs available (please see examples folder for additional references):
 
@@ -109,6 +126,6 @@ Each subnet map has the following inputs available (please see examples folder f
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
 | rt | The Route Table to associate the subnet with | string | - | yes | no |
 | az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | - | no | no |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | null | no | no |
 
 ### security_groups
