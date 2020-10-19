@@ -96,14 +96,19 @@ subnets = {
 
 ### subnets
 
-The subnets list contains maps, where each object represents a subnet. Each map has the following inputs (please see examples folder for additional references):
+The subnets variable is a map of maps, where each map represents a subnet. The key of each map will be the state resource identifier within terraform and must be unique, but is not used for resource naming.
 
-| Name | Description | Type | Default | Required |
+There is brownfield support for existing subnets, for this only required to specify `subnet_name` and `existing = true`.
+
+Each subnet map has the following inputs available (please see examples folder for additional references):
+
+| Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|
-| subnet\_name | The name of the subnet being created  | string | - | yes |
-| subnet\_ip | The IP and CIDR range of the subnet being created | string | - | yes |
-| subnet\_region | The region where the subnet will be created  | string | - | yes |
-| subnet\_private\_access | Whether this subnet will have private Google access enabled | string | `"false"` | no |
-| subnet\_flow\_logs  | Whether the subnet will record and send flow log data to logging | string | `"false"` | no |
+| name | The Name Tag of the new / existing subnet  | string | - | yes | yes |
+| existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
+| cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
+| az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
+| rt | The Route Table to associate the subnet with | string | `"false"` | no | no |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | - | no | no |
 
 ### security_groups
