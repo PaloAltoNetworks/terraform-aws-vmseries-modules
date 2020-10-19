@@ -59,7 +59,7 @@ vpn_gateways = {
     vpc_attached    = true
     amazon_side_asn = "7224"
     # dx_gateway_id   = "3d3388c7-eab9-408b-a33d-796dcfa231d4"
-    local_tags = { "vgw_tag" = "whatever" }
+    local_tags = { "foo" = "bar" }
   }
   detached-vgw = {
     name            = "detached-vgw"
