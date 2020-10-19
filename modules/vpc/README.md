@@ -77,7 +77,7 @@ vpn_gateways = {
     name            = "vmseries-vgw"
     vpc_attached    = true
     amazon_side_asn = "7224"
-    local_tags = { "vgw_tag" = "whatever" }
+    local_tags = { "foo" = "bar" }
   }
 }
 
