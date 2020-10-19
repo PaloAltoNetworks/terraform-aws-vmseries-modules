@@ -1,11 +1,17 @@
 # VPC module for VM-Series
 
 ## Overview  
-Module for sinlge VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. See examples for more details of usage.
+
+Module for sinlge VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. 
 
 
 
 ### Usage
+
+See examples for more details of usage.
+
+`main.tf`
+
 ```
 provider "aws" {
   region = var.region
@@ -22,7 +28,12 @@ module "vpc" {
   vpn_gateways     = var.vpn_gateways
   vpc_endpoints    = var.vpc_endpoints
   security_groups  = var.security_groups
+}
+```
 
+`terraform.tfvars`
+
+```
 region = "us-east-1"
 
 prefix_name_tag = "vpc-all-options-" // Used for resource name Tags. Leave as empty string if not desired
