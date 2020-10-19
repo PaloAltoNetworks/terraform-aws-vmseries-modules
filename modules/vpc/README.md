@@ -103,7 +103,7 @@ There is brownfield support for existing subnets, for this only required to spec
 Each subnet map has the following inputs available (please see examples folder for additional references):
 
 | Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|
+|------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new / existing subnet  | string | - | yes | yes |
 | existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
