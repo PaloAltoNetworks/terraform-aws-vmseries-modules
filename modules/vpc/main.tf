@@ -1,62 +1,3 @@
-/**
- * # Base AWS Infrrastructure Resources for VM-Series
- *
- * ## Overview
- * Create VPC, Subnets, Security Groups, Transit Gateways, Route Tables, and other optional resources to support a Palo Alto Networks VM-Series Deployment.
- * 
- * 
- * ### Usage
- * ```
- * provider "aws" {
- *   region = var.region
- * }
- * 
- * module "vpc" {
- *   source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
- *
- * prefix_name_tag = "my-prefix"   // Used for resource name Tags. Leave as empty string if not desired
- *
- * global_tags = {
- *  Environment = "us-east-1"
- *  Group       = "SecOps"
- *  Managed_By  = "Terraform"
- *  Description = "Example Usage"
- *}
- *
- * vpc = {
- *  vmseries_vpc = {
- *   existing              = false
- *    name                  = "vmseries-vpc"
- *    cidr_block            = "10.100.0.0/16"
- *    secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
- *    instance_tenancy      = "default"
- *    enable_dns_support    = true
- *    enable_dns_hostname   = true
- *    igw                   = true
- *  }
- *}
-
- *subnets = {
- *  mgmt-1a       = { existing = false, name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt" }            # VM-Series management
- *  public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "vdss-outside" }    # interface in public subnet for internet
- *  mgmt-1b       = { name = "mgmt-1b", cidr = "10.100.0.128/25", az = "us-east-1b", rt = "mgmt" }            # VM-Series management
- *  public-1b     = { name = "public-1b", cidr = "10.100.1.128/25", az = "us-east-1b", rt = "vdss-outside" }    # interface in public subnet for internet
- *}
- *
- * ```
- * 
- */
-
-terraform {
-  required_version = "~> 0.13"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3"
-    }
-  }
-}
-
 ################
 # Locals to combine data source and resource references for optional browfield support
 ################
@@ -153,7 +94,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
 resource "aws_internet_gateway" "this" {
   for_each = {
     for k, vpc in var.vpc : k => vpc
-    if lookup(vpc, "igw", null) == null ? true : vpc.igw // Defaults to true if not specified
+    if lookup(vpc, "internet_gateway", null) == null ? true : vpc.internet_gateway // Defaults to true if not specified
   }
   vpc_id = local.combined_vpc["vpc_id"]
   tags   = merge({ Name = "${var.prefix_name_tag}igw" }, var.global_tags, lookup(each.value, "local_tags", {}))
@@ -190,24 +131,42 @@ resource "aws_route_table_association" "this" {
   route_table_id = aws_route_table.this[each.value.rt].id
 }
 
-##########################
-# VGWs
-##########################
+############################################################
+# NAT Gateways
+############################################################
+
+resource "aws_eip" "nat_eip" {
+  for_each = var.nat_gateways
+  vpc      = true
+  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+resource "aws_nat_gateway" "this" {
+  for_each      = var.nat_gateways
+  allocation_id = aws_eip.nat_eip[each.key].id
+  subnet_id     = local.combined_subnets[each.key]
+  tags          = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+############################################################
+# VPN Gateways
+############################################################
 
 resource "aws_vpn_gateway" "this" {
-  for_each        = var.vgws
+  for_each        = var.vpn_gateways
   vpc_id          = lookup(each.value, "vpc_attached", null) != false ? local.combined_vpc["vpc_id"] : null // Default is to attach to VPC
   amazon_side_asn = each.value.amazon_side_asn
   tags            = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
 
 resource "aws_dx_gateway_association" "this" {
-  for_each              = { for name, vgw in var.vgws : name => vgw if contains(keys(vgw), "dx_gateway_id") }
+  for_each              = { for name, vgw in var.vpn_gateways : name => vgw if contains(keys(vgw), "dx_gateway_id") }
   dx_gateway_id         = each.value.dx_gateway_id
   associated_gateway_id = aws_vpn_gateway.this[each.key].id
 }
 
 #### Optionally enable VGW Propogation for Route Tables #### 
+
 resource "aws_vpn_gateway_route_propagation" "this" {
   for_each       = { for name, rt in var.vpc_route_tables : name => rt if contains(keys(rt), "vgw_propagation") }
   vpn_gateway_id = aws_vpn_gateway.this[each.value.vgw_propagation].id
@@ -231,41 +190,67 @@ resource "aws_route_table_association" "igw_ingress" {
 }
 
 
-################
+############################################################
 # Security Groups
-################
+############################################################
 
 resource "aws_security_group" "this" {
   for_each = var.security_groups
   name     = "${var.prefix_name_tag}${each.value.name}"
   vpc_id   = local.combined_vpc["vpc_id"]
-  tags     = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 
   dynamic "ingress" {
-    for_each = each.value.rules
+    for_each = [
+      for rule in each.value.rules :
+      rule
+      if rule.type == "ingress"
+    ]
+
     content {
-      protocol    = ingress.value.protocol
-      cidr_blocks = ingress.value.cidr_blocks
       from_port   = ingress.value.from_port
       to_port     = ingress.value.to_port
-      description = ingress.key
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+      description = lookup(ingress.value, "description", "")
     }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "egress" {
+    for_each = [
+      for rule in each.value.rules :
+      rule
+      if rule.type == "egress"
+    ]
+
+    content {
+      from_port   = egress.value.from_port
+      to_port     = egress.value.to_port
+      protocol    = egress.value.protocol
+      cidr_blocks = egress.value.cidr_blocks
+      description = lookup(egress.value, "description", "")
+    }
+  }
+
+  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-##########################
-# VPC Endpoint
-##########################
+
+############################################################
+# VPC Endpoints
+############################################################
+
+// TODO: Add support for optional policy attachment
+// TODO: Better way to detect service_names for different endpoint / regions?
 
 resource "aws_vpc_endpoint" "interface" {
-  for_each          = var.vpc_endpoints
+  for_each = {
+    for k, endpoint in var.vpc_endpoints : k => endpoint
+    if lookup(endpoint, "vpc_endpoint_type", null) == "Interface" ? true : false
+  }
   vpc_id            = local.combined_vpc["vpc_id"]
   service_name      = each.value.service_name
   vpc_endpoint_type = each.value.vpc_endpoint_type
@@ -276,6 +261,22 @@ resource "aws_vpc_endpoint" "interface" {
   subnet_ids = [
     for subnet in each.value.subnet_ids :
     local.combined_subnets[subnet]
+  ]
+  private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
+  tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+}
+
+resource "aws_vpc_endpoint" "gateway" {
+  for_each = {
+    for k, endpoint in var.vpc_endpoints : k => endpoint
+    if lookup(endpoint, "vpc_endpoint_type", null) == "Gateway" ? true : false
+  }
+  vpc_id            = local.combined_vpc["vpc_id"]
+  service_name      = each.value.service_name
+  vpc_endpoint_type = each.value.vpc_endpoint_type
+  route_table_ids = [
+    for rt in each.value.route_table_ids :
+    aws_route_table.this[rt].id
   ]
   private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
   tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))

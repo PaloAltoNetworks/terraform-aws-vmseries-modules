@@ -35,3 +35,5 @@ override.tf.json
 # .tfstate files
 *.tfstate
 *.tfstate.*
+
+my-todo.md

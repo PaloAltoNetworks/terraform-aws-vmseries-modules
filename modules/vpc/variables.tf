@@ -28,7 +28,13 @@ variable subnets {
   default     = {}
 }
 
-variable vgws {
+variable nat_gateways {
+  type        = any
+  description = "Map of NAT Gateways to create"
+  default     = {}
+}
+
+variable vpn_gateways {
   type        = any
   description = "Map of VGWs to create"
   default     = {}

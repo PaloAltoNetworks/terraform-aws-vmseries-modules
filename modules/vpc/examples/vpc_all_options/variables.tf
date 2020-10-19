@@ -24,7 +24,11 @@ variable subnets {
   default = {}
 }
 
-variable vgws {
+variable nat_gateways {
+  default = {}
+}
+
+variable vpn_gateways {
   default = {}
 }
 
