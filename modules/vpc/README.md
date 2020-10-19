@@ -1,7 +1,9 @@
-# Base AWS Infrrastructure Resources for VM-Series
+# VPC module for VM-Series
 
 ## Overview  
-Create VPC, Subnets, Security Groups, Transit Gateways, Route Tables, and other optional resources to support a Palo Alto Networks VM-Series Deployment.
+Module for sinlge VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. See examples for more details of usage.
+
+
 
 ### Usage
 ```
@@ -34,7 +36,7 @@ vpc = {
  }
 }
 
-*subnets = {
+subnets = {
  mgmt-1a       = { existing = false, name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt" }            # VM-Series management
  public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "vdss-outside" }    # interface in public subnet for internet
  mgmt-1b       = { name = "mgmt-1b", cidr = "10.100.0.128/25", az = "us-east-1b", rt = "mgmt" }            # VM-Series management
@@ -43,6 +45,7 @@ vpc = {
 
 ```
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -74,7 +77,33 @@ vpc = {
 
 | Name | Description |
 |------|-------------|
-| route\_table\_ids | n/a |
-| subnet\_ids | n/a |
-| vpc | VPC attributes |
+| aws\_vpc\_endpoint\_interface\_ids | Interface VPC Endpoint Name -> ID Map (New) |
+| internet\_gateway\_id | Internet Gateway Name -> ID Map (New) |
+| nat\_gateway\_ids | NAT Gateway Name -> ID Map (New) |
+| route\_table\_ids | Route Tables Name -> ID Map (New) |
+| security\_group\_ids | Security Group Name -> ID Map (New) |
+| subnet\_ids | Subnets Name -> ID Map (New AND Existing) |
+| vpc\_id | VPC Name -> ID Map (New OR Existing) |
+| vpn\_gateway\_ids | VPN Gateway Name -> ID Map (New) |
 
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Map Input Variable Definitions
+
+### vpc
+
+### vpc_route_tables
+
+### subnets
+
+The subnets list contains maps, where each object represents a subnet. Each map has the following inputs (please see examples folder for additional references):
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| subnet\_name | The name of the subnet being created  | string | - | yes |
+| subnet\_ip | The IP and CIDR range of the subnet being created | string | - | yes |
+| subnet\_region | The region where the subnet will be created  | string | - | yes |
+| subnet\_private\_access | Whether this subnet will have private Google access enabled | string | `"false"` | no |
+| subnet\_flow\_logs  | Whether the subnet will record and send flow log data to logging | string | `"false"` | no |
+
+### security_groups
