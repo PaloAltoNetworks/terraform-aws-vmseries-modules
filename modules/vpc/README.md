@@ -220,7 +220,7 @@ Each nat_gateways map has the following inputs available (please see examples fo
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new NAT Gateway to create | string | - | yes | n/a |
 | subnet | Terraform resource name of the subnet to create NAT Gateway  | sring | - | yes | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | null | no | n/a |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
 
 ### vpn_gateways
 
