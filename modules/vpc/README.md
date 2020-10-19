@@ -107,8 +107,8 @@ Each subnet map has the following inputs available (please see examples folder f
 | name | The Name Tag of the new / existing subnet  | string | - | yes | yes |
 | existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
+| rt | The Route Table to associate the subnet with | string | - | yes | no |
 | az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
-| rt | The Route Table to associate the subnet with | string | `"false"` | no | no |
 | local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | - | no | no |
 
 ### security_groups
