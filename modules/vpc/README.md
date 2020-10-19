@@ -13,6 +13,7 @@ provider "aws" {
 
 module "vpc" {
   source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
+}
 
 region = "us-east-1"
 
