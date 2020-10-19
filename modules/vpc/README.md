@@ -165,7 +165,7 @@ The vpc map has the following inputs available (please see examples folder for a
 | Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
-| existing | Flag only if referencing an existing VPC  | bool | `"false"` | yes | yes |
+| existing | Flag only if referencing an existing VPC  | bool | `"false"` | no | yes |
 | cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
 | secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | - | no | no |
 | instance_tenancy | Tenancy option for instances. `"default"`, `"dedicated"`, or `"host"` | string | `"default"` | no | no |
@@ -202,7 +202,7 @@ Each subnet map has the following inputs available (please see examples folder f
 | Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the new / existing subnet  | string | - | yes | yes |
-| existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
+| existing | Flag only if referencing an existing subnet  | bool | `"false"` | no | yes |
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
 | rt | The Route Table to associate the subnet with | string | - | yes | no |
 | az | The availability zone for the subnet  | string | - | no | no |
