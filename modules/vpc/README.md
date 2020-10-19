@@ -96,7 +96,7 @@ The vpc variable is a map of maps, where each map represents a vpc. Unlike the r
 
 There is brownfield support for existing vpc, for this only required to specify `name` and `existing = true`.
 
-Each subnet map has the following inputs available (please see examples folder for additional references):
+The vpc map has the following inputs available (please see examples folder for additional references):
 
 | Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|:-----:|
@@ -104,12 +104,28 @@ Each subnet map has the following inputs available (please see examples folder f
 | existing | Flag only if referencing an existing VPC  | bool | `"false"` | yes | yes |
 | cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
 | secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | null | no | no |
-| instance_tenancy | Tenancy option for instances | string | `"default"` | no | no |
-| az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
+| instance_tenancy | Tenancy option for instances | string | null (`"default"`) | no | no |
+| enable_dns_support | Enable DNS Support | bool | null (`"true"`) | no | no |
+| enable_dns_hostnames | Enable DNS hostnames | bool | null (`"false"`) | no | no |
+| internet_gateway | Enable IGW creation for this VPC  | bool | null (`"false"`) | no | no |
 | local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | null | no | no |
 
 
 ### vpc_route_tables
+
+The vpc_route_tables variable is a map of maps, where each map represents a route table. The key of each map will be the state resource identifier within terraform and must be unique, but is not used for resource naming.
+
+There is no brownfield support yet for this resource type.
+
+Each vpc_route_table map has the following inputs available (please see examples folder for additional references):
+
+| Name | Description | Type | Default | Required | Brownfield Required
+|------|-------------|:----:|:-----:|:-----:|:-----:|
+| name | The Name Tag of the new route table | string | - | yes | n/a |
+| igw_association | Name of internet gateway to associate for Ingress Routing | string | null | no | n/a |
+| vgw_association | Name of vpn gateway to associate for Ingress Routing | string | null | no | n/a |
+| vgw_propagation | Name of vpn gateway to enable propagation from  | string | null | no | n/a |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | null | no | no |
 
 ### subnets
 
@@ -125,7 +141,7 @@ Each subnet map has the following inputs available (please see examples folder f
 | existing | Flag only if referencing an existing subnet  | bool | `"false"` | yes | yes |
 | cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
 | rt | The Route Table to associate the subnet with | string | - | yes | no |
-| az | The availability zone for the subnet  | string | none (auto-selected) | no | no |
+| az | The availability zone for the subnet  | string | null (auto-selected) | no | no |
 | local_tags  | Map of aribrary tags key/value pairs to apply to this subnet | map | null | no | no |
 
 ### security_groups
