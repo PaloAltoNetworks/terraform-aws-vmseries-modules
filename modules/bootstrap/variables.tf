@@ -14,6 +14,16 @@
 # limitations under the License.
 ############################################################################################
 
+variable global_tags {
+  description = "Optional Map of arbitrary tags to apply to all resources"
+  type        = map(any)
+  default     = {}
+}
+
+variable prefix {
+  type = string
+  default = "bootstrap"
+}
 
 variable "bootstrap_directories" {
   description = "The directories comprising the bootstrap package"
@@ -26,6 +36,8 @@ variable "bootstrap_directories" {
   ]
 }
 
+
+### Variables below goes to the init-cfg.txt
 variable "hostname" {
   default     = ""
   description = "The hostname of the VM-series instance"
