@@ -1,4 +1,4 @@
-# Base AWS Infrrastructure Resources for VM-Series
+# Base AWS Infrastructure Resources for VM-Series
 
 ## Overview  
 Create VPC, Subnets, Security Groups, Transit Gateways, Route Tables, and other optional resources to support a Palo Alto Networks VM-Series Deployment.
@@ -7,32 +7,34 @@ Create VPC, Subnets, Security Groups, Transit Gateways, Route Tables, and other 
 ```
 provider "aws" {
   region = var.region
-}
+~}
 
 module "vpc" {
   source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
 
-prefix_name_tag = "my-prefix"   // Used for resource name Tags. Leave as empty string if not desired
+  prefix_name_tag = "my-prefix"   // Used for resource name Tags. Leave as empty string if not desired
 
-global_tags = {
- Environment = "us-east-1"
- Group       = "SecOps"
- Managed_By  = "Terraform"
- Description = "Example Usage"
-*}
+  global_tags = {
+    Environment = "us-east-1"
+    Group       = "SecOps"
+    Managed_By  = "Terraform"
+    Description = "Example Usage"
+  } // global_tags
 
-vpc = {
- vmseries_vpc = {
-  existing              = false
-   name                  = "vmseries-vpc"
-   cidr_block            = "10.100.0.0/16"
-   secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
-   instance_tenancy      = "default"
-   enable_dns_support    = true
-   enable_dns_hostname   = true
-   igw                   = true
- }
-*}
+  vpc = {
+    vmseries_vpc = {
+      existing              = false
+      name                  = "vmseries-vpc"
+      cidr_block            = "10.100.0.0/16"
+      secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
+      instance_tenancy      = "default"
+      enable_dns_support    = true
+      enable_dns_hostname   = true
+      igw                   = true
+    }
+  } // vpc
+
+} // module vpc
 ```
 
 ## Requirements
