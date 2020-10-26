@@ -1,9 +1,3 @@
-provider "aws" {
-  region  = var.region
-  version = "3.8.0"
-  profile = "default"
-}
-
 module "bootstrap" {
   source           = "./.."
   prefix    = var.prefix
