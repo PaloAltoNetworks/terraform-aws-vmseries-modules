@@ -1,3 +1,8 @@
+variable region {
+  type        = string
+  default     = ""
+}
+
 variable prefix_name_tag {
   type        = string
   default     = ""

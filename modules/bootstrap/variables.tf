@@ -14,6 +14,11 @@
 # limitations under the License.
 ############################################################################################
 
+variable region {
+  type        = string
+  default     = ""
+}
+
 variable global_tags {
   description = "Optional Map of arbitrary tags to apply to all resources"
   type        = map(any)
