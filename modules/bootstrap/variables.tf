@@ -15,8 +15,8 @@
 ############################################################################################
 
 variable region {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable global_tags {
@@ -26,7 +26,7 @@ variable global_tags {
 }
 
 variable prefix {
-  type = string
+  type    = string
   default = "bootstrap"
 }
 

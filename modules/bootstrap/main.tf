@@ -62,7 +62,7 @@ resource "aws_s3_bucket_object" "bootstrap_files" {
 resource "aws_iam_role" "this" {
   name = "${var.prefix}-${random_id.bucket_id.hex}"
 
-  tags = var.global_tags
+  tags               = var.global_tags
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -80,8 +80,8 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  name = "${var.prefix}-${random_id.bucket_id.hex}"
-  role = aws_iam_role.this.id
+  name   = "${var.prefix}-${random_id.bucket_id.hex}"
+  role   = aws_iam_role.this.id
   policy = <<EOF
 {
   "Version" : "2012-10-17",

@@ -1,7 +1,7 @@
 module "bootstrap" {
-  source           = "./.."
-  prefix    = var.prefix
-  
+  source = "./.."
+  prefix = var.prefix
+
 }
 
 output bucket_id { value = module.bootstrap.bucket_id }
