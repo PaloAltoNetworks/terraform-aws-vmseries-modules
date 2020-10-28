@@ -1,7 +1,7 @@
 variable subnets_map {
-  type = map(any)
+  type        = map(any)
   description = "Map of subnet name to ID, can be passed from remote state output or data source"
-  default = {}
+  default     = {}
   # Example Format:
   # subnets_map = {
   #   "panorama-mgmt-1a" = "subnet-0e1234567890"
@@ -10,9 +10,9 @@ variable subnets_map {
 }
 
 variable security_groups_map {
-  type = map(any)
+  type        = map(any)
   description = "Map of security group name to ID, can be passed from remote state output or data source"
-  default = {}
+  default     = {}
   # Example Format:
   # security_groups_map = {
   #   "panorama-mgmt-inbound-sg" = "sg-0e1234567890"
@@ -21,9 +21,9 @@ variable security_groups_map {
 }
 
 variable "buckets_map" {
-  type = map(any)
+  type        = map(any)
   description = "Map of S3 Bucket name to ID, can be passed from remote state output or data source"
-  default = {}
+  default     = {}
   # Example Format:
   # buckets_map = {
   #   "bootstrap_bucket1 = {
@@ -38,9 +38,9 @@ variable "buckets_map" {
 }
 
 variable "route_tables_map" {
-  type = map(any)
+  type        = map(any)
   description = "Map of Route Tables Name to ID, can be passed from remote state output or data source"
-  default = {}
+  default     = {}
 }
 
 variable "region" {
@@ -49,8 +49,8 @@ variable "region" {
 
 variable "tags" {
   description = "Map of additional tags to apply to all resources"
-  type = map
-  default = {}
+  type        = map
+  default     = {}
 }
 
 variable prefix_name_tag {
@@ -65,38 +65,38 @@ variable "interfaces" {
   # Optional: eip, source_dest_check
   default = [ # Example
     {
-      name                          = "ingress-fw1-mgmt"
-      source_dest_check             = true
-      subnet_name                   = "ingress-mgmt-subnet-az1"
-      security_group                = "sg-123456789"
-      eip                           = "ingress-fw1-mgmt-eip"  
-    }, 
+      name              = "ingress-fw1-mgmt"
+      source_dest_check = true
+      subnet_name       = "ingress-mgmt-subnet-az1"
+      security_group    = "sg-123456789"
+      eip               = "ingress-fw1-mgmt-eip"
+    },
     {
-      name                          = "ingress-fw1-trust"
-      source_dest_check             = false
-      subnet_name                   = "ingress-trust-subnet-az1"
-      security_group                = "sg-123456789"
-    }]
+      name              = "ingress-fw1-trust"
+      source_dest_check = false
+      subnet_name       = "ingress-trust-subnet-az1"
+      security_group    = "sg-123456789"
+  }]
 }
 
 variable "firewalls" {
   description = "Map of vm-series firewalls to create with interface mappings"
   # Required: name, interfaces(map with name and index)
   default = [{ # Example
-    name = "ingress-fw1"
+    name                = "ingress-fw1"
     mgmt-interface-swap = "disable" # "enable" for interface swap, any other string will omit user-data for interface swap 
     interfaces = [{
-        name  = "ingress-fw1-mgmt"
-        index = "0" 
-        },
-        {
+      name  = "ingress-fw1-mgmt"
+      index = "0"
+      },
+      {
         name  = "ingress-fw1-untrust"
-        index = "1" 
-        },
-        {
+        index = "1"
+      },
+      {
         name  = "ingress-fw1-trust"
-        index = "2" 
-        }]
+        index = "2"
+    }]
   }]
 }
 
@@ -145,7 +145,7 @@ variable "addtional_interfaces" {
 }
 
 variable "rts_to_fw_eni" {
-  type = map(any)
-  default = {}
+  type        = map(any)
+  default     = {}
   description = "Map of RTs from base_infra output and the FW ENI to map default route to"
 }

@@ -6,13 +6,13 @@ locals {
 
   interfaces = {
     for interface in var.interfaces :
-        interface.name => interface
+    interface.name => interface
   }
 
   eips = {
     for interface in var.interfaces :
-        interface.name => interface
-        if lookup(interface, "eip", null) != null ? true : false
+    interface.name => interface
+    if lookup(interface, "eip", null) != null ? true : false
   }
 
 }
@@ -41,8 +41,8 @@ EOF
 
 resource "aws_iam_role_policy" "bootstrap_policy" {
   for_each = var.buckets_map
-  name = "${var.prefix_name_tag}-${each.key}-pan-bootstrap"
-  role = aws_iam_role.bootstrap_role.id
+  name     = "${var.prefix_name_tag}-${each.key}-pan-bootstrap"
+  role     = aws_iam_role.bootstrap_role.id
 
   policy = <<EOF
 {
@@ -60,8 +60,8 @@ EOF
 
 resource "aws_iam_role_policy" "bootstrap_policy_objects" {
   for_each = var.buckets_map
-  name = "pan_bootstrap_s3_object-${each.key}"
-  role = aws_iam_role.bootstrap_role.id
+  name     = "pan_bootstrap_s3_object-${each.key}"
+  role     = aws_iam_role.bootstrap_role.id
 
   policy = <<EOF
 {
@@ -174,7 +174,7 @@ resource "aws_instance" "pa-vm-series" {
   # user_data = lookup(each.value, "mgmt-interface-swap", null) == "enable" ? base64encode("mgmt-interface-swap=${each.value.mgmt-interface-swap}") : null
   # Optional var flag to set iam role for instance
   iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? "${var.prefix_name_tag}-${each.value.iam_instance_profile}" : null
-  user_data = lookup(each.value, "bootstrap_bucket", null) != null ? base64encode(join("", list("vmseries-bootstrap-aws-s3bucket=", var.buckets_map[each.value.bootstrap_bucket].name))) : null
+  user_data            = lookup(each.value, "bootstrap_bucket", null) != null ? base64encode(join("", list("vmseries-bootstrap-aws-s3bucket=", var.buckets_map[each.value.bootstrap_bucket].name))) : null
 
   # user_data = base64encode("mgmt-interface-swap=enable")
 
@@ -205,7 +205,7 @@ resource "aws_instance" "pa-vm-series" {
 }
 
 resource "aws_network_interface_attachment" "this" {
-  for_each =  var.addtional_interfaces
+  for_each             = var.addtional_interfaces
   instance_id          = aws_instance.pa-vm-series[each.value.ec2_instance].id
   network_interface_id = aws_network_interface.this[each.key].id
   device_index         = each.value.index
