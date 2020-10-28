@@ -1,7 +1,13 @@
-variable prefix_name_tag {
+variable region {
+  description = "AWS region for provider"
   type        = string
   default     = ""
+}
+
+variable prefix_name_tag {
   description = "Prepended to name tags for various resources. Leave as empty string if not desired."
+  type        = string
+  default     = ""
 }
 
 variable global_tags {
