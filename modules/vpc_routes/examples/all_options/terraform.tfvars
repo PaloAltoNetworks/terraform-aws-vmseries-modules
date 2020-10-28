@@ -11,9 +11,9 @@ global_tags = {
 
 
 vpc_routes = {
-  mgmt-igw       = { 
-    route_table = "mgmt"
-    prefix = "0.0.0.0/0"
+  mgmt-igw = {
+    route_table   = "mgmt"
+    prefix        = "0.0.0.0/0"
     next_hop_type = "internet_gateway"
     next_hop_name = "igw"
   }
@@ -23,15 +23,15 @@ vpc_routes = {
   #   next_hop_type = "transit_gateway"
   #   next_hop_name = "my-tgw"
   # }
-  mgmt-vgw       = { 
-    route_table = "mgmt"
-    prefix = "172.16.0.0/12"
+  mgmt-vgw = {
+    route_table   = "mgmt"
+    prefix        = "172.16.0.0/12"
     next_hop_type = "vpn_gateway"
     next_hop_name = "vmseries_vgw"
   }
-  public-igw       = { 
-    route_table = "public"
-    prefix = "0.0.0.0/0"
+  public-igw = {
+    route_table   = "public"
+    prefix        = "0.0.0.0/0"
     next_hop_type = "internet_gateway"
     next_hop_name = "igw"
   }

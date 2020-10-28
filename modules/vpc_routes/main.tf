@@ -47,16 +47,6 @@
  * 
  */
 
-terraform {
-  required_version = "~> 0.13"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3"
-    }
-  }
-}
-
 ################
 # VPC Routes
 ################
@@ -64,61 +54,61 @@ terraform {
 # Create route conditional on gateway type variable (igw, tgw, natgw, eni)
 
 resource "aws_route" "internet_gateway" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "internet_gateway"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block = each.value.prefix
-  gateway_id  = var.internet_gateways[each.value.next_hop_name]
+  gateway_id             = var.internet_gateways[each.value.next_hop_name]
 }
 
 resource "aws_route" "vpn_gateway" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "vpn_gateway"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block = each.value.prefix
-  gateway_id  = var.vpn_gateways[each.value.next_hop_name]
-} 
+  gateway_id             = var.vpn_gateways[each.value.next_hop_name]
+}
 
 resource "aws_route" "nat_gateway" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "nat_gateway"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block = each.value.prefix
-  nat_gateway_id  = var.nat_gateways[each.value.next_hop_name]
-} 
+  nat_gateway_id         = var.nat_gateways[each.value.next_hop_name]
+}
 
 resource "aws_route" "network_interface" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "interface"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block = each.value.prefix
-  network_interface_id  = var.interfaces[each.value.next_hop_name]
-} 
+  network_interface_id   = var.interfaces[each.value.next_hop_name]
+}
 
 resource "aws_route" "transit_gateway" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "transit_gateway"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block = each.value.prefix
-  transit_gateway_id  = var.transit_gateways[each.value.next_hop_name]
-} 
+  transit_gateway_id     = var.transit_gateways[each.value.next_hop_name]
+}
 
 resource "aws_route" "vpc_peer" {
-  for_each               = {
+  for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "vpc_peer"
   }
-  route_table_id = var.vpc_route_tables[each.value.route_table]
-  destination_cidr_block = each.value.prefix
+  route_table_id            = var.vpc_route_tables[each.value.route_table]
+  destination_cidr_block    = each.value.prefix
   vpc_peering_connection_id = var.vpc_peers[each.value.next_hop_name]
 } 
