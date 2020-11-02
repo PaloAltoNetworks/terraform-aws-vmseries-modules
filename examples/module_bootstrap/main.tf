@@ -1,7 +1,6 @@
 module "bootstrap" {
-  source = "./.."
+  source = "../../modules/bootstrap"
   prefix = var.prefix
-
 }
 
 output bucket_id { value = module.bootstrap.bucket_id }
