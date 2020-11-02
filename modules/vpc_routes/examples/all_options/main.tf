@@ -1,19 +1,3 @@
-terraform {
-  required_version = "~> 0.13"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3"
-    }
-  }
-}
-
-provider "aws" {
-  region  = var.region
-  version = "3.8.0"
-  profile = "default"
-}
-
 ############################################################
 # Create Maps of resource name -> ID Mappings to pass to module
 ############################################################
@@ -21,7 +5,7 @@ provider "aws" {
 
 ## Example of creating Route Table Name -> ID map from data lookup based on Name Tag
 data "aws_route_table" "this" {
-  for_each = { 
+  for_each = {
     for route in var.vpc_routes : route.route_table => route...
   }
   tags = {
@@ -38,8 +22,8 @@ locals {
 
 ## Example of creating Internet Gateway Name -> ID map from data lookup based on Name Tag
 data "aws_internet_gateway" "this" {
-  for_each = { 
-    for route in var.vpc_routes : route.next_hop_name => route... 
+  for_each = {
+    for route in var.vpc_routes : route.next_hop_name => route...
     if lookup(route, "next_hop_type", null) == "internet_gateway" ? true : false
   }
   tags = {
@@ -56,8 +40,8 @@ locals {
 
 ## Example of creating Internet Gateway Name -> ID map from data lookup based on Name Tag
 data "aws_vpn_gateway" "this" {
-  for_each = { 
-    for route in var.vpc_routes : route.next_hop_name => route... 
+  for_each = {
+    for route in var.vpc_routes : route.next_hop_name => route...
     if lookup(route, "next_hop_type", null) == "vpn_gateway" ? true : false
   }
   tags = {
@@ -90,11 +74,11 @@ output "igws" {
 ############################################################
 
 module "all_options" {
-  source           = "../../"
-  global_tags      = var.global_tags
-  prefix_name_tag  = var.prefix_name_tag
-  vpc_routes       = var.vpc_routes
-  vpc_route_tables = local.route_table_ids
-  internet_gateways     = local.internet_gateway_ids
-  vpn_gateways          = local.vpn_gateway_ids
+  source            = "../../"
+  global_tags       = var.global_tags
+  prefix_name_tag   = var.prefix_name_tag
+  vpc_routes        = var.vpc_routes
+  vpc_route_tables  = local.route_table_ids
+  internet_gateways = local.internet_gateway_ids
+  vpn_gateways      = local.vpn_gateway_ids
 }

@@ -13,33 +13,33 @@ variable global_tags {
 }
 
 variable vpc_routes {
-  default     = {}
+  default = {}
 }
 
 variable vpc_route_tables {
-  default     = {}
+  default = {}
 }
 
 variable internet_gateways {
-  default     = {}
+  default = {}
 }
 
 variable vpn_gateways {
-  default     = {}
+  default = {}
 }
 
 variable nat_gateways {
-  default     = {}
+  default = {}
 }
 
 variable transit_gateways {
-  default     = {}
+  default = {}
 }
 
 variable vpc_peers {
-  default     = {}
+  default = {}
 }
 
 variable interfaces {
-  default     = {}
+  default = {}
 }
