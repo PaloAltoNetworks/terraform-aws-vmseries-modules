@@ -23,7 +23,6 @@ jobs:
         env:
           AWS_DEFAULT_REGION: us-west-2
         run: |
-          export AWS_REGION="us-east-1"
           cd ${GITHUB_WORKSPACE}/modules
           for dir in $(find . -type d -not \( -name ".?*" \) -maxdepth 1 -mindepth 1);
           do
