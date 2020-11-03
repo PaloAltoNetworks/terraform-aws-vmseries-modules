@@ -48,11 +48,11 @@ variable vpc_routes {
 variable "interfaces" {}
 variable "ssh_key_name" {}
 variable "firewalls" {
-    default = {}
+  default = {}
 }
 variable "fw_license_type" {}
 variable "fw_version" {}
 variable "fw_instance_type" {}
 variable "addtional_interfaces" {
-    default = {}
+  default = {}
 }

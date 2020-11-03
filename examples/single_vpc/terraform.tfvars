@@ -3,7 +3,7 @@ region = "us-east-1"
 prefix_name_tag = "bar-" // Used for resource name Tags. Leave as empty string if not desired
 
 global_tags = {
-  foo = "bar"
+  foo         = "bar"
   managed-by  = "Terraform"
   description = "VM-Series deployment in single VPC"
 }
@@ -23,11 +23,11 @@ vpc = { // Module only designed for a single VPC. Set all params here. If existi
 }
 
 vpc_route_tables = {
-  mgmt        = { name = "mgmt" }
-  public      = { name = "public" }
-  tgw-return  = { name = "tgw-return" }
-  tgw-attach  = { name = "tgw-attach" }
-  lambda      = { name = "lambda" }
+  mgmt       = { name = "mgmt" }
+  public     = { name = "public" }
+  tgw-return = { name = "tgw-return" }
+  tgw-attach = { name = "tgw-attach" }
+  lambda     = { name = "lambda" }
 }
 
 subnets = {
@@ -79,15 +79,15 @@ security_groups = {
 }
 
 vpc_routes = {
-  mgmt-igw       = { 
-    route_table = "mgmt"
-    prefix = "0.0.0.0/0"
+  mgmt-igw = {
+    route_table   = "mgmt"
+    prefix        = "0.0.0.0/0"
     next_hop_type = "internet_gateway"
     next_hop_name = "vmseries-vpc"
   }
-  public-igw       = { 
-    route_table = "public"
-    prefix = "0.0.0.0/0"
+  public-igw = {
+    route_table   = "public"
+    prefix        = "0.0.0.0/0"
     next_hop_type = "internet_gateway"
     next_hop_name = "vmseries-vpc"
   }
@@ -95,91 +95,91 @@ vpc_routes = {
 
 
 fw_instance_type = "m5.xlarge"
-fw_license_type = "byol"
-fw_version = "9.1.3"
-ssh_key_name = "bar"
+fw_license_type  = "byol"
+fw_version       = "9.1.3"
+ssh_key_name     = "bar"
 
 interfaces = [
-{
-  name                          = "vmseries01-mgmt"
-  source_dest_check             = true
-  subnet_name                   = "mgmt-1a"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"  
-  eip = true
-},
-{
-  name                          = "vmseries01-outside"
-  source_dest_check             = false
-  subnet_name                   = "public-1a"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"
-},
-{
-  name                          = "vmseries01-inside"
-  source_dest_check             = false
-  subnet_name                   = "inside-1a"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"
-},
-{
-  name                          = "vmseries02-mgmt"
-  source_dest_check             = true
-  subnet_name                   = "mgmt-1b"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"
-  eip = true  
-},
-{
-  name                          = "vmseries02-outside"
-  source_dest_check             = false
-  subnet_name                   = "public-1b"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"
-},
-{
-  name                          = "vmseries02-inside"
-  source_dest_check             = false
-  subnet_name                   = "inside-1b"
-  security_group                = "vmseries-mgmt"
-  private_ip_address_allocation = "dynamic"
-}
+  {
+    name                          = "vmseries01-mgmt"
+    source_dest_check             = true
+    subnet_name                   = "mgmt-1a"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+    eip                           = true
+  },
+  {
+    name                          = "vmseries01-outside"
+    source_dest_check             = false
+    subnet_name                   = "public-1a"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+  },
+  {
+    name                          = "vmseries01-inside"
+    source_dest_check             = false
+    subnet_name                   = "inside-1a"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+  },
+  {
+    name                          = "vmseries02-mgmt"
+    source_dest_check             = true
+    subnet_name                   = "mgmt-1b"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+    eip                           = true
+  },
+  {
+    name                          = "vmseries02-outside"
+    source_dest_check             = false
+    subnet_name                   = "public-1b"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+  },
+  {
+    name                          = "vmseries02-inside"
+    source_dest_check             = false
+    subnet_name                   = "inside-1b"
+    security_group                = "vmseries-mgmt"
+    private_ip_address_allocation = "dynamic"
+  }
 ]
 
 
 firewalls = [{
-  name = "vmseries01"
-  fw_tags = {"foo" = "bar"}
-  interfaces = [{           # Only assign default interface here to avoid instance recreation when later updating interfaces
-      name  = "vmseries01-mgmt"
-      index = "0" 
-      }]
+  name    = "vmseries01"
+  fw_tags = { "foo" = "bar" }
+  interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
+    name  = "vmseries01-mgmt"
+    index = "0"
+  }]
   },
   {
-  name = "vmseries02"
-  fw_tags = {"foo" = "bar"}
-  interfaces = [{           # Only assign default interface here to avoid instance recreation when later updating interfaces
+    name    = "vmseries02"
+    fw_tags = { "foo" = "bar" }
+    interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
       name  = "vmseries02-mgmt"
-      index = "0" 
-      }]
+      index = "0"
+    }]
   }
 ]
 
 addtional_interfaces = {
   vmseries01-outside = {
     ec2_instance = "vmseries01"
-    index = "1"
+    index        = "1"
   },
   vmseries01-inside = {
     ec2_instance = "vmseries01"
-    index = "2"
+    index        = "2"
   },
   vmseries02-outside = {
     ec2_instance = "vmseries02"
-    index = "1"
+    index        = "1"
   },
   vmseries02-inside = {
     ec2_instance = "vmseries02"
-    index = "2"
+    index        = "2"
   }
 }
