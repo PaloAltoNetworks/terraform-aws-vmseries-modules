@@ -1,3 +1,9 @@
+variable region {
+  type        = string
+  default     = ""
+  description = "AWS Region for deployment"
+}
+
 variable prefix_name_tag {
   type        = string
   default     = ""
