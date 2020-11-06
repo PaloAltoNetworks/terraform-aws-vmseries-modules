@@ -1,0 +1,9 @@
+variable "interfaces" {}
+variable "region" {}
+variable "tags" {}
+variable "ssh_key_name" {}
+variable "firewalls" {}
+variable "security_groups" {}
+variable "security_groups_map" {}
+variable "subnets_map" {}
+variable "prefix_name_tag" {}
