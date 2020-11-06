@@ -1,24 +1,17 @@
 # VPC module for VM-Series
 
-## Overview  
-
+## Overview
 Module for single VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. 
 
-
-
-### Usage
-
-See examples for more details of usage.
-
+### Example
 `main.tf`
-
 ```
 provider "aws" {
   region = var.region
 }
 
 module "vpc" {
-  source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
+  source           = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
   global_tags      = var.global_tags
   prefix_name_tag  = var.prefix_name_tag
   vpc              = var.vpc
@@ -32,7 +25,6 @@ module "vpc" {
 ```
 
 `terraform.tfvars`
-
 ```
 region = "us-east-1"
 
@@ -104,7 +96,6 @@ security_groups = {
       }
   }
 }
-
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -112,7 +103,7 @@ security_groups = {
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 0.13 |
+| terraform | >=0.12.29, <0.14 |
 | aws | ~> 3 |
 
 ## Providers
