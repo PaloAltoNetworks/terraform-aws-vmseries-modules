@@ -158,7 +158,7 @@ The subnets variable is a map of existing subnet names -> IDs used for creating 
 
 The transit_gateways variable is a map of maps, where each map represents a transit gateway, the route tables associated to each transit gateway, and other attributes.
 
-There is brownfield support for existing transit gateways and existin transit gateway route tables.
+There is brownfield support for existing transit gateways and existing transit gateway route tables.
 
 Each transit_gateways map has the following inputs available (please see examples folder for additional references):
 
@@ -171,17 +171,16 @@ Each transit_gateways map has the following inputs available (please see example
 | shared_principals | List of account IDs to share this transit gateway with | list(string) | - | no | no |
 | route_tables | Map of route tables associated with this transit gateway (see below) | map | - | no | no |
 
-#### transit\_gateways \{route_tables\}
+#### transit\_gateways route\_tables \{\}
+
+Nested map within each transit_gateway definition to define the route tables of each transit gateway.
+
+There is brownfield support for existing transit gateway route tables.
 
 | Name | Description | Type | Default | Required | Brownfield Required
 |------|-------------|:----:|:-----:|:-----:|:-----:|
 | name | The Name Tag of the transit gateway | string | - | yes | yes |
 | local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
-| existing | Flag only if referencing an existing transit gateway  | bool | `"false"` | no | yes |
-| asn  | ASN Number for the transit gateway  | string | - | no | no |
-| shared_principals | List of account IDs to share this transit gateway with | list(string) | - | no | no |
-| route_tables | Map of route tables associated with this transit gateway (see below) | map | - | no | no |
-
-
+| existing | Flag only if referencing an existing transit gateway route table | bool | `"false"` | no | yes |
 
 ### transit\_gateway\_vpc\_attachments
