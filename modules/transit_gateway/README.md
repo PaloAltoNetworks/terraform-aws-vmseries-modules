@@ -1,4 +1,4 @@
-# VPC module for VM-Series
+# Transit Gateway module for VM-Series
 
 ## Overview  
 
