@@ -1,13 +1,13 @@
 variable "base_infra_state_bucket" {
-    description = "Name of S3 bucket containing remote state for base infra"
+  description = "Name of S3 bucket containing remote state for base infra"
 }
 
 variable "base_infra_state_key" {
-    description = "Name of key for remote state for base infra"
+  description = "Name of key for remote state for base infra"
 }
 
 variable "base_infra_region" {
-    description = "Region for remote state for base infra"
+  description = "Region for remote state for base infra"
 }
 
 variable "region" {
@@ -16,8 +16,8 @@ variable "region" {
 
 variable "tags" {
   description = "Map of additional tags to apply to all resources"
-  type = map
-  default = {}
+  type        = map
+  default     = {}
 }
 
 variable prefix_name_tag {
@@ -30,8 +30,8 @@ variable "shared_cred_file" {}
 variable "shared_cred_profile" {}
 
 variable lambda_s3_bucket {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Name of bucket with lambda zip package to deploy"
 }
 

@@ -13,9 +13,9 @@ global_tags = {
 //TODO: Generalize inputs
 
 base_infra_state_bucket = "foo"
-base_infra_state_key = "bar"
-base_infra_region = "us-east-1"
+base_infra_state_key    = "bar"
+base_infra_region       = "us-east-1"
 
-lambda_s3_bucket = "foo"
+lambda_s3_bucket     = "foo"
 lambda_file_location = "lambda-package"
-lambda_file_name      = "crosszone_ha_instance_id.zip"
+lambda_file_name     = "crosszone_ha_instance_id.zip"

@@ -16,8 +16,8 @@ variable "region" {
 
 variable "tags" {
   description = "Map of additional tags to apply to all resources"
-  type = map
-  default = {}
+  type        = map
+  default     = {}
 }
 
 variable prefix_name_tag {
@@ -27,19 +27,19 @@ variable prefix_name_tag {
 }
 
 variable lambda_s3_bucket {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Name of bucket with lambda zip package to deploy"
 }
 
 variable lambda_file_location {
-  type = string
-  default = "lambda-package"
+  type        = string
+  default     = "lambda-package"
   description = "Name of folder where lambda package is stored in this workspace"
 }
 
 variable lambda_file_name {
-  type = string
-  default = "crosszone_ha_instance_id.zip"
+  type        = string
+  default     = "crosszone_ha_instance_id.zip"
   description = "File name of lambda package"
 }
