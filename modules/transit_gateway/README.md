@@ -119,11 +119,18 @@ transit_gateway_vpc_attachments = {
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
-## Nested Map Input Variable Definitions
+## Variables for existing resource ID mappings
 
-For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
+For resources that are referenced by this sub-module but assumed to be created elsewhere, a map of name -> ID mappings are passed to this module.
+
+The names are referenced in the map variables for the transit gateway resources and a lookup is performed inside of this module to find the associated ID.
+
+This map would typically be passed in from the outputs of the vpc sub-module in this project. Otherwise, these can be defined manually, from data sources, or from any other state output in the correct format.
 
 ### vpcs
+
+The vpcs variable is a map of existing vpc names -> IDs used for creating VPC attachments to the transit gateways in this module. 
+
 
 ```
   vpcs = {
@@ -132,10 +139,10 @@ For each of the nested map variables, the key of each map will be the terraform 
   }
 ```
 
-The vpcs variable is a map of existing vpc names -> IDs used for creating VPC attachments to the transit gateways in this module. The names will be referenced in the map variables for the transit gateway resources and a lookup is performed inside of this module to find the associated ID.
-This map would typically be passed in from the outputs of the vpc sub-module in this project. Otherwise, these can be defined manually, from data sources, or from any other state output in the correct format.
-
 ### subnets
+
+The subnets variable is a map of existing subnet names -> IDs used for creating VPC attachments to the transit gateways in this module.
+
 
 ```
   subnets = {
@@ -145,6 +152,36 @@ This map would typically be passed in from the outputs of the vpc sub-module in 
   }
 ```
 
-The subnets variable is a map of existing subnet names -> IDs used for creating VPC attachments to the transit gateways in this module. The names will be referenced in the map variables for the transit gateway resources and a lookup is performed inside of this module to find the associated ID.
+## Nested Map Input Variable Definitions
 
-This map would typically be passed in from the outputs of the vpc sub-module in this project. Otherwise, these can be defined manually, from data sources, or from any other state output in the correct format.
+### transit\_gateways
+
+The transit_gateways variable is a map of maps, where each map represents a transit gateway, the route tables associated to each transit gateway, and other attributes.
+
+There is brownfield support for existing transit gateways and existin transit gateway route tables.
+
+Each transit_gateways map has the following inputs available (please see examples folder for additional references):
+
+| Name | Description | Type | Default | Required | Brownfield Required
+|------|-------------|:----:|:-----:|:-----:|:-----:|
+| name | The Name Tag of the transit gateway | string | - | yes | yes |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
+| existing | Flag only if referencing an existing transit gateway  | bool | `"false"` | no | yes |
+| asn  | ASN Number for the transit gateway  | string | - | no | no |
+| shared_principals | List of account IDs to share this transit gateway with | list(string) | - | no | no |
+| route_tables | Map of route tables associated with this transit gateway (see below) | map | - | no | no |
+
+#### transit\_gateways \{route_tables\}
+
+| Name | Description | Type | Default | Required | Brownfield Required
+|------|-------------|:----:|:-----:|:-----:|:-----:|
+| name | The Name Tag of the transit gateway | string | - | yes | yes |
+| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
+| existing | Flag only if referencing an existing transit gateway  | bool | `"false"` | no | yes |
+| asn  | ASN Number for the transit gateway  | string | - | no | no |
+| shared_principals | List of account IDs to share this transit gateway with | list(string) | - | no | no |
+| route_tables | Map of route tables associated with this transit gateway (see below) | map | - | no | no |
+
+
+
+### transit\_gateway\_vpc\_attachments
