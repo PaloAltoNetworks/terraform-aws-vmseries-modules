@@ -32,7 +32,7 @@ resource "aws_instance" "this" {
     {
       "Name" = each.value.name_tag
     },
-    var.tags, each.value.local_tags
+    var.global_tags, each.value.local_tags
   )
 
   root_block_device {
@@ -61,7 +61,7 @@ resource "aws_ebs_volume" "this" {
   tags = merge({
     "Name" = each.key
     },
-    var.tags,
+    var.global_tags,
     lookup(each.value, "tags", {})
   )
 }
