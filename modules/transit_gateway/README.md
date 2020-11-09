@@ -123,22 +123,28 @@ transit_gateway_vpc_attachments = {
 
 For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
 
-### vpc
+### vpcs
 
-The vpc variable is a map of maps, where each map represents a vpc. Unlike the rest of the nested map vars for this module, the vpc variable is assumed for only a single VPC definition.
+```
+  vpcs = {
+    "foo" = "vpc-123456789012"
+    "bar" = "vpc-123456789012"
+  }
+```
 
-There is brownfield support for existing vpc, for this only required to specify `name` and `existing = true`.
+The vpcs variable is a map of existing vpc names -> IDs used for creating VPC attachments to the transit gateways in this module. The names will be referenced in the map variables for the transit gateway resources and a lookup is performed inside of this module to find the associated ID.
+This map would typically be passed in from the outputs of the vpc sub-module in this project. Otherwise, these can be defined manually, from data sources, or from any other state output in the correct format.
 
-The vpc map has the following inputs available (please see examples folder for additional references):
+### subnets
 
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
-| existing | Flag only if referencing an existing VPC  | bool | `"false"` | no | yes |
-| cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
-| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | - | no | no |
-| instance_tenancy | Tenancy option for instances. `"default"`, `"dedicated"`, or `"host"` | string | `"default"` | no | no |
-| enable_dns_support | Enable DNS Support | bool | `"true"` | no | no |
-| enable_dns_hostnames | Enable DNS hostnames | bool | `"false"` | no | no |
-| internet_gateway | Enable IGW creation for this VPC  | bool | `"false"` | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
+```
+  subnets = {
+    "foo" = "subnet-123456789012"
+    "bar" = "subnet-123456789012"
+    "baz" = "subnet-123456789012"
+  }
+```
+
+The subnets variable is a map of existing subnet names -> IDs used for creating VPC attachments to the transit gateways in this module. The names will be referenced in the map variables for the transit gateway resources and a lookup is performed inside of this module to find the associated ID.
+
+This map would typically be passed in from the outputs of the vpc sub-module in this project. Otherwise, these can be defined manually, from data sources, or from any other state output in the correct format.
