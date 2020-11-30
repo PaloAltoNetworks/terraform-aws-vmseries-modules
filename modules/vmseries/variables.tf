@@ -59,6 +59,12 @@ variable prefix_name_tag {
   description = "Prefix used to build name tags for resources"
 }
 
+variable "prefix_bootstrap" {
+  type = string
+  default = "pan-bootstrap"
+    description = "Prefix used to build bootstrap related resources"
+}
+
 variable "interfaces" {
   description = "Map of interfaces to create with optional parameters"
   # Required: name, subnet_name, security_group
