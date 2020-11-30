@@ -29,3 +29,7 @@ output "instance_profile_name" {
   value       = aws_iam_instance_profile.this.name
   description = "Name of created IAM instance profile."
 }
+
+output "bucket" {
+  value       = aws_s3_bucket.this
+}

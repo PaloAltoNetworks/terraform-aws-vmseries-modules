@@ -20,6 +20,14 @@
 
 # output "firewall_ids" {
 #   description = "ID of firewall instances"
-#   value       = [aws_instance.FWInstance.*.id]
+#   value       = [aws_instance.pa-vm-series.*]
 # }
+
+
+output "firewalls" {
+  value = {
+    for k, f in aws_instance.pa-vm-series:
+    k => f
+  }
+}
 
