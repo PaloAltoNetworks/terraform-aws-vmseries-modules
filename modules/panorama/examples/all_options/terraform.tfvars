@@ -1,7 +1,5 @@
 region = "us-east-1"
 
-prefix_name_tag = "panorama-module-" // Used for resource name Tags. Leave as empty string if not desired
-
 global_tags = {
   Environment = "us-east-1"
   Managed_By  = "Terraform"
@@ -12,12 +10,12 @@ panoramas = {
   panorama01 = {
     name             = "panorama01"
     local_tags       = { "foo" = "bar" }
-    ssh_key_name     = "foo"
+    ssh_key_name     = "bar"
     instance_type    = "m5.2xlarge"
     panorama_version = "9.1.2"
     security_groups  = "foo"
     subnet_id        = "bar"
-    private_ip       = "10.1.1.1"
+    private_ip       = "10.100.100.100"
     public_ip        = true
     ebs = {
       device_name       = "/dev/sdb"

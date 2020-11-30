@@ -6,7 +6,7 @@ data "aws_ami" "this" {
 
   filter {
     name   = "product-code"
-    values = ["${var.pano_license_type_map[var.pano_license_type]}"]
+    values = [var.pano_license_type_map[var.pano_license_type]]
   }
 
   filter {
@@ -30,7 +30,7 @@ resource "aws_instance" "this" {
   instance_type                        = each.value.instance_type
   tags = merge(
     {
-      "Name" = each.value.name_tag
+      "Name" = each.value.name
     },
     var.global_tags, each.value.local_tags
   )
