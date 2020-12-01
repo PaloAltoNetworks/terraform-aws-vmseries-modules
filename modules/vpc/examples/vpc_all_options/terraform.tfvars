@@ -69,8 +69,8 @@ vpn_gateways = {
 }
 
 vpc_endpoints = {
-  ec2-endpoint = {
-    name                = "ec2-endpoint"
+  gwlb-endpoint = {
+    name                = "GatewayLoadBalancer"
     service_name        = "com.amazonaws.us-east-1.ec2"
     vpc_endpoint_type   = "Interface"
     security_groups     = ["vpc-endpoint"]

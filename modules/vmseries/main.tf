@@ -175,7 +175,8 @@ resource "aws_instance" "pa-vm-series" {
   user_data            = base64encode(join(",", compact(list( 
     # can(each.value.bootstrap_bucket) ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null,
     lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null,
-    lookup(each.value, "mgmt-interface-swap", null) == "enable" ? "mgmt-interface-swap=${each.value.mgmt-interface-swap}" : null
+    lookup(each.value, "mgmt-interface-swap", null) == "enable" ? "mgmt-interface-swap=${each.value.mgmt-interface-swap}" : null,
+    lookup(each.value, "aws-gwlb-inspect", null) == "enable" ? "aws-gwlb-inspect=${each.value.aws-gwlb-inspect}" : null
   ))))
 
   root_block_device {

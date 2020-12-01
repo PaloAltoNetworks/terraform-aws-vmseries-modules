@@ -281,3 +281,4 @@ resource "aws_vpc_endpoint" "gateway" {
   private_dns_enabled = lookup(each.value, "private_dns_enabled", null)
   tags                = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
+
