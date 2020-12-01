@@ -63,3 +63,9 @@ variable interfaces {
   type        = any
   default     = {}
 }
+
+variable vpc_endpoints {
+  description = "Map of VPC Endpoints to IDs."
+  type        = any
+  default     = {}
+}
