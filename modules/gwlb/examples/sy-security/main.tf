@@ -40,6 +40,7 @@ module "north-south_vpc_routes" {
   vpc_route_tables  = module.north-south_vpc.route_table_ids
   internet_gateways = module.north-south_vpc.internet_gateway_id
   nat_gateways      = module.north-south_vpc.nat_gateway_ids
+  vpc_endpoints    = module.gwlb.endpoint_ids
 }
 
 # We need to generate a list of subnet IDs
@@ -53,7 +54,7 @@ locals {
 module "gwlb" {
   source                          = "../../../../modules/gwlb"
   region                          = var.region
-  global_tags       = var.global_tags
+  global_tags                     = var.global_tags
   prefix_name_tag                 = var.prefix_name_tag
   vpc_id                          = module.north-south_vpc.vpc_id.vpc_id
   gateway_load_balancers          = var.gateway_load_balancers
