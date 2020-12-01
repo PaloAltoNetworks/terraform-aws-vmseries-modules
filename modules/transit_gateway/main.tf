@@ -95,7 +95,10 @@ locals {
 }
 
 resource "aws_ec2_transit_gateway_route_table" "this" {
-  for_each           = { for value in local.transit_gateway_route_tables : "${value.tgw}-${value.rt}" => value }
+  for_each = { for value in local.transit_gateway_route_tables :
+    "${value.tgw}-${value.rt}" => value
+    if lookup(value, "existing", null) != true ? true : false
+  }
   transit_gateway_id = local.combined_transit_gateways[each.value.tgw]
   tags               = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
