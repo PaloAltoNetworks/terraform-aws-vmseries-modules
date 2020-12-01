@@ -46,8 +46,8 @@ variable "subnet_ids" {
 }
 
 variable "allowed_principals" {
-  type = list
-  default = []
+  type        = list
+  default     = []
   description = "Map of principals allowed to use enpoint service"
 }
 
