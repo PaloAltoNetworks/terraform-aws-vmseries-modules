@@ -163,7 +163,6 @@ resource "aws_instance" "pa-vm-series" {
   instance_initiated_shutdown_behavior = "stop"
   ebs_optimized                        = true
   ami                                  = data.aws_ami.pa-vm.id
-  # ami = "ami-04bf6dcdc9ab498ca"
   instance_type                        = var.fw_instance_type
   tags = merge(
     {
@@ -171,9 +170,7 @@ resource "aws_instance" "pa-vm-series" {
     },
     var.tags, each.value.fw_tags
   )
-  # iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? "${var.prefix_name_tag}-${each.value.iam_instance_profile}" : null
-  user_data            = base64encode(join(",", compact(list( 
-    # can(each.value.bootstrap_bucket) ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null,
+  user_data = base64encode(join(",", compact(list(
     lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null,
     lookup(each.value, "mgmt-interface-swap", null) == "enable" ? "mgmt-interface-swap=${each.value.mgmt-interface-swap}" : null,
     lookup(each.value, "aws-gwlb-inspect", null) == "enable" ? "aws-gwlb-inspect=${each.value.aws-gwlb-inspect}" : null

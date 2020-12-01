@@ -60,9 +60,9 @@ variable prefix_name_tag {
 }
 
 variable "prefix_bootstrap" {
-  type = string
-  default = "pan-bootstrap"
-    description = "Prefix used to build bootstrap related resources"
+  type        = string
+  default     = "pan-bootstrap"
+  description = "Prefix used to build bootstrap related resources"
 }
 
 variable "interfaces" {
