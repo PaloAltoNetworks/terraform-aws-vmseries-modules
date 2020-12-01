@@ -111,14 +111,14 @@ resource "aws_route" "vpc_peer" {
   route_table_id            = var.vpc_route_tables[each.value.route_table]
   destination_cidr_block    = each.value.prefix
   vpc_peering_connection_id = var.vpc_peers[each.value.next_hop_name]
-} 
+}
 
 resource "aws_route" "gateway_loadbalancer" {
   for_each = {
     for k, v in var.vpc_routes : k => v
     if v.next_hop_type == "vpc_endpoint"
   }
-  route_table_id            = var.vpc_route_tables[each.value.route_table]
-  destination_cidr_block    = each.value.prefix
-  vpc_endpoint_id = var.vpc_endpoints[each.value.next_hop_name]
+  route_table_id         = var.vpc_route_tables[each.value.route_table]
+  destination_cidr_block = each.value.prefix
+  vpc_endpoint_id        = var.vpc_endpoints[each.value.next_hop_name]
 } 

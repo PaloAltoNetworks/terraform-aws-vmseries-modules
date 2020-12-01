@@ -40,7 +40,7 @@ module "north-south_vpc_routes" {
   vpc_route_tables  = module.north-south_vpc.route_table_ids
   internet_gateways = module.north-south_vpc.internet_gateway_id
   nat_gateways      = module.north-south_vpc.nat_gateway_ids
-  vpc_endpoints    = module.gwlb.endpoint_ids
+  vpc_endpoints     = module.gwlb.endpoint_ids
 }
 
 # We need to generate a list of subnet IDs

@@ -139,8 +139,8 @@ gwlb_subnets = ["gwlbe-eastwest-1", "gwlbe-eastwest-2"]
 
 gateway_load_balancers = {
   security-gwlb = {
-    name = "security-gwlb"
-    subnet_names          = ["data1", "data2"]
+    name         = "security-gwlb"
+    subnet_names = ["data1", "data2"]
     #allowed_principals = []
   }
 }
