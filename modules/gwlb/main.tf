@@ -14,17 +14,27 @@ resource "aws_lb_target_group" "this" {
   tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
 
+locals {
+  fw-to-gwlb = flatten([
+    for k, v in var.gateway_load_balancers : [
+      for fw in v.firewall_names : {
+        firewall_id = var.firewalls[fw].id
+        gwlb        = k
+      }
+    ]
+  ])
+}
+
 resource "aws_lb_target_group_attachment" "this" {
-  for_each         = var.firewalls
-  target_group_arn = aws_lb_target_group.this["security-gwlb"].arn //TODO FIX TO LOOP with both FWs and GWLBs MAP
-  target_id        = each.value.id
+  for_each         = { for k, v in local.fw-to-gwlb : k => v }
+  target_group_arn = aws_lb_target_group.this[each.value.gwlb].arn
+  target_id        = each.value.firewall_id
 }
 
 resource "aws_lb" "this" {
   for_each           = var.gateway_load_balancers
   name               = "${var.prefix_name_tag}${each.value.name}"
   load_balancer_type = "gateway"
-  #subnets                          = var.subnet_ids
   subnets = [
     for subnet in each.value.subnet_names :
     var.subnets_map[subnet]
