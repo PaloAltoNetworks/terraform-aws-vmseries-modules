@@ -118,6 +118,11 @@ firewalls = [{
   fw_tags              = { "scheduler:ebs-snapshot" = "true" }
   iam_instance_profile = "pan-bootstrap-profile"
   bootstrap_bucket     = "goveast-vdss-az1a"
+  bootstrap_options    = {}
+  # bootstrap_options = {
+  #   mgmt-interface-swap = "enable"
+  #   aws-gwlb-inspect    = "enable"
+  # }
   interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
     name  = "vmseries01-mgmt"
     index = "0"
@@ -128,6 +133,7 @@ firewalls = [{
     fw_tags              = { "scheduler:ebs-snapshot" = "true" }
     iam_instance_profile = "pan-bootstrap-profile"
     bootstrap_bucket     = "goveast-vdss-az1b"
+    bootstrap_options    = {}
     interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
       name  = "vmseries02-mgmt"
       index = "0"
