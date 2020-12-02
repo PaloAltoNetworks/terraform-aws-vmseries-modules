@@ -170,23 +170,12 @@ resource "aws_instance" "pa-vm-series" {
     },
     var.tags, each.value.fw_tags
   )
-  user_data = base64encode(
 
-
-    #   join(",", compact(
-    #   # lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null,
-    #   # lookup(each.value.bootstrap_options, "mgmt-interface-swap", null) == "enable" ? "mgmt-interface-swap=${each.value.bootstrap_options.mgmt-interface-swap}" : null,
-    #   # lookup(each.value.bootstrap_options, "aws-gwlb-inspect", null) == "enable" ? "aws-gwlb-inspect=${each.value.bootstrap_options.aws-gwlb-inspect}" : null), 
-    #   [for k,v in each.value.bootstrap_options: "${k}=${v}"]
-    # ))
-
-    join(",", compact(concat(
-      [for k, v in each.value.bootstrap_options : "${k}=${v}"],
-      [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
-    )))
-
-
-  )
+  iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? "${var.prefix_name_tag}-${each.value.iam_instance_profile}" : null
+  user_data = base64encode(join(",", compact(concat(
+    [for k, v in each.value.bootstrap_options : "${k}=${v}"],
+    [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
+  ))))
 
   root_block_device {
     delete_on_termination = true
