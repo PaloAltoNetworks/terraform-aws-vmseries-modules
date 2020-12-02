@@ -21,7 +21,7 @@ locals {
 # CREATE & ASSIGN IAM ROLE, POLICY, & INSTANCE PROFILE
 #************************************************************************************
 resource "aws_iam_role" "bootstrap_role" {
-  name = "${var.prefix_name_tag}-pan-bootstrap-role"
+  name = "${var.prefix_name_tag}-${var.prefix_bootstrap}-role"
 
   assume_role_policy = <<EOF
 {
@@ -78,7 +78,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "bootstrap_profile" {
-  name = "${var.prefix_name_tag}-pan-bootstrap-profile"
+  name = "${var.prefix_name_tag}-${var.prefix_bootstrap}-profile"
   role = aws_iam_role.bootstrap_role.name
   path = "/"
 }
@@ -170,24 +170,12 @@ resource "aws_instance" "pa-vm-series" {
     },
     var.tags, each.value.fw_tags
   )
-  # Optional var flag to add interface swap to user-data
-  # user_data = lookup(each.value, "mgmt-interface-swap", null) == "enable" ? base64encode("mgmt-interface-swap=${each.value.mgmt-interface-swap}") : null
-  # Optional var flag to set iam role for instance
+
   iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? "${var.prefix_name_tag}-${each.value.iam_instance_profile}" : null
-  user_data            = lookup(each.value, "bootstrap_bucket", null) != null ? base64encode(join("", list("vmseries-bootstrap-aws-s3bucket=", var.buckets_map[each.value.bootstrap_bucket].name))) : null
-
-  # user_data = base64encode("mgmt-interface-swap=enable")
-
-  # TODO - Add support for optional userdata for both bootstrap and interface swap
-  # user_data = base64encode(
-  #   join(
-  #     "",
-  #     [
-  #       "vmseries-bootstrap-aws-s3bucket=",
-  #       lower(each.value.bootstrap_s3bucket),
-  #     ],
-  #   ),
-  # )
+  user_data = base64encode(join(",", compact(concat(
+    [for k, v in each.value.bootstrap_options : "${k}=${v}"],
+    [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
+  ))))
 
   root_block_device {
     delete_on_termination = true

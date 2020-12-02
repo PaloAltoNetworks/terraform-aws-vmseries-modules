@@ -59,6 +59,12 @@ variable prefix_name_tag {
   description = "Prefix used to build name tags for resources"
 }
 
+variable "prefix_bootstrap" {
+  type        = string
+  default     = "pan-bootstrap"
+  description = "Prefix used to build bootstrap related resources"
+}
+
 variable "interfaces" {
   description = "Map of interfaces to create with optional parameters"
   # Required: name, subnet_name, security_group
@@ -83,8 +89,10 @@ variable "firewalls" {
   description = "Map of vm-series firewalls to create with interface mappings"
   # Required: name, interfaces(map with name and index)
   default = [{ # Example
-    name                = "ingress-fw1"
-    mgmt-interface-swap = "disable" # "enable" for interface swap, any other string will omit user-data for interface swap 
+    name = "ingress-fw1"
+    bootstrap_options = {
+      mgmt-interface-swap = "disable" # "enable" for interface swap
+    }
     interfaces = [{
       name  = "ingress-fw1-mgmt"
       index = "0"
