@@ -20,6 +20,7 @@ locals {
   logger_panoramas = { for name, panorama in var.panoramas : name => panorama if contains(keys(panorama), "ebs") }
 }
 
+
 #### Create the Panorama Instances ####
 resource "aws_instance" "this" {
   for_each                             = var.panoramas
@@ -28,6 +29,7 @@ resource "aws_instance" "this" {
   ebs_optimized                        = true
   ami                                  = data.aws_ami.this.id
   instance_type                        = each.value.instance_type
+  availability_zone                    = each.value.availability_zone
   tags = merge(
     {
       "Name" = each.value.name
@@ -49,9 +51,10 @@ resource "aws_instance" "this" {
   subnet_id              = var.subnets_map[each.value.subnet_id]
 }
 
+
 resource "aws_ebs_volume" "this" {
   for_each          = local.logger_panoramas
-  availability_zone = each.value.ebs.availability_zone
+  availability_zone = each.value.availability_zone
   encrypted         = lookup(each.value.ebs, "encrypted", null)
   iops              = lookup(each.value.ebs, "iops", null)
   size              = lookup(each.value.ebs, "size", null)
@@ -65,6 +68,7 @@ resource "aws_ebs_volume" "this" {
     lookup(each.value, "tags", {})
   )
 }
+
 
 resource "aws_volume_attachment" "this" {
   for_each     = local.logger_panoramas
