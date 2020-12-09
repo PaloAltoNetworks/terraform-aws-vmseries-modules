@@ -4,12 +4,6 @@ variable global_tags {
   default     = {}
 }
 
-# variable prefix_name_tag {
-#   type        = string
-#   description = "Prefix used to build name tags for resources"
-#   default     = ""
-# }
-
 # Panorama version for AMI lookup
 variable "panorama_version" {
   description = "Select which Panorama version to deploy"
