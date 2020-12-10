@@ -102,7 +102,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = "${var.prefix}-${random_id.bucket_id.hex}"
+  name = coalesce(var.iam_instance_profile_name, "${var.prefix}-${random_id.bucket_id.hex}")
   role = aws_iam_role.this.name
   path = "/"
 }
