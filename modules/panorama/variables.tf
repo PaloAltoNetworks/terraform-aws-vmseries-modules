@@ -4,18 +4,10 @@ variable global_tags {
   default     = {}
 }
 
-variable prefix_name_tag {
-  type        = string
-  description = "Prefix used to build name tags for resources"
-  default     = ""
-}
-
 # Panorama version for AMI lookup
-
 variable "panorama_version" {
   description = "Select which Panorama version to deploy"
   default     = "9.1.2"
-  #default     = "9.0.3"
   # Acceptable Values Below
   #default = "8.1.2"
   #default = "8.1.0"
@@ -28,7 +20,6 @@ variable "pano_license_type" {
 }
 
 # Product code map based on license type for ami filter
-
 variable "pano_license_type_map" {
   type = map(string)
   default = {

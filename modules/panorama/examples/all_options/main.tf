@@ -8,21 +8,19 @@
 
 locals {
   subnets_map = {
-    "foo" = "subnet-123456789012"
-    "bar" = "subnet-123456789012"
-    "baz" = "subnet-123456789012"
+    "mgmt" = "subnet-0b67c0660aae33e2a"
   }
+
   security_groups_map = {
-    "foo" = "sg-123456789012"
-    "bar" = "sg-123456789012"
+    "sg1" = "sg-0f4bf202f60c9a159"
   }
 }
 
 module "panorama" {
   source              = "../../"
+  panorama_version    = var.panorama_version
   global_tags         = var.global_tags
   panoramas           = var.panoramas
-  prefix_name_tag     = var.prefix_name_tag
   subnets_map         = local.subnets_map
   security_groups_map = local.security_groups_map
 }

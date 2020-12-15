@@ -8,19 +8,18 @@ global_tags = {
 
 panoramas = {
   panorama01 = {
-    name             = "panorama01"
-    local_tags       = { "foo" = "bar" }
-    ssh_key_name     = "bar"
-    instance_type    = "m5.2xlarge"
-    panorama_version = "9.1.2"
-    security_groups  = "foo"
-    subnet_id        = "bar"
-    private_ip       = "10.100.100.100"
-    public_ip        = true
+    name              = "panorama01"
+    local_tags        = { "foo" = "bar" }
+    ssh_key_name      = "bar"
+    instance_type     = "m5.2xlarge"
+    security_groups   = "sg1"
+    subnet_id         = "mgmt"
+    private_ip        = "10.0.0.100"
+    public_ip         = true
+    availability_zone = "us-east-1f"
     ebs = {
-      device_name       = "/dev/sdb"
-      size              = 2000
-      availability_zone = "us-east-1a"
+      device_name = "/dev/sdb"
+      size        = 2000
     }
   }
 }
