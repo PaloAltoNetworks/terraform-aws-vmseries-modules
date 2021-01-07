@@ -3,15 +3,14 @@ variable "fw_version" {
   default     = "10.0.3"
 }
 
-# License type for AMI lookup
 variable "fw_license_type" {
   description = "Select License type (byol/payg1/payg2)"
   default     = "byol"
 }
 
-# Product code map based on license type for ami filter
 variable "fw_license_type_map" {
-  type = map(string)
+  description = "Product code map based on license type for ami filter"
+  type        = map(string)
   default = {
     "byol"  = "6njl1pau431dv1qxipg63mvah"
     "payg1" = "6kxdw3bbmdeda3o6i1ggqt4km"
@@ -26,7 +25,8 @@ variable "fw_instance_type" {
 }
 
 variable "name_prefix" {
-  type = string
+  description = "All resource names will be prepended with this string"
+  type        = string
 }
 
 variable "ssh_key_name" {
@@ -34,20 +34,14 @@ variable "ssh_key_name" {
   type        = string
 }
 
-# variable "tags" {
-#   description = "Map of additional tags to apply to all resources"
-#   type        = map
-#   default     = {}
-# }
-
 variable "bootstrap_options" {
-  type    = map
-  default = {}
+  description = "Bootstrap options to put into userdata"
+  type        = map
+  default     = {}
 }
 
 variable "interfaces" {
   type = list
-
 }
 
 variable "subnet_ids" {
@@ -55,9 +49,8 @@ variable "subnet_ids" {
   type        = map
 }
 
-
 variable "lifecycle_hook_timeout" {
-  description = ""
+  description = "How long should we wait for lambda to finish"
   type        = number
   default     = 300
 }

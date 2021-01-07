@@ -150,6 +150,6 @@ EOF
 
 resource "aws_cloudwatch_event_target" "this" {
   rule      = aws_cloudwatch_event_rule.this.name
-  target_id = "${var.name_prefix}add_nics2"
+  target_id = "${var.name_prefix}add_nics"
   arn       = aws_lambda_function.this.arn
 }

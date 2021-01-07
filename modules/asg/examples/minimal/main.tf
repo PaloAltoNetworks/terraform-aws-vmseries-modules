@@ -1,3 +1,9 @@
+data "archive_file" "this" {
+  type        = "zip"
+  source_file = "../../../asg/lambda.py"
+  output_path = "lambda_payload.zip"
+}
+
 module "vpc" {
   source           = "../../../vpc"
   global_tags      = var.global_tags
@@ -5,8 +11,6 @@ module "vpc" {
   vpc              = var.vpcs
   vpc_route_tables = var.route_tables
   subnets          = var.vpc_subnets
-  # nat_gateways     = var.nat_gateways
-  # vpc_endpoints    = var.vpc_endpoints
   security_groups = var.security_groups
 }
 
@@ -18,10 +22,5 @@ module "asg" {
   subnet_ids        = module.vpc.subnet_ids
   interfaces        = var.interfaces
   # global_tags      = var.global_tags
-  # vpc              = var.vpcs
-  # vpc_route_tables = var.route_tables
-  # subnets          = var.vpc_subnets
-  # # nat_gateways     = var.nat_gateways
-  # # vpc_endpoints    = var.vpc_endpoints
   # security_groups = var.security_groups
 }
