@@ -11,7 +11,7 @@ module "vpc" {
   vpc              = var.vpcs
   vpc_route_tables = var.route_tables
   subnets          = var.vpc_subnets
-  security_groups = var.security_groups
+  security_groups  = var.security_groups
 }
 
 module "asg" {
