@@ -21,6 +21,15 @@ module "asg" {
   bootstrap_options = var.bootstrap_options
   subnet_ids        = module.vpc.subnet_ids
   interfaces        = var.interfaces
-  # global_tags      = var.global_tags
-  # security_groups = var.security_groups
+  global_tags       = var.global_tags
 }
+
+resource "aws_autoscaling_policy" "bat" {
+  name                   = "${var.prefix_name_tag}asg-policy"
+  scaling_adjustment     = 4
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = module.asg.asg.name
+}
+
+output "asg" { value = module.asg.asg }

@@ -69,3 +69,7 @@ variable "min_size" {
   type    = number
   default = 1
 }
+
+variable "global_tags" {
+  type = map
+}

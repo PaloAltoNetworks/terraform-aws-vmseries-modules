@@ -22,17 +22,17 @@ resource "aws_launch_template" "this" {
   image_id      = data.aws_ami.pa-vm.id
   instance_type = var.fw_instance_type
   key_name      = var.ssh_key_name
-
-  network_interfaces {
-    device_index = 0
-    subnet_id    = var.subnet_ids[var.interfaces.0.subnet_name]
-    # security_groups = [var.interfaces.0.security_group]
-  }
+  tags          = var.global_tags
 
   user_data = base64encode(join(",", compact(concat(
     [for k, v in var.bootstrap_options : "${k}=${v}"],
   ))))
 
+  network_interfaces {
+    device_index    = 0
+    subnet_id       = var.subnet_ids[var.interfaces.0.subnet_name]
+    security_groups = [var.interfaces.0.security_group]
+  }
 }
 
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
@@ -126,11 +126,13 @@ resource "aws_lambda_function" "this" {
   handler          = "lambda.lambda_handler"
   source_code_hash = filebase64sha256("lambda_payload.zip")
   runtime          = "python3.8"
+  tags             = var.global_tags
 }
 
 
 resource "aws_cloudwatch_event_rule" "this" {
   name          = "${var.name_prefix}add_nics"
+  tags          = var.global_tags
   event_pattern = <<EOF
 {
   "source": [
