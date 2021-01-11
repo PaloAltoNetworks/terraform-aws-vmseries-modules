@@ -15,14 +15,17 @@ module "vpc" {
 }
 
 module "asg" {
-  source            = "../../../asg"
-  ssh_key_name      = var.ssh_key_name
-  name_prefix       = var.prefix_name_tag
-  bootstrap_options = var.bootstrap_options
-  subnet_ids        = module.vpc.subnet_ids
+  source             = "../../../asg"
+  ssh_key_name       = var.ssh_key_name
+  name_prefix        = var.prefix_name_tag
+  bootstrap_options  = var.bootstrap_options
+  subnet_ids         = module.vpc.subnet_ids
   security_group_ids = module.vpc.security_group_ids
-  interfaces        = var.interfaces
-  global_tags       = var.global_tags
+  interfaces         = var.interfaces
+  global_tags        = var.global_tags
+  max_size           = 0
+  min_size           = 0
+  desired_capacity   = 0
 }
 
 resource "aws_autoscaling_policy" "up" {
