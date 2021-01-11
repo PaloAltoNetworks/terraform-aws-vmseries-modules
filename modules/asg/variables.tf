@@ -49,6 +49,11 @@ variable "subnet_ids" {
   type        = map
 }
 
+variable "security_group_ids" {
+  description = "Map of security group ids"
+  type        = map
+}
+
 variable "lifecycle_hook_timeout" {
   description = "How long should we wait for lambda to finish"
   type        = number
