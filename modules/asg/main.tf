@@ -14,7 +14,6 @@ data "aws_ami" "pa-vm" {
   }
 }
 
-
 # Create launch template with a single interface
 resource "aws_launch_template" "this" {
   name          = "${var.name_prefix}template1"
@@ -76,7 +75,6 @@ resource "aws_iam_role" "this" {
   ]
 }
 EOF
-
 }
 
 # Attach IAM Policy to IAM role for Lambda
@@ -117,8 +115,6 @@ resource "aws_iam_role_policy" "this" {
 EOF
 }
 
-
-
 resource "aws_lambda_function" "this" {
   filename         = "lambda_payload.zip"
   function_name    = "${var.name_prefix}add_nics"
@@ -129,6 +125,13 @@ resource "aws_lambda_function" "this" {
   tags             = var.global_tags
 }
 
+resource "aws_lambda_permission" "this" {
+  action              = "lambda:InvokeFunction"
+  function_name       = aws_lambda_function.this.function_name
+  principal           = "events.amazonaws.com"
+  statement_id_prefix = var.name_prefix
+  # source_arn    = "arn:aws:events:eu-west-1:111122223333:rule/RunDaily"
+}
 
 resource "aws_cloudwatch_event_rule" "this" {
   name          = "${var.name_prefix}add_nics"
