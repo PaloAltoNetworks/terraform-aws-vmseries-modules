@@ -29,6 +29,12 @@ variable "name_prefix" {
   type        = string
 }
 
+variable "asg_name" {
+  description = "Name of the autoscaling group to create"
+  type        = string
+  default     = "asg1"
+}
+
 variable "ssh_key_name" {
   description = "Name of AWS keypair to associate with instances"
   type        = string

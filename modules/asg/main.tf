@@ -34,13 +34,24 @@ resource "aws_launch_template" "this" {
   }
 }
 
+locals {
+  asg_tags = [
+    for k, v in var.global_tags : {
+      key                 = k
+      value               = v
+      propagate_at_launch = true
+    }
+  ]
+}
+
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
 resource "aws_autoscaling_group" "this" {
-  name                = "${var.name_prefix}asg1"
+  name                = "${var.name_prefix}${var.asg_name}"
   vpc_zone_identifier = distinct([for k, v in var.interfaces : var.subnet_ids[v.subnet_name]])
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
+  tags                = local.asg_tags
 
   launch_template {
     id      = aws_launch_template.this.id
