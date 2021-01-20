@@ -31,8 +31,10 @@ route_tables = {
 
 
 vpc_subnets = {
-  mgmt1 = { name = "mgmt1", cidr = "172.21.0.0/24", az = "us-east-1b", rt = "mgmt1" }
+  mgmt1 = { name = "mgmt1", cidr = "172.21.0.0/24", az = "us-east-1b", rt = "mgmt1", local_tags = { "vmseries" = "nic1" } }
   data1 = { name = "data1", cidr = "172.21.1.0/24", az = "us-east-1b", rt = "data1" }
+  mgmt2 = { name = "mgmt2", cidr = "172.21.10.0/24", az = "us-east-1c", rt = "mgmt1", local_tags = { "vmseries" = "nic1" } }
+  data2 = { name = "data2", cidr = "172.21.11.0/24", az = "us-east-1c", rt = "data1" }
 }
 
 
@@ -89,16 +91,15 @@ bootstrap_options = {
 interfaces = [
   {
     index          = "0"
-    subnet_name    = "data1"
     security_group = "vmseries-data"
   },
   {
     index          = "1"
-    subnet_name    = "mgmt1"
     security_group = "vmseries-mgmt"
   },
 ]
 
+nic0_subnets = [ "data1", "data2" ]
 
 
 ### GWLB
@@ -107,6 +108,8 @@ gateway_load_balancers = {
     name           = "security-gwlb"
     subnet_names   = ["data1"]
     firewall_names = [] # this must be ampty for using GWLB module with ASG
+    asg_name       = null
+    # asg_name       = "asg1" # "asg1" is the default value of asg_name in asg module
   }
 }
 

@@ -15,6 +15,7 @@ variable "security_groups" {}
 
 ### ASG
 variable "interfaces" {}
+variable "nic0_subnets" {}
 variable "bootstrap_options" {}
 
 ### GWLB

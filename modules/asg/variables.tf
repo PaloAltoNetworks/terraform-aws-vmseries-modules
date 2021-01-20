@@ -50,6 +50,10 @@ variable "interfaces" {
   type = list
 }
 
+variable "subnets" {
+  type = list
+}
+
 variable "subnet_ids" {
   description = "Map of subnet ids"
   type        = map

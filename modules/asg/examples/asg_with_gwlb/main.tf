@@ -22,6 +22,7 @@ module "asg" {
   subnet_ids         = module.vpc.subnet_ids
   security_group_ids = module.vpc.security_group_ids
   interfaces         = var.interfaces
+  subnets            = var.nic0_subnets
   global_tags        = var.global_tags
   max_size           = 0
   min_size           = 0
