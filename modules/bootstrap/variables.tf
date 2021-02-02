@@ -25,6 +25,12 @@ variable prefix {
   default = "bootstrap"
 }
 
+variable iam_instance_profile_name {
+  description = "(optional) Name of the instance profile to create. If empty, name will be generated automatically"
+  type        = string
+  default     = ""
+}
+
 variable "bootstrap_directories" {
   description = "The directories comprising the bootstrap package"
   default = [

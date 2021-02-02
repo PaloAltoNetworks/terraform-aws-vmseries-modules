@@ -17,71 +17,6 @@ locals {
 
 }
 
-#************************************************************************************
-# CREATE & ASSIGN IAM ROLE, POLICY, & INSTANCE PROFILE
-#************************************************************************************
-resource "aws_iam_role" "bootstrap_role" {
-  name = "${var.prefix_name_tag}-${var.prefix_bootstrap}-role"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-      "Service": "ec2.amazonaws.com"
-    },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "bootstrap_policy" {
-  for_each = var.buckets_map
-  name     = "${var.prefix_name_tag}-${each.key}-pan-bootstrap"
-  role     = aws_iam_role.bootstrap_role.id
-
-  policy = <<EOF
-{
-  "Version" : "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListBucket",
-      "Resource": "${each.value.arn}"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "bootstrap_policy_objects" {
-  for_each = var.buckets_map
-  name     = "pan_bootstrap_s3_object-${each.key}"
-  role     = aws_iam_role.bootstrap_role.id
-
-  policy = <<EOF
-{
-  "Version" : "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:GetObject",
-      "Resource": "${each.value.arn}/*"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_instance_profile" "bootstrap_profile" {
-  name = "${var.prefix_name_tag}-${var.prefix_bootstrap}-profile"
-  role = aws_iam_role.bootstrap_role.name
-  path = "/"
-}
 
 
 #### PA VM AMI ID Lookup based on license type, region, version ####
@@ -171,7 +106,7 @@ resource "aws_instance" "pa-vm-series" {
     var.tags, each.value.fw_tags
   )
 
-  iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? "${var.prefix_name_tag}-${each.value.iam_instance_profile}" : null
+  iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? each.value.iam_instance_profile : null
   user_data = base64encode(join(",", compact(concat(
     [for k, v in each.value.bootstrap_options : "${k}=${v}"],
     [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
