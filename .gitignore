@@ -1,39 +1,48 @@
-# Local .terraform directories
+# This is a minimal list, OK to add things per repo
+# mac specific
+.DS_Store
+.ansible
+.azure/
+.bash_history
+# don't check storage creds into GH
+.boto
+.cache
+*.code-workspace
+#  may contain gcloud files
+.config
+.gitconfig
+.local
+# .netrc contains secrets for service tokens
+.netrc
+*.plan
+.sentinel
+# .ssh dir may contain private keys
+.ssh
+.terrascan
+# Terraform dot files
+.terraform
+.terraformrc
 **/.terraform/*
-
-# .tfstate files
+.terraform.d
 *.tfstate
 *.tfstate.*
+.vscode
+.idea
+.idea
 
+# Palo auth codes
+authcodes
 # Crash log files
 crash.log
+credentials.json
+# Palo specific
+init-cfg.txt
+temp
+terraform.rc
+tmp
+# Auto variables
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
 
-# Ignore any .tfvars files that are generated automatically for each Terraform run. Most
-# .tfvars files are managed as part of configuration and so should be included in
-# version control.
-#
-# example.tfvars
-
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Include override files you do wish to add to version control using negated pattern
-#
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-=======
-.history
-**/.terraform/*
-*.DS_Store
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-my-todo.md
