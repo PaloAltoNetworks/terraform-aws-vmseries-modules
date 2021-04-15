@@ -74,20 +74,33 @@ For each of the nested map variables, the key of each map will be the terraform 
 
 ### albs
 
-The vpc variable is a map of maps, where each map represents a vpc. Unlike the rest of the nested map vars for this module, the vpc variable is assumed for only a single VPC definition.
+The `albs` variable is a map of maps, where each map represents an Application Load Balancer. Create a unique top level key for each ALB to be defined.
 
-There is brownfield support for existing vpc, for this only required to specify `name` and `existing = true`.
+Each alb map inside of `albs` has the following inputs available (See examples folder for additional references):
 
-The vpc map has the following inputs available (please see examples folder for additional references):
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-------:|:-----:|
+| name | Name of ALB (ELB Names in AWS are not tag based, changing name is destructive)  | string | - | yes |
+| internal | Set false for public NLB (typical for VM-Series deployment) | bool | `false` | no |
+| http_listener | Flag to create HTTP listener | bool | `false` | no |
+| http_listener_port | Port of HTTP Listener | string | - |  yes if `http_listener == true`|
+| https_listener | Flag to create HTTPS listener | bool | `false` | no |
+| https_listener_port | Port of HTTPS Listener | string | - |  yes if `https_listener == true`|
+| default_certificate_arn | ARN of defualt certificate for this ALB | string | - | yes if `https_listener == true`|
+| additional_certificate_arns | ARNs of additional certificates | list(string) | - | no |
+| security_groups | Existing Security Group IDs to be applied to this ALB | list(string) | - | no |
+| apps | Nested Map for app definitions (see below)  | map | {} | no |
 
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
-| existing | Flag only if referencing an existing VPC  | bool | `"false"` | no | yes |
-| cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
-| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | - | no | no |
-| instance_tenancy | Tenancy option for instances. `"default"`, `"dedicated"`, or `"host"` | string | `"default"` | no | no |
-| enable_dns_support | Enable DNS Support | bool | `"true"` | no | no |
-| enable_dns_hostnames | Enable DNS hostnames | bool | `"false"` | no | no |
-| internet_gateway | Enable IGW creation for this VPC  | bool | `"false"` | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
+
+### albs -> apps
+
+The `apps` paramater inside of each `alb` is another nested map, where each map represents an application that is associated with the ALB. Create a unique top level key for each application to be defined.
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-------:|:-----:|
+| name | Name Tag for the Target Group  | string | - | yes |
+| listener_protocol | Protocol of listener `HTTP` or `HTTPS` | string | - | yes |
+| target_protocol | Protocol of target `HTTP` or `HTTPS` | string | - |  yes |
+| target_port | Port for the target group for VM-Series translation. Typically will be unique per app | string | - | yes |
+| rule_type | Type of rule `host_header` or `path` | string | - |  yes |
+| rule_patterns | Patterns for the rule | list(string) | - | yes |
