@@ -1,11 +1,11 @@
 variable "vpc_id" {
-  type = string
+  type        = string
   description = "AWS VPC ID to create ELB resources"
 }
 
 variable "global_tags" {
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
   description = "Map of tags (key / value pairs) to apply to all AWS resources"
 }
 
@@ -66,7 +66,7 @@ EOF
 
 
 variable "albs" {
-  type = map(any)
+  type        = map(any)
   default     = {}
   description = "Nested Map of Application Load balancers to create and the apps associated with each. See README for details."
 }
