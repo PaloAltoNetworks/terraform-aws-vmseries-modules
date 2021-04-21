@@ -112,42 +112,69 @@ security_groups = {
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 0.13 |
-| aws | ~> 3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=0.12.29, <0.14 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | ~> 3 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_dx_gateway_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dx_gateway_association) | resource |
+| [aws_eip.nat_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
+| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway) | resource |
+| [aws_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.igw_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.vgw_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_subnet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [aws_vpc_endpoint.gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
+| [aws_vpc_endpoint.interface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
+| [aws_vpc_ipv4_cidr_block_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association) | resource |
+| [aws_vpn_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
+| [aws_vpn_gateway_route_propagation.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway_route_propagation) | resource |
+| [aws_subnet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| global\_tags | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
-| nat\_gateways | Map of NAT Gateways to create | `any` | `{}` | no |
-| prefix\_name\_tag | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| security\_groups | Map of Security Groups | `any` | `{}` | no |
-| subnets | Map of Subnets to create | `any` | `{}` | no |
-| vpc | Map of parameters for the VPC. | `any` | `{}` | no |
-| vpc\_endpoints | Map of VPC endpoints | `any` | `{}` | no |
-| vpc\_route\_tables | Map of VPC route Tables to create | `any` | `{}` | no |
-| vpn\_gateways | Map of VGWs to create | `any` | `{}` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
+| <a name="input_nat_gateways"></a> [nat\_gateways](#input\_nat\_gateways) | Map of NAT Gateways to create | `any` | `{}` | no |
+| <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
+| <a name="input_region"></a> [region](#input\_region) | AWS Region for deployment | `string` | `""` | no |
+| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of Security Groups | `any` | `{}` | no |
+| <a name="input_subnets"></a> [subnets](#input\_subnets) | Map of Subnets to create | `any` | `{}` | no |
+| <a name="input_vpc"></a> [vpc](#input\_vpc) | Map of parameters for the VPC. | `any` | `{}` | no |
+| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | Map of VPC endpoints | `any` | `{}` | no |
+| <a name="input_vpc_route_tables"></a> [vpc\_route\_tables](#input\_vpc\_route\_tables) | Map of VPC route Tables to create | `any` | `{}` | no |
+| <a name="input_vpn_gateways"></a> [vpn\_gateways](#input\_vpn\_gateways) | Map of VGWs to create | `any` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| aws\_vpc\_endpoint\_interface\_ids | Interface VPC Endpoint Name -> ID Map (New) |
-| internet\_gateway\_id | Internet Gateway Name -> ID Map (New) |
-| nat\_gateway\_ids | NAT Gateway Name -> ID Map (New) |
-| route\_table\_ids | Route Tables Name -> ID Map (New) |
-| security\_group\_ids | Security Group Name -> ID Map (New) |
-| subnet\_ids | Subnets Name -> ID Map (New AND Existing) |
-| vpc\_id | VPC Name -> ID Map (New OR Existing) |
-| vpn\_gateway\_ids | VPN Gateway Name -> ID Map (New) |
-
+| <a name="output_aws_vpc_endpoint_interface_ids"></a> [aws\_vpc\_endpoint\_interface\_ids](#output\_aws\_vpc\_endpoint\_interface\_ids) | Interface VPC Endpoint Name -> ID Map (New) |
+| <a name="output_internet_gateway_id"></a> [internet\_gateway\_id](#output\_internet\_gateway\_id) | Internet Gateway Name -> ID Map (New) |
+| <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | NAT Gateway Name -> ID Map (New) |
+| <a name="output_route_table_ids"></a> [route\_table\_ids](#output\_route\_table\_ids) | Route Tables Name -> ID Map (New) |
+| <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Security Group Name -> ID Map (New) |
+| <a name="output_subnet_ids"></a> [subnet\_ids](#output\_subnet\_ids) | Subnets Name -> ID Map (New AND Existing) |
+| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | VPC Name -> ID Map (New OR Existing) |
+| <a name="output_vpn_gateway_ids"></a> [vpn\_gateway\_ids](#output\_vpn\_gateway\_ids) | VPN Gateway Name -> ID Map (New) |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Nested Map Input Variable Definitions
