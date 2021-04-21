@@ -82,41 +82,57 @@ transit_gateway_vpc_attachments = {
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| terraform | >=0.12.29, <0.14 |
-| aws | ~> 3.10 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=0.12.29, <0.14 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | ~> 3.10 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_ec2_transit_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway) | resource |
+| [aws_ec2_transit_gateway_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_route_table) | resource |
+| [aws_ec2_transit_gateway_route_table_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_route_table_association) | resource |
+| [aws_ec2_transit_gateway_vpc_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_vpc_attachment) | resource |
+| [aws_ram_principal_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ram_principal_association) | resource |
+| [aws_ram_resource_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ram_resource_association) | resource |
+| [aws_ram_resource_share.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ram_resource_share) | resource |
+| [aws_ec2_transit_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_transit_gateway) | data source |
+| [aws_ec2_transit_gateway_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_transit_gateway_route_table) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| region | AWS region for provider | `string` | `""` | no |
-| prefix\_name\_tag | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| global\_tags | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
-| vpcs | Map of Existing VPC Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
-| subnets | Map of Existing Subnet Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
-| transit\_gateways | Nested Map of TGWs and their attributes (Brownfield Supported) | `any` | `{}` | no |
-| transit\_gateway\_vpc\_attachments | Map of attachments to create and RT to associate / propagate to | `map(any)` | `{}` | no |
-| transit\_gateway\_peerings | Map of parameters to peer TGWs with cross-region / cross-account existing TGW | `map(any)` | `{}` | no |
-| transit\_gateway\_peer\_region | Region for alias provider for Transit Gateway Peering | `string` | `""` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
+| <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
+| <a name="input_region"></a> [region](#input\_region) | AWS region for provider | `string` | `""` | no |
+| <a name="input_subnets"></a> [subnets](#input\_subnets) | Map of Existing Subnet Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
+| <a name="input_transit_gateway_peer_region"></a> [transit\_gateway\_peer\_region](#input\_transit\_gateway\_peer\_region) | Region for alias provider for Transit Gateway Peering | `string` | `""` | no |
+| <a name="input_transit_gateway_peerings"></a> [transit\_gateway\_peerings](#input\_transit\_gateway\_peerings) | Map of parameters to peer TGWs with cross-region / cross-account existing TGW | `map(any)` | `{}` | no |
+| <a name="input_transit_gateway_vpc_attachments"></a> [transit\_gateway\_vpc\_attachments](#input\_transit\_gateway\_vpc\_attachments) | Map of attachments to create and RT to associate / propagate to | `map(any)` | `{}` | no |
+| <a name="input_transit_gateways"></a> [transit\_gateways](#input\_transit\_gateways) | Nested Map of TGWs and their attributes (Brownfield Supported) | `any` | `{}` | no |
+| <a name="input_vpcs"></a> [vpcs](#input\_vpcs) | Map of Existing VPC Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| transit\_gateway\_ids | TGW Name -> ID Map (New AND Existing) |
-| transit\_gateway\_route\_table\_ids | TGW Route Table Name -> ID Map (New AND Existing) |
-
+| <a name="output_transit_gateway_ids"></a> [transit\_gateway\_ids](#output\_transit\_gateway\_ids) | TGW Name -> ID Map (New AND Existing) |
+| <a name="output_transit_gateway_route_table_ids"></a> [transit\_gateway\_route\_table\_ids](#output\_transit\_gateway\_route\_table\_ids) | TGW Route Table Name -> ID Map (New AND Existing) |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Variables for existing resource ID mappings
