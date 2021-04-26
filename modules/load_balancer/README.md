@@ -1,4 +1,4 @@
-# Palo Alto Networks lastic Load Balancer (ALB / NLB) Module for AWS
+# Palo Alto Networks Elastic Load Balancer (ALB / NLB) Module for AWS
 
 ## Overview  
 
