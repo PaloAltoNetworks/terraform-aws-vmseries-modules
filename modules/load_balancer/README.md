@@ -19,7 +19,7 @@ See examples for more details of usage.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.29, <0.15 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.18 |
 
 ## Providers
@@ -65,6 +65,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_nlb_eips"></a> [nlb\_eips](#output\_nlb\_eips) | n/a |
 | <a name="output_test"></a> [test](#output\_test) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

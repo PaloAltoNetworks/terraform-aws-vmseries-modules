@@ -1,6 +1,6 @@
 output "nlb_eips" {
- value = {
-    for k, v in aws_eip.nlb:
+  value = {
+    for k, v in aws_eip.nlb :
     k => v.public_ip
   }
 }
