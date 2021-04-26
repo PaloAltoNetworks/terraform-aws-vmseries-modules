@@ -4,7 +4,7 @@
 
 Create ELB resources on AWS for ingress "load balancer sandwich" VM-Series deployments. Can create either public Application Load Balancers and / or Network Load balancers for use in inbound applications. Each inbound application is defined separately and will be forwarded to the VM-Series firewalls on a unique target group and port.
 
-Load balancers and Applications are defined in nested map variables, with optional parameters defined here.
+Load balancers and applications are defined in variables as nested maps, with some optional parameters.
 
 Assumes existing VPC with VM-Series instances deployed using interface swap mechanism so that default eth0 interfaces are in public subnets.
 
