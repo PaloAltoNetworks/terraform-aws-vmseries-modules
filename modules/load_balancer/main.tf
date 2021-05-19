@@ -187,10 +187,6 @@ locals {
 }
 
 
-output "test" {
-  value = local.alb_apps_map
-}
-
 ################
 # ALB Resources
 ################
