@@ -4,13 +4,30 @@ name: CI/CD
 on:
   push:
     branches:
-      - master
+      - main
       - develop
   pull_request:
   schedule:
     - cron: '0 0 1 * *'
 
 jobs:
+  pre-commit:
+    name: Verify the pre-commit framework was used properly by developers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          # Semantic version range syntax (like 3.x) or the exact Python version
+          python-version: '3.9.4'
+
+      - name: Run pre-commit framework as the developer should run it
+        run: sudo ./scripts/install.sh && sudo ./scripts/run.sh
+
   validate:
     name: Validate
     runs-on: ubuntu-latest
@@ -22,27 +39,24 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.13.5
+          terraform_version: 0.13.7
 
       - name: terraform validate
         env:
           AWS_DEFAULT_REGION: us-west-2
         run: |
-          cd ${GITHUB_WORKSPACE}/modules
-          for dir in $(find . -type d -not \( -name ".?*" \) -maxdepth 1 -mindepth 1);
+          cd "$GITHUB_WORKSPACE"
+          for dir in $(find modules examples -type d -not \( -name ".?*" \) -maxdepth 1 -mindepth 1);
           do
-            cd ${GITHUB_WORKSPACE}/modules/${dir}
+            echo "Processing directory: $dir"
+            cd "$GITHUB_WORKSPACE/$dir"
             terraform init -backend=false
             terraform validate
           done
 
-      - name: terraform fmt
-        run: |
-          terraform fmt -check -recursive
-
   release:
     name: release
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [validate]
     runs-on: ubuntu-latest
 
@@ -54,10 +68,9 @@ jobs:
         id: release
         uses: cycjimmy/semantic-release-action@v2
         with:
-          semantic_version: 17.1.1
+          semantic_version: 17.4.2
           extra_plugins: |
-            conventional-changelog-conventionalcommits@^4.4.0
+            conventional-changelog-conventionalcommits@^4.5.0
             @semantic-release/git@^9.0.0
-            @semantic-release/exec@^5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
