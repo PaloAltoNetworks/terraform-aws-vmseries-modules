@@ -2,11 +2,13 @@
 
 ## Overview  
 
-Create ELB resources on AWS for ingress "load balancer sandwich" VM-Series deployments. Can create either public Application Load Balancers and / or Network Load balancers for use in inbound applications. Each inbound application is defined separately and will be forwarded to the VM-Series firewalls on a unique target group and port.
+This module creates ELB resources in AWS that are intended to integrate with VM-Series load balancer "sandwich" deployments for securing inbound traffic to public-facing applications. This module supports both Application Load Balancers (ALB) or Network Load Balancers (NLB).
 
-Load balancers and applications are defined in variables as nested maps, with some optional parameters.
+The ELBs and associated applications are defined in variables as nested maps, with some optional parameters which are described here.
 
-Assumes existing VPC with VM-Series instances deployed using interface swap mechanism so that default eth0 interfaces are in public subnets.
+Each application is defined separately and the inbound traffic towards it will be forwarded to the VM-Series firewalls on a unique target group and port. These unique ports will be used by VM-Series to distinguish different applications and apply NAT policies to forward traffic to the appropriate backend destination.
+
+This module assumes a existing VPC with existing VM-Series instance(s). For this deployment model, the VM-Series should typically be provisioned using [Management Interface Swap](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/launch-the-vm-series-firewall-on-aws.html), so that the default interface of the instance (eth0) can accept traffic and be used as a member of the ELB target group.
 
 
 ## Usage
