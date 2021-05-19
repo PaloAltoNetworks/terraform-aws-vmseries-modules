@@ -1,6 +1,6 @@
 variable "vpc_id" {
   type        = string
-  description = "AWS VPC ID to create ELB resources"
+  description = "Identifier of the pre-existing VPC to create the ELB resources in."
 }
 
 variable "global_tags" {
@@ -70,5 +70,4 @@ variable "albs" {
   default     = {}
   description = "Nested Map of Application Load balancers to create and the apps associated with each. See README for details."
 }
-
 
