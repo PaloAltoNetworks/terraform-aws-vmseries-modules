@@ -68,14 +68,15 @@ variable prefix_name_tag {
 variable "interfaces" {
   description = "Map of interfaces to create with optional parameters"
   # Required: name, subnet_name, security_group
-  # Optional: eip, source_dest_check
+  # Optional: eip_name, source_dest_check
+  # TODO TERRAM-109: the example below is a confusing `default`, move it to a multiline `description`.
   default = [ # Example
     {
       name              = "ingress-fw1-mgmt"
+      eip_name          = "ingress-fw1-mgmt-eip"
       source_dest_check = true
       subnet_name       = "ingress-mgmt-subnet-az1"
       security_group    = "sg-123456789"
-      eip               = "ingress-fw1-mgmt-eip"
     },
     {
       name              = "ingress-fw1-trust"

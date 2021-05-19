@@ -12,7 +12,7 @@ locals {
   eips = {
     for interface in var.interfaces :
     interface.name => interface
-    if lookup(interface, "eip", null) != null ? true : false
+    if lookup(interface, "eip_name", null) != null
   }
 
 }
@@ -43,7 +43,8 @@ data "aws_ami" "pa-vm" {
 # Create Default route to FW ENI
 
 resource "aws_route" "to_eni" {
-  for_each               = var.rts_to_fw_eni
+  for_each = var.rts_to_fw_eni
+
   route_table_id         = var.route_tables_map[each.value.route_table]
   destination_cidr_block = each.value.destination_cidr
   network_interface_id   = aws_network_interface.this[each.value.eni].id
@@ -54,14 +55,13 @@ resource "aws_route" "to_eni" {
 # Network Interfaces
 ###################
 resource "aws_network_interface" "this" {
-  for_each          = local.interfaces
+  for_each = local.interfaces
+
   subnet_id         = var.subnets_map[each.value.subnet_name]
-  source_dest_check = lookup(each.value, "source_dest_check", null) != null ? each.value.source_dest_check : null
+  source_dest_check = lookup(each.value, "source_dest_check", null)
   security_groups   = [var.security_groups_map[each.value.security_group]]
   tags = merge(
-    {
-      "Name" = format("%s", each.value.name)
-    },
+    { Name = each.value.name },
     var.tags
   )
 }
@@ -72,17 +72,17 @@ resource "aws_network_interface" "this" {
 
 resource "aws_eip" "this" {
   for_each = local.eips
-  vpc      = true
+
+  vpc = true
   tags = merge(
-    {
-      "Name" = format("%s", each.value.eip)
-    },
+    { Name = each.value.eip_name },
     var.tags,
   )
 }
 
 resource "aws_eip_association" "this" {
-  for_each             = local.eips
+  for_each = local.eips
+
   network_interface_id = aws_network_interface.this[each.key].id
   allocation_id        = aws_eip.this[each.key].id
 }
@@ -93,20 +93,21 @@ resource "aws_eip_association" "this" {
 ################
 
 resource "aws_instance" "pa-vm-series" {
-  for_each                             = local.firewalls
-  disable_api_termination              = false
-  instance_initiated_shutdown_behavior = "stop"
-  ebs_optimized                        = true
+  for_each = local.firewalls
+
   ami                                  = data.aws_ami.pa-vm.id
   instance_type                        = var.fw_instance_type
+  key_name                             = var.ssh_key_name
+  iam_instance_profile                 = lookup(each.value, "iam_instance_profile", null)
+  disable_api_termination              = false
+  ebs_optimized                        = true
+  instance_initiated_shutdown_behavior = "stop"
+  monitoring                           = false
   tags = merge(
-    {
-      "Name" = format("%s", each.value.name)
-    },
+    { Name = each.value.name },
     var.tags, each.value.fw_tags
   )
 
-  iam_instance_profile = lookup(each.value, "iam_instance_profile", null) != null ? each.value.iam_instance_profile : null
   user_data = base64encode(join(",", compact(concat(
     [for k, v in each.value.bootstrap_options : "${k}=${v}"],
     [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
@@ -116,8 +117,6 @@ resource "aws_instance" "pa-vm-series" {
     delete_on_termination = true
   }
 
-  key_name   = var.ssh_key_name
-  monitoring = false
   dynamic "network_interface" {
     for_each = each.value.interfaces
     content {

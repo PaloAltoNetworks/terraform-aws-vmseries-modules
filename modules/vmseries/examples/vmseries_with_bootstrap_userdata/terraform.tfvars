@@ -102,14 +102,13 @@ interfaces = [
     subnet_name                   = "data1"
     security_group                = "vmseries-data"
     private_ip_address_allocation = "dynamic"
-    eip                           = false
   },
   {
     name                          = "vmseries01-mgmt"
+    eip_name                      = "vmseries01-mgmt"
     source_dest_check             = true
     subnet_name                   = "mgmt1"
     security_group                = "vmseries-mgmt"
     private_ip_address_allocation = "dynamic"
-    eip                           = true
   },
 ]
