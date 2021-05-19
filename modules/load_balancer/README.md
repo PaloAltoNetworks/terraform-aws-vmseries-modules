@@ -58,17 +58,20 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_albs"></a> [albs](#input\_albs) | Nested Map of Application Load balancers to create and the apps associated with each. See README for details. | `map(any)` | `{}` | no |
 | <a name="input_elb_subnet_ids"></a> [elb\_subnet\_ids](#input\_elb\_subnet\_ids) | List of Subnet IDs to be used as targets for all ELBs | `list(string)` | n/a | yes |
-| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of tags (key / value pairs) to apply to all AWS resources | `map(string)` | `{}` | no |
-| <a name="input_nlbs"></a> [nlbs](#input\_nlbs) | Nested Map of AWS Network Load balancers to create and the "apps" (target groups, listeners) associated with each.<br><br>- `key` (string) :  Unique reference for each NLB. Only used to reference resources inside of terraform<br>- `name` (string) : Name of NLB (ELB Names in AWS are not tag based, changing name is destructive)<br>- `internal` (bool) : Default `false`. Set false for public NLB (typical for VM-Series deployment)<br>- `enable_cross_zone_load_balancing` (bool) :  Set to true to enable each front-end to send traffic to all targets ()<br>- `eips` (bool) : Set `true` to create static EIPs for the NLB<br>- `apps` (map) :  Nested map of "apps" associated with this NLB<br>--> `key` (string) :  Unique reference for each app of this NLB. Only used to reference resources inside of terraform<br>--> `name` (string) : Name Tag for the Target Group<br>--> `protocol` (string) : `TCP`, `TLS`, `UDP`, or `TCP_UDP`<br>--> `listener_port` (string) :  Port for the NLB listener<br>--> `target_port` (string) :  Port for the target group for VM-Series translation. Typically will be unique per app<br><br>Example:<pre>nlbs = {<br>  nlb01 = {<br>    name                             = "nlb01-inbound"<br>    internal                         = false<br>    eips                             = true<br>    enable_cross_zone_load_balancing = true<br>    apps = {<br>      app01 = {<br>        name          = "inbound-nlb01-app01-ssh"<br>        protocol      = "TCP"<br>        listener_port = "22"<br>        target_port   = "5001"<br>      }<br>      app02 = {<br>        name          = "inbound-nlb01-app02-https"<br>        protocol      = "TCP"<br>        listener_port = "443"<br>        target_port   = "5002"<br>      }<br>    }<br>  }</pre> | `map(any)` | `{}` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of tags (key / value pairs) to apply to all resources. | `map(string)` | `{}` | no |
+| <a name="input_nlbs"></a> [nlbs](#input\_nlbs) | Nested Map of AWS Network Load balancers to create and the "apps" (target groups, listeners) associated with each.<br><br>-> nlb map key (string) :  Unique reference for each NLB. Only used to reference resources inside of terraform<br>--> `name` (string) : Name of NLB (ELB Names in AWS are not tag based, changing name is destructive)<br>--> `internal` (bool) : Default `false`. Set to `true` to create a private-only NLB.<br>--> `enable_cross_zone_load_balancing` (bool) :  Set to true to enable each front-end to send traffic to all targets ()<br>--> `eips` (bool) : Set `true` to create static EIPs for the NLB<br>--> `apps` (map) :  Nested map of "apps" associated with this NLB<br>---> apps map key (string) :  Unique reference for each app of this NLB. Only used to reference resources inside of terraform<br>----> `name` (string) : Name Tag for the Target Group<br>----> `protocol` (string) : `TCP`, `TLS`, `UDP`, or `TCP_UDP`<br>----> `listener_port` (string) :  Port for the NLB listener<br>----> `target_port` (string) :  Port for the target group for VM-Series translation. Typically will be unique per app<br><br>Example:<pre>nlbs = {<br>  nlb01 = {<br>    name                             = "nlb01-inbound"<br>    internal                         = false<br>    eips                             = true<br>    enable_cross_zone_load_balancing = true<br>    apps = {<br>      app01 = {<br>        name          = "inbound-nlb01-app01-ssh"<br>        protocol      = "TCP"<br>        listener_port = "22"<br>        target_port   = "5001"<br>      }<br>      app02 = {<br>        name          = "inbound-nlb01-app02-https"<br>        protocol      = "TCP"<br>        listener_port = "443"<br>        target_port   = "5002"<br>      }<br>    }<br>  }</pre> | `map(any)` | `{}` | no |
 | <a name="input_target_instance_ids"></a> [target\_instance\_ids](#input\_target\_instance\_ids) | List of Instance IDs of VM-Series (with interface swap enabled) to be used as targets for all ELBs | `list(string)` | n/a | yes |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | AWS VPC ID to create ELB resources | `string` | n/a | yes |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | Identifier of the pre-existing VPC to create the ELB resources in. | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_nlb_eips"></a> [nlb\_eips](#output\_nlb\_eips) | n/a |
-| <a name="output_test"></a> [test](#output\_test) | n/a |
+| <a name="output_alb_dns"></a> [alb\_dns](#output\_alb\_dns) | Map of DNS Names for each ALB |
+| <a name="output_albs"></a> [albs](#output\_albs) | Full output of all ALBs |
+| <a name="output_nlb_dns"></a> [nlb\_dns](#output\_nlb\_dns) | Map of DNS Names for each NLB |
+| <a name="output_nlb_eips"></a> [nlb\_eips](#output\_nlb\_eips) | Map of EIPs created for NLBs |
+| <a name="output_nlbs"></a> [nlbs](#output\_nlbs) | Full output of all NLBs |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Nested Map Input Variable Definitions
@@ -97,7 +100,7 @@ Each alb map inside of `albs` has the following inputs available (See examples f
 
 ### albs -> apps
 
-The `apps` paramater inside of each `alb` is another nested map, where each map represents an application that is associated with the ALB. Create a unique top level key for each application to be defined.
+The `apps` parameter inside of each `alb` is another nested map, where each map represents an application that is associated with the ALB. Create a unique top level key for each application to be defined.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-------:|:-----:|
