@@ -1,4 +1,4 @@
-output nlb_eips {
+output "nlb_eips" {
   description = "Map of EIPs created for NLBs"
   value = {
     for k, v in aws_eip.nlb :
@@ -6,7 +6,7 @@ output nlb_eips {
   }
 }
 
-output alb_dns {
+output "alb_dns" {
   description = "Map of DNS Names for each ALB"
   value = {
     for k, v in aws_lb.alb :
@@ -14,7 +14,7 @@ output alb_dns {
   }
 }
 
-output nlb_dns {
+output "nlb_dns" {
   description = "Map of DNS Names for each NLB"
   value = {
     for k, v in aws_lb.nlb :
@@ -22,12 +22,12 @@ output nlb_dns {
   }
 }
 
-output nlbs {
+output "nlbs" {
   description = "Full output of all NLBs"
-  value = aws_lb.nlb
+  value       = aws_lb.nlb
 }
 
-output albs {
+output "albs" {
   description = "Full output of all ALBs"
-  value = aws_lb.alb
+  value       = aws_lb.alb
 }
