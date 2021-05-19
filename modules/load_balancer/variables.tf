@@ -6,7 +6,7 @@ variable "vpc_id" {
 variable "global_tags" {
   type        = map(string)
   default     = {}
-  description = "Map of tags (key / value pairs) to apply to all AWS resources"
+  description = "Map of tags (key / value pairs) to apply to all resources."
 }
 
 variable "elb_subnet_ids" {
@@ -70,4 +70,3 @@ variable "albs" {
   default     = {}
   description = "Nested Map of Application Load balancers to create and the apps associated with each. See README for details."
 }
-
