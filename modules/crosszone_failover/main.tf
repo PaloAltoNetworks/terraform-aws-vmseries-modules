@@ -46,7 +46,7 @@ resource "aws_iam_role" "lambda_exec" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "test-attach" {
+resource "aws_iam_role_policy_attachment" "test_attach" {
   role       = aws_iam_role.lambda_exec.id
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
@@ -116,7 +116,7 @@ resource "aws_vpc_endpoint" "api" {
   tags = merge(var.tags, { Name = "${var.prefix_name_tag}-apiendpoint" })
 }
 
-resource "aws_api_gateway_rest_api" "pan-failover" {
+resource "aws_api_gateway_rest_api" "pan_failover" {
   name        = "${var.prefix_name_tag}-API-GW"
   description = "Used to trigger lambda for PAN cross zone failover"
 
@@ -151,15 +151,15 @@ resource "aws_api_gateway_rest_api" "pan-failover" {
 POLICY
 }
 
-resource "aws_api_gateway_resource" "pan-failover" {
-  rest_api_id = aws_api_gateway_rest_api.pan-failover.id
-  parent_id   = aws_api_gateway_rest_api.pan-failover.root_resource_id
+resource "aws_api_gateway_resource" "pan_failover" {
+  rest_api_id = aws_api_gateway_rest_api.pan_failover.id
+  parent_id   = aws_api_gateway_rest_api.pan_failover.root_resource_id
   path_part   = "xzoneha"
 }
 
-resource "aws_api_gateway_method" "pan-failover" {
-  rest_api_id   = aws_api_gateway_rest_api.pan-failover.id
-  resource_id   = aws_api_gateway_resource.pan-failover.id
+resource "aws_api_gateway_method" "pan_failover" {
+  rest_api_id   = aws_api_gateway_rest_api.pan_failover.id
+  resource_id   = aws_api_gateway_resource.pan_failover.id
   http_method   = "POST"
   authorization = "NONE"
 
@@ -172,10 +172,10 @@ resource "aws_api_gateway_method" "pan-failover" {
 }
 
 
-resource "aws_api_gateway_method_response" "pan-failover" {
-  rest_api_id = aws_api_gateway_rest_api.pan-failover.id
-  resource_id = aws_api_gateway_resource.pan-failover.id
-  http_method = aws_api_gateway_method.pan-failover.http_method
+resource "aws_api_gateway_method_response" "pan_failover" {
+  rest_api_id = aws_api_gateway_rest_api.pan_failover.id
+  resource_id = aws_api_gateway_resource.pan_failover.id
+  http_method = aws_api_gateway_method.pan_failover.http_method
   status_code = "200"
   response_models = {
     "application/json" = "Empty"
@@ -184,9 +184,9 @@ resource "aws_api_gateway_method_response" "pan-failover" {
 
 data "aws_partition" "current" {}
 
-resource "aws_api_gateway_integration" "pan-failover" {
-  rest_api_id             = aws_api_gateway_rest_api.pan-failover.id
-  resource_id             = aws_api_gateway_resource.pan-failover.id
+resource "aws_api_gateway_integration" "pan_failover" {
+  rest_api_id             = aws_api_gateway_rest_api.pan_failover.id
+  resource_id             = aws_api_gateway_resource.pan_failover.id
   http_method             = "POST"
   integration_http_method = "POST"
   type                    = "AWS"
@@ -203,21 +203,21 @@ REQUEST_TEMPLATE
   }
 }
 
-resource "aws_api_gateway_integration_response" "pan-failover" {
-  depends_on = [aws_api_gateway_integration.pan-failover]
+resource "aws_api_gateway_integration_response" "pan_failover" {
+  depends_on = [aws_api_gateway_integration.pan_failover]
 
-  rest_api_id = aws_api_gateway_rest_api.pan-failover.id
-  resource_id = aws_api_gateway_resource.pan-failover.id
+  rest_api_id = aws_api_gateway_rest_api.pan_failover.id
+  resource_id = aws_api_gateway_resource.pan_failover.id
   http_method = "POST"
   status_code = "200"
 }
 
-resource "aws_api_gateway_deployment" "pan-failover" {
-  depends_on = [aws_api_gateway_integration.pan-failover, aws_api_gateway_integration_response.pan-failover,
-    aws_api_gateway_method_response.pan-failover, aws_api_gateway_method.pan-failover, aws_api_gateway_resource.pan-failover,
-  aws_api_gateway_rest_api.pan-failover, aws_lambda_function.rt_failover]
+resource "aws_api_gateway_deployment" "pan_failover" {
+  depends_on = [aws_api_gateway_integration.pan_failover, aws_api_gateway_integration_response.pan_failover,
+    aws_api_gateway_method_response.pan_failover, aws_api_gateway_method.pan_failover, aws_api_gateway_resource.pan_failover,
+  aws_api_gateway_rest_api.pan_failover, aws_lambda_function.rt_failover]
 
-  rest_api_id = aws_api_gateway_rest_api.pan-failover.id
+  rest_api_id = aws_api_gateway_rest_api.pan_failover.id
   stage_name  = "prod"
 
 }
@@ -231,6 +231,6 @@ resource "aws_lambda_permission" "apigw" {
 
   # The "/*/*" portion grants access from any method on any resource
   # within the API Gateway REST API.
-  source_arn = "${aws_api_gateway_rest_api.pan-failover.execution_arn}/*"
+  source_arn = "${aws_api_gateway_rest_api.pan_failover.execution_arn}/*"
 }
 

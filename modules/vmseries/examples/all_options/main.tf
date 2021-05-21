@@ -18,7 +18,7 @@ data "terraform_remote_state" "bootstrap" {
   }
 }
 
-module "pan-fw" {
+module "pan_fw" {
   source               = "../../modules/vdss_pan_fws"
   buckets_map          = data.terraform_remote_state.bootstrap.outputs.bootstrap_s3_buckets
   subnets_map          = data.terraform_remote_state.vpc.outputs.subnets

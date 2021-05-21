@@ -8,9 +8,9 @@ variable "ssh_key_name" {}
 variable "global_tags" {}
 
 ### BOOTSTRAP
-variable "bootstrap-prefix" {}
+variable "bootstrap-prefix" {} # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
 variable "buckets" {}
-variable "init-cfg" {}
+variable "init-cfg" {} # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
 
 ### VPC
 variable "vpcs" {}

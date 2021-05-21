@@ -43,56 +43,56 @@ variable "bootstrap_directories" {
 }
 
 
-### Variables below goes to the init-cfg.txt
+### Variables below go to the init-cfg.txt
 variable "hostname" {
   default     = ""
   description = "The hostname of the VM-series instance"
   type        = string
 }
 
-variable "panorama-server" {
+variable "panorama-server" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The FQDN or IP address of the primary Panorama server"
   type        = string
 }
 
-variable "panorama-server2" {
+variable "panorama-server2" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The FQDN or IP address of the secondary Panorama server"
   type        = string
 }
 
-variable "tplname" {
+variable "tplname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The Panorama template stack name"
   type        = string
 }
 
-variable "dgname" {
+variable "dgname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The Panorama device group name"
   type        = string
 }
 
-variable "dns-primary" {
+variable "dns-primary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The IP address of the primary DNS server"
   type        = string
 }
 
-variable "dns-secondary" {
+variable "dns-secondary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "The IP address of the secondary DNS server"
   type        = string
 }
 
-variable "vm-auth-key" {
+variable "vm-auth-key" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "Virtual machine authentication key"
   type        = string
 }
 
-variable "op-command-modes" {
+variable "op-command-modes" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
   default     = ""
   description = "Set jumbo-frame and/or mgmt-interface-swap"
   type        = string
