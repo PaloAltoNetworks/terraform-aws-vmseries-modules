@@ -26,7 +26,7 @@ variable prefix_name_tag {
   description = "Prefix used to build name tags for resources"
 }
 
-variable "shared_cred_file" {}
+variable "shared_cred_file" {} # TODO: remove the remote state (TERRAM-116)
 variable "shared_cred_profile" {}
 
 variable lambda_s3_bucket {
