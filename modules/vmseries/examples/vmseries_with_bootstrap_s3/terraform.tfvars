@@ -9,18 +9,14 @@ global_tags = {
   managed-by = "Terraform"
 }
 
-
-
 ### BOOTSTRAP
-bootstrap-prefix = "bar-"
-
+bootstrap_prefix = ""
 
 buckets = {
   vmseries01 = { name = "fw01", iam = "foo-iam-fw01" },
 }
 
-
-init-cfg = {
+init_cfg = {
   panorama-server  = "1.2.3.4",
   panorama-server2 = "3.4.5.6"
   tplname          = "some-tpl"
@@ -29,10 +25,7 @@ init-cfg = {
   dns-secondary    = "8.8.4.4"
   vm-auth-key      = ""
   op-command-modes = ""
-
 }
-
-
 
 ### VPC
 vpcs = {
@@ -46,18 +39,15 @@ vpcs = {
   }
 }
 
-
 route_tables = {
   mgmt1 = { name = "mgmt1" }
   data1 = { name = "data1" }
 }
 
-
 vpc_subnets = {
   mgmt1 = { name = "mgmt1", cidr = "10.208.4.0/28", az = "us-east-1b", rt = "mgmt1" }
   data1 = { name = "data1", cidr = "10.208.4.16/28", az = "us-east-1b", rt = "data1" }
 }
-
 
 security_groups = {
   vmseries-data = {
@@ -69,7 +59,7 @@ security_groups = {
         cidr_blocks = ["0.0.0.0/0"]
       }
     }
-  },
+  }
   vmseries-mgmt = {
     name = "vmseries-mgmt"
     rules = {
@@ -93,8 +83,6 @@ security_groups = {
   }
 }
 
-
-
 ### VMSERIES
 firewalls = [
   {
@@ -109,7 +97,6 @@ firewalls = [
     ]
   }
 ]
-
 
 interfaces = [
   {
