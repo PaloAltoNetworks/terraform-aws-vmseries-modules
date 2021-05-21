@@ -34,7 +34,7 @@ locals {
   buckets_map = {
     for k, bkt in module.bootstrap :
     k => {
-      "arn"  = bkt.bucket.arn
+      "arn"  = bkt.bucket.arn # FIXME: This object does not have an attribute named "bucket". (TERRAM-113)
       "name" = bkt.bucket.bucket
     }
   }
