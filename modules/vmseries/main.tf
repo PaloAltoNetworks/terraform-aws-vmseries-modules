@@ -21,7 +21,7 @@ locals {
 
 #### PA VM AMI ID Lookup based on license type, region, version ####
 
-data "aws_ami" "pa-vm" {
+data "aws_ami" "pa_vm" {
   most_recent = true
   owners      = ["aws-marketplace"]
 
@@ -92,10 +92,10 @@ resource "aws_eip_association" "this" {
 # Create PA VM-series instances
 ################
 
-resource "aws_instance" "pa-vm-series" {
+resource "aws_instance" "pa_vm_series" {
   for_each = local.firewalls
 
-  ami                                  = data.aws_ami.pa-vm.id
+  ami                                  = data.aws_ami.pa_vm.id
   instance_type                        = var.fw_instance_type
   key_name                             = var.ssh_key_name
   iam_instance_profile                 = lookup(each.value, "iam_instance_profile", null)
@@ -128,7 +128,7 @@ resource "aws_instance" "pa-vm-series" {
 
 resource "aws_network_interface_attachment" "this" {
   for_each             = var.addtional_interfaces
-  instance_id          = aws_instance.pa-vm-series[each.value.ec2_instance].id
+  instance_id          = aws_instance.pa_vm_series[each.value.ec2_instance].id
   network_interface_id = aws_network_interface.this[each.key].id
   device_index         = each.value.index
 }
