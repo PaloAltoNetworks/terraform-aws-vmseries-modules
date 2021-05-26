@@ -1,7 +1,7 @@
 # Check module for variable definitions and documentation
 
 variable region {
-  default = ""
+  default = "us-east-1"
 }
 
 variable prefix_name_tag {
