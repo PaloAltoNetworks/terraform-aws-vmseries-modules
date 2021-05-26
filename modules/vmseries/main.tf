@@ -21,6 +21,13 @@ data "aws_ami" "this" {
   owners = ["aws-marketplace"]
 }
 
+# The default EBS encryption KMS key in the current region.
+data "aws_ebs_default_kms_key" "current" {}
+
+data "aws_kms_key" "current" {
+  key_id = data.aws_ebs_default_kms_key.current.key_arn
+}
+
 ###################
 # Network Interfaces
 ###################
@@ -70,6 +77,9 @@ resource "aws_instance" "this" {
 
   root_block_device {
     delete_on_termination = "true"
+    encrypted = var.root_block_device_encrypted
+    kms_key_id = var.root_block_device_encrypted != "true" ? null :  var.root_block_device_encryption_kms_key_id != null ? var.root_block_device_encryption_kms_key_id : data.aws_kms_key.current.arn
+    tags = merge(var.tags, { "Name" = var.name })
   }
 
   # Attach primary interface to the instance

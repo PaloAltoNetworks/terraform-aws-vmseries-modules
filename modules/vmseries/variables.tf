@@ -54,6 +54,18 @@ variable "user_data" {
   default     = null
 }
 
+variable "root_block_device_encrypted" {
+  description = "Whether to enable EBS encryption on the root volume."
+  type        = string
+  default     = "false"
+}
+
+variable "root_block_device_encryption_kms_key_id" {
+  description = "ARN of the KMS Key to use when encrypting the volume. If null, The default EBS encryption KMS key in the current region is used."
+  type        = string
+  default     = null
+}
+
 variable "interfaces" {
   description = <<-EOF
   List of the network interface specifications.
@@ -94,6 +106,6 @@ variable "interfaces" {
 
 variable "tags" {
   description = "A map of tags to be associated with the resources created."
-  default     = {}
   type        = map(any)
+  default     = {}
 }
