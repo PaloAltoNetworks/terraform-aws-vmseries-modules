@@ -1,5 +1,5 @@
 #### PA VM AMI ID Lookup based on license type, region, version ####
-data "aws_ami" "pa-vm" {
+data "aws_ami" "pa_vm" {
   most_recent = true
   owners      = ["aws-marketplace"]
 
@@ -18,7 +18,7 @@ data "aws_ami" "pa-vm" {
 resource "aws_launch_template" "this" {
   name          = "${var.name_prefix}template1"
   ebs_optimized = true
-  image_id      = data.aws_ami.pa-vm.id
+  image_id      = data.aws_ami.pa_vm.id
   instance_type = var.fw_instance_type
   key_name      = var.ssh_key_name
   tags          = var.global_tags

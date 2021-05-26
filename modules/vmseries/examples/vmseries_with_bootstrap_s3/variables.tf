@@ -8,9 +8,9 @@ variable "ssh_key_name" {}
 variable "global_tags" {}
 
 ### BOOTSTRAP
-variable "bootstrap-prefix" {}
+variable "bootstrap_prefix" {}
 variable "buckets" {}
-variable "init-cfg" {}
+variable "init_cfg" {}
 
 ### VPC
 variable "vpcs" {}

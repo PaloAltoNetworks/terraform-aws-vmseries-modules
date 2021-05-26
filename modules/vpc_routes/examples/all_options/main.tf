@@ -21,7 +21,7 @@ locals {
 }
 
 ## Example of creating Internet Gateway Name -> ID map from data lookup based on Name Tag
-data "aws_internet_gateway" "this" {
+data "aws_internet_gateway" "this" { # TODO: fix Error: Your query returned no results. (TERRAM-117)
   for_each = {
     for route in var.vpc_routes : route.next_hop_name => route...
     if lookup(route, "next_hop_type", null) == "internet_gateway" ? true : false

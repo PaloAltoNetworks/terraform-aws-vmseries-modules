@@ -3,20 +3,18 @@ module "bootstrap" {
   for_each                  = var.buckets
   source                    = "../../../bootstrap"
   global_tags               = var.global_tags
-  prefix                    = var.bootstrap-prefix
+  prefix                    = var.bootstrap_prefix
   hostname                  = each.value.name
   iam_instance_profile_name = each.value.iam
-  panorama-server           = var.init-cfg.panorama-server
-  panorama-server2          = var.init-cfg.panorama-server2
-  tplname                   = var.init-cfg.tplname
-  dgname                    = var.init-cfg.dgname
-  dns-primary               = var.init-cfg.dns-primary
-  dns-secondary             = var.init-cfg.dns-secondary
-  vm-auth-key               = var.init-cfg.vm-auth-key
-  op-command-modes          = var.init-cfg.op-command-modes
+  panorama-server           = var.init_cfg.panorama-server
+  panorama-server2          = var.init_cfg.panorama-server2
+  tplname                   = var.init_cfg.tplname
+  dgname                    = var.init_cfg.dgname
+  dns-primary               = var.init_cfg.dns-primary
+  dns-secondary             = var.init_cfg.dns-secondary
+  vm-auth-key               = var.init_cfg.vm-auth-key
+  op-command-modes          = var.init_cfg.op-command-modes
 }
-
-
 
 ### VPC
 module "vpc" {
@@ -31,19 +29,16 @@ module "vpc" {
   security_groups = var.security_groups
 }
 
-
-
 ### VMSERIES
 locals {
   buckets_map = {
     for k, bkt in module.bootstrap :
     k => {
-      "arn"  = bkt.bucket.arn
+      "arn"  = bkt.bucket.arn # FIXME: This object does not have an attribute named "bucket". (TERRAM-113)
       "name" = bkt.bucket.bucket
     }
   }
 }
-
 
 module "vmseries" {
   source              = "../.."
