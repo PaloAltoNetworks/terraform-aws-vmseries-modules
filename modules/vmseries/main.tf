@@ -1,134 +1,92 @@
-locals {
-  firewalls = {
-    for firewall in var.firewalls :
-    firewall.name => firewall
-  }
-
-  interfaces = {
-    for interface in var.interfaces :
-    interface.name => interface
-  }
-
-  eips = {
-    for interface in var.interfaces :
-    interface.name => interface
-    if lookup(interface, "eip_name", null) != null
-  }
-
-}
-
-
-
 #### PA VM AMI ID Lookup based on license type, region, version ####
-
-data "aws_ami" "pa-vm" {
+data "aws_ami" "this" {
+  count       = var.custom_ami_id == null ? 1 : 0
   most_recent = true
-  owners      = ["aws-marketplace"]
-
-  filter {
-    name   = "product-code"
-    values = [var.fw_license_type_map[var.fw_license_type]]
-  }
 
   filter {
     name   = "name"
-    values = ["PA-VM-AWS-${var.fw_version}*"]
+    values = ["PA-VM-AWS-${var.panos_version}*"]
   }
+
+  filter {
+    name   = "product-code"
+    values = [var.fw_product_map[var.fw_product]]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["aws-marketplace"]
 }
-
-################
-# VPC Routes to FW ENI
-################
-
-# Create Default route to FW ENI
-
-resource "aws_route" "to_eni" {
-  for_each = var.rts_to_fw_eni
-
-  route_table_id         = var.route_tables_map[each.value.route_table]
-  destination_cidr_block = each.value.destination_cidr
-  network_interface_id   = aws_network_interface.this[each.value.eni].id
-}
-
 
 ###################
 # Network Interfaces
 ###################
 resource "aws_network_interface" "this" {
-  for_each = local.interfaces
+  for_each = { for k, v in var.interfaces : k => v }
 
-  subnet_id         = var.subnets_map[each.value.subnet_name]
-  source_dest_check = lookup(each.value, "source_dest_check", null)
-  security_groups   = [var.security_groups_map[each.value.security_group]]
-  tags = merge(
-    { Name = each.value.name },
-    var.tags
-  )
+  subnet_id         = each.value.subnet_id
+  private_ips       = try([each.value.private_ip_address], null)
+  source_dest_check = try(each.value.source_dest_check, false)
+  security_groups   = try(each.value.security_groups, null)
+  description       = try(each.value.description, null)
+  tags              = merge(var.tags, { "Name" = each.value.name })
 }
 
 ###################
 # Create and Associate EIPs
 ###################
-
 resource "aws_eip" "this" {
-  for_each = local.eips
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) && ! can(v.eip_allocation_id) }
 
-  vpc = true
-  tags = merge(
-    { Name = each.value.eip_name },
-    var.tags,
-  )
+  vpc              = true
+  public_ipv4_pool = try(each.value.public_ipv4_pool, "amazon")
+  tags             = merge(var.tags, { "Name" = "${each.value.name}-eip" })
 }
 
 resource "aws_eip_association" "this" {
-  for_each = local.eips
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) || can(v.eip_allocation_id) }
 
+  allocation_id        = try(aws_eip.this[each.key].id, var.interfaces[each.key].eip_allocation_id)
   network_interface_id = aws_network_interface.this[each.key].id
-  allocation_id        = aws_eip.this[each.key].id
 }
 
 
 ################
 # Create PA VM-series instances
 ################
-
-resource "aws_instance" "pa-vm-series" {
-  for_each = local.firewalls
-
-  ami                                  = data.aws_ami.pa-vm.id
-  instance_type                        = var.fw_instance_type
-  key_name                             = var.ssh_key_name
-  iam_instance_profile                 = lookup(each.value, "iam_instance_profile", null)
+resource "aws_instance" "this" {
   disable_api_termination              = false
-  ebs_optimized                        = true
   instance_initiated_shutdown_behavior = "stop"
+  ebs_optimized                        = true
+  ami                                  = var.custom_ami_id != null ? var.custom_ami_id : data.aws_ami.this[0].id
+  instance_type                        = var.instance_type
+  key_name                             = var.ssh_key_name
+  user_data                            = var.user_data
   monitoring                           = false
-  tags = merge(
-    { Name = each.value.name },
-    var.tags, each.value.fw_tags
-  )
-
-  user_data = base64encode(join(",", compact(concat(
-    [for k, v in each.value.bootstrap_options : "${k}=${v}"],
-    [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
-  ))))
+  iam_instance_profile                 = var.iam_instance_profile
 
   root_block_device {
-    delete_on_termination = true
+    delete_on_termination = "true"
   }
 
-  dynamic "network_interface" {
-    for_each = each.value.interfaces
-    content {
-      device_index         = network_interface.value.index
-      network_interface_id = aws_network_interface.this[network_interface.value.name].id
-    }
+  # Attach primary interface to the instance
+  network_interface {
+    device_index         = 0
+    network_interface_id = aws_network_interface.this[0].id
   }
+
+  tags = merge(var.tags, { "Name" = var.name })
 }
 
+# Attach interfaces to the instance except the first interface. 
+# First interface will be directly attached to the EC2 instance. See 'aws_instance' resource 
 resource "aws_network_interface_attachment" "this" {
-  for_each             = var.addtional_interfaces
-  instance_id          = aws_instance.pa-vm-series[each.value.ec2_instance].id
+  for_each = { for k, v in aws_network_interface.this : k => v if k > 0 }
+
+  instance_id          = aws_instance.this.id
   network_interface_id = aws_network_interface.this[each.key].id
-  device_index         = each.value.index
+  device_index         = each.key
 }
