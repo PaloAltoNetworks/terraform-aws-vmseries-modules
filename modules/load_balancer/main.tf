@@ -65,16 +65,15 @@ locals {
 
 resource "aws_eip" "nlb" {
   for_each = local.eips_map
-  vpc      = true
-  tags     = merge({ "Name" = each.value.nlb_name }, var.global_tags)
+
+  vpc  = true
+  tags = merge({ "Name" = each.value.nlb_name }, var.global_tags)
 }
 
 
 resource "aws_lb" "nlb" {
   for_each = var.nlbs
-  # for_each                         = {
-  #   for key, nlb in var.nlbs : "${subnet.nlb_key}-${subnet.subnet_key}" => subnet.subnet_id
-  # }
+
   name                             = each.value.name
   internal                         = lookup(each.value, "internal", false)
   load_balancer_type               = "network"
@@ -95,6 +94,7 @@ resource "aws_lb_target_group" "nlb" {
   # name = "${each.value.lb_key}-${each.value.front_end_port}"
   # Issue here with AWS provider and trying to modify target groups in-use by listeners. Workaround Using name_prefix instead
   # https://github.com/terraform-providers/terraform-provider-aws/issues/636
+
   name_prefix = "nlbapp"
   port        = each.value.target_port
   protocol    = each.value.protocol
@@ -106,7 +106,8 @@ resource "aws_lb_target_group" "nlb" {
 }
 
 resource "aws_lb_listener" "nlb" {
-  for_each          = local.nlb_apps_map
+  for_each = local.nlb_apps_map
+
   load_balancer_arn = aws_lb.nlb[each.value.nlb_key].arn
   port              = each.value.listener_port
   protocol          = each.value.protocol
@@ -119,7 +120,8 @@ resource "aws_lb_listener" "nlb" {
 }
 
 resource "aws_lb_target_group_attachment" "nlb" {
-  for_each         = local.nlb_targets_map
+  for_each = local.nlb_targets_map
+
   target_group_arn = aws_lb_target_group.nlb[each.value.nlb_app_key].arn
   target_id        = each.value.target_id
 }
@@ -193,7 +195,8 @@ locals {
 
 
 resource "aws_lb" "alb" {
-  for_each           = var.albs
+  for_each = var.albs
+
   name               = each.value.name
   internal           = lookup(each.value, "internal", null)
   load_balancer_type = "application"
@@ -207,6 +210,7 @@ resource "aws_lb_target_group" "alb" {
   # name = "${each.value.lb_key}-${each.value.front_end_port}"
   # Issue here with AWS provider and trying to modify target groups in-use by listeners. Using name_prefix instead
   # https://github.com/terraform-providers/terraform-provider-aws/issues/636
+
   name_prefix = "albapp"
   port        = each.value.target_port
   protocol    = each.value.target_protocol
@@ -220,7 +224,8 @@ resource "aws_lb_target_group" "alb" {
 
 
 resource "aws_lb_target_group_attachment" "alb" {
-  for_each         = local.alb_targets_map
+  for_each = local.alb_targets_map
+
   target_group_arn = aws_lb_target_group.alb[each.value.app_key].arn
   target_id        = each.value.target_id
 }
@@ -231,6 +236,7 @@ resource "aws_lb_target_group_attachment" "alb" {
 resource "aws_lb_listener" "alb_https" {
   for_each = { for alb_key, alb in var.albs : alb_key => alb
   if lookup(alb, "https_listener", null) == true }
+
   load_balancer_arn = aws_lb.alb[each.key].arn
   port              = each.value.https_listener_port
   certificate_arn   = each.value.default_certificate_arn
@@ -249,7 +255,8 @@ resource "aws_lb_listener" "alb_https" {
 
 # Optionally add additional certs to HTTPS listener
 resource "aws_lb_listener_certificate" "this" {
-  for_each        = local.alb_https_certs_map
+  for_each = local.alb_https_certs_map
+
   listener_arn    = aws_lb_listener.alb_https[each.value.alb_key].arn
   certificate_arn = each.value.cert_arn
 }
@@ -259,6 +266,7 @@ resource "aws_lb_listener_certificate" "this" {
 resource "aws_lb_listener" "alb_http" {
   for_each = { for alb_key, alb in var.albs : alb_key => alb
   if lookup(alb, "http_listener", null) == true }
+
   load_balancer_arn = aws_lb.alb[each.key].arn
   port              = each.value.http_listener_port
   protocol          = "HTTP"
@@ -279,6 +287,7 @@ resource "aws_lb_listener" "alb_http" {
 resource "aws_lb_listener_rule" "alb_http" {
   for_each = { for app_key, alb_app in local.alb_apps_map : app_key => alb_app
   if lookup(alb_app, "listener_protocol", null) == "HTTP" }
+
   listener_arn = aws_lb_listener.alb_http[each.value.alb_key].arn
   priority     = each.value.target_port #Reuse target port value to ensure a unique priority value
 
@@ -311,6 +320,7 @@ resource "aws_lb_listener_rule" "alb_http" {
 resource "aws_lb_listener_rule" "alb_https" {
   for_each = { for app_key, alb_app in local.alb_apps_map : app_key => alb_app
   if lookup(alb_app, "listener_protocol", null) == "HTTPS" }
+
   listener_arn = aws_lb_listener.alb_https[each.value.alb_key].arn
   priority     = each.value.target_port #Reuse target port value to ensure a unique priority value
 
