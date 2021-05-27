@@ -106,7 +106,8 @@ resource "aws_lb_target_group" "nlb" {
 }
 
 resource "aws_lb_listener" "nlb" {
-  for_each          = local.nlb_apps_map
+  for_each = local.nlb_apps_map
+ 
   load_balancer_arn = aws_lb.nlb[each.value.nlb_key].arn
   port              = each.value.listener_port
   protocol          = each.value.protocol
