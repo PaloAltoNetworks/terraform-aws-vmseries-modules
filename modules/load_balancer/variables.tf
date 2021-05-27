@@ -20,15 +20,15 @@ variable "target_instance_ids" {
 }
 
 variable "nlbs" {
-  type        = map(any)
+  type        = any
   default     = {}
   description = <<EOF
 Nested Map of AWS Network Load balancers to create and the "apps" (target groups, listeners) associated with each.
 
 -> nlb map key (string) :  Unique reference for each NLB. Only used to reference resources inside of terraform
 --> `name` (string) : Name of NLB (ELB Names in AWS are not tag based, changing name is destructive)
---> `internal` (bool) : Default `false`. Set to `true` to create a private-only NLB.
---> `enable_cross_zone_load_balancing` (bool) :  Set to true to enable each front-end to send traffic to all targets ()
+--> `internal` (bool) : Default `false`. Set to `true` to create an internal NLB.
+--> `enable_cross_zone_load_balancing` (bool) :  Default `true`. Set to `false` to disable.
 --> `eips` (bool) : Set `true` to create static EIPs for the NLB
 --> `apps` (map) :  Nested map of "apps" associated with this NLB
 ---> apps map key (string) :  Unique reference for each app of this NLB. Only used to reference resources inside of terraform

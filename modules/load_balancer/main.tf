@@ -76,9 +76,9 @@ resource "aws_lb" "nlb" {
   #   for key, nlb in var.nlbs : "${subnet.nlb_key}-${subnet.subnet_key}" => subnet.subnet_id
   # }
   name                             = each.value.name
-  internal                         = lookup(each.value, "internal", null)
+  internal                         = lookup(each.value, "internal", false)
   load_balancer_type               = "network"
-  enable_cross_zone_load_balancing = lookup(each.value, "enable_cross_zone_load_balancing", null)
+  enable_cross_zone_load_balancing = lookup(each.value, "enable_cross_zone_load_balancing", true)
   tags                             = var.global_tags
 
   dynamic "subnet_mapping" {
@@ -106,8 +106,7 @@ resource "aws_lb_target_group" "nlb" {
 }
 
 resource "aws_lb_listener" "nlb" {
-  for_each = local.nlb_apps_map
- 
+  for_each          = local.nlb_apps_map
   load_balancer_arn = aws_lb.nlb[each.value.nlb_key].arn
   port              = each.value.listener_port
   protocol          = each.value.protocol
