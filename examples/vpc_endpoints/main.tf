@@ -6,17 +6,20 @@ module "vpc" {
   cidr_block              = "10.100.0.0/16"
   secondary_cidr_blocks   = ["10.200.0.0/16", "10.201.0.0/16"]
   create_internet_gateway = true
+  create_vpn_gateway      = true
   global_tags             = var.global_tags
 }
 
-module "subnet_mgmt" {
+module "subnet" {
   source = "../../modules/subnet"
 
-  name               = "mgmt-1a"
-  vpc                = module.vpc
-  cidr_block         = "10.100.0.0/25"
-  availability_zone  = "us-east-1a"
-  create_route_table = true
+  name                  = "mgmt-1a"
+  vpc                   = module.vpc
+  cidr_block            = "10.100.0.0/25"
+  availability_zone     = "us-east-1a"
+  create_route_table    = true
+  propagate_routes_from = { myvpn = module.vpc.vpn_gateway.id /* Optionally also a Detached VGW (that is, not parented by a VPC). */ }
+
   routes = {
     mgmt-igw = {
       prefix        = "0.0.0.0/0"
