@@ -46,7 +46,7 @@ resource "aws_network_interface" "this" {
 # Create and Associate EIPs
 ###################
 resource "aws_eip" "this" {
-  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) && ! can(v.eip_allocation_id) }
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) && try(v.eip_allocation_id, false) == false }
 
   vpc              = true
   public_ipv4_pool = try(each.value.public_ipv4_pool, "amazon")
@@ -54,7 +54,7 @@ resource "aws_eip" "this" {
 }
 
 resource "aws_eip_association" "this" {
-  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) || can(v.eip_allocation_id) }
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) || try(v.eip_allocation_id, false) != false }
 
   allocation_id        = try(aws_eip.this[each.key].id, var.interfaces[each.key].eip_allocation_id)
   network_interface_id = aws_network_interface.this[each.key].id
@@ -77,9 +77,9 @@ resource "aws_instance" "this" {
 
   root_block_device {
     delete_on_termination = "true"
-    encrypted = var.root_block_device_encrypted
-    kms_key_id = var.root_block_device_encrypted != "true" ? null :  var.root_block_device_encryption_kms_key_id != null ? var.root_block_device_encryption_kms_key_id : data.aws_kms_key.current.arn
-    tags = merge(var.tags, { "Name" = var.name })
+    encrypted             = var.root_block_device_encrypted
+    kms_key_id            = var.root_block_device_encrypted != "true" ? null : var.root_block_device_encryption_kms_key_id != null ? var.root_block_device_encryption_kms_key_id : data.aws_kms_key.current.arn
+    tags                  = merge(var.tags, { "Name" = var.name })
   }
 
   # Attach primary interface to the instance
