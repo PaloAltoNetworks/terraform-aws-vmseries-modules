@@ -15,7 +15,7 @@ resource "aws_lb_target_group" "this" {
 }
 
 locals {
-  fw-to-gwlb = flatten([
+  fw_to_gwlb = flatten([
     for k, v in var.gateway_load_balancers : [
       for fw in v.firewall_names : {
         firewall_id = var.firewalls[fw].id
@@ -26,7 +26,7 @@ locals {
 }
 
 resource "aws_lb_target_group_attachment" "this" {
-  for_each         = { for k, v in local.fw-to-gwlb : k => v }
+  for_each         = { for k, v in local.fw_to_gwlb : k => v }
   target_group_arn = aws_lb_target_group.this[each.value.gwlb].arn
   target_id        = each.value.firewall_id
 }
