@@ -39,7 +39,7 @@ resource "aws_network_interface" "this" {
   source_dest_check = try(each.value.source_dest_check, false)
   security_groups   = try(each.value.security_groups, null)
   description       = try(each.value.description, null)
-  tags              = merge(var.tags, { "Name" = each.value.name })
+  tags              = merge(var.tags, { Name = each.value.name })
 }
 
 ###################
@@ -50,7 +50,7 @@ resource "aws_eip" "this" {
 
   vpc              = true
   public_ipv4_pool = try(each.value.public_ipv4_pool, "amazon")
-  tags             = merge(var.tags, { "Name" = "${each.value.name}-eip" })
+  tags             = merge(var.tags, { Name = "${each.value.name}-eip" })
 }
 
 resource "aws_eip_association" "this" {
@@ -79,7 +79,7 @@ resource "aws_instance" "this" {
     delete_on_termination = "true"
     encrypted             = var.root_block_device_encrypted
     kms_key_id            = var.root_block_device_encrypted != "true" ? null : var.root_block_device_encryption_kms_key_id != null ? var.root_block_device_encryption_kms_key_id : data.aws_kms_key.current.arn
-    tags                  = merge(var.tags, { "Name" = var.name })
+    tags                  = merge(var.tags, { Name = var.name })
   }
 
   # Attach primary interface to the instance
@@ -88,7 +88,7 @@ resource "aws_instance" "this" {
     network_interface_id = aws_network_interface.this[0].id
   }
 
-  tags = merge(var.tags, { "Name" = var.name })
+  tags = merge(var.tags, { Name = var.name })
 }
 
 # Attach interfaces to the instance except the first interface. 
