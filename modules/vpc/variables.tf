@@ -1,86 +1,37 @@
 variable region {
-  type        = string
+  description = "AWS Region for deployment, for example \"us-east-1\"."
   default     = ""
-  description = "AWS Region for deployment"
+  type        = string
 }
 
 variable prefix_name_tag {
-  type        = string
+  description = "Prepend a string to Name tags for the created resources. Can be empty."
   default     = ""
-  description = "Prepended to name tags for various resources. Leave as empty string if not desired."
+  type        = string
 }
 
 variable global_tags {
-  description = "Optional Map of arbitrary tags to apply to all resources"
-  type        = map(any)
+  description = "Optional map of arbitrary tags to apply to all the created resources."
   default     = {}
-}
-
-variable vpc {
-  description = "Map of parameters for the VPC."
-  type        = any
-  default     = {}
-}
-
-variable vpc_route_tables {
-  type        = any
-  description = "Map of VPC route Tables to create"
-  default     = {}
-}
-
-variable subnets {
-  description = "Map of Subnets to create"
-  type        = any
-  default     = {}
-}
-
-variable nat_gateways {
-  type        = any
-  description = "Map of NAT Gateways to create"
-  default     = {}
-}
-
-variable vpn_gateways {
-  type        = any
-  description = "Map of VGWs to create"
-  default     = {}
-}
-
-variable vpc_endpoints {
-  type        = any
-  description = "Map of VPC endpoints"
-  default     = {}
+  type        = map(string)
 }
 
 variable security_groups {
-  type        = any
-  description = "Map of Security Groups"
+  description = "Map of AWS Security Groups."
   default     = {}
+  type        = any
 }
 
-
-### Testing concept of explicit schema for map vars
-
-# variable vpc {
-#   description = "Parameters for the VPC"
-#   type        = map(object({
-#     name = string
-#     cidr_block = string
-#     secondary_cidr_blocks = list(string)
-#     tenancy = string
-#     igw = bool
-#   }))
-#   default     = {}
-# }
-
-# variable subnets {
-#   description = "Map of subnets to create in the vpc."
-#   type        = map(object({
-#     existing = bool
-#     name = string
-#     cidr = string
-#     az = string
-#     rt = string
-#   }))
-#   default     = {}
-# }
+variable name { default = null }
+variable create_vpc { default = true }
+variable cidr_block { default = null }
+variable secondary_cidr_blocks { default = [] }
+variable create_internet_gateway { default = null }
+variable enable_dns_support { default = null }
+variable enable_dns_hostnames { default = null }
+variable instance_tenancy { default = null }
+variable assign_generated_ipv6_cidr_block { default = null }
+variable create_vpn_gateway { default = false }
+variable vpn_gateway_amazon_side_asn { default = null }
+variable create_nat_gateway { default = false }
+variable vpc_tags { default = {} }
