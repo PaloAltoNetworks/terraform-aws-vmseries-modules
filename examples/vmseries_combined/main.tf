@@ -37,11 +37,11 @@ module "natgw" {
   module = "../../modules/nat_gateway"
 
   name       = var.nat_gateway_name
-  subnet_set = module.security_subnet_set["natgw"]
+  subnet_set = module.security_subnet_sets["natgw"]
 
   act_as_next_hop_for = {
-    "from-gwlb-outbound-to-natgw" = {
-      from_subnet_set = module.security_subnet_set["gwlb-outbound"]
+    "from-gwlbe-outbound-to-natgw" = {
+      from_subnet_set = module.security_subnet_sets["gwlbe-outbound"]
       to              = var.summary_cidr_behind_natgw
     }
   }
@@ -104,10 +104,10 @@ module "gwlbe_eastwest" {
 
   name                  = var.gateway_load_balancer_endpoint_eastwest_name
   gateway_load_balancer = module.security_gwlb
-  subnet_sets           = [module.security_subnet_set["gwlbe-eastwest"]]
+  subnet_sets           = [module.security_subnet_sets["gwlbe-eastwest"]]
   act_as_next_hop_for = {
     "from-tgw-to-gwlbe-eastwest" = {
-      from_subnet_set = module.security_subnet_set["tgw-attach"]
+      from_subnet_set = module.security_subnet_sets["tgw-attach"]
       to              = var.summary_cidr_behind_tgw
     }
   }
@@ -118,14 +118,14 @@ module "gwlbe_outbound" {
 
   name                  = var.gateway_load_balancer_endpoint_outbound_name
   gateway_load_balancer = module.security_gwlb
-  subnet_sets           = [module.security_subnet_set["gwlbe-outbound"]]
+  subnet_sets           = [module.security_subnet_sets["gwlbe-outbound"]]
   act_as_next_hop_for = {
     "from-natgw-to-gwlbe-outbound" = {
-      from_subnet_set = module.security_subnet_set["natgw"]
+      from_subnet_set = module.security_subnet_sets["natgw"]
       to              = var.summary_cidr_behind_gwlbe_outbound
     }
     "from-tgw-to-gwlbe-outbound" = {
-      from_subnet_set = module.security_subnet_set["tgw-attach"]
+      from_subnet_set = module.security_subnet_sets["tgw-attach"]
       to              = var.summary_cidr_behind_gwlbe_outbound
     }
   }
