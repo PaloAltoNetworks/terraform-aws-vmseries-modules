@@ -66,9 +66,8 @@ module transit_gateway {
   }
 }
 
-# Open points:
+# Open point:
 #   - rename `act_as_next_hop_for` to `traffic_from`? 
-#   - I wonder what was the use case for vpc_routes_additional? Search the repos which use modules/vpc_routes.
 
 module transit_gateway_attachment {
   source = "../../modules/transit_gateway_attachment"
@@ -104,7 +103,7 @@ module "gwlbe_eastwest" {
 
   name                  = var.gateway_load_balancer_endpoint_eastwest_name
   gateway_load_balancer = module.security_gwlb
-  subnet_sets           = [module.security_subnet_sets["gwlbe-eastwest"]]
+  subnet_set            = module.security_subnet_sets["gwlbe-eastwest"]
   act_as_next_hop_for = {
     "from-tgw-to-gwlbe-eastwest" = {
       from_subnet_set = module.security_subnet_sets["tgw-attach"]
@@ -118,7 +117,7 @@ module "gwlbe_outbound" {
 
   name                  = var.gateway_load_balancer_endpoint_outbound_name
   gateway_load_balancer = module.security_gwlb
-  subnet_sets           = [module.security_subnet_sets["gwlbe-outbound"]]
+  subnet_set            = module.security_subnet_sets["gwlbe-outbound"]
   act_as_next_hop_for = {
     "from-natgw-to-gwlbe-outbound" = {
       from_subnet_set = module.security_subnet_sets["natgw"]
@@ -129,4 +128,44 @@ module "gwlbe_outbound" {
       to              = var.summary_cidr_behind_gwlbe_outbound
     }
   }
+}
+
+### App1 GWLB ###
+
+# ...
+# ...
+# ... skipped a lot of code for app1_vpc
+# ...
+# ...
+
+module "app1_vpc" {
+  source = "../../modules/vpc"
+
+  name                    = var.app1_vpc_name
+  cidr_block              = var.app1_vpc_cidr
+  vpc_endpoints           = {}
+  security_groups         = var.app1_vpc_security_groups
+  create_internet_gateway = true
+  enable_dns_hostnames    = true
+  enable_dns_support      = true
+  instance_tenancy        = "default"
+}
+
+module "app1_subnet_sets" {
+  for_each = toset(distinct([for _, v in var.app1_vpc_subnets : v.set]))
+  source   = "../../modules/subnet_set"
+
+  name  = each.key
+  vpc   = module.app1_vpc
+  cidrs = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
+
+  create_shared_route_table = false
+}
+
+module "app1_gwlbe_inbound" {
+  source = "../../modules/gateway_load_balancer_endpoint"
+
+  name                  = var.gateway_load_balancer_endpoint_app1_name
+  gateway_load_balancer = module.security_gwlb # FIXME module.app1_gwlb
+  subnet_set            = module.app1_subnet_sets["app1-gwlbe"]
 }
