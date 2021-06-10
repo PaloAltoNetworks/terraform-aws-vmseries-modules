@@ -9,17 +9,6 @@ module "security_vpc" {
   enable_dns_hostnames    = true
   enable_dns_support      = true
   instance_tenancy        = "default"
-
-  igw_is_next_hop_for = {
-    "from-mgmt-to-igw" = {
-      from_subnet_set = module.security_subnet_sets["mgmt"]
-      to              = "0.0.0.0/0"
-    }
-    "from-natgw-to-igw" = {
-      from_subnet_set = module.security_subnet_sets["natgw"]
-      to              = "0.0.0.0/0"
-    }
-  }
 }
 
 module "security_subnet_sets" {
@@ -34,17 +23,10 @@ module "security_subnet_sets" {
 ### NATGW ###
 
 module "natgw" {
-  module = "../../modules/nat_gateway"
+  source = "../../modules/nat_gateway"
 
   name       = var.nat_gateway_name
   subnet_set = module.security_subnet_sets["natgw"]
-
-  act_as_next_hop_for = {
-    "from-gwlbe-outbound-to-natgw" = {
-      from_subnet_set = module.security_subnet_sets["gwlbe-outbound"]
-      to              = var.summary_cidr_behind_natgw
-    }
-  }
 }
 
 ### TGW ###
@@ -66,26 +48,12 @@ module transit_gateway {
   }
 }
 
-# Open point:
-#   - rename `act_as_next_hop_for` to `traffic_from`? 
-
 module transit_gateway_attachment {
   source = "../../modules/transit_gateway_attachment"
 
   name                        = var.security_transit_gateway_attachment
   subnet_set                  = module.security_subnet_sets["tgw-attach"]
   transit_gateway_route_table = module.transit_gateway.route_tables["security-in"]
-
-  act_as_next_hop_for = {
-    "from-gwlbe-outbound-to-tgw" = {
-      from_subnet_set = module.security_subnet_sets["gwlbe-outbound"]
-      to              = var.summary_cidr_behind_tgw
-    }
-    "from-gwlbe-eastwest-to-tgw" = {
-      from_subnet_set = module.security_subnet_sets["gwlbe-eastwest"]
-      to              = var.summary_cidr_behind_tgw
-    }
-  }
 }
 
 ### GWLB ###
@@ -104,12 +72,6 @@ module "gwlbe_eastwest" {
   name                  = var.gateway_load_balancer_endpoint_eastwest_name
   gateway_load_balancer = module.security_gwlb
   subnet_set            = module.security_subnet_sets["gwlbe-eastwest"]
-  act_as_next_hop_for = {
-    "from-tgw-to-gwlbe-eastwest" = {
-      from_subnet_set = module.security_subnet_sets["tgw-attach"]
-      to              = var.summary_cidr_behind_tgw
-    }
-  }
 }
 
 module "gwlbe_outbound" {
@@ -118,16 +80,56 @@ module "gwlbe_outbound" {
   name                  = var.gateway_load_balancer_endpoint_outbound_name
   gateway_load_balancer = module.security_gwlb
   subnet_set            = module.security_subnet_sets["gwlbe-outbound"]
-  act_as_next_hop_for = {
+}
+
+module "security_route" {
+  for_each = {
+    "from-mgmt-to-igw" = {
+      next_hop_set    = module.security_vpc.igw_as_next_hop_set
+      route_table_ids = module.security_subnet_sets["mgmt"].unique_route_table_ids
+      to              = "0.0.0.0/0"
+    }
+    "from-natgw-to-igw" = {
+      next_hop_set    = module.security_vpc.igw_as_next_hop_set
+      route_table_ids = module.security_subnet_sets["natgw"].unique_route_table_ids
+      to              = "0.0.0.0/0"
+    }
     "from-natgw-to-gwlbe-outbound" = {
-      from_subnet_set = module.security_subnet_sets["natgw"]
-      to              = var.summary_cidr_behind_gwlbe_outbound
+      next_hop_set    = module.gwlbe_outbound.next_hop_set
+      route_table_ids = module.security_subnet_sets["natgw"].unique_route_table_ids
+      to              = var.summary_cidr_behind_tgw
     }
     "from-tgw-to-gwlbe-outbound" = {
-      from_subnet_set = module.security_subnet_sets["tgw-attach"]
+      next_hop_set    = module.gwlbe_outbound.next_hop_set
+      route_table_ids = module.security_subnet_sets["tgw-attach"].unique_route_table_ids
       to              = var.summary_cidr_behind_gwlbe_outbound
     }
+    "from-gwlbe-outbound-to-natgw" = {
+      next_hop_set    = module.natgw.next_hop_set
+      route_table_ids = module.security_subnet_sets["gwlbe-outbound"].unique_route_table_ids
+      to              = var.summary_cidr_behind_natgw
+    }
+    "from-gwlbe-outbound-to-tgw" = {
+      next_hop_set    = module.transit_gateway_attachment.next_hop_set
+      route_table_ids = module.security_subnet_sets["gwlbe-outbound"].unique_route_table_ids
+      to              = var.summary_cidr_behind_tgw
+    }
+    "from-tgw-to-gwlbe-eastwest" = {
+      next_hop_set    = module.gwlbe_eastwest.next_hop_set
+      route_table_ids = module.security_subnet_sets["tgw-attach"].unique_route_table_ids
+      to              = var.summary_cidr_behind_tgw
+    }
+    "from-gwlbe-eastwest-to-tgw" = {
+      next_hop_set    = module.transit_gateway_attachment.next_hop_set
+      route_table_ids = module.security_subnet_sets["gwlbe-eastwest"].unique_route_table_ids
+      to              = var.summary_cidr_behind_tgw
+    }
   }
+  source = "../../modules/vpc_route"
+
+  route_table_ids = each.value.route_table_ids
+  to_cidrs        = { (each.value.to) = "ipv4" }
+  next_hop_set    = each.value.next_hop_set
 }
 
 ### App1 GWLB ###
@@ -158,8 +160,6 @@ module "app1_subnet_sets" {
   name  = each.key
   vpc   = module.app1_vpc
   cidrs = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
-
-  create_shared_route_table = false
 }
 
 module "app1_gwlbe_inbound" {
@@ -168,4 +168,18 @@ module "app1_gwlbe_inbound" {
   name                  = var.gateway_load_balancer_endpoint_app1_name
   gateway_load_balancer = module.security_gwlb # FIXME module.app1_gwlb
   subnet_set            = module.app1_subnet_sets["app1-gwlbe"]
+  act_as_next_hop_for = {
+    "from-igw-to-alb" = {
+      route_table_id = module.app1_vpc.internet_gateway_route_table.id
+      to_subnet_set  = module.app1_subnet_sets["app1-alb"]
+    }
+    # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table.
+    # In such IGW routes only the following destinations are allowed by AWS:
+    #     - The entire IPv4 or IPv6 CIDR block of your VPC. (Not interesting, as we always want AZ-specific next hops.)
+    #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used above.)
+    # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
+
+    # Aside: a VGW has the same rules, except it only supports individual NICs and no GWLBE (so, no balancing).
+    # Looks like a temporary AWS limitation.
+  }
 }
