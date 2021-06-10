@@ -48,7 +48,7 @@ module transit_gateway {
   }
 }
 
-module transit_gateway_attachment {
+module security_transit_gateway_attachment {
   source = "../../modules/transit_gateway_attachment"
 
   name                        = var.security_transit_gateway_attachment
@@ -110,7 +110,7 @@ module "security_route" {
       to              = var.summary_cidr_behind_natgw
     }
     "from-gwlbe-outbound-to-tgw" = {
-      next_hop_set    = module.transit_gateway_attachment.next_hop_set
+      next_hop_set    = module.security_transit_gateway_attachment.next_hop_set
       route_table_ids = module.security_subnet_sets["gwlbe-outbound"].unique_route_table_ids
       to              = var.summary_cidr_behind_tgw
     }
@@ -120,7 +120,7 @@ module "security_route" {
       to              = var.summary_cidr_behind_tgw
     }
     "from-gwlbe-eastwest-to-tgw" = {
-      next_hop_set    = module.transit_gateway_attachment.next_hop_set
+      next_hop_set    = module.security_transit_gateway_attachment.next_hop_set
       route_table_ids = module.security_subnet_sets["gwlbe-eastwest"].unique_route_table_ids
       to              = var.summary_cidr_behind_tgw
     }
@@ -133,12 +133,6 @@ module "security_route" {
 }
 
 ### App1 GWLB ###
-
-# ...
-# ...
-# ... skipped a lot of code for app1_vpc
-# ...
-# ...
 
 module "app1_vpc" {
   source = "../../modules/vpc"
@@ -162,11 +156,19 @@ module "app1_subnet_sets" {
   cidrs = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
 }
 
+module app1_transit_gateway_attachment {
+  source = "../../modules/transit_gateway_attachment"
+
+  name                        = var.app1_transit_gateway_attachment_name
+  subnet_set                  = module.app1_subnet_sets["app1-web"]
+  transit_gateway_route_table = module.transit_gateway.route_tables["spoke-in"]
+}
+
 module "app1_gwlbe_inbound" {
   source = "../../modules/gateway_load_balancer_endpoint"
 
   name                  = var.gateway_load_balancer_endpoint_app1_name
-  gateway_load_balancer = module.security_gwlb # FIXME module.app1_gwlb
+  gateway_load_balancer = module.security_gwlb # this is cross-vpc
   subnet_set            = module.app1_subnet_sets["app1-gwlbe"]
   act_as_next_hop_for = {
     "from-igw-to-alb" = {
@@ -182,4 +184,29 @@ module "app1_gwlbe_inbound" {
     # Aside: a VGW has the same rules, except it only supports individual NICs and no GWLBE (so, no balancing).
     # Looks like a temporary AWS limitation.
   }
+}
+
+module "app1_route" {
+  for_each = {
+    from-gwlbe-to-igw = {
+      next_hop_set    = module.app1_vpc.igw_as_next_hop_set
+      route_table_ids = module.app1_subnet_sets["app1-gwlbe"].unique_route_table_ids
+      to              = "0.0.0.0/0"
+    }
+    from-web-to-tgw = {
+      next_hop_set    = module.app1_transit_gateway_attachment.next_hop_set
+      route_table_ids = module.app1_subnet_sets["app1-web"].unique_route_table_ids
+      to              = "0.0.0.0/0"
+    }
+    from-alb-to-gwlbe = {
+      next_hop_set    = module.app1_gwlbe_inbound.next_hop_set
+      route_table_ids = module.app1_subnet_sets["app1-alb"].unique_route_table_ids
+      to              = "0.0.0.0/0"
+    }
+  }
+  source = "../../modules/vpc_route"
+
+  route_table_ids = each.value.route_table_ids
+  to_cidrs        = { (each.value.to) = "ipv4" }
+  next_hop_set    = each.value.next_hop_set
 }

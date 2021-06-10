@@ -230,3 +230,4 @@ app1_vpc_security_groups = {}
 # Pull back info from existing GWLB endpoint service in security VPC
 existing_gateway_load_balancer_name      = "security-gwlb"
 gateway_load_balancer_endpoint_app1_name = "app1-gwlb-endpoint"
+app1_transit_gateway_attachment_name     = "app1-vpc"

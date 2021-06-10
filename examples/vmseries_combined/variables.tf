@@ -27,4 +27,5 @@ variable app1_vpc_subnets {}
 variable app1_vpc_security_groups {}
 variable existing_gateway_load_balancer_name {}
 variable gateway_load_balancer_endpoint_app1_name {}
+variable app1_transit_gateway_attachment_name {}
 variable region {}
