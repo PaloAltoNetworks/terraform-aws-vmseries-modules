@@ -44,3 +44,25 @@ output security_group_ids {
     k => sg.id
   }
 }
+
+output routing_cidrs {
+  value = {}
+}
+
+output igw_as_next_hop_set {
+  description = "The object is suitable for use as `vpc_route` module's input `next_hop_set`."
+  value = {
+    type = "internet_gateway"
+    id   = var.create_internet_gateway || var.use_internet_gateway ? local.internet_gateway.id : null
+    ids  = {}
+  }
+}
+
+# output vpn_gateway_as_next_hop_set {
+#   description = "The object is suitable for use as `vpc_route` module's input `next_hop_set`."
+#   value = {
+#     type = "vpn_gateway"
+#     id   = var.create_vpn_gateway || var.use_vpn_gateway ? local.vpn_gateway.id : null
+#     ids  = {}
+#   }
+# }

@@ -37,7 +37,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
 
 # Either use a pre-existing resource or create a new one. So, is it a pre-existing IGW then?
 data "aws_internet_gateway" "this" {
-  count = 0 # var.create_internet_gateway == false ? 1 : 0 Skip it, needs more conditionals.
+  count = var.create_internet_gateway == false && var.use_internet_gateway ? 1 : 0
 
   filter {
     name   = "attachment.vpc-id"
