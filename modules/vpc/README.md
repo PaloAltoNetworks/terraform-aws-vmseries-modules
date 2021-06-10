@@ -53,7 +53,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | n/a | `any` | `null` | no |
 | <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | n/a | `any` | `null` | no |
-| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `any` | `null` | no |
+| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `bool` | `false` | no |
 | <a name="input_create_nat_gateway"></a> [create\_nat\_gateway](#input\_create\_nat\_gateway) | n/a | `bool` | `false` | no |
 | <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
 | <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | n/a | `bool` | `false` | no |
@@ -66,6 +66,8 @@ No modules.
 | <a name="input_region"></a> [region](#input\_region) | AWS Region for deployment, for example "us-east-1". | `string` | `""` | no |
 | <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of AWS Security Groups. | `any` | `{}` | no |
+| <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | n/a | `map` | `{}` | no |
 | <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
 | <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
 
@@ -75,9 +77,11 @@ No modules.
 |------|-------------|
 | <a name="output_dep"></a> [dep](#output\_dep) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | The VPC identifier (either created or pre-existing). |
+| <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
 | <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |
 | <a name="output_internet_gateway_route_table"></a> [internet\_gateway\_route\_table](#output\_internet\_gateway\_route\_table) | The Route Table object created to handle traffic from Internet Gateway (IGW). It is null when `create_internet_gateway` is false. |
 | <a name="output_name"></a> [name](#output\_name) | The VPC Name Tag (either created or pre-existing). |
+| <a name="output_routing_cidrs"></a> [routing\_cidrs](#output\_routing\_cidrs) | n/a |
 | <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Map of Security Group Name -> ID (newly created). |
 | <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |
 | <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
