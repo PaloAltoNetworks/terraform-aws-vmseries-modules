@@ -8,10 +8,6 @@ output vpc {
   value       = local.vpc
 }
 
-output dep {
-  value = aws_vpc_ipv4_cidr_block_association.this
-}
-
 output name {
   description = "The VPC Name Tag (either created or pre-existing)."
   value       = try(local.vpc.tags.Name, null)

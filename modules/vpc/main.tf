@@ -1,15 +1,21 @@
 locals {
   vpc              = var.create_vpc ? try(aws_vpc.this[0], null) : try(data.aws_vpc.this[0], null)
   internet_gateway = var.create_internet_gateway ? try(aws_internet_gateway.this[0], null) : try(data.aws_internet_gateway.this[0], null)
+
+  # The CIDR blocks are passed by created resources in a completely different manner than in pre-existing data.
+  ipv4_cidr_blocks = var.create_vpc ? concat(
+    [var.cidr_block],
+    [for _, v in aws_vpc_ipv4_cidr_block_association.this : v.cidr_block]
+    ) : [
+    for _, v in try(data.aws_vpc.this[0].cidr_block_associations, null) : v.cidr_block
+  ]
 }
 
 # Either use a pre-existing resource or create a new one. So, is it a pre-existing VPC then?
 data "aws_vpc" "this" {
   count = var.create_vpc == false ? 1 : 0
 
-  tags = {
-    Name = var.name
-  }
+  tags = { Name = var.name }
 }
 
 # Create a new VPC.
@@ -25,7 +31,7 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
-  for_each = toset(var.secondary_cidr_blocks)
+  for_each = { for _, v in var.secondary_cidr_blocks : v => "ipv4" } # convert list to map
 
   vpc_id     = local.vpc.id
   cidr_block = each.key
