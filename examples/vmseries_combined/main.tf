@@ -1,4 +1,4 @@
-module "security_vpc" {
+module security_vpc {
   source = "../../modules/vpc"
 
   name                    = var.security_vpc_name
@@ -11,7 +11,11 @@ module "security_vpc" {
   instance_tenancy        = "default"
 }
 
-module "security_subnet_sets" {
+module security_subnet_sets {
+  # The "set" here means we will repeat in each AZ an identical/similar subnet.
+  # The notion of "set" is used a lot here, it extends to nat gateways, routes, routes' next hops,
+  # gwlb endpoints and any other resources which would be a single point of failure when placed
+  # in a single AZ.
   for_each = toset(distinct([for _, v in var.security_vpc_subnets : v.set]))
   source   = "../../modules/subnet_set"
 
@@ -22,8 +26,9 @@ module "security_subnet_sets" {
 
 ### NATGW ###
 
-module "natgw" {
-  source = "../../modules/nat_gateway"
+module natgw_set {
+  # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
+  source = "../../modules/nat_gateway_set"
 
   name       = var.nat_gateway_name
   subnet_set = module.security_subnet_sets["natgw"]
@@ -58,7 +63,7 @@ module security_transit_gateway_attachment {
 
 ### GWLB ###
 
-module "security_gwlb" {
+module security_gwlb {
   source = "../../modules/gateway_load_balancer"
 
   name             = var.gateway_load_balancer_name
@@ -66,7 +71,7 @@ module "security_gwlb" {
   target_instances = module.vmseries.firewalls           # Takes an aws_instance.id and adds it to the aws_lb_target_group.
 }
 
-module "gwlbe_eastwest" {
+module gwlbe_eastwest {
   source = "../../modules/gateway_load_balancer_endpoint"
 
   name                  = var.gateway_load_balancer_endpoint_eastwest_name
@@ -74,7 +79,7 @@ module "gwlbe_eastwest" {
   subnet_set            = module.security_subnet_sets["gwlbe-eastwest"]
 }
 
-module "gwlbe_outbound" {
+module gwlbe_outbound {
   source = "../../modules/gateway_load_balancer_endpoint"
 
   name                  = var.gateway_load_balancer_endpoint_outbound_name
@@ -82,7 +87,7 @@ module "gwlbe_outbound" {
   subnet_set            = module.security_subnet_sets["gwlbe-outbound"]
 }
 
-module "security_route" {
+module security_route {
   for_each = {
     "from-mgmt-to-igw" = {
       next_hop_set    = module.security_vpc.igw_as_next_hop_set
@@ -105,7 +110,7 @@ module "security_route" {
       to              = var.summary_cidr_behind_gwlbe_outbound
     }
     "from-gwlbe-outbound-to-natgw" = {
-      next_hop_set    = module.natgw.next_hop_set
+      next_hop_set    = module.natgw_set.next_hop_set
       route_table_ids = module.security_subnet_sets["gwlbe-outbound"].unique_route_table_ids
       to              = var.summary_cidr_behind_natgw
     }
@@ -134,7 +139,7 @@ module "security_route" {
 
 ### App1 GWLB ###
 
-module "app1_vpc" {
+module app1_vpc {
   source = "../../modules/vpc"
 
   name                    = var.app1_vpc_name
@@ -147,7 +152,7 @@ module "app1_vpc" {
   instance_tenancy        = "default"
 }
 
-module "app1_subnet_sets" {
+module app1_subnet_sets {
   for_each = toset(distinct([for _, v in var.app1_vpc_subnets : v.set]))
   source   = "../../modules/subnet_set"
 
@@ -164,7 +169,7 @@ module app1_transit_gateway_attachment {
   transit_gateway_route_table = module.transit_gateway.route_tables["spoke-in"]
 }
 
-module "app1_gwlbe_inbound" {
+module app1_gwlbe_inbound {
   source = "../../modules/gateway_load_balancer_endpoint"
 
   name                  = var.gateway_load_balancer_endpoint_app1_name
@@ -186,7 +191,7 @@ module "app1_gwlbe_inbound" {
   }
 }
 
-module "app1_route" {
+module app1_route {
   for_each = {
     from-gwlbe-to-igw = {
       next_hop_set    = module.app1_vpc.igw_as_next_hop_set
