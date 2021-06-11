@@ -42,7 +42,17 @@ output security_group_ids {
 }
 
 output routing_cidrs {
-  value = {}
+  description = "Returns the concatenation of `cidr_block` and `secondary_cidr_blocks` inputs. Even when `create_vpc = false` the `data.aws_vpc.cidr_block_associations` will not be usable to build routes on it because of Terraform limitation ('Invalid count argument')."
+  # Specifically, this fails on provider 3.10 or 3.22:
+  # resource "random_pet" "testing" {
+  #   count = length(data.aws_vpc.this.cidr_block_associations)
+  # }
+  value = { for _, v in concat([var.cidr_block], var.secondary_cidr_blocks) : v => "ipv4" if v != null && v != "" }
+}
+
+output ipv6_routing_cidrs {
+  description = "Does not have the same limitation as routing_cidr output."
+  value       = { for _, v in [local.vpc.ipv6_cidr_block] : v => "ipv6" if v != null && v != "" }
 }
 
 output igw_as_next_hop_set {
