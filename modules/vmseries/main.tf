@@ -32,7 +32,7 @@ data "aws_kms_key" "current" {
 # Network Interfaces
 ###################
 resource "aws_network_interface" "this" {
-  for_each = { for k, v in var.interfaces : k => v }
+  for_each = { for k, v in var.interfaces : k => v } # convert list to map
 
   subnet_id         = each.value.subnet_id
   private_ips       = try([each.value.private_ip_address], null)
