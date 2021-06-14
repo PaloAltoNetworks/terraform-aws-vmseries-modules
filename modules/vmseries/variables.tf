@@ -56,8 +56,8 @@ variable "user_data" {
 
 variable "root_block_device_encrypted" {
   description = "Whether to enable EBS encryption on the root volume."
-  type        = string
-  default     = "false"
+  type        = bool
+  default     = false
 }
 
 variable "root_block_device_encryption_kms_key" {
@@ -71,33 +71,33 @@ variable "interfaces" {
   List of the network interface specifications.
   The first should be the Management network interface, which does not participate in data filtering.
   The remaining ones are the dataplane interfaces.
-  - `name`: (Required|string) Name tag for the ENI.
-  - `description`: (Optional|string) A descriptive name for the ENI.
-  - `subnet_id`: (Required|string) Subnet ID to create the ENI in.
-  - `private_ip_address`: (Optional|string) Private IP to assign to the ENI. If not set, dynamic allocation is used.
-  - `eip_allocation_id`: (Optional|string) Associate an existing EIP to the ENI.
-  - `create_public_ip`: (Optional|bool) Whether to create a public IP for the ENI. Default false.
-  - `public_ipv4_pool`: (Optional|string) EC2 IPv4 address pool identifier. 
-  - `source_dest_check`: (Optional|bool) Whether to enable source destination checking for the ENI. Default false.
-  - `security_groups`: (Optional|list) A list of Security Group IDs to assign to this interface. Default null.
+  - `name`               = (Required|string) Name tag for the ENI.
+  - `description`        =  (Optional|string) A descriptive name for the ENI.
+  - `subnet_id`          =  (Required|string) Subnet ID to create the ENI in.
+  - `private_ip_address` =  (Optional|string) Private IP to assign to the ENI. If not set, dynamic allocation is used.
+  - `eip_allocation_id`  =  (Optional|string) Associate an existing EIP to the ENI.
+  - `create_public_ip`   =  (Optional|bool) Whether to create a public IP for the ENI. Default false.
+  - `public_ipv4_pool`   =  (Optional|string) EC2 IPv4 address pool identifier. 
+  - `source_dest_check`  =  (Optional|bool) Whether to enable source destination checking for the ENI. Default false.
+  - `security_groups`    =  (Optional|list) A list of Security Group IDs to assign to this interface. Default null.
   Example:
   ```
   interfaces =[
     {
-      name: "mgmt"
-      subnet_id: subnet-00000000000000001
-      create_public_ip: true
+      name             = "mgmt"
+      subnet_id        = subnet-00000000000000001
+      create_public_ip = true
     },
     {
-      name: "public"
-      subnet_id: subnet-00000000000000002
-      create_public_ip: true
-      source_dest_check: false
+      name              = "public"
+      subnet_id         = subnet-00000000000000002
+      create_public_ip  = true
+      source_dest_check = false
     },
     {
-      name: "private"
-      subnet_id: subnet-00000000000000003
-      source_dest_check: false
+      name              = "private"
+      subnet_id         = subnet-00000000000000003
+      source_dest_check = false
     },
   ]
   ```
