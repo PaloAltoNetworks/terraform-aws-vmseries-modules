@@ -78,7 +78,7 @@ resource "aws_instance" "this" {
   root_block_device {
     delete_on_termination = "true"
     encrypted             = var.root_block_device_encrypted
-    kms_key_id            = var.root_block_device_encrypted == false ? null : var.root_block_device_encryption_kms_key_id != null ? var.root_block_device_encryption_kms_key_id : data.aws_kms_key.current.arn
+    kms_key_id            = var.root_block_device_encrypted == false ? null : var.root_block_device_encryption_kms_key != null ? var.root_block_device_encryption_kms_key : data.aws_kms_key.current.arn
     tags                  = merge(var.tags, { Name = var.name })
   }
 

@@ -60,7 +60,7 @@ variable "root_block_device_encrypted" {
   default     = "false"
 }
 
-variable "root_block_device_encryption_kms_key_id" {
+variable "root_block_device_encryption_kms_key" {
   description = "ARN of the KMS Key to use when encrypting the volume. If null, The default EBS encryption KMS key in the current region is used."
   type        = string
   default     = null
