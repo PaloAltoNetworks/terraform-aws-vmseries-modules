@@ -97,6 +97,6 @@ resource "aws_network_interface_attachment" "this" {
   for_each = { for k, v in aws_network_interface.this : k => v if k > 0 }
 
   instance_id          = aws_instance.this.id
-  network_interface_id = aws_network_interface.this[each.key].id
+  network_interface_id = each.value.id
   device_index         = each.key
 }
