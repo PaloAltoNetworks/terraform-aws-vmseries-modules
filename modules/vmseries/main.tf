@@ -1,6 +1,6 @@
 #### PA VM AMI ID Lookup based on license type, region, version ####
 data "aws_ami" "this" {
-  count       = var.custom_ami_id == null ? 1 : 0
+  count       = var.use_custom_ami ? 1 : 0
   most_recent = true
 
   filter {
