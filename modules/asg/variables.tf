@@ -61,7 +61,7 @@ variable "security_group_ids" {
 }
 
 variable "lifecycle_hook_timeout" {
-  description = "How long should we wait for lambda to finish"
+  description = "How long should we wait in seconds for the Lambda hook to finish."
   type        = number
   default     = 300
 }
@@ -79,6 +79,21 @@ variable "max_size" {
 variable "min_size" {
   type    = number
   default = 1
+}
+
+variable "warm_pool_state" {
+  description = "See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#warm_pool). Ignored when `max_group_prepared_capacity` is 0 (the default value)."
+  default     = null
+}
+
+variable "warm_pool_min_size" {
+  description = "See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#warm_pool). Ignored when `max_group_prepared_capacity` is 0 (the default value)."
+  default     = null
+}
+
+variable "max_group_prepared_capacity" {
+  description = "Set to non-zero to activate the Warm Pool of instances. See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#warm_pool)."
+  default     = 0
 }
 
 variable "global_tags" {
