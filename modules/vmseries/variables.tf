@@ -69,8 +69,9 @@ variable "root_block_device_encryption_kms_key" {
 variable "interfaces" {
   description = <<-EOF
   List of the network interface specifications.
-  The first should be the Management network interface, which does not participate in data filtering.
+  By default, the first interface maps to the Management interface on the firewall, which does not participate in data filtering.
   The remaining ones are the dataplane interfaces.
+  If mgmt-interface-swap is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall Management interface
   - `name`               = (Required|string) Name tag for the ENI.
   - `description`        =  (Optional|string) A descriptive name for the ENI.
   - `subnet_id`          =  (Required|string) Subnet ID to create the ENI in.
