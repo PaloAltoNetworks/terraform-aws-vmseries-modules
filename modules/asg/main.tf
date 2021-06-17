@@ -57,6 +57,16 @@ resource "aws_autoscaling_group" "this" {
     id      = aws_launch_template.this.id
     version = "$Latest"
   }
+
+  dynamic "warm_pool" {
+    for_each = var.max_group_prepared_capacity > 0 ? ["this"] : [] # the empty list [] disables it
+
+    content {
+      pool_state                  = var.warm_pool_state
+      min_size                    = var.warm_pool_min_size
+      max_group_prepared_capacity = var.max_group_prepared_capacity
+    }
+  }
 }
 
 # Add lifecycle hook to autoscaling group
