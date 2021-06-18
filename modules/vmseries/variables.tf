@@ -83,22 +83,21 @@ variable "interfaces" {
   - `security_groups`    =  (Optional|list) A list of Security Group IDs to assign to this interface. Default null.
   Example:
   ```
-  interfaces =[
+  interfaces = [
     {
-      name             = "mgmt"
-      subnet_id        = subnet-00000000000000001
+      name              = "mgmt"
+      subnet_id         = aws_subnet.mgmt.id
+      create_public_ip  = true
+      source_dest_check = true
+    },
+    {
+      name             = "public"
+      subnet_id        = aws_subnet.mgmt.id
       create_public_ip = true
     },
     {
-      name              = "public"
-      subnet_id         = subnet-00000000000000002
-      create_public_ip  = true
-      source_dest_check = false
-    },
-    {
-      name              = "private"
-      subnet_id         = subnet-00000000000000003
-      source_dest_check = false
+      name      = "private"
+      subnet_id = aws_subnet.private.id
     },
   ]
   ```
