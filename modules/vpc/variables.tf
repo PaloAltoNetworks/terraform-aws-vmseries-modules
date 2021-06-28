@@ -24,7 +24,7 @@ variable security_groups {
 
 variable name { default = null }
 variable create_vpc { default = true }
-variable cidr_block { default = null }
+variable cidr_block {}
 variable secondary_cidr_blocks { default = [] }
 variable create_internet_gateway { default = false }
 variable use_internet_gateway { default = false }
@@ -34,6 +34,4 @@ variable instance_tenancy { default = null }
 variable assign_generated_ipv6_cidr_block { default = null }
 variable create_vpn_gateway { default = false }
 variable vpn_gateway_amazon_side_asn { default = null }
-variable create_nat_gateway { default = false }
 variable vpc_tags { default = {} }
-variable vpc_endpoints { default = {} }

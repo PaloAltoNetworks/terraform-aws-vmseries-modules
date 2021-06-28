@@ -92,26 +92,6 @@ No modules.
 
 For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
 
-### vpc_endpoints
-
-The `vpc_endpoints` variable is a map of maps, where each map represents a VPC Endpoint. Supports both interface and gateway endpoint types.
-
-There is no brownfield support yet for this resource type.
-
-Each vpc_endpoints map has the following inputs available (please see examples folder for additional references):
-
-[Provider's manual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) for the `aws_vpc_endpoint` resource.
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new VPC Endpoint to create | string | - | yes | n/a |
-| service_name | AWS Service Name in format `com.amazonaws.<region>.<service>` | string | - | yes | n/a |
-| vpc_endpoint_type | "Interface" or "Gateway" | string | - | yes | n/a |
-| security_groups | "Interface" type only. List of security groups to associate (using terraform resource identifier key) | list(string) | - | yes (for "Interface" type) | n/a |
-| subnet_ids | "Interface" type only. List of subnets to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
-| route_table_ids | "Gateway" type only. List of route tables to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
-
 ### security_groups
 
 The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.
