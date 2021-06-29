@@ -54,7 +54,6 @@ No modules.
 | <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | n/a | `any` | `null` | no |
 | <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | n/a | `any` | `null` | no |
 | <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `bool` | `false` | no |
-| <a name="input_create_nat_gateway"></a> [create\_nat\_gateway](#input\_create\_nat\_gateway) | n/a | `bool` | `false` | no |
 | <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
 | <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | n/a | `bool` | `false` | no |
 | <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | n/a | `any` | `null` | no |
@@ -62,12 +61,9 @@ No modules.
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | n/a | `any` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
-| <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | Prepend a string to Name tags for the created resources. Can be empty. | `string` | `""` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS Region for deployment, for example "us-east-1". | `string` | `""` | no |
 | <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of AWS Security Groups. | `any` | `{}` | no |
 | <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
-| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | n/a | `map` | `{}` | no |
 | <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
 | <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
 
