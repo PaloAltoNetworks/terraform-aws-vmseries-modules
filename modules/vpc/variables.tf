@@ -24,7 +24,7 @@ variable security_groups {
 
 variable name { default = null }
 variable create_vpc { default = true }
-variable cidr_block {}
+variable cidr_block { default = null }
 variable secondary_cidr_blocks { default = [] }
 variable create_internet_gateway { default = false }
 variable use_internet_gateway { default = false }
