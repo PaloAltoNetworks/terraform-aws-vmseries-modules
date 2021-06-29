@@ -1,13 +1,13 @@
 output vpc_id {
-  value = var.vpc.id
-}
-
-output names {
-  value = { for k, v in local.subnets : k => try(v.tags.Name, null) }
+  value = var.vpc_id
 }
 
 output subnets {
   value = local.subnets
+}
+
+output names {
+  value = { for k, v in local.subnets : k => try(v.tags.Name, null) }
 }
 
 output route_tables {

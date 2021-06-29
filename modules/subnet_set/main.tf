@@ -6,9 +6,9 @@ locals {
       create_subnet           = try(v.create_subnet, true)
       create_route_table      = try(v.create_route_table, v.create_subnet, true)
       read_route_table        = var.create_shared_route_table == false && try(v.create_route_table, v.create_subnet, true) == false
+      existing_route_table_id = try(v.existing_route_table_id, null)
       associate_route_table   = try(v.associate_route_table, true)
       route_table_name        = try(v.route_table_name, null)
-      existing_route_table_id = try(v.existing_route_table_id, null)
       local_tags              = try(v.local_tags, {})
     }
   }
@@ -34,7 +34,7 @@ resource "aws_subnet" "this" {
 
   cidr_block              = each.value.cidr_block
   availability_zone       = each.key
-  vpc_id                  = var.vpc.id
+  vpc_id                  = var.vpc_id
   map_public_ip_on_launch = var.map_public_ip_on_launch
   tags                    = merge(var.global_tags, each.value.local_tags, { Name = each.value.name })
 }
@@ -44,15 +44,15 @@ resource "aws_subnet" "this" {
 data "aws_route_table" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.read_route_table }
 
-  vpc_id         = var.vpc.id
+  vpc_id         = var.vpc_id
   route_table_id = each.value.existing_route_table_id
-  tags           = merge({ Name = coalesce(each.value.route_table_name, each.value.name) })
+  tags           = { Name = coalesce(each.value.route_table_name, each.value.name) }
 }
 
 resource "aws_route_table" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.read_route_table == false && var.create_shared_route_table == false }
 
-  vpc_id           = var.vpc.id
+  vpc_id           = var.vpc_id
   tags             = merge(var.global_tags, each.value.local_tags, { Name = coalesce(each.value.route_table_name, each.value.name) })
   propagating_vgws = var.propagating_vgws
 }
@@ -60,7 +60,7 @@ resource "aws_route_table" "this" {
 resource "aws_route_table" "shared" {
   for_each = { for _, v in local.input_subnets : "shared" => v... if v.read_route_table == false && var.create_shared_route_table }
 
-  vpc_id           = var.vpc.id
+  vpc_id           = var.vpc_id
   tags             = merge(var.global_tags, each.value[0].local_tags, { Name = each.value[0].route_table_name })
   propagating_vgws = var.propagating_vgws
 }
