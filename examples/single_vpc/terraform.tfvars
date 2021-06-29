@@ -1,54 +1,36 @@
 region = "us-east-1"
 
-prefix_name_tag = "bar-" // Used for resource name Tags. Leave as empty string if not desired
+prefix_name_tag = "bar-" // Used for Name Tags of all created resources. Can be empty.
 
 global_tags = {
-  foo         = "bar"
-  managed-by  = "Terraform"
-  description = "VM-Series deployment in single VPC"
+  Foo         = "Bar"
+  Environment = "dev"
+  Team        = "SecOps"
+  Managed-by  = "Terraform"
+  Description = "VM-Series deployment in single VPC"
 }
 
-vpc = { // Module only designed for a single VPC. Set all params here. If existing = true, specify the Name tag of existing VPC
-  vmseries-vpc = {
-    existing              = false
-    name                  = "bar"
-    cidr_block            = "10.100.0.0/16"
-    secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
-    instance_tenancy      = "default"
-    enable_dns_support    = true
-    enable_dns_hostnames  = true
-    internet_gateway      = true
-    local_tags            = { "foo" = "bar" }
-  }
+vpc_tags = {
+  Description = "The VPC holding VM-Series"
 }
 
-vpc_route_tables = {
-  mgmt       = { name = "mgmt" }
-  public     = { name = "public" }
-  tgw-return = { name = "tgw-return" }
-  tgw-attach = { name = "tgw-attach" }
-  lambda     = { name = "lambda" }
-}
+vpc_cidr_block            = "10.100.0.0/16"
+vpc_secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
 
 subnets = {
-  # mgmt-1a       = { existing = true, name = "mgmt-1a" } // For brownfield, set existing = true with name tag of existing subnet
-  mgmt-1a       = { name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt", local_tags = { "foo" = "bar" } }
-  public-1a     = { name = "public-1a", cidr = "10.100.1.0/25", az = "us-east-1a", rt = "public" }
-  inside-1a     = { name = "inside-1a", cidr = "10.100.2.0/25", az = "us-east-1a", rt = "tgw-return" }
-  tgw-attach-1a = { name = "tgw-attach-1a", cidr = "10.100.3.0/25", az = "us-east-1a", rt = "tgw-attach" }
-  lambda-1a     = { name = "lambda-1a", cidr = "10.100.4.0/25", az = "us-east-1a", rt = "lambda" }
-
-  mgmt-1b       = { name = "mgmt-1b", cidr = "10.100.0.128/25", az = "us-east-1b", rt = "mgmt" }
-  public-1b     = { name = "public-1b", cidr = "10.100.1.128/25", az = "us-east-1b", rt = "public" }
-  inside-1b     = { name = "inside-1b", cidr = "10.100.2.128/25", az = "us-east-1b", rt = "tgw-return" }
-  tgw-attach-1b = { name = "tgw-attach-1b", cidr = "10.100.3.128/25", az = "us-east-1b", rt = "tgw-attach" }
-  lambda-1b     = { name = "lambda-1b", cidr = "10.100.4.128/25", az = "us-east-1b", rt = "lambda" }
+  "10.100.0.0/25"   = { az = "us-east-1a", set = "mgmt-1" }
+  "10.100.0.128/25" = { az = "us-east-1b", set = "mgmt-1" }
+  "10.100.1.0/25"   = { az = "us-east-1a", set = "public-1" }
+  "10.100.1.128/25" = { az = "us-east-1b", set = "public-1" }
+  "10.100.2.0/25"   = { az = "us-east-1a", set = "inside-1" }
+  "10.100.2.128/25" = { az = "us-east-1b", set = "inside-1" }
 }
 
-nat_gateways = {
-  public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "foo" = "bar" } }
-  public-1b = { name = "public-1b-natgw", subnet = "public-1a" }
-}
+# TODO Create these NAT Gateways manually.
+# nat_gateways = {
+#   public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "foo" = "bar" } }
+#   public-1b = { name = "public-1b-natgw", subnet = "public-1b" }
+# }
 
 security_groups = {
   vmseries-mgmt = {
@@ -78,21 +60,21 @@ security_groups = {
   }
 }
 
-vpc_routes = {
-  mgmt-igw = {
-    route_table   = "mgmt"
-    prefix        = "0.0.0.0/0"
-    next_hop_type = "internet_gateway"
-    next_hop_name = "vmseries-vpc"
-  }
-  public-igw = {
-    route_table   = "public"
-    prefix        = "0.0.0.0/0"
-    next_hop_type = "internet_gateway"
-    next_hop_name = "vmseries-vpc"
-  }
-}
-
+# TODO Establish these routes manually.
+# vpc_routes = {
+#   mgmt-igw = {
+#     route_table   = "mgmt"
+#     prefix        = "0.0.0.0/0"
+#     next_hop_type = "internet_gateway"
+#     next_hop_name = "vmseries-vpc"
+#   }
+#   public-igw = {
+#     route_table   = "public"
+#     prefix        = "0.0.0.0/0"
+#     next_hop_type = "internet_gateway"
+#     next_hop_name = "vmseries-vpc"
+#   }
+# }
 
 fw_instance_type = "m5.xlarge"
 fw_license_type  = "byol"
@@ -147,13 +129,15 @@ interfaces = [
 ]
 
 
-firewalls = [{
-  name    = "vmseries01"
-  fw_tags = { "foo" = "bar" }
-  interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
-    name  = "vmseries01-mgmt"
-    index = "0"
-  }]
+firewalls = [
+  {
+    name    = "vmseries01"
+    fw_tags = { "foo" = "bar" }
+    interfaces = [{ # Only assign default interface here to avoid instance recreation when later updating interfaces
+      name  = "vmseries01-mgmt"
+      index = "0"
+    }]
+    bootstrap_options = {}
   },
   {
     name    = "vmseries02"
@@ -162,6 +146,7 @@ firewalls = [{
       name  = "vmseries02-mgmt"
       index = "0"
     }]
+    bootstrap_options = {}
   }
 ]
 

@@ -1,38 +1,34 @@
 # Check module for variable definitions and documentation
 
 variable region {
-  default = ""
+  description = "AWS Region for deployment, for example \"us-east-1\"."
+  default     = ""
+  type        = string
 }
 
 variable prefix_name_tag {
-  default = ""
+  description = "Prepend a string to Name tags for the created resources. Can be empty."
+  default     = ""
+  type        = string
 }
 
 variable global_tags {
-  default = {}
+  description = "Optional map of arbitrary tags to apply to all the created resources."
+  default     = {}
+  type        = map(string)
 }
 
-variable vpc {
-  default = {}
+variable vpc_tags {
+  description = "Optional map of arbitrary tags to apply to the created VPC resource, in addition to the `global_tags`."
+  default     = {}
+  type        = map(string)
 }
 
-variable vpc_route_tables {
-  default = {}
-}
+variable vpc_cidr_block {}
+
+variable vpc_secondary_cidr_blocks { default = [] }
 
 variable subnets {
-  default = {}
-}
-
-variable nat_gateways {
-  default = {}
-}
-
-variable vpn_gateways {
-  default = {}
-}
-
-variable vpc_endpoints {
   default = {}
 }
 
@@ -40,19 +36,14 @@ variable security_groups {
   default = {}
 }
 
-variable vpc_routes {
+variable interfaces {}
+variable ssh_key_name {}
+variable firewalls {
   default = {}
 }
-
-
-variable "interfaces" {}
-variable "ssh_key_name" {}
-variable "firewalls" {
-  default = {}
-}
-variable "fw_license_type" {}
-variable "fw_version" {}
-variable "fw_instance_type" {}
-variable "addtional_interfaces" {
+variable fw_license_type {}
+variable fw_version {}
+variable fw_instance_type {}
+variable addtional_interfaces {
   default = {}
 }
