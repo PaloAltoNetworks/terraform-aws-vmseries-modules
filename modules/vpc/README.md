@@ -1,118 +1,24 @@
-# VPC module for VM-Series
+# VPC Terraform Module for AWS
 
-## Overview  
+## Overview
 
-Module for single VPC and all other optional base infrastructure resources to support various Palo Alto Networks VM-Series deployments. 
+Module for a single VPC and associated networking infrastructure resources.
 
-
+One advantage of this module over the [terraform-aws-vpc](https://github.com/terraform-aws-modules/terraform-aws-vpc)
+module is that it does not create multiple resources based on Terraform `count` iterator. This allows for example
+[easier removal](https://github.com/PaloAltoNetworks/terraform-best-practices#22-looping) of any single subnet,
+without the need to briefly destroy and re-create any other subnet.
 
 ### Usage
 
-See examples for more details of usage.
-
-`main.tf`
-
-```
-provider "aws" {
-  region = var.region
-}
-
-module "vpc" {
-  source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
-  global_tags      = var.global_tags
-  prefix_name_tag  = var.prefix_name_tag
-  vpc              = var.vpc
-  vpc_route_tables = var.vpc_route_tables
-  subnets          = var.subnets
-  nat_gateways     = var.nat_gateways
-  vpn_gateways     = var.vpn_gateways
-  vpc_endpoints    = var.vpc_endpoints
-  security_groups  = var.security_groups
-}
-```
-
-`terraform.tfvars`
-
-```
-region = "us-east-1"
-
-prefix_name_tag = "vpc-all-options-" // Used for resource name Tags. Leave as empty string if not desired
-
-global_tags = {
-  managed-by = "Terraform"
-  Description = "Demo of all resource types and optional parameters supported by this module"
-}
-
-vpc = { // Module only designed for a single VPC. Set all params here. If existing = true, specify the Name tag of existing VPC
-  vmseries-vpc = {
-    existing              = false
-    name                  = "my-vpc"
-    cidr_block            = "10.100.0.0/16"
-    secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
-    instance_tenancy      = "default"
-    enable_dns_support    = true
-    enable_dns_hostnames  = true
-    internet_gateway      = true
-    local_tags            = { "foo" = "bar" }
-  }
-}
-
-vpc_route_tables = {
-  mgmt        = { name = "mgmt", vgw_propagation = "vmseries-vgw", local_tags = { "foo" = "bar" } }
-  public      = { name = "public" }
-  igw-ingress = { name = "igw-ingress", igw_association = "vmseries-vpc" }
-}
-
-subnets = {
-  # mgmt-1a       = { existing = true, name = "mgmt-1a" } // For brownfield, set existing = true with name tag of existing subnet
-  mgmt-1a       = { name = "mgmt-1a", cidr = "10.100.0.0/25", az = "us-east-1a", rt = "mgmt", local_tags = { "foo" = "bar" } }
-}
-
-nat_gateways = {
-  public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "foo" = "bar" } }
-}
-
-vpn_gateways = {
-  vmseries-vgw = {
-    name            = "vmseries-vgw"
-    vpc_attached    = true
-    amazon_side_asn = "7224"
-    local_tags = { "foo" = "bar" }
-  }
-}
-
-vpc_endpoints = {
-  ec2-endpoint = {
-    name                = "ec2-endpoint"
-    service_name        = "com.amazonaws.us-east-1.ec2"
-    vpc_endpoint_type   = "Interface"
-    security_groups     = ["vpc-endpoint"]
-    subnet_ids          = ["lambda-1a", "lambda-1b"]
-    private_dns_enabled = false
-    local_tags          = { "foo" = "bar" }
-}
-
-security_groups = {
-  vpc-endpoint = {
-    name       = "vpc-endpoint"
-    local_tags = { "foo" = "bar" }
-    rules = {
-      all-outbound = {
-        description = "Permit All traffic outbound"
-        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-  }
-}
-
-```
+See the examples for details of usage.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=0.12.29, <0.14 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.29, < 0.16 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
 
 ## Providers
@@ -129,160 +35,59 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_dx_gateway_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dx_gateway_association) | resource |
-| [aws_eip.nat_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
-| [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway) | resource |
-| [aws_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
-| [aws_route_table_association.igw_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.vgw_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
 | [aws_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
-| [aws_subnet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
-| [aws_vpc_endpoint.gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
-| [aws_vpc_endpoint.interface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
 | [aws_vpc_ipv4_cidr_block_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association) | resource |
 | [aws_vpn_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
-| [aws_vpn_gateway_route_propagation.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway_route_propagation) | resource |
-| [aws_subnet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
+| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/internet_gateway) | data source |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
-| <a name="input_nat_gateways"></a> [nat\_gateways](#input\_nat\_gateways) | Map of NAT Gateways to create | `any` | `{}` | no |
-| <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS Region for deployment | `string` | `""` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of Security Groups | `any` | `{}` | no |
-| <a name="input_subnets"></a> [subnets](#input\_subnets) | Map of Subnets to create | `any` | `{}` | no |
-| <a name="input_vpc"></a> [vpc](#input\_vpc) | Map of parameters for the VPC. | `any` | `{}` | no |
-| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | Map of VPC endpoints | `any` | `{}` | no |
-| <a name="input_vpc_route_tables"></a> [vpc\_route\_tables](#input\_vpc\_route\_tables) | Map of VPC route Tables to create | `any` | `{}` | no |
-| <a name="input_vpn_gateways"></a> [vpn\_gateways](#input\_vpn\_gateways) | Map of VGWs to create | `any` | `{}` | no |
+| <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | n/a | `any` | `null` | no |
+| <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | n/a | `any` | `null` | no |
+| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
+| <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | n/a | `any` | `null` | no |
+| <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | n/a | `any` | `null` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
+| <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | n/a | `any` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
+| <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
+| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of AWS Security Groups. | `any` | `{}` | no |
+| <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
+| <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_aws_vpc_endpoint_interface_ids"></a> [aws\_vpc\_endpoint\_interface\_ids](#output\_aws\_vpc\_endpoint\_interface\_ids) | Interface VPC Endpoint Name -> ID Map (New) |
-| <a name="output_internet_gateway_id"></a> [internet\_gateway\_id](#output\_internet\_gateway\_id) | Internet Gateway Name -> ID Map (New) |
-| <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | NAT Gateway Name -> ID Map (New) |
-| <a name="output_route_table_ids"></a> [route\_table\_ids](#output\_route\_table\_ids) | Route Tables Name -> ID Map (New) |
-| <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Security Group Name -> ID Map (New) |
-| <a name="output_subnet_ids"></a> [subnet\_ids](#output\_subnet\_ids) | Subnets Name -> ID Map (New AND Existing) |
-| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | VPC Name -> ID Map (New OR Existing) |
-| <a name="output_vpn_gateway_ids"></a> [vpn\_gateway\_ids](#output\_vpn\_gateway\_ids) | VPN Gateway Name -> ID Map (New) |
+| <a name="output_id"></a> [id](#output\_id) | The VPC identifier (either created or pre-existing). |
+| <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
+| <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |
+| <a name="output_internet_gateway_route_table"></a> [internet\_gateway\_route\_table](#output\_internet\_gateway\_route\_table) | The Route Table object created to handle traffic from Internet Gateway (IGW). It is null when `create_internet_gateway` is false. |
+| <a name="output_ipv6_routing_cidrs"></a> [ipv6\_routing\_cidrs](#output\_ipv6\_routing\_cidrs) | Does not have the same limitation as routing\_cidr output. |
+| <a name="output_name"></a> [name](#output\_name) | The VPC Name Tag (either created or pre-existing). |
+| <a name="output_routing_cidrs"></a> [routing\_cidrs](#output\_routing\_cidrs) | Returns the concatenation of `cidr_block` and `secondary_cidr_blocks` inputs. Even when `create_vpc = false` the `data.aws_vpc.cidr_block_associations` will not be usable to build routes on it because of Terraform limitation ('Invalid count argument'). |
+| <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Map of Security Group Name -> ID (newly created). |
+| <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |
+| <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
+| <a name="output_vpn_gateway_route_table"></a> [vpn\_gateway\_route\_table](#output\_vpn\_gateway\_route\_table) | The Route Table object created to handle traffic from Virtual Private Gateway (VGW). It is null when `create_vpn_gateway` is false. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Nested Map Input Variable Definitions
 
 For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
 
-### vpc
+### security_groups
 
-The vpc variable is a map of maps, where each map represents a vpc. Unlike the rest of the nested map vars for this module, the vpc variable is assumed for only a single VPC definition.
-
-There is brownfield support for existing vpc, for this only required to specify `name` and `existing = true`.
-
-The vpc map has the following inputs available (please see examples folder for additional references):
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new / existing VPC  | string | - | yes | yes |
-| existing | Flag only if referencing an existing VPC  | bool | `"false"` | no | yes |
-| cidr_block | The CIDR formatted IP range of the VPC being created | string | - | yes | no |
-| secondary_cidr_block | List of additional CIDR ranges to asssoicate with VPC | list(string) | - | no | no |
-| instance_tenancy | Tenancy option for instances. `"default"`, `"dedicated"`, or `"host"` | string | `"default"` | no | no |
-| enable_dns_support | Enable DNS Support | bool | `"true"` | no | no |
-| enable_dns_hostnames | Enable DNS hostnames | bool | `"false"` | no | no |
-| internet_gateway | Enable IGW creation for this VPC  | bool | `"false"` | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
-
-
-### vpc_route_tables
-
-The vpc_route_tables variable is a map of maps, where each map represents a route table.
-
-There is no brownfield support yet for this resource type.
-
-Each vpc_route_tables map has the following inputs available (please see examples folder for additional references):
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new route table | string | - | yes | n/a |
-| igw_association | Name of internet gateway to associate for Ingress Routing (using terraform resource identifier key) | string | - | no | n/a |
-| vgw_association | Name of vpn gateway to associate for Ingress Routing (using terraform resource identifier key) | string | - | no | n/a |
-| vgw_propagation | Name of vpn gateway to enable propagation from (using terraform resource identifier key) | string | - | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
-
-### subnets
-
-The subnets variable is a map of maps, where each map represents a subnet.
-
-There is brownfield support for existing subnets, for this only required to specify `name` and `existing = true`.
-
-Each subnet map has the following inputs available (please see examples folder for additional references):
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new / existing subnet  | string | - | yes | yes |
-| existing | Flag only if referencing an existing subnet  | bool | `"false"` | no | yes |
-| cidr | The CIDR formatted IP range of the subnet being created | string | - | yes | no |
-| rt | The Route Table to associate the subnet with | string | - | yes | no |
-| az | The availability zone for the subnet  | string | - | no | no |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | no |
-
-### nat_gateways
-
-The nat_gateways variable is a map of maps, where each map represents a nat_gateway. 
-
-There is no brownfield support yet for this resource type.
-
-Each nat_gateways map has the following inputs available (please see examples folder for additional references):
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new NAT Gateway to create | string | - | yes | n/a |
-| subnet | Terraform resource name of the subnet to create NAT Gateway  | sring | - | yes | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
-
-### vpn_gateways
-
-The vpn_gateways variable is a map of maps, where each map represents a vpn_gateway. 
-
-There is no brownfield support yet for this resource type.
-
-Each vpn_gateways map has the following inputs available (please see examples folder for additional references):
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new VPN Gateway to create | string | - | yes | n/a |
-| amazon_side_asn | ASN for the VPN Gateway | string | - | yes | n/a |
-| vpc_attached | Enable attachment to this VPC. Only one VPN gateway can be attached to VPC | bool | `"true"` | no | n/a |
-| dx_gateway_id | ID of existing Direct Connect Gateway to associate VGW with | string | - | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
-
-### vpc_endpoints
-
-The vpc_endpoints variable is a map of maps, where each map represents a vpc_endpoint. Supports both interface and gateway endpoint types. 
-
-There is no brownfield support yet for this resource type.
-
-Each vpc_endpoints map has the following inputs available (please see examples folder for additional references):
-
-[Registry Information](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint)
-
-| Name | Description | Type | Default | Required | Brownfield Required
-|------|-------------|:----:|:-----:|:-----:|:-----:|
-| name | The Name Tag of the new VPC Endpoint to create | string | - | yes | n/a |
-| service_name | AWS Service Name in format `com.amazonaws.<region>.<service>` | string | - | yes | n/a |
-| vpc_endpoint_type | "Interface" or "Gateway" | string | - | yes | n/a |
-| security_groups | "Interface" type only. List of security groups to associate (using terraform resource identifier key) | list(string) | - | yes (for "Interface" type) | n/a |
-| subnet_ids | "Interface" type only. List of subnets to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
-| route_table_ids | "Gateway" type only. List of route tables to associate (using terraform resource identifier key) | list(string) | - | no | n/a |
-| local_tags  | Map of aribrary tags key/value pairs to apply to this resource | map | - | no | n/a |
-
-### secrutiy_groups
+The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.
