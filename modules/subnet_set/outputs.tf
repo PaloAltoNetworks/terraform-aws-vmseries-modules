@@ -6,7 +6,7 @@ output subnets {
   value = local.subnets
 }
 
-output names {
+output subnet_names {
   value = { for k, v in local.subnets : k => try(v.tags.Name, null) }
 }
 
