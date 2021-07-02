@@ -1,41 +1,33 @@
-module single_vpc {
-  source           = "../../modules/vpc/"
-  region           = var.region
-  global_tags      = var.global_tags
-  prefix_name_tag  = var.prefix_name_tag
-  vpc              = var.vpc
-  vpc_route_tables = var.vpc_route_tables
-  subnets          = var.subnets
-  nat_gateways     = var.nat_gateways
-  vpn_gateways     = var.vpn_gateways
-  vpc_endpoints    = var.vpc_endpoints
-  security_groups  = var.security_groups
+module vpc {
+  source = "../../modules/vpc"
+
+  name                    = "${var.prefix_name_tag}vpc"
+  cidr_block              = var.vpc_cidr_block
+  secondary_cidr_blocks   = var.vpc_secondary_cidr_blocks
+  create_internet_gateway = true
+  global_tags             = var.global_tags
+  vpc_tags                = var.vpc_tags
+  security_groups         = var.security_groups
 }
 
-############################################################
-# Call Route module
-############################################################
+module subnet_sets {
+  # The "set" here means we will repeat in each AZ an identical/similar subnet.
+  # The notion of "set" is used a lot here, it extends to nat gateways, routes, routes' next hops,
+  # gwlb endpoints and any other resources which would be a single point of failure when placed
+  # in a single AZ.
+  for_each = toset(distinct([for _, v in var.subnets : v.set]))
+  source   = "../../modules/subnet_set"
 
-module single_vpc_routes {
-  source            = "../../modules/vpc_routes"
-  region            = var.region
-  global_tags       = var.global_tags
-  prefix_name_tag   = var.prefix_name_tag
-  vpc_routes        = var.vpc_routes
-  vpc_route_tables  = module.single_vpc.route_table_ids
-  internet_gateways = module.single_vpc.internet_gateway_id
+  name   = each.key
+  cidrs  = { for k, v in var.subnets : k => v if v.set == each.key }
+  vpc_id = module.vpc.id
 }
-
-############################################################
-# Call VM-Series
-############################################################
-
 
 module "vmseries" {
-  source               = "../../modules/vmseries"
+  source = "../../modules/vmseries"
+
   region               = var.region
-  subnets_map          = module.single_vpc.subnet_ids
-  security_groups_map  = module.single_vpc.security_group_ids
+  security_groups_map  = module.vpc.security_group_ids
   prefix_name_tag      = var.prefix_name_tag
   interfaces           = var.interfaces
   addtional_interfaces = var.addtional_interfaces
@@ -45,4 +37,14 @@ module "vmseries" {
   fw_license_type      = var.fw_license_type
   fw_version           = var.fw_version
   fw_instance_type     = var.fw_instance_type
+
+  # Because vmseries module does not yet handle subnet_set,
+  # convert to a backward compatible map.
+  subnets_map = { for v in flatten([for _, set in module.subnet_sets :
+    [for _, subnet in set.subnets :
+      {
+        subnet = subnet
+      }
+    ]
+  ]) : v.subnet.tags.Name => v.subnet.id }
 }
