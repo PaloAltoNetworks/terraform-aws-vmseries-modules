@@ -23,6 +23,12 @@ module subnet_sets {
   vpc_id = module.vpc.id
 }
 
+module nat_gateway_set {
+  source = "../../modules/nat_gateway_set"
+
+  subnet_set = module.subnet_sets["public-1"]
+}
+
 module "vmseries" {
   source = "../../modules/vmseries"
 

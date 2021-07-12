@@ -26,12 +26,6 @@ subnets = {
   "10.100.2.128/25" = { az = "us-east-1b", set = "inside-1" }
 }
 
-# TODO Create these NAT Gateways manually.
-# nat_gateways = {
-#   public-1a = { name = "public-1a-natgw", subnet = "public-1a", local_tags = { "foo" = "bar" } }
-#   public-1b = { name = "public-1b-natgw", subnet = "public-1b" }
-# }
-
 security_groups = {
   vmseries-mgmt = {
     name = "vmseries-mgmt"
