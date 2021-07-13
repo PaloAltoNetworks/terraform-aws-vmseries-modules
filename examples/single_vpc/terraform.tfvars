@@ -24,6 +24,8 @@ subnets = {
   "10.100.1.128/25" = { az = "us-east-1b", set = "public-1" }
   "10.100.2.0/25"   = { az = "us-east-1a", set = "inside-1" }
   "10.100.2.128/25" = { az = "us-east-1b", set = "inside-1" }
+  "10.100.3.0/25"   = { az = "us-east-1a", set = "natgw-1" }
+  "10.100.3.128/25" = { az = "us-east-1b", set = "natgw-1" }
 }
 
 security_groups = {
@@ -53,22 +55,6 @@ security_groups = {
     }
   }
 }
-
-# TODO Establish these routes manually.
-# vpc_routes = {
-#   mgmt-igw = {
-#     route_table   = "mgmt"
-#     prefix        = "0.0.0.0/0"
-#     next_hop_type = "internet_gateway"
-#     next_hop_name = "vmseries-vpc"
-#   }
-#   public-igw = {
-#     route_table   = "public"
-#     prefix        = "0.0.0.0/0"
-#     next_hop_type = "internet_gateway"
-#     next_hop_name = "vmseries-vpc"
-#   }
-# }
 
 fw_instance_type = "m5.xlarge"
 fw_license_type  = "byol"
