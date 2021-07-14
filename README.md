@@ -2,6 +2,10 @@ Gallery (https://gallery.pan.dev/) is a separate forum used to appropriately str
 Easier method of searching Repositories and maintaining each Repository.
 
 Following Repository is also available in (https://gallery.pan.dev/).
+
+[terraform-aws-vmseries-modules/modules/asg/examples/asg_with_gwlb/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/asg/examples/asg_with_gwlb)
+
+
 [terraform-aws-vmseries-modules/modules/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules)
 
 [terraform-aws-vmseries-modules/modules/bootstrap/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/bootstrap) This Terraform Module creates a PAN-OS bootstrap package in an AWS S3 bucket to be used for bootstrapping Palo Alto Networks VM-Series virtual firewall instances. 
