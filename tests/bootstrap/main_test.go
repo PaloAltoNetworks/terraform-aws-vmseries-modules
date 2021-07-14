@@ -23,6 +23,7 @@
 package t
 
 import (
+	"net/http"
 	"regexp"
 	"testing"
 
@@ -56,7 +57,7 @@ func TestTerraform(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	want := "true"
 
-	reVerifiableBool := regexp.MustCompile("_correct$")
+	reVerifiableBool := regexp.MustCompile("correct$")
 
 	for output := range terraform.OutputAll(t, terraformOptions) {
 		if !reVerifiableBool.MatchString(output) {
@@ -74,4 +75,14 @@ func TestTerraform(t *testing.T) {
 	// This tests that previously existing cloud resources can be successfully modified.
 	terraformOptions.Vars["switchme"] = "false"
 	terraform.InitAndApply(t, terraformOptions)
+
+	// Try to interact with a SUT outside of Terraform. Requires Internet connectivity to AWS S3.
+	resp, err := http.Get("https://" + terraform.Output(t, terraformOptions, "bucket_domain_name"))
+	if err != nil {
+		t.Errorf("on S3 HTTP GET: %v\n", err)
+		return
+	}
+	if resp.StatusCode <= 401 {
+		t.Errorf("Mismatched HTTP status on a GET of the S3 bucket:\ngot:  %v\nwant: above 401\n", resp.StatusCode)
+	}
 }

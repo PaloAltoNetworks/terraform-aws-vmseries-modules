@@ -22,3 +22,7 @@ output bucket_name_correct {
 output instance_profile_name_correct {
   value = (substr(module.bootstrap.instance_profile_name, 0, 2) == "a-")
 }
+
+output bucket_domain_name {
+  value = module.bootstrap.bucket_domain_name
+}
