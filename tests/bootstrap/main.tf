@@ -1,5 +1,5 @@
 variable region {
-  description = "AWS region to use for the created resources"
+  description = "AWS region to use for the created resources."
   default     = null
   type        = string
 }
