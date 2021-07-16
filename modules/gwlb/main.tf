@@ -1,77 +1,74 @@
 data "aws_caller_identity" "current" {}
 
-resource "aws_lb_target_group" "this" {
-  for_each    = var.gateway_load_balancers
-  protocol    = "GENEVE"
-  vpc_id      = var.vpc_id
-  target_type = "instance"
-  port        = "6081"
-  name        = "${var.prefix_name_tag}${each.value.name}"
-  health_check {
-    port     = "80"
-    protocol = "TCP"
-  }
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
-}
-
-locals {
-  fw_to_gwlb = flatten([
-    for k, v in var.gateway_load_balancers : [
-      for fw in v.firewall_names : {
-        firewall_id = var.firewalls[fw].id
-        gwlb        = k
-      }
-    ]
-  ])
-}
-
-resource "aws_lb_target_group_attachment" "this" {
-  for_each         = { for k, v in local.fw_to_gwlb : k => v }
-  target_group_arn = aws_lb_target_group.this[each.value.gwlb].arn
-  target_id        = each.value.firewall_id
-}
-
+# The GWLB.
 resource "aws_lb" "this" {
-  for_each           = var.gateway_load_balancers
-  name               = "${var.prefix_name_tag}${each.value.name}"
-  load_balancer_type = "gateway"
-  subnets = [
-    for subnet in each.value.subnet_names :
-    var.subnets_map[subnet]
-  ]
+  name                             = var.name
+  load_balancer_type               = "gateway"
   enable_cross_zone_load_balancing = true
+  subnets                          = [for v in var.subnet_set.subnets : v.id]
+  tags                             = merge(var.global_tags, { Name = var.name }, var.lb_tags)
+
   lifecycle {
     create_before_destroy = true
   }
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
 }
 
+# The Service which accepts traffic from Endpoints ("clients") located on any VPCs.
+# One service is possible per one gwlb.
+resource "aws_vpc_endpoint_service" "this" {
+  allowed_principals         = coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"])
+  acceptance_required        = false
+  gateway_load_balancer_arns = [aws_lb.this.arn]
+  tags                       = merge(var.global_tags, { Name = var.name }, var.endpoint_service_tags)
+
+  # Workaround for: error waiting for VPC Endpoint (vpce-00777c35bf9ae9c53) to become available: VPC Endpoint is in a failed state
+  depends_on = [aws_lb.this]
+}
+
+# The GWLB Listener.
+# One listener is possible for one gwlb, else it fails with "DuplicateListener: A listener already exists on this port for this load balancer".
 resource "aws_lb_listener" "this" {
-  for_each          = var.gateway_load_balancers
-  load_balancer_arn = aws_lb.this[each.key].arn
+  load_balancer_arn = aws_lb.this.arn
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.this[each.key].arn
+    target_group_arn = aws_lb_target_group.this.arn
+  }
+  # tags = merge(var.global_tags, { Name = var.name }, var.lb_tags)    would require aws provider v3.40.0
+}
+
+# Target Group
+# One target group is possible for one gwlb, or else it fails with "You cannot specify multiple target groups in a single action with a load balancer of type 'gateway'".
+resource "aws_lb_target_group" "this" {
+  name                 = var.name
+  vpc_id               = var.subnet_set.vpc_id
+  target_type          = "instance"
+  protocol             = "GENEVE"
+  port                 = "6081"
+  deregistration_delay = var.deregistration_delay
+  # Tags were accepted on old aws providers starting from v3.18, but since v3.49 they fail with
+  # "You cannot specify tags on creation of a GENEVE target group".
+  # https://github.com/hashicorp/terraform-provider-aws/issues/20144
+  #
+  # tags = merge(var.global_tags, { Name = var.name }, var.lb_target_group_tags)
+  tags = var.lb_target_group_tags
+
+  health_check {
+    enabled             = var.health_check_enabled
+    interval            = var.health_check_interval
+    matcher             = var.health_check_matcher
+    path                = var.health_check_path
+    port                = var.health_check_port
+    protocol            = var.health_check_protocol
+    timeout             = var.health_check_timeout
+    healthy_threshold   = var.healthy_threshold
+    unhealthy_threshold = var.unhealthy_threshold
   }
 }
 
-resource "aws_vpc_endpoint_service" "this" {
-  for_each            = var.gateway_load_balancers
-  acceptance_required = false
-  #allowed_principals         = lookup(each.value, "allowed_principals", null) #["arn:aws:iam::632512868473:root"]
-  allowed_principals         = ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]
-  gateway_load_balancer_arns = [aws_lb.this[each.key].arn]
-  tags                       = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
-}
+# Attach one or more Targets (EC2 Instances).
+resource "aws_lb_target_group_attachment" "this" {
+  for_each = var.target_instances
 
-resource "aws_vpc_endpoint" "this" {
-  for_each          = var.gateway_load_balancer_endpoints
-  service_name      = aws_vpc_endpoint_service.this[each.value.gateway_load_balancer].service_name
-  vpc_endpoint_type = aws_vpc_endpoint_service.this[each.value.gateway_load_balancer].service_type
-  vpc_id            = var.vpc_id
-  subnet_ids = [
-    for subnet in each.value.subnet_names :
-    var.subnets_map[subnet]
-  ]
-  tags = merge({ Name = "${var.prefix_name_tag}${each.value.name}" }, var.global_tags, lookup(each.value, "local_tags", {}))
+  target_group_arn = aws_lb_target_group.this.arn
+  target_id        = each.value.id
 }

@@ -1,60 +1,116 @@
-variable "region" {
-  description = "AWS Region."
-}
-
-variable "global_tags" {
-  description = "Map of additional tags to apply to all resources."
-  default     = {}
-  type        = map(any)
-}
-
-variable "prefix_name_tag" {
-  description = "Prefix used to build name tags for resources."
-  default     = ""
+variable "name" {
+  description = "Name of the created GWLB and its Target Group. Must be unique per AWS region per AWS account."
   type        = string
 }
 
-variable "subnets_map" {
-  description = <<-EOF
-  Map of subnet name to ID, can be passed from remote state output or data source.
+variable "subnet_set" {
+  description = "The Subnet Set object as produced by calling the `modules/subnet_set`. It contains AWS subnets where to create the GWLB."
+  type = object({
+    vpc_id = string
+    subnets = map(object({
+      id = string
+    }))
+  })
+}
 
-  Example:
-
-  ```
-  subnets_map = {
-    "panorama-mgmt-1a" = "subnet-0e1234567890"
-    "panorama-mgmt-1b" = "subnet-0e1234567890"
-  }
-  ```
-  EOF
+variable "target_instances" {
+  description = "Map of instances to attach to the GWLB Target Group."
   default     = {}
-  type        = map(any)
-}
-
-variable "name" {
-  type = string
-}
-
-variable "vpc_id" {
-  type = string
-}
-
-variable "firewalls" {
-  description = "(optional) Map of firewalls that will be attached to target group."
-  default     = {}
-  type        = map(any)
-}
-
-variable "subnet_ids" {
-  description = "A list of subnet IDs to attach to the Load Balancer."
-  type        = list(any)
+  type = map(object({
+    id = string
+  }))
 }
 
 variable "allowed_principals" {
-  description = "Map of principals allowed to use enpoint service."
+  description = "List of AWS Principal ARNs who are allowed access to the GWLB Endpoint Service. For example `[\"arn:aws:iam::123456789000:root\"]`."
   default     = []
-  type        = list(any)
+  type        = list(string)
 }
 
-variable "gateway_load_balancers" {}
-variable "gateway_load_balancer_endpoints" {}
+##### Healthcheck #####
+
+variable "deregistration_delay" {
+  description = "See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#deregistration_delay)."
+  default     = null
+  type        = number
+}
+
+variable "health_check_enabled" {
+  description = "See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#health_check)."
+  default     = null
+  type        = bool
+}
+
+variable "health_check_interval" {
+  description = "Approximate amount of time, in seconds, between health checks of an individual target. Minimum 5 and maximum 300 seconds."
+  default     = 5 # override the AWS default of 10 seconds
+  type        = number
+}
+
+variable "health_check_matcher" {
+  description = "See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#health_check)."
+  default     = null
+  type        = string
+}
+
+variable "health_check_path" {
+  description = "See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#health_check)."
+  default     = null
+  type        = string
+}
+
+variable "health_check_port" {
+  description = "The port on a target to which the load balancer sends health checks."
+  default     = 80
+  type        = number
+}
+
+variable "health_check_protocol" {
+  description = "Protocol to use when communicating with `health_check_port`. Either HTTP, HTTPS, or TCP."
+  default     = "TCP"
+  type        = string
+}
+
+variable "health_check_timeout" {
+  description = "After how many seconds to consider the health check as failed without a response. Minimum 2 and maximum 120. Required to be `null` when `health_check_protocol` is TCP."
+  default     = null
+  type        = number
+}
+
+variable "healthy_threshold" {
+  description = "The number of successful health checks required before an unhealthy target becomes healthy. Minimum 2 and maximum 10."
+  default     = 3
+  type        = number
+}
+
+variable "unhealthy_threshold" {
+  description = "The number of failed health checks required before a healthy target becomes unhealthy. Minimum 2 and maximum 10."
+  default     = 3
+  type        = number
+}
+
+##### Various categories of Tags #####
+
+variable "lb_tags" {
+  description = "Map of AWS tags to apply to the created Load Balancer object. These tags are applied after the `global_tags`."
+  default     = {}
+  type        = map(string)
+}
+
+variable "lb_target_group_tags" {
+  description = "Map of AWS tags to apply to the created GWLB Target Group. These tags are applied after the `global_tags`."
+  default     = {}
+  type        = map(string)
+}
+
+variable "endpoint_service_tags" {
+  description = "Map of AWS tags to apply to the created GWLB Endpoint Service. These tags are applied after the `global_tags`."
+  default     = {}
+  type        = map(string)
+}
+
+variable "global_tags" {
+  description = "Map of AWS tags to apply to all the created resources."
+  default     = {}
+  type        = map(string)
+}
