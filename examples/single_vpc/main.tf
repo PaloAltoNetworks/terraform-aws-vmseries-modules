@@ -26,7 +26,32 @@ module subnet_sets {
 module nat_gateway_set {
   source = "../../modules/nat_gateway_set"
 
-  subnet_set = module.subnet_sets["public-1"]
+  subnet_set = module.subnet_sets["natgw-1"]
+}
+
+module vpc_route {
+  for_each = {
+    mgmt = {
+      route_table_ids = module.subnet_sets["mgmt-1"].unique_route_table_ids
+      next_hop_set    = module.vpc.igw_as_next_hop_set
+      to_cidr         = var.igw_routing_destination_cidr
+    }
+    public = {
+      route_table_ids = module.subnet_sets["public-1"].unique_route_table_ids
+      next_hop_set    = module.nat_gateway_set.next_hop_set
+      to_cidr         = var.igw_routing_destination_cidr
+    }
+    natgw = {
+      route_table_ids = module.subnet_sets["natgw-1"].unique_route_table_ids
+      next_hop_set    = module.vpc.igw_as_next_hop_set
+      to_cidr         = var.igw_routing_destination_cidr
+    }
+  }
+  source = "../../modules/vpc_route"
+
+  route_table_ids = each.value.route_table_ids
+  next_hop_set    = each.value.next_hop_set
+  to_cidr         = each.value.to_cidr
 }
 
 module "vmseries" {

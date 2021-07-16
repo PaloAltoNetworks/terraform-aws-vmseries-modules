@@ -28,6 +28,12 @@ variable vpc_cidr_block {}
 
 variable vpc_secondary_cidr_blocks { default = [] }
 
+variable igw_routing_destination_cidr {
+  description = "The destination CIDR that matches traffic from the deployed VPC towards the Internet Gateway."
+  default     = "0.0.0.0/0"
+  type        = string
+}
+
 variable subnets {
   default = {}
 }
