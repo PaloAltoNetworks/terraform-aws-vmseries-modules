@@ -1,30 +1,3 @@
-Gallery (https://gallery.pan.dev/) is a separate forum used to appropriately structure and organize repositories. 
-Easier method of searching Repositories and maintaining each Repository.
-
-Following Repository is also available in (https://gallery.pan.dev/).
-[terraform-aws-vmseries-modules/modules/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules)
-
-[terraform-aws-vmseries-modules/modules/bootstrap/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/bootstrap) This Terraform Module creates a PAN-OS bootstrap package in an AWS S3 bucket to be used for bootstrapping Palo Alto Networks VM-Series virtual firewall instances. 
-
-[terraform-aws-vmseries-modules/modules/crosszone_failover/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/crosszone_failover)
-
-[terraform-aws-vmseries-modules/modules/gwlb/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/gwlb)
-
-[terraform-aws-vmseries-modules/modules/transit_gateway/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/transit_gateway) Module for interactions with Transit Gateways for VM-Series deployments.
-
-[terraform-aws-vmseries-modules/modules/vmseries/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/vmseries)
-
-[terraform-aws-vmseries-modules/modules/vpc/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/vpc)
-
-[terraform-aws-vmseries-modules/modules/vpc_routes/](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/modules/vpc_routes)
-
-
-
-
-
-
-
-
 # Terraform Modules for Palo Alto Networks VM-Series on AWS
 
 ## Overview
