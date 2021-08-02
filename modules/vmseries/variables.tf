@@ -108,7 +108,7 @@ variable "interfaces" {
   }]
   ```
   EOF
-  default = [ # Example
+  default = [
     {
       name              = "ingress-fw1-mgmt"
       eip_name          = "ingress-fw1-mgmt-eip"
@@ -122,7 +122,6 @@ variable "interfaces" {
       subnet_name       = "ingress-trust-subnet-az1"
       security_group    = "sg-123456789"
   }]
-  type = map(any)
 }
 
 variable "firewalls" {
@@ -173,7 +172,6 @@ variable "firewalls" {
         index = "2"
     }]
   }]
-  type = map(any)
 }
 
 variable "ssh_key_name" {
