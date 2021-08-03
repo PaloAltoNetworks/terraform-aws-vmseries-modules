@@ -1,22 +1,22 @@
-variable global_tags {
-  description = "Optional Map of arbitrary tags to apply to all resources"
-  type        = map(any)
+variable "global_tags" {
+  description = "Optional Map of arbitrary tags to apply to all resources."
   default     = {}
+  type        = map(any)
 }
 
-variable prefix {
-  type    = string
+variable "prefix" {
   default = "bootstrap"
+  type    = string
 }
 
-variable iam_instance_profile_name {
-  description = "(optional) Name of the instance profile to create. If empty, name will be generated automatically"
-  type        = string
+variable "iam_instance_profile_name" {
+  description = "(optional) Name of the instance profile to create. If empty, name will be generated automatically."
   default     = ""
+  type        = string
 }
 
 variable "bootstrap_directories" {
-  description = "The directories comprising the bootstrap package"
+  description = "The directories comprising the bootstrap package."
   default = [
     "config/",
     "content/",
@@ -26,58 +26,57 @@ variable "bootstrap_directories" {
   ]
 }
 
-
 ### Variables below go to the init-cfg.txt
 variable "hostname" {
+  description = "The hostname of the VM-series instance."
   default     = ""
-  description = "The hostname of the VM-series instance"
   type        = string
 }
 
 variable "panorama-server" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The FQDN or IP address of the primary Panorama server."
   default     = ""
-  description = "The FQDN or IP address of the primary Panorama server"
   type        = string
 }
 
 variable "panorama-server2" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The FQDN or IP address of the secondary Panorama server."
   default     = ""
-  description = "The FQDN or IP address of the secondary Panorama server"
   type        = string
 }
 
 variable "tplname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The Panorama template stack name."
   default     = ""
-  description = "The Panorama template stack name"
   type        = string
 }
 
 variable "dgname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The Panorama device group name."
   default     = ""
-  description = "The Panorama device group name"
   type        = string
 }
 
 variable "dns-primary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The IP address of the primary DNS server."
   default     = ""
-  description = "The IP address of the primary DNS server"
   type        = string
 }
 
 variable "dns-secondary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "The IP address of the secondary DNS server."
   default     = ""
-  description = "The IP address of the secondary DNS server"
   type        = string
 }
 
 variable "vm-auth-key" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "Virtual machine authentication key."
   default     = ""
-  description = "Virtual machine authentication key"
   type        = string
 }
 
 variable "op-command-modes" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "Set jumbo-frame and/or mgmt-interface-swap."
   default     = ""
-  description = "Set jumbo-frame and/or mgmt-interface-swap"
   type        = string
 }
