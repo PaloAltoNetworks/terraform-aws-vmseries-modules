@@ -1,11 +1,11 @@
-variable region {
+variable "region" {
   default = ""
 }
 
-variable prefix {
+variable "prefix" {
   default = ""
 }
 
-variable global_tags {
+variable "global_tags" {
   default = {}
 }
