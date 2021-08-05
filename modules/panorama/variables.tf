@@ -6,16 +6,7 @@ variable "global_tags" {
 
 # Panorama version for AMI lookup
 variable "panorama_version" {
-  description = <<-EOF
-  Select which Panorama version to deploy.
-
-  Example:
-
-  ```
-  default = "8.1.2"
-  default = "8.1.0"
-  ```
-  EOF
+  description = "Panorama version to deploy. For example: \"8.1.2\"."
   default     = "10.0.2"
   type        = string
 
