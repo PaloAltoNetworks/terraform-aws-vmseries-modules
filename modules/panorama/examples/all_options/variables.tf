@@ -9,8 +9,8 @@ variable "global_tags" {
 }
 
 variable "panorama_version" {
-  type    = string
   default = "10.0.2"
+  type    = string
 }
 
 variable "panoramas" {}
