@@ -9,7 +9,6 @@ variable "panorama_version" {
   description = "Panorama version to deploy. For example: \"8.1.2\"."
   default     = "10.0.2"
   type        = string
-
 }
 
 # License type for AMI lookup
