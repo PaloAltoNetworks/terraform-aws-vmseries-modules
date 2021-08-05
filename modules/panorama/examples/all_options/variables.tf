@@ -2,7 +2,11 @@
 
 variable "region" {}
 
-variable "global_tags" {}
+variable "global_tags" {
+  description = "Map of tags to add to all resources."
+  default     = {}
+  type        = map(string)
+}
 
 variable "panorama_version" {
   type    = string
