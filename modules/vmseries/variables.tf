@@ -108,20 +108,6 @@ variable "interfaces" {
   }]
   ```
   EOF
-  default = [
-    {
-      name              = "ingress-fw1-mgmt"
-      eip_name          = "ingress-fw1-mgmt-eip"
-      source_dest_check = true
-      subnet_name       = "ingress-mgmt-subnet-az1"
-      security_group    = "sg-123456789"
-    },
-    {
-      name              = "ingress-fw1-trust"
-      source_dest_check = false
-      subnet_name       = "ingress-trust-subnet-az1"
-      security_group    = "sg-123456789"
-  }]
 }
 
 variable "firewalls" {
@@ -154,24 +140,6 @@ variable "firewalls" {
   ```
 
   EOF
-  default = [{
-    name = "ingress-fw1"
-    bootstrap_options = {
-      mgmt-interface-swap = "disable"
-    }
-    interfaces = [{
-      name  = "ingress-fw1-mgmt"
-      index = "0"
-      },
-      {
-        name  = "ingress-fw1-untrust"
-        index = "1"
-      },
-      {
-        name  = "ingress-fw1-trust"
-        index = "2"
-    }]
-  }]
 }
 
 variable "ssh_key_name" {
