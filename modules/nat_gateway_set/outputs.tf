@@ -1,4 +1,4 @@
-output next_hop_set {
+output "next_hop_set" {
   description = <<-EOF
   The Next Hop Set object, useful as the input to the `vpc_route` module. Example:
 
@@ -20,12 +20,12 @@ output next_hop_set {
   }
 }
 
-output nat_gateways {
+output "nat_gateways" {
   description = "The map of NAT Gateway objects."
   value       = local.nat_gateways
 }
 
-output eips {
+output "eips" {
   description = "The map of Elastic IP objects. Only valid if `create_nat_gateway` is at the default true value."
   value       = var.create_nat_gateway ? local.eips : {}
 }

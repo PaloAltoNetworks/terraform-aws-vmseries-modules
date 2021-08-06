@@ -1,33 +1,17 @@
 # Check module for variable definitions and documentation
 
-variable region {
-  default = ""
-}
+variable "region" {}
 
-variable prefix_name_tag {
-  default = ""
-}
+variable "prefix_name_tag" {}
 
-variable global_tags {
-  default = {}
-}
+variable "global_tags" {}
 
-variable vpcs {
-  default = {}
-}
+variable "vpcs" {}
 
-variable subnets {
-  default = {}
-}
+variable "subnets" {}
 
-variable transit_gateways {
-  default = {}
-}
+variable "transit_gateways" {}
 
-variable transit_gateway_vpc_attachments {
-  default = {}
-}
+variable "transit_gateway_vpc_attachments" {}
 
-variable transit_gateway_peerings {
-  default = {}
-}
+variable "transit_gateway_peerings" {}

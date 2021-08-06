@@ -1,45 +1,45 @@
 variable "subnet_state" {
-  description = "Exported state from base VPC workspace to map resource names to IDs"
+  description = "Exported state from base VPC workspace to map resource names to IDs."
 }
 
 variable "sg_state" {
-  description = "Exported state from base infra workspace to make SG names to IDs"
+  description = "Exported state from base infra workspace to make SG names to IDs."
 }
 
 variable "vpc_id" {
-  description = "VPC ID"
+  description = "VPC ID."
 }
 
 variable "region" {
-  description = "AWS Region"
+  description = "AWS Region."
 }
 
 variable "tags" {
-  description = "Map of additional tags to apply to all resources"
-  type        = map
+  description = "Map of additional tags to apply to all resources."
+  type        = map(any)
   default     = {}
 }
 
-variable prefix_name_tag {
-  type        = string
+variable "prefix_name_tag" {
+  description = "Prefix used to build name tags for resources."
   default     = ""
-  description = "Prefix used to build name tags for resources"
+  type        = string
 }
 
-variable lambda_s3_bucket {
-  type        = string
+variable "lambda_s3_bucket" {
+  description = "Name of bucket with lambda zip package to deploy."
   default     = ""
-  description = "Name of bucket with lambda zip package to deploy"
+  type        = string
 }
 
-variable lambda_file_location {
-  type        = string
+variable "lambda_file_location" {
+  description = "Name of folder where lambda package is stored in this workspace."
   default     = "lambda-package"
-  description = "Name of folder where lambda package is stored in this workspace"
+  type        = string
 }
 
-variable lambda_file_name {
-  type        = string
+variable "lambda_file_name" {
+  description = "File name of lambda package."
   default     = "crosszone_ha_instance_id.zip"
-  description = "File name of lambda package"
+  type        = string
 }

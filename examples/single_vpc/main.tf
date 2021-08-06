@@ -1,4 +1,4 @@
-module vpc {
+module "vpc" {
   source = "../../modules/vpc"
 
   name                    = "${var.prefix_name_tag}vpc"
@@ -10,7 +10,7 @@ module vpc {
   security_groups         = var.security_groups
 }
 
-module subnet_sets {
+module "subnet_sets" {
   # The "set" here means we will repeat in each AZ an identical/similar subnet.
   # The notion of "set" is used a lot here, it extends to nat gateways, routes, routes' next hops,
   # gwlb endpoints and any other resources which would be a single point of failure when placed
@@ -23,13 +23,13 @@ module subnet_sets {
   vpc_id = module.vpc.id
 }
 
-module nat_gateway_set {
+module "nat_gateway_set" {
   source = "../../modules/nat_gateway_set"
 
   subnet_set = module.subnet_sets["natgw-1"]
 }
 
-module vpc_route {
+module "vpc_route" {
   for_each = {
     mgmt = {
       route_table_ids = module.subnet_sets["mgmt-1"].unique_route_table_ids

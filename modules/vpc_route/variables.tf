@@ -1,4 +1,4 @@
-variable route_table_ids {
+variable "route_table_ids" {
   description = <<-EOF
   A map of Route Tables where to install the route. Each key is an arbitrary string,
   each value is a Route Table identifier. The keys need to match keys used in the
@@ -14,7 +14,7 @@ variable route_table_ids {
   type        = map(string)
 }
 
-variable next_hop_set {
+variable "next_hop_set" {
   description = <<-EOF
   The Next Hop Set object, such as an output `module.nat_gateway_set.next_hop_set`. The set of single-zone next hops should be specified as the `ids` map, in which case
   each value is a next hop id and each key should be present among the keys of the input `route_table_ids`. To avoid unintended cross-zone routing, these keys should be equal. Example:
@@ -45,12 +45,12 @@ variable next_hop_set {
   })
 }
 
-variable to_cidr {
+variable "to_cidr" {
   description = "The CIDR to match the packet's destination field. If they match, the route can be used for the packet. For example \"0.0.0.0/0\"."
   type        = string
 }
 
-variable cidr_type {
+variable "cidr_type" {
   description = "Type of `to_cidr`, either \"ipv4\" or \"ipv6\"."
   default     = "ipv4"
   type        = string

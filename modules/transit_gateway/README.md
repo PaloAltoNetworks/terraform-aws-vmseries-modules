@@ -117,22 +117,22 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional Map of arbitrary tags to apply to all resources. | `map(any)` | `{}` | no |
 | <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS region for provider | `string` | `""` | no |
-| <a name="input_subnets"></a> [subnets](#input\_subnets) | Map of Existing Subnet Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
-| <a name="input_transit_gateway_peer_region"></a> [transit\_gateway\_peer\_region](#input\_transit\_gateway\_peer\_region) | Region for alias provider for Transit Gateway Peering | `string` | `""` | no |
-| <a name="input_transit_gateway_peerings"></a> [transit\_gateway\_peerings](#input\_transit\_gateway\_peerings) | Map of parameters to peer TGWs with cross-region / cross-account existing TGW | `map(any)` | `{}` | no |
-| <a name="input_transit_gateway_vpc_attachments"></a> [transit\_gateway\_vpc\_attachments](#input\_transit\_gateway\_vpc\_attachments) | Map of attachments to create and RT to associate / propagate to | `map(any)` | `{}` | no |
-| <a name="input_transit_gateways"></a> [transit\_gateways](#input\_transit\_gateways) | Nested Map of TGWs and their attributes (Brownfield Supported) | `any` | `{}` | no |
-| <a name="input_vpcs"></a> [vpcs](#input\_vpcs) | Map of Existing VPC Names to IDs. Used for TGW attachments. | `any` | `{}` | no |
+| <a name="input_region"></a> [region](#input\_region) | AWS region for provider. | `string` | `""` | no |
+| <a name="input_subnets"></a> [subnets](#input\_subnets) | Map of Existing Subnet Names to IDs. Used for TGW attachments. | `map(any)` | `{}` | no |
+| <a name="input_transit_gateway_peer_region"></a> [transit\_gateway\_peer\_region](#input\_transit\_gateway\_peer\_region) | Region for alias provider for Transit Gateway Peering. | `string` | `""` | no |
+| <a name="input_transit_gateway_peerings"></a> [transit\_gateway\_peerings](#input\_transit\_gateway\_peerings) | Map of parameters to peer TGWs with cross-region / cross-account existing TGW. | `map(any)` | `{}` | no |
+| <a name="input_transit_gateway_vpc_attachments"></a> [transit\_gateway\_vpc\_attachments](#input\_transit\_gateway\_vpc\_attachments) | Map of attachments to create and RT to associate / propagate to. | `map(any)` | `{}` | no |
+| <a name="input_transit_gateways"></a> [transit\_gateways](#input\_transit\_gateways) | Nested Map of TGWs and their attributes (Brownfield Supported). | `map(any)` | `{}` | no |
+| <a name="input_vpcs"></a> [vpcs](#input\_vpcs) | Map of Existing VPC Names to IDs. Used for TGW attachments. | `map(any)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_transit_gateway_ids"></a> [transit\_gateway\_ids](#output\_transit\_gateway\_ids) | TGW Name -> ID Map (New AND Existing) |
-| <a name="output_transit_gateway_route_table_ids"></a> [transit\_gateway\_route\_table\_ids](#output\_transit\_gateway\_route\_table\_ids) | TGW Route Table Name -> ID Map (New AND Existing) |
+| <a name="output_transit_gateway_ids"></a> [transit\_gateway\_ids](#output\_transit\_gateway\_ids) | TGW Name -> ID Map (New AND Existing). |
+| <a name="output_transit_gateway_route_table_ids"></a> [transit\_gateway\_route\_table\_ids](#output\_transit\_gateway\_route\_table\_ids) | TGW Route Table Name -> ID Map (New AND Existing). |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Variables for existing resource ID mappings

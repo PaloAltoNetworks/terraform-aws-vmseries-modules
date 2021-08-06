@@ -1,18 +1,16 @@
 # Check module for variable definitions and documentation
 
-variable region {
-  default = ""
-}
+variable "region" {}
 
-variable global_tags {
-  type        = map(any)
-  description = "A map of tags to add to all resources"
+variable "global_tags" {
+  description = "Map of tags to add to all resources."
   default     = {}
+  type        = map(string)
 }
 
-variable panorama_version {
-  type    = string
+variable "panorama_version" {
   default = "10.0.2"
+  type    = string
 }
 
-variable panoramas {}
+variable "panoramas" {}
