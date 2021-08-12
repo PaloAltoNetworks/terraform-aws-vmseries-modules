@@ -81,7 +81,8 @@ module "gwlbe_eastwest" {
 
   name              = var.gwlb_endpoint_set_eastwest_name
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name
-  subnet_set        = module.security_subnet_sets["gwlbe_eastwest"]
+  vpc_id            = module.security_subnet_sets["gwlbe_eastwest"].vpc_id
+  subnets           = module.security_subnet_sets["gwlbe_eastwest"].subnets
 }
 
 module "gwlbe_outbound" {
@@ -89,7 +90,8 @@ module "gwlbe_outbound" {
 
   name              = var.gwlb_endpoint_set_outbound_name
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name
-  subnet_set        = module.security_subnet_sets["gwlbe_outbound"]
+  vpc_id            = module.security_subnet_sets["gwlbe_outbound"].vpc_id
+  subnets           = module.security_subnet_sets["gwlbe_outbound"].subnets
 }
 
 module "security_route" {
@@ -181,7 +183,8 @@ module "app1_gwlbe_inbound" {
 
   name              = var.gwlb_endpoint_set_app1_name
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name # this is cross-vpc
-  subnet_set        = module.app1_subnet_sets["app1_gwlbe"]
+  vpc_id            = module.app1_subnet_sets["app1_gwlbe"].vpc_id
+  subnets           = module.app1_subnet_sets["app1_gwlbe"].subnets
   act_as_next_hop_for = {
     "from-igw-to-alb" = {
       route_table_id = module.app1_vpc.internet_gateway_route_table.id
