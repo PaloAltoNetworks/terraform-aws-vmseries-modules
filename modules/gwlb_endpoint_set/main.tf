@@ -1,9 +1,9 @@
 resource "aws_vpc_endpoint" "this" {
-  for_each = var.subnet_set.subnets
+  for_each = var.subnets
 
   # "Only one subnet can be specified for GatewayLoadBalancer" as AWS helpfully says in an error msg. But it still is a one-item set.
   subnet_ids        = toset([each.value.id])
-  vpc_id            = var.subnet_set.vpc_id
+  vpc_id            = var.vpc_id
   service_name      = var.gwlb_service_name
   vpc_endpoint_type = var.gwlb_service_type
   tags              = merge(var.tags, { Name = lookup(var.custom_names, each.key, "${var.name}${substr(each.key, -1, -1)}") })

@@ -21,14 +21,31 @@ variable "gwlb_service_type" {
   type        = string
 }
 
-variable "subnet_set" {
-  description = "The result of the call to the `subnet_set` module: an object describing the Subnets to which the Endpoints should be attached. Exactly one VPC Endpoint is attached to each of the subnets in the set, under the same key. Importantly, the traffic returning from the Endpoint uses the Subnet's route table. Example: `subnet_set = module.my_subnet_set`"
-  type = object({
-    subnets = map(object({
-      id = string
-    }))
-    vpc_id = string
-  })
+variable "vpc_id" {
+  description = "AWS identifier of a VPC containing the Endpoint."
+  type        = string
+}
+
+variable "subnets" {
+  description = <<-EOF
+  Map of Subnets where to create the Endpoints. Each map's key is the availability zone name and each map's object has an attribute
+  `id` identifying AWS Subnet. Importantly, the traffic returning from the Endpoint uses the Subnet's route table.
+  The keys of this input map are used for the output map `endpoints`.
+  Example for users of module `subnet_set`:
+  ```
+  subnets = module.subnet_set.subnets
+  ```
+  Example:
+  ```
+  subnets = {
+    "us-east-1a" = { id = "snet-123007" }
+    "us-east-1b" = { id = "snet-123008" }
+  }
+  ```
+  EOF
+  type = map(object({
+    id = string
+  }))
 }
 
 variable "act_as_next_hop_for" {

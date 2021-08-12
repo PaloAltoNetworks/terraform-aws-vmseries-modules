@@ -3,14 +3,30 @@ variable "name" {
   type        = string
 }
 
-variable "subnet_set" {
-  description = "The Subnet Set object as produced by calling the `modules/subnet_set`. It contains AWS subnets where to create the GWLB."
-  type = object({
-    vpc_id = string
-    subnets = map(object({
-      id = string
-    }))
-  })
+variable "vpc_id" {
+  description = "AWS identifier of a VPC containing the Endpoint."
+  type        = string
+}
+
+variable "subnets" {
+  description = <<-EOF
+  Map of subnets where to create the GWLB. Each map's key is the availability zone name and each map's object has an attribute
+  `id` identifying AWS subnet.
+  Example for users of module `subnet_set`:
+  ```
+  subnets = module.subnet_set.subnets
+  ```
+  Example:
+  ```
+  subnets = {
+    "us-east-1a" = { id = "snet-123007" }
+    "us-east-1b" = { id = "snet-123008" }
+  }
+  ```
+  EOF
+  type = map(object({
+    id = string
+  }))
 }
 
 variable "target_instances" {

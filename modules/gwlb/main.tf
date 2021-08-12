@@ -5,7 +5,7 @@ resource "aws_lb" "this" {
   name                             = var.name
   load_balancer_type               = "gateway"
   enable_cross_zone_load_balancing = true
-  subnets                          = [for v in var.subnet_set.subnets : v.id]
+  subnets                          = [for v in var.subnets : v.id]
   tags                             = merge(var.global_tags, { Name = var.name }, var.lb_tags)
 
   lifecycle {
@@ -40,7 +40,7 @@ resource "aws_lb_listener" "this" {
 # One target group is possible for one gwlb, or else it fails with "You cannot specify multiple target groups in a single action with a load balancer of type 'gateway'".
 resource "aws_lb_target_group" "this" {
   name                 = var.name
-  vpc_id               = var.subnet_set.vpc_id
+  vpc_id               = var.vpc_id
   target_type          = "instance"
   protocol             = "GENEVE"
   port                 = "6081"
