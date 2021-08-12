@@ -1,6 +1,6 @@
 resource "aws_ec2_transit_gateway_vpc_attachment" "this" {
-  vpc_id                                          = var.subnet_set.vpc_id
-  subnet_ids                                      = [for _, subnet in var.subnet_set.subnets : subnet.id]
+  vpc_id                                          = var.vpc_id
+  subnet_ids                                      = [for _, subnet in var.subnets : subnet.id]
   transit_gateway_id                              = var.transit_gateway_route_table.transit_gateway_id
   transit_gateway_default_route_table_association = false
   transit_gateway_default_route_table_propagation = false
@@ -56,18 +56,31 @@ variable "transit_gateway_route_table" {
   })
 }
 
-variable "subnet_set" {
+variable "vpc_id" {
+  description = "AWS identifier of a VPC containing the Attachment."
+  type        = string
+}
+
+variable "subnets" {
   description = <<-EOF
-  The attachment's subnet set, such as a result of a call to the module `subnet_set`.
-  All subnets of the set obtain virtual network interfaces attached to the TGW.
-  The input does not support multiple subnet sets. Example: `subnet_set = module.my_subnet_set`
+  The attachment's subnets as a map. Each key is the availability zone name and each object has an attribute
+  `id` identifying AWS subnet.
+  All subnets in the map obtain virtual network interfaces attached to the TGW.
+  Example for users of module `subnet_set`:
+  ```
+  subnets = module.subnet_set.subnets
+  ```
+  Example:
+  ```
+  subnets = {
+    "us-east-1a" = { id = "snet-123007" }
+    "us-east-1b" = { id = "snet-123008" }
+  }
+  ```
   EOF
-  type = object({
-    vpc_id = string
-    subnets = map(object({
-      id = string
-    }))
-  })
+  type = map(object({
+    id = string
+  }))
 }
 
 variable "tags" {
@@ -93,12 +106,24 @@ output "attachment" {
   value       = aws_ec2_transit_gateway_vpc_attachment.this
 }
 
-output "subnet_set" {
-  description = "Same as the input `subnet_set`. Intended to be used as a dependency."
-  value       = contains(aws_ec2_transit_gateway_vpc_attachment.this.subnet_ids, "!") == false ? var.subnet_set : null
+output "subnets" {
+  description = "Same as the input `subnets`. Intended to be used as a dependency."
+  value       = contains(aws_ec2_transit_gateway_vpc_attachment.this.subnet_ids, "!") == false ? var.subnets : null
 }
 
 output "next_hop_set" {
+  description = <<-EOF
+  The Next Hop Set object, useful as an input to the `vpc_route` module. The intention would
+  be to route traffic from several subnets to the Transit Gateway. Example:
+
+  ```
+  next_hop_set = {
+    ids = {}
+    id   = "tgw-attach-123"
+    type = "transit_gateway"
+  }
+  ```
+  EOF
   value = {
     type = "transit_gateway"
     id   = aws_ec2_transit_gateway_vpc_attachment.this.transit_gateway_id

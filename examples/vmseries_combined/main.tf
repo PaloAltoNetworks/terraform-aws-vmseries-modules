@@ -56,7 +56,8 @@ module "security_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
   name                        = var.security_transit_gateway_attachment
-  subnet_set                  = module.security_subnet_sets["tgw_attach"]
+  vpc_id                      = module.security_subnet_sets["tgw_attach"].vpc_id
+  subnets                     = module.security_subnet_sets["tgw_attach"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["from_security_vpc"]
   propagate_routes_to = {
     to1 = module.transit_gateway.route_tables["from_spoke_vpc"].id
@@ -68,8 +69,9 @@ module "security_transit_gateway_attachment" {
 module "security_gwlb" {
   source = "../../modules/gwlb"
 
-  name       = var.gwlb_name
-  subnet_set = module.security_subnet_sets["gwlb"] # Assumption: one ss per gwlb.
+  name    = var.gwlb_name
+  vpc_id  = module.security_subnet_sets["gwlb"].vpc_id  # Assumption: one ss per gwlb.
+  subnets = module.security_subnet_sets["gwlb"].subnets # Assumption: one ss per gwlb.
 
   target_instances = {}
   # Take an aws_instance.id and adds it to the aws_lb_target_group:
@@ -171,7 +173,8 @@ module "app1_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
   name                        = var.app1_transit_gateway_attachment_name
-  subnet_set                  = module.app1_subnet_sets["app1_web"]
+  vpc_id                      = module.app1_subnet_sets["app1_web"].vpc_id
+  subnets                     = module.app1_subnet_sets["app1_web"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["from_spoke_vpc"]
   propagate_routes_to = {
     to1 = module.transit_gateway.route_tables["from_security_vpc"].id
