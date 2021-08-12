@@ -14,11 +14,6 @@ data "aws_ami" "this" {
   owners = ["099720109477"]
 }
 
-resource "aws_key_pair" "this" {
-  key_name   = "jb-home"
-  public_key = file("~/.ssh/id_rsa.pub") # FIXME
-}
-
 module "app1_ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "2.19.0"
@@ -28,7 +23,7 @@ module "app1_ec2" {
 
   ami                    = data.aws_ami.this.id
   instance_type          = "t2.micro"
-  key_name               = aws_key_pair.this.key_name
+  key_name               = local.ssh_key_name
   monitoring             = true
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_web"]]
   subnet_id              = module.app1_subnet_sets["app1_web"].subnets["eu-west-3a"].id

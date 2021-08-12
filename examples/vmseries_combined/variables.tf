@@ -9,7 +9,6 @@ variable "security_vpc_subnets" {}
 variable "security_vpc_security_groups" {}
 variable "firewalls" {}
 variable "interfaces" {}
-variable "ssh_key_name" {}
 variable "summary_cidr_behind_tgw" {}
 variable "summary_cidr_behind_gwlbe_outbound" {}
 variable "nat_gateway_name" {}
@@ -27,7 +26,21 @@ variable "existing_gwlb_name" {}
 variable "gwlb_endpoint_set_app1_name" {}
 variable "app1_transit_gateway_attachment_name" {}
 
+##### SSH Key Uploaded to AWS #####
+
+variable "ssh_key_name" {
+  default = "sshkey"
+}
+
+variable "create_ssh_key" {
+  default = true
+}
+
+variable "ssh_public_key_file_path" {
+}
+
 ##### AWS Provider Authentication and Attributes #####
+
 variable "region" {}
 
 variable "aws_access_key" {
