@@ -13,22 +13,7 @@ module "vmseries" {
     # This iam_instance_profile cannot be in the tfvars.
     iam_instance_profile = module.bootstrap.instance_profile_name
     bootstrap_options = {
-      mgmt-interface-swap = "enable" # this can never be inside the bootstrap S3 bucket, because it tells which interface should reach S3 bucket
-      #   plugin-op-commands  = "aws-gwlb-inspect:enable"
-
-      #   Sean:  "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable,aws-gwlb-associate-gwlbe:vpce-0aeb1a919bd4ae609@ethernet1/1.1,aws-gwlb-associate-gwlbe:vpce-0294375bfe413f04a@ethernet1/1.2"
-
-      #   type                = "dhcp-client"
-      #   hostname            = f.name
-      #   authcodes           = "" # do not commit authcode
-      #   op-command-modes    = ""
-
-      #   tplname             = "TPL-MY-STACK-##"
-      #   dgname              = "DG-MY-##"
-      #   panorama-server     = "xxx"
-      #   panorama-server-2   = "xxx"
-      #   vm-auth-key         = "xxx"
-
+      mgmt-interface-swap             = "enable" # this can never be inside the bootstrap S3 bucket, because it tells which interface should reach S3 bucket
       vmseries-bootstrap-aws-s3bucket = module.bootstrap.bucket_name
     }
     })
