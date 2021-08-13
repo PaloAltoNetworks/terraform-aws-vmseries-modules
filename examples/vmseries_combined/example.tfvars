@@ -198,35 +198,21 @@ ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC ROUTES ###
 
-security_mgmt_routes_to_internet = ["0.0.0.0/0"]
-
-security_mgmt_routes_to_tgw = [
-  "10.0.88.0/24", # Panorama via TGW
-]
-
-# security_tgw_routes_to_gwlbe_eastwest
-security_routes_eastwest_cidrs = [
+# security_gwlbe_outbound_routes_to_tgw
+security_routes_outbound_source_cidrs = [
   "10.0.0.0/8",
 ]
 
 # security_tgw_routes_to_gwlbe_outbound
 security_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
-security_gwlbe_outbound_routes_to_internet = ["0.0.0.0/0"]
-
-# security_gwlbe_outbound_routes_to_tgw
-security_routes_outbound_source_cidrs = [
+# security_tgw_routes_to_gwlbe_eastwest
+security_routes_eastwest_cidrs = [
   "10.0.0.0/8",
 ]
 
-security_gwlbe_eastwest_routes_to_tgw = [
-  "10.0.0.0/8",
-]
-
-security_natgw_routes_to_internet = ["0.0.0.0/0"]
-
-security_natgw_routes_to_gwlbe_outbound = [
-  "10.0.0.0/8",
+security_mgmt_routes_to_tgw = [
+  "10.0.88.0/24", # Panorama via TGW (must not repeat any security_routes_eastwest_cidrs)
 ]
 
 ### Application1 VPC ###

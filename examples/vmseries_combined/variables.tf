@@ -19,23 +19,7 @@ variable "security_transit_gateway_attachment" {}
 
 ##### Security VPC Routes #####
 
-variable "security_mgmt_routes_to_tgw" {
-
-}
-
-variable "security_mgmt_routes_to_internet" {
-
-}
-
-
-variable "security_natgw_routes_to_internet" {
-
-}
-variable "security_natgw_routes_to_gwlbe_outbound" {
-
-}
-
-variable "security_routes_eastwest_cidrs" {
+variable "security_routes_outbound_source_cidrs" {
 
 }
 
@@ -43,15 +27,11 @@ variable "security_routes_outbound_destin_cidrs" {
 
 }
 
-variable "security_gwlbe_outbound_routes_to_internet" {
-
+variable "security_mgmt_routes_to_tgw" {
+  description = "The eastwest inspection of traffic heading to VM-Series mgmt is not possible. Due to AWS own limitations, anything from tgw destined for mgmt could *not* possibly override LocalVPC route. Henceforth no mgmt routes go back to gwlbe_eastwest."
 }
 
-variable "security_routes_outbound_source_cidrs" {
-
-}
-
-variable "security_gwlbe_eastwest_routes_to_tgw" {
+variable "security_routes_eastwest_cidrs" {
 
 }
 
