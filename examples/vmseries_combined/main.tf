@@ -96,79 +96,81 @@ module "gwlbe_outbound" {
   subnets           = module.security_subnet_sets["gwlbe_outbound"].subnets
 }
 
-module "security_mgmt_routes" {
-  # TODO it looks like all these module calls of vpc_route can be merged into one
-  for_each = { for cidr in concat(var.security_routes_outbound_destin_cidrs, var.security_routes_eastwest_cidrs, var.security_mgmt_routes_to_tgw) : cidr =>
-    {
-      next_hop_set    = contains(var.security_routes_outbound_destin_cidrs, cidr) ? module.security_vpc.igw_as_next_hop_set : module.security_transit_gateway_attachment.next_hop_set
-      route_table_ids = module.security_subnet_sets["mgmt"].unique_route_table_ids
-      to_cidr         = cidr
-    }
-  }
-  source = "../../modules/vpc_route"
 
-  route_table_ids = each.value.route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
+locals {
+  security_vpc_routes = concat(
+    [for cidr in var.security_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "mgmt"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in concat(var.security_routes_eastwest_cidrs, var.security_mgmt_routes_to_tgw) :
+      {
+        subnet_key   = "mgmt"
+        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_eastwest_cidrs :
+      {
+        subnet_key   = "tgw_attach"
+        next_hop_set = module.gwlbe_eastwest.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "tgw_attach"
+        next_hop_set = module.gwlbe_outbound.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+
+    [for cidr in var.security_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "gwlbe_outbound"
+        next_hop_set = module.natgw_set.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_outbound_source_cidrs :
+      {
+        subnet_key   = "gwlbe_outbound"
+        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_eastwest_cidrs :
+      {
+        subnet_key   = "gwlbe_eastwest"
+        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "natgw"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_routes_outbound_source_cidrs :
+      {
+        subnet_key   = "natgw"
+        next_hop_set = module.gwlbe_outbound.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+  )
 }
 
-module "security_natgw_routes" {
-  for_each = { for cidr in concat(var.security_routes_outbound_destin_cidrs, var.security_routes_outbound_source_cidrs) : cidr =>
-    {
-      next_hop_set    = contains(var.security_routes_outbound_destin_cidrs, cidr) ? module.security_vpc.igw_as_next_hop_set : module.gwlbe_outbound.next_hop_set
-      route_table_ids = module.security_subnet_sets["natgw"].unique_route_table_ids
-      to_cidr         = cidr
-    }
-  }
-  source = "../../modules/vpc_route"
+module "security_vpc_routes" {
+  for_each = { for route in local.security_vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+  source   = "../../modules/vpc_route"
 
-  route_table_ids = each.value.route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
-}
-
-module "security_tgw_routes" {
-  for_each = { for cidr in concat(var.security_routes_eastwest_cidrs, var.security_routes_outbound_destin_cidrs) : cidr =>
-    {
-      next_hop_set    = contains(var.security_routes_eastwest_cidrs, cidr) ? module.gwlbe_eastwest.next_hop_set : module.gwlbe_outbound.next_hop_set
-      route_table_ids = module.security_subnet_sets["tgw_attach"].unique_route_table_ids
-      to_cidr         = cidr
-    }
-  }
-  source = "../../modules/vpc_route"
-
-  route_table_ids = each.value.route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
-}
-
-module "security_gwlbe_outbound_routes" {
-  for_each = { for cidr in concat(var.security_routes_outbound_destin_cidrs, var.security_routes_outbound_source_cidrs) : cidr =>
-    {
-      next_hop_set    = contains(var.security_routes_outbound_destin_cidrs, cidr) ? module.natgw_set.next_hop_set : module.security_transit_gateway_attachment.next_hop_set
-      route_table_ids = module.security_subnet_sets["gwlbe_outbound"].unique_route_table_ids
-      to_cidr         = cidr
-    }
-  }
-  source = "../../modules/vpc_route"
-
-  route_table_ids = each.value.route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
-}
-
-
-module "security_gwlbe_eastwest_routes" {
-  for_each = { for cidr in var.security_routes_eastwest_cidrs : cidr =>
-    {
-      next_hop_set    = module.security_transit_gateway_attachment.next_hop_set
-      route_table_ids = module.security_subnet_sets["gwlbe_eastwest"].unique_route_table_ids
-      to_cidr         = cidr
-    }
-  }
-  source = "../../modules/vpc_route"
-
-  route_table_ids = each.value.route_table_ids
+  route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
