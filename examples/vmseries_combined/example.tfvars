@@ -5,12 +5,13 @@ fw_license_type  = "byol"
 fw_version       = "10.0.4" # Can be empty.
 
 global_tags = {
-  managedBy   = "terraform"
-  application = "Palo Alto Networks VM-Series Combined"
-  owner       = "PS team"
+  ManagedBy   = "terraform"
+  Application = "Palo Alto Networks VM-Series Combined"
+  Owner       = "PS team"
+  Creator     = "login"
 }
 
-security_vpc_name = "security"
+security_vpc_name = "security1"
 security_vpc_cidr = "10.100.0.0/16"
 
 security_vpc_subnets = {
@@ -88,7 +89,7 @@ security_vpc_security_groups = {
         type        = "ingress", from_port = "3978", to_port = "3978", protocol = "tcp"
         cidr_blocks = ["10.0.0.0/8"]
       }
-      https = {
+      panorama_log = {
         description = "Permit Panorama Logging"
         type        = "ingress", from_port = "28443", to_port = "28443", protocol = "tcp"
         cidr_blocks = ["10.0.0.0/8"]
@@ -179,7 +180,9 @@ interfaces = [
   },
 ]
 
-ssh_key_name = "my_aws_key_pair" # create it manually # TODO: automate
+create_ssh_key           = true
+ssh_key_name             = "my_aws_key_pair"
+ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC ROUTES ###
 
@@ -238,7 +241,7 @@ app1_vpc_security_groups = {
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
         cidr_blocks = ["46.229.148.129/32", "84.207.227.0/28"] # TODO: update here
       }
-      http-from-inet = {
+      http = {
         description = "Permit HTTP"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
         cidr_blocks = ["46.229.148.129/32", "84.207.227.0/28"] # TODO: update here
