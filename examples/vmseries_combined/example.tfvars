@@ -71,6 +71,11 @@ security_vpc_security_groups = {
         type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
       }
+      testbox = {
+        description = "Permit SSH from App1 spoke VPC - optional test"
+        type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+        cidr_blocks = ["10.104.0.0/23"]
+      }
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
@@ -157,7 +162,8 @@ interfaces = [
     subnet_name                   = "mgmta"
     security_group                = "vmseries_mgmt"
     private_ip_address_allocation = "dynamic"
-    eip                           = "vmseries01_mgmt"
+    eip                           = "vmseries01_mgmt" # for the module's old version
+    eip_name                      = "vmseries01_mgmt"
   },
   # vmseries02
   {
@@ -173,7 +179,8 @@ interfaces = [
     subnet_name                   = "mgmtb"
     security_group                = "vmseries_mgmt"
     private_ip_address_allocation = "dynamic"
-    eip                           = "vmseries02_mgmt"
+    eip                           = "vmseries02_mgmt" # for the module's old version
+    eip_name                      = "vmseries02_mgmt"
   },
 ]
 
@@ -183,21 +190,20 @@ ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC ROUTES ###
 
-# security_gwlbe_outbound_routes_to_tgw
-security_routes_outbound_source_cidrs = [
+security_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
   "10.0.0.0/8",
 ]
 
-# security_tgw_routes_to_gwlbe_outbound
-security_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
+security_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
+  "0.0.0.0/0",
+]
 
-# security_tgw_routes_to_gwlbe_eastwest
-security_routes_eastwest_cidrs = [
+security_routes_eastwest_cidrs = [ # eastwest traffic incoming for inspection from TGW
   "10.0.0.0/8",
 ]
 
 security_mgmt_routes_to_tgw = [
-  "10.0.88.0/24", # Panorama via TGW (must not repeat any security_routes_eastwest_cidrs)
+  "10.255.0.0/16", # Panorama via TGW (must not repeat any security_routes_eastwest_cidrs)
 ]
 
 ### Application1 VPC ###
