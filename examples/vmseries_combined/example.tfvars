@@ -63,21 +63,6 @@ security_vpc_security_groups = {
       }
     }
   }
-  gwlbe = {
-    name = "gwlbe"
-    rules = {
-      all_outbound = {
-        description = "Permit All traffic outbound"
-        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-      ssh2 = {
-        description = "Permit traffic from any vpc"
-        type        = "ingress", from_port = "0", to_port = "0", protocol = "-1"
-        cidr_blocks = ["10.0.0.0/8"]
-      }
-    }
-  }
   vmseries_mgmt = {
     name = "vmseries_mgmt"
     rules = {
