@@ -99,28 +99,28 @@ module "gwlbe_outbound" {
 
 locals {
   security_vpc_routes = concat(
-    [for cidr in var.security_routes_outbound_destin_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
         subnet_key   = "mgmt"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in concat(var.security_routes_eastwest_cidrs, var.security_mgmt_routes_to_tgw) :
+    [for cidr in concat(var.security_vpc_routes_eastwest_cidrs, var.security_vpc_mgmt_routes_to_tgw) :
       {
         subnet_key   = "mgmt"
         next_hop_set = module.security_transit_gateway_attachment.next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_eastwest_cidrs :
+    [for cidr in var.security_vpc_routes_eastwest_cidrs :
       {
         subnet_key   = "tgw_attach"
         next_hop_set = module.gwlbe_eastwest.next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_outbound_destin_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
         subnet_key   = "tgw_attach"
         next_hop_set = module.gwlbe_outbound.next_hop_set
@@ -128,35 +128,35 @@ locals {
       }
     ],
 
-    [for cidr in var.security_routes_outbound_destin_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
         subnet_key   = "gwlbe_outbound"
         next_hop_set = module.natgw_set.next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_outbound_source_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_source_cidrs :
       {
         subnet_key   = "gwlbe_outbound"
         next_hop_set = module.security_transit_gateway_attachment.next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_eastwest_cidrs :
+    [for cidr in var.security_vpc_routes_eastwest_cidrs :
       {
         subnet_key   = "gwlbe_eastwest"
         next_hop_set = module.security_transit_gateway_attachment.next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_outbound_destin_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
         subnet_key   = "natgw"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_routes_outbound_source_cidrs :
+    [for cidr in var.security_vpc_routes_outbound_source_cidrs :
       {
         subnet_key   = "natgw"
         next_hop_set = module.gwlbe_outbound.next_hop_set

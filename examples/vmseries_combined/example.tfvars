@@ -190,20 +190,20 @@ ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC ROUTES ###
 
-security_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
+security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
   "10.0.0.0/8",
 ]
 
-security_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
+security_vpc_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
   "0.0.0.0/0",
 ]
 
-security_routes_eastwest_cidrs = [ # eastwest traffic incoming for inspection from TGW
+security_vpc_routes_eastwest_cidrs = [ # eastwest traffic incoming for inspection from TGW
   "10.0.0.0/8",
 ]
 
-security_mgmt_routes_to_tgw = [
-  "10.255.0.0/16", # Panorama via TGW (must not repeat any security_routes_eastwest_cidrs)
+security_vpc_mgmt_routes_to_tgw = [
+  "10.255.0.0/16", # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
 ]
 
 ### Application1 VPC ###
