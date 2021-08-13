@@ -9,8 +9,6 @@ variable "security_vpc_subnets" {}
 variable "security_vpc_security_groups" {}
 variable "firewalls" {}
 variable "interfaces" {}
-variable "summary_cidr_behind_tgw" {}
-variable "summary_cidr_behind_gwlbe_outbound" {}
 variable "nat_gateway_name" {}
 variable "gwlb_name" {}
 variable "gwlb_endpoint_set_eastwest_name" {}
@@ -18,6 +16,47 @@ variable "gwlb_endpoint_set_outbound_name" {}
 variable "transit_gateway_name" {}
 variable "transit_gateway_asn" {}
 variable "security_transit_gateway_attachment" {}
+
+##### Security VPC Routes #####
+
+variable "security_mgmt_routes_to_tgw" {
+
+}
+
+variable "security_mgmt_routes_to_internet" {
+
+}
+
+
+variable "security_natgw_routes_to_internet" {
+
+}
+variable "security_natgw_routes_to_gwlbe_outbound" {
+
+}
+
+variable "security_routes_eastwest_cidrs" {
+
+}
+
+variable "security_routes_outbound_destin_cidrs" {
+
+}
+
+variable "security_gwlbe_outbound_routes_to_internet" {
+
+}
+
+variable "security_routes_outbound_source_cidrs" {
+
+}
+
+variable "security_gwlbe_eastwest_routes_to_tgw" {
+
+}
+
+##### Spoke VPC app1 #####
+
 variable "app1_vpc_name" {}
 variable "app1_vpc_cidr" {}
 variable "app1_vpc_subnets" {}

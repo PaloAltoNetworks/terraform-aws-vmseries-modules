@@ -14,11 +14,23 @@ global_tags = {
 security_vpc_name = "security1"
 security_vpc_cidr = "10.100.0.0/16"
 
+nat_gateway_name = "natgw"
+
+gwlb_name                       = "security-gwlb"
+gwlb_endpoint_set_eastwest_name = "eastwest-gwlb-endpoint"
+gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
+
+transit_gateway_name                = "tgw"
+transit_gateway_asn                 = "65200"
+security_transit_gateway_attachment = "security-vpc"
+
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
   "10.100.0.0/24"  = { az = "eu-west-2a", set = "mgmt" }
   "10.100.64.0/24" = { az = "eu-west-2b", set = "mgmt" }
-  "10.100.5.0/24"  = { az = "eu-west-2a", set = "gwlb" } # TODO: have a dedicated gwlb subnet 10.100.5.0
+  "10.100.1.0/24"  = { az = "eu-west-2a", set = "data1" }
+  "10.100.65.0/24" = { az = "eu-west-2b", set = "data1" }
+  "10.100.5.0/24"  = { az = "eu-west-2a", set = "gwlb" }
   "10.100.69.0/24" = { az = "eu-west-2b", set = "gwlb" }
   "10.100.3.0/24"  = { az = "eu-west-2a", set = "tgw_attach" }
   "10.100.67.0/24" = { az = "eu-west-2b", set = "tgw_attach" }
@@ -150,7 +162,7 @@ interfaces = [
   {
     name                          = "vmseries01_data"
     source_dest_check             = false
-    subnet_name                   = "dataa"
+    subnet_name                   = "data1a"
     security_group                = "vmseries_data"
     private_ip_address_allocation = "dynamic"
   },
@@ -166,7 +178,7 @@ interfaces = [
   {
     name                          = "vmseries02_data"
     source_dest_check             = false
-    subnet_name                   = "datab"
+    subnet_name                   = "data1b"
     security_group                = "vmseries_data"
     private_ip_address_allocation = "dynamic"
   },
@@ -181,29 +193,41 @@ interfaces = [
 ]
 
 create_ssh_key           = true
-ssh_key_name             = "my_aws_key_pair"
+ssh_key_name             = "vmseries_key_pair"
 ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC ROUTES ###
 
-summary_cidr_behind_tgw            = "10.0.0.0/8"
-summary_cidr_behind_gwlbe_outbound = "0.0.0.0/0"
+security_mgmt_routes_to_internet = ["0.0.0.0/0"]
 
-### NATGW ###
+security_mgmt_routes_to_tgw = [
+  "10.0.88.0/24", # Panorama via TGW
+]
 
-nat_gateway_name = "natgw"
+# security_tgw_routes_to_gwlbe_eastwest
+security_routes_eastwest_cidrs = [
+  "10.0.0.0/8",
+]
 
-### GWLB ###
+# security_tgw_routes_to_gwlbe_outbound
+security_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
-gwlb_name                       = "security-gwlb"
-gwlb_endpoint_set_eastwest_name = "eastwest-gwlb-endpoint"
-gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
+security_gwlbe_outbound_routes_to_internet = ["0.0.0.0/0"]
 
-### TGW ###
+# security_gwlbe_outbound_routes_to_tgw
+security_routes_outbound_source_cidrs = [
+  "10.0.0.0/8",
+]
 
-transit_gateway_name                = "tgw"
-transit_gateway_asn                 = "65200"
-security_transit_gateway_attachment = "security-vpc"
+security_gwlbe_eastwest_routes_to_tgw = [
+  "10.0.0.0/8",
+]
+
+security_natgw_routes_to_internet = ["0.0.0.0/0"]
+
+security_natgw_routes_to_gwlbe_outbound = [
+  "10.0.0.0/8",
+]
 
 ### Application1 VPC ###
 

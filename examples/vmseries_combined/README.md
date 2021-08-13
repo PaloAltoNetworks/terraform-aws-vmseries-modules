@@ -7,3 +7,4 @@ In a nutshell it means:
 - multiple Application VPCs can be secured using a single Security VPC
 - the inbound traffic _does not_ require source network address translation (no SNAT)
 - creates transit gateway (TGW) and gateway load balancers (GWLBs)
+- the outbound traffic uses a _single_ interface per each VM-Series. There is no overlay routing on VM-Series.
