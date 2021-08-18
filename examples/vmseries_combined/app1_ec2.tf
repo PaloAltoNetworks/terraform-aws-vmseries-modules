@@ -4,6 +4,7 @@ data "aws_ami" "this" {
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    # the wildcard '*' causes re-creation of the whole EC2 instance on any image change
   }
 
   filter {
@@ -26,12 +27,8 @@ module "app1_ec2" {
   key_name               = local.ssh_key_name
   monitoring             = true
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_web"]]
-  subnet_id              = module.app1_subnet_sets["app1_web"].subnets["eu-west-3a"].id
-
-  tags = {
-    Terraform   = "true"
-    Environment = "dev"
-  }
+  subnet_id              = values(module.app1_subnet_sets["app1_web"].subnets)[0].id
+  tags                   = var.global_tags
 }
 
 resource "aws_eip" "this" {
