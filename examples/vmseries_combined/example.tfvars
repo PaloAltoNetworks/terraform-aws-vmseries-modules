@@ -235,17 +235,17 @@ app1_vpc_security_groups = {
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["46.229.148.129/32", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
       }
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["46.229.148.129/32", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
       }
       http = {
         description = "Permit HTTP"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["46.229.148.129/32", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
       }
     }
   }

@@ -218,13 +218,9 @@ module "app1_gwlbe_inbound" {
   vpc_id            = module.app1_subnet_sets["app1_gwlbe"].vpc_id
   subnets           = module.app1_subnet_sets["app1_gwlbe"].subnets
   act_as_next_hop_for = {
-    "from-igw-to-alb" = {
+    "from-igw-to-lb" = {
       route_table_id = module.app1_vpc.internet_gateway_route_table.id
       to_subnet_set  = module.app1_subnet_sets["app1_alb"]
-    }
-    "from-igw-to-web" = {
-      route_table_id = module.app1_vpc.internet_gateway_route_table.id
-      to_subnet_set  = module.app1_subnet_sets["app1_web"]
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
@@ -246,7 +242,7 @@ module "app1_route" {
       route_table_ids = module.app1_subnet_sets["app1_web"].unique_route_table_ids
       to_cidr         = "0.0.0.0/0"
     }
-    from-alb-to-gwlbe = {
+    from-lb-to-gwlbe = {
       next_hop_set    = module.app1_gwlbe_inbound.next_hop_set
       route_table_ids = module.app1_subnet_sets["app1_alb"].unique_route_table_ids
       to_cidr         = "0.0.0.0/0"
