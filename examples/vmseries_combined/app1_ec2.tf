@@ -4,7 +4,7 @@ data "aws_ami" "this" {
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-    # the wildcard '*' causes re-creation of the whole EC2 instance on any image change
+    # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
   }
 
   filter {
@@ -25,8 +25,8 @@ module "app1_ec2" {
   ami                    = data.aws_ami.this.id
   instance_type          = "t2.micro"
   key_name               = local.ssh_key_name
-  vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_web"]]
-  subnet_id              = module.app1_subnet_sets["app1_web"].subnets[local.app1_az].id
+  vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
+  subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
   tags                   = var.global_tags
 }
 
@@ -39,19 +39,21 @@ resource "aws_eip" "lb" {
   vpc = true
 }
 
-# The Network Load Balancer.
-# It is not for balancing the load per se, but rather as a flow separation tool (as it introduces extra route tables).
+# The Load Balancer.
+# It is not for balancing the load per se, but rather as a route separation tool (as it introduces extra route tables).
 module "app1_lb" {
-  source  = "terraform-aws-modules/alb/aws"
+  source = "terraform-aws-modules/alb/aws"
+  # The name "alb" is a bit misleading as the module can deploy either ALB or NLB.
+  # It means it can create a load balancer of type "application" (ALB) or "network" (NLB).
   version = "~> 6.5"
 
-  name               = "app1"
+  name               = "lb1"
   load_balancer_type = "network"
-  vpc_id             = module.app1_subnet_sets["app1_alb"].vpc_id
+  vpc_id             = module.app1_subnet_sets["app1_lb"].vpc_id
   subnet_mapping = [
     {
       allocation_id = aws_eip.lb.id
-      subnet_id     = module.app1_subnet_sets["app1_alb"].subnets[local.app1_az].id
+      subnet_id     = module.app1_subnet_sets["app1_lb"].subnets[local.app1_az].id
     }
   ]
 
@@ -80,6 +82,11 @@ module "app1_lb" {
   ]
 
   tags = var.global_tags
+
+  depends_on = [
+    # Workaround for error: VPC vpc-0123 has no internet gateway.
+    module.app1_vpc
+  ]
 }
 
 output "app1_inspected_dns_name" {

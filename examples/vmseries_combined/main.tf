@@ -70,12 +70,10 @@ module "security_gwlb" {
   source = "../../modules/gwlb"
 
   name    = var.gwlb_name
-  vpc_id  = module.security_subnet_sets["gwlb"].vpc_id  # Assumption: one ss per gwlb.
-  subnets = module.security_subnet_sets["gwlb"].subnets # Assumption: one ss per gwlb.
+  vpc_id  = module.security_subnet_sets["gwlb"].vpc_id
+  subnets = module.security_subnet_sets["gwlb"].subnets
 
-  target_instances = {}
-  # Take an aws_instance.id and adds it to the aws_lb_target_group:
-  # target_instances = module.vmseries.firewalls
+  target_instances = module.vmseries.firewalls
 }
 
 module "gwlbe_eastwest" {
@@ -202,8 +200,8 @@ module "app1_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
   name                        = var.app1_transit_gateway_attachment_name
-  vpc_id                      = module.app1_subnet_sets["app1_web"].vpc_id
-  subnets                     = module.app1_subnet_sets["app1_web"].subnets
+  vpc_id                      = module.app1_subnet_sets["app1_vm"].vpc_id
+  subnets                     = module.app1_subnet_sets["app1_vm"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["from_spoke_vpc"]
   propagate_routes_to = {
     to1 = module.transit_gateway.route_tables["from_security_vpc"].id
@@ -220,7 +218,7 @@ module "app1_gwlbe_inbound" {
   act_as_next_hop_for = {
     "from-igw-to-lb" = {
       route_table_id = module.app1_vpc.internet_gateway_route_table.id
-      to_subnet_set  = module.app1_subnet_sets["app1_alb"]
+      to_subnet_set  = module.app1_subnet_sets["app1_lb"]
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
@@ -239,12 +237,12 @@ module "app1_route" {
     }
     from-web-to-tgw = {
       next_hop_set    = module.app1_transit_gateway_attachment.next_hop_set
-      route_table_ids = module.app1_subnet_sets["app1_web"].unique_route_table_ids
+      route_table_ids = module.app1_subnet_sets["app1_vm"].unique_route_table_ids
       to_cidr         = "0.0.0.0/0"
     }
     from-lb-to-gwlbe = {
       next_hop_set    = module.app1_gwlbe_inbound.next_hop_set
-      route_table_ids = module.app1_subnet_sets["app1_alb"].unique_route_table_ids
+      route_table_ids = module.app1_subnet_sets["app1_lb"].unique_route_table_ids
       to_cidr         = "0.0.0.0/0"
     }
   }

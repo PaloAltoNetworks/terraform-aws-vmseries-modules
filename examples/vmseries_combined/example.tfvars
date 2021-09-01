@@ -26,20 +26,22 @@ security_transit_gateway_attachment = "security-vpc"
 
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-  "10.100.0.0/24"  = { az = "eu-west-2a", set = "mgmt" }
-  "10.100.64.0/24" = { az = "eu-west-2b", set = "mgmt" }
-  "10.100.1.0/24"  = { az = "eu-west-2a", set = "data1" }
-  "10.100.65.0/24" = { az = "eu-west-2b", set = "data1" }
-  "10.100.5.0/24"  = { az = "eu-west-2a", set = "gwlb" }
-  "10.100.69.0/24" = { az = "eu-west-2b", set = "gwlb" }
-  "10.100.3.0/24"  = { az = "eu-west-2a", set = "tgw_attach" }
-  "10.100.67.0/24" = { az = "eu-west-2b", set = "tgw_attach" }
-  "10.100.4.0/24"  = { az = "eu-west-2a", set = "gwlbe_outbound" }
-  "10.100.68.0/24" = { az = "eu-west-2b", set = "gwlbe_outbound" }
-  "10.100.10.0/24" = { az = "eu-west-2a", set = "gwlbe_eastwest" }
-  "10.100.74.0/24" = { az = "eu-west-2b", set = "gwlbe_eastwest" }
-  "10.100.11.0/24" = { az = "eu-west-2a", set = "natgw" } # TODO: check if all the cidrs match the Ref-Arch addressing
-  "10.100.75.0/24" = { az = "eu-west-2b", set = "natgw" }
+  "10.100.0.0/24"   = { az = "eu-west-2a", set = "mgmt" }
+  "10.100.64.0/24"  = { az = "eu-west-2b", set = "mgmt" }
+  "10.100.1.0/24"   = { az = "eu-west-2a", set = "data1" }
+  "10.100.65.0/24"  = { az = "eu-west-2b", set = "data1" }
+  "10.100.5.0/24"   = { az = "eu-west-2a", set = "gwlb" }
+  "10.100.69.0/24"  = { az = "eu-west-2b", set = "gwlb" }
+  "10.100.132.0/24" = { az = "eu-west-2c", set = "gwlb" }
+  "10.100.201.0/24" = { az = "eu-west-2d", set = "gwlb" }
+  "10.100.3.0/24"   = { az = "eu-west-2a", set = "tgw_attach" }
+  "10.100.67.0/24"  = { az = "eu-west-2b", set = "tgw_attach" }
+  "10.100.4.0/24"   = { az = "eu-west-2a", set = "gwlbe_outbound" }
+  "10.100.68.0/24"  = { az = "eu-west-2b", set = "gwlbe_outbound" }
+  "10.100.10.0/24"  = { az = "eu-west-2a", set = "gwlbe_eastwest" }
+  "10.100.74.0/24"  = { az = "eu-west-2b", set = "gwlbe_eastwest" }
+  "10.100.11.0/24"  = { az = "eu-west-2a", set = "natgw" }
+  "10.100.75.0/24"  = { az = "eu-west-2b", set = "natgw" }
 }
 
 security_vpc_security_groups = {
@@ -52,14 +54,14 @@ security_vpc_security_groups = {
         cidr_blocks = ["0.0.0.0/0"]
       }
       geneve = {
-        description = "Permit GENEVE"
+        description = "Permit GENEVE to GWLB subnets"
         type        = "ingress", from_port = "6081", to_port = "6081", protocol = "udp"
-        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24"]
+        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24"] # FIXME read Ref-Arch on how to address zones e+f, because of a recommendation to create GWLB service "in all Availability Zones within the Region"
       }
       health_probe = {
-        description = "Permit Port 80 GWLB Health Probe"
+        description = "Permit Port 80 Health Probe to GWLB subnets"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24"]
+        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24"]
       }
     }
   }
@@ -209,23 +211,21 @@ security_vpc_mgmt_routes_to_tgw = [
 ### Application1 VPC ###
 
 app1_vpc_name = "app1-spoke-vpc"
-app1_vpc_cidr = "10.104.0.0/23"
+app1_vpc_cidr = "10.104.0.0/16"
 
 app1_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-  "10.104.0.16/28" = { az = "eu-west-2a", set = "app1_alb" }
-  "10.104.1.16/28" = { az = "eu-west-2b", set = "app1_alb" }
-  "10.104.0.32/28" = { az = "eu-west-2a", set = "app1_gwlbe" }
-  "10.104.1.32/28" = { az = "eu-west-2b", set = "app1_gwlbe" }
-  "10.104.0.48/28" = { az = "eu-west-2a", set = "app1_web" }
-  "10.104.1.48/28" = { az = "eu-west-2b", set = "app1_web" }
+  "10.104.0.0/24"   = { az = "eu-west-2a", set = "app1_vm" }
+  "10.104.128.0/24" = { az = "eu-west-2b", set = "app1_vm" }
+  "10.104.2.0/24"   = { az = "eu-west-2a", set = "app1_lb" }
+  "10.104.130.0/24" = { az = "eu-west-2b", set = "app1_lb" }
+  "10.104.3.0/24"   = { az = "eu-west-2a", set = "app1_gwlbe" }
+  "10.104.131.0/24" = { az = "eu-west-2b", set = "app1_gwlbe" }
 }
 
-# TODO: check if all the cidrs match the Ref-Arch addressing
-
 app1_vpc_security_groups = {
-  app1_web = {
-    name = "app1_web"
+  app1_vm = {
+    name = "app1_vm"
     rules = {
       all_outbound = {
         description = "Permit All traffic outbound"
