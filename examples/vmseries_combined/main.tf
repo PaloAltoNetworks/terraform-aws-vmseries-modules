@@ -64,6 +64,15 @@ module "security_transit_gateway_attachment" {
   }
 }
 
+resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
+  transit_gateway_route_table_id = module.transit_gateway.route_tables["from_spoke_vpc"].id
+  # Next hop.
+  transit_gateway_attachment_id = module.security_transit_gateway_attachment.attachment.id
+  # Inspect every packet egressing spokes without exception.
+  destination_cidr_block = "0.0.0.0/0"
+  blackhole              = false
+}
+
 ### GWLB ###
 
 module "security_gwlb" {
@@ -171,93 +180,4 @@ module "security_vpc_routes" {
   route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
-}
-
-### App1 GWLB ###
-
-module "app1_vpc" {
-  source = "../../modules/vpc"
-
-  name                    = var.app1_vpc_name
-  cidr_block              = var.app1_vpc_cidr
-  security_groups         = var.app1_vpc_security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
-}
-
-module "app1_subnet_sets" {
-  for_each = toset(distinct([for _, v in var.app1_vpc_subnets : v.set]))
-  source   = "../../modules/subnet_set"
-
-  name   = each.key
-  vpc_id = module.app1_vpc.id
-  cidrs  = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
-}
-
-module "app1_transit_gateway_attachment" {
-  source = "../../modules/transit_gateway_attachment"
-
-  name                        = var.app1_transit_gateway_attachment_name
-  vpc_id                      = module.app1_subnet_sets["app1_vm"].vpc_id
-  subnets                     = module.app1_subnet_sets["app1_vm"].subnets
-  transit_gateway_route_table = module.transit_gateway.route_tables["from_spoke_vpc"]
-  propagate_routes_to = {
-    to1 = module.transit_gateway.route_tables["from_security_vpc"].id
-  }
-}
-
-module "app1_gwlbe_inbound" {
-  source = "../../modules/gwlb_endpoint_set"
-
-  name              = var.gwlb_endpoint_set_app1_name
-  gwlb_service_name = module.security_gwlb.endpoint_service.service_name # this is cross-vpc
-  vpc_id            = module.app1_subnet_sets["app1_gwlbe"].vpc_id
-  subnets           = module.app1_subnet_sets["app1_gwlbe"].subnets
-  act_as_next_hop_for = {
-    "from-igw-to-lb" = {
-      route_table_id = module.app1_vpc.internet_gateway_route_table.id
-      to_subnets     = module.app1_subnet_sets["app1_lb"].subnets
-    }
-    # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
-    # and AWS allows their destinations to only be:
-    #     - The entire IPv4 or IPv6 CIDR block of your VPC. (Not interesting, as we always want AZ-specific next hops.)
-    #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used here.)
-    # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
-  }
-}
-
-module "app1_route" {
-  for_each = {
-    from-gwlbe-to-igw = {
-      next_hop_set    = module.app1_vpc.igw_as_next_hop_set
-      route_table_ids = module.app1_subnet_sets["app1_gwlbe"].unique_route_table_ids
-      to_cidr         = "0.0.0.0/0"
-    }
-    from-web-to-tgw = {
-      next_hop_set    = module.app1_transit_gateway_attachment.next_hop_set
-      route_table_ids = module.app1_subnet_sets["app1_vm"].unique_route_table_ids
-      to_cidr         = "0.0.0.0/0"
-    }
-    from-lb-to-gwlbe = {
-      next_hop_set    = module.app1_gwlbe_inbound.next_hop_set
-      route_table_ids = module.app1_subnet_sets["app1_lb"].unique_route_table_ids
-      to_cidr         = "0.0.0.0/0"
-    }
-  }
-  source = "../../modules/vpc_route"
-
-  route_table_ids = each.value.route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
-}
-
-resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
-  transit_gateway_route_table_id = module.transit_gateway.route_tables["from_spoke_vpc"].id
-  # Next hop.
-  transit_gateway_attachment_id = module.security_transit_gateway_attachment.attachment.id
-  # Inspect every packet egressing spokes without exception.
-  destination_cidr_block = "0.0.0.0/0"
-  blackhole              = false
 }
