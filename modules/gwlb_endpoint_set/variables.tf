@@ -50,28 +50,26 @@ variable "subnets" {
 
 variable "act_as_next_hop_for" {
   description = <<-EOF
-  The map of edge routes to create to pass network traffic to this VPC Endpoint Set.
-  This input is not intended for typical routes - use instead the `vpc_route` module to pass traffic through this endpoint from sources other than IGW.
-  This input only handles routes which have AZ-specific subnet CIDR destination, notably the ingress coming from an Internet Gateway (IGW).
-  This special kind of routes is called ["edge routes"](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table) by AWS docs.
+  The map of edge routes to create to pass network traffic to this Endpoint Set.
+  This input is not intended for typical routes - use instead the `vpc_route` module to pass traffic through this Endpoint Set from sources other than IGW.
+  This input only handles routes which have subnet CIDRs destination (AZ-specific), usually the ingress traffic coming from an Internet Gateway.
+  AWS docs call this special kind of route the ["edge route"](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table).
   The keys of the map are arbitrary strings. Example:
   ```
   act_as_next_hop_for = {
-    "from-igw-to-alb" = {
+    from_igw_to_alb = {
       route_table_id = module.my_vpc.internet_gateway_route_table.id
-      to_subnet_set  = module.my_alb_subnet_set
+      to_subnets     = module.my_alb_subnet_set.subnets
   }
   ```
-  In this example, traffic from IGW destined to the ALB is instead routed to the GWLBE for inspection.
+  In this example, traffic from IGW destined to the ALB is instead routed to the GWLBE (for inspection by an appliance).
   EOF
   default     = {}
   type = map(object({
     route_table_id = string
-    to_subnet_set = object({
-      subnets = map(object({
-        cidr_block = string
-      }))
-    })
+    to_subnets = map(object({
+      cidr_block = string
+    }))
   }))
 }
 
