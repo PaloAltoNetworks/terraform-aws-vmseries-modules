@@ -108,19 +108,20 @@ firewalls = [
   {
     name    = "vmseries01"
     fw_tags = {}
-    bootstrap_options = {
-      mgmt-interface-swap = "enable"
-      plugin-op-commands  = "aws-gwlb-inspect:enable"
-      type                = "dhcp-client"
-      hostname            = "vmseries01"
-      tplname             = "TPL-MY-STACK-##"
-      dgname              = "DG-MY-##"
-      panorama-server     = "xxx"
-      panorama-server-2   = "xxx"
-      vm-auth-key         = "xxx"
-      authcodes           = "xxx"
-      op-command-modes    = ""
-    }
+    # The bootstrap_options are ignored, because main.tf uses vmseries-bootstrap-aws-s3bucket = module.bootstrap.bucket_name
+    # bootstrap_options = {
+    #   mgmt-interface-swap = "enable"
+    #   plugin-op-commands  = "aws-gwlb-inspect:enable"
+    #   type                = "dhcp-client"
+    #   hostname            = "vmseries01"
+    #   tplname             = "TPL-MY-STACK-##"
+    #   dgname              = "DG-MY-##"
+    #   panorama-server     = "xxx"
+    #   panorama-server-2   = "xxx"
+    #   vm-auth-key         = "xxx"
+    #   authcodes           = "xxx"
+    #   op-command-modes    = ""
+    # }
     interfaces = [
       { name = "vmseries01_data", index = "0" },
       { name = "vmseries01_mgmt", index = "1" },
@@ -129,19 +130,20 @@ firewalls = [
   {
     name    = "vmseries02"
     fw_tags = {}
-    bootstrap_options = {
-      mgmt-interface-swap = "enable"
-      plugin-op-commands  = "aws-gwlb-inspect:enable"
-      type                = "dhcp-client"
-      hostname            = "vmseries02"
-      tplname             = "TPL-MY-STACK-##"
-      dgname              = "DG-MY-##"
-      panorama-server     = "xxx"
-      panorama-server-2   = "xxx"
-      vm-auth-key         = "xxx"
-      authcodes           = "xxx"
-      op-command-modes    = ""
-    }
+    # The bootstrap_options are ignored, because main.tf uses vmseries-bootstrap-aws-s3bucket = module.bootstrap.bucket_name
+    # bootstrap_options = {
+    #   mgmt-interface-swap = "enable"
+    #   plugin-op-commands  = "aws-gwlb-inspect:enable"
+    #   type                = "dhcp-client"
+    #   hostname            = "vmseries02"
+    #   tplname             = "TPL-MY-STACK-##"
+    #   dgname              = "DG-MY-##"
+    #   panorama-server     = "xxx"
+    #   panorama-server-2   = "xxx"
+    #   vm-auth-key         = "xxx"
+    #   authcodes           = "xxx"
+    #   op-command-modes    = ""
+    # }
     interfaces = [
       { name = "vmseries02_data", index = "0" },
       { name = "vmseries02_mgmt", index = "1" },
