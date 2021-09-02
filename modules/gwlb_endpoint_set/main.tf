@@ -16,7 +16,7 @@ resource "aws_vpc_endpoint" "this" {
 
 locals {
   input_routes_flat = flatten([for routekey, route in var.act_as_next_hop_for :
-    [for subnetkey, subnet in route.to_subnet_set.subnets :
+    [for subnetkey, subnet in route.to_subnets :
       {
         routekey  = routekey
         route     = route
