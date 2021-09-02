@@ -49,7 +49,6 @@ module "transit_gateway" {
       name   = "${var.prefix_name_tag}from_spokes"
     }
   }
-  auto_accept_shared_attachments = "enable" # TODO: stay at the default "disable" for extra security
 }
 
 module "security_transit_gateway_attachment" {
