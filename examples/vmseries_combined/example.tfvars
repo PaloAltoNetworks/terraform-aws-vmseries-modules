@@ -1,8 +1,8 @@
-region           = "eu-west-2"
+region           = "us-east-1"
 prefix_name_tag  = "example-"
 fw_instance_type = "m5.xlarge"
 fw_license_type  = "byol"
-fw_version       = "10.0.4" # Can be empty.
+fw_version       = "10.0.7" # Can be empty.
 
 global_tags = {
   ManagedBy   = "terraform"
@@ -26,22 +26,24 @@ security_transit_gateway_attachment = "security-vpc"
 
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-  "10.100.0.0/24"   = { az = "eu-west-2a", set = "mgmt" }
-  "10.100.64.0/24"  = { az = "eu-west-2b", set = "mgmt" }
-  "10.100.1.0/24"   = { az = "eu-west-2a", set = "data1" }
-  "10.100.65.0/24"  = { az = "eu-west-2b", set = "data1" }
-  "10.100.5.0/24"   = { az = "eu-west-2a", set = "gwlb" }
-  "10.100.69.0/24"  = { az = "eu-west-2b", set = "gwlb" }
-  "10.100.132.0/24" = { az = "eu-west-2c", set = "gwlb" }
-  "10.100.201.0/24" = { az = "eu-west-2d", set = "gwlb" }
-  "10.100.3.0/24"   = { az = "eu-west-2a", set = "tgw_attach" }
-  "10.100.67.0/24"  = { az = "eu-west-2b", set = "tgw_attach" }
-  "10.100.4.0/24"   = { az = "eu-west-2a", set = "gwlbe_outbound" }
-  "10.100.68.0/24"  = { az = "eu-west-2b", set = "gwlbe_outbound" }
-  "10.100.10.0/24"  = { az = "eu-west-2a", set = "gwlbe_eastwest" }
-  "10.100.74.0/24"  = { az = "eu-west-2b", set = "gwlbe_eastwest" }
-  "10.100.11.0/24"  = { az = "eu-west-2a", set = "natgw" }
-  "10.100.75.0/24"  = { az = "eu-west-2b", set = "natgw" }
+  "10.100.0.0/24"   = { az = "us-east-1a", set = "mgmt" }
+  "10.100.64.0/24"  = { az = "us-east-1b", set = "mgmt" }
+  "10.100.1.0/24"   = { az = "us-east-1a", set = "data1" }
+  "10.100.65.0/24"  = { az = "us-east-1b", set = "data1" }
+  "10.100.3.0/24"   = { az = "us-east-1a", set = "tgw_attach" }
+  "10.100.67.0/24"  = { az = "us-east-1b", set = "tgw_attach" }
+  "10.100.4.0/24"   = { az = "us-east-1a", set = "gwlbe_outbound" }
+  "10.100.68.0/24"  = { az = "us-east-1b", set = "gwlbe_outbound" }
+  "10.100.5.0/24"   = { az = "us-east-1a", set = "gwlb" }
+  "10.100.69.0/24"  = { az = "us-east-1b", set = "gwlb" }
+  "10.100.132.0/24" = { az = "us-east-1c", set = "gwlb" }
+  "10.100.201.0/24" = { az = "us-east-1d", set = "gwlb" }
+  "10.100.6.0/24"   = { az = "us-east-1e", set = "gwlb" }
+  "10.100.70.0/24"  = { az = "us-east-1f", set = "gwlb" } # AWS reccomends to always go up to the last possible AZ for GWLB service.
+  "10.100.10.0/24"  = { az = "us-east-1a", set = "gwlbe_eastwest" }
+  "10.100.74.0/24"  = { az = "us-east-1b", set = "gwlbe_eastwest" }
+  "10.100.11.0/24"  = { az = "us-east-1a", set = "natgw" }
+  "10.100.75.0/24"  = { az = "us-east-1b", set = "natgw" }
 }
 
 security_vpc_security_groups = {
@@ -56,12 +58,12 @@ security_vpc_security_groups = {
       geneve = {
         description = "Permit GENEVE to GWLB subnets"
         type        = "ingress", from_port = "6081", to_port = "6081", protocol = "udp"
-        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24"] # FIXME read Ref-Arch on how to address zones e+f, because of a recommendation to create GWLB service "in all Availability Zones within the Region"
+        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24", "10.100.6.0/24", "10.100.70.0/24"]
       }
       health_probe = {
         description = "Permit Port 80 Health Probe to GWLB subnets"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24"]
+        cidr_blocks = ["10.100.5.0/24", "10.100.69.0/24", "10.100.132.0/24", "10.100.201.0/24", "10.100.6.0/24", "10.100.70.0/24"]
       }
     }
   }
@@ -217,12 +219,12 @@ app1_vpc_cidr = "10.104.0.0/16"
 
 app1_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-  "10.104.0.0/24"   = { az = "eu-west-2a", set = "app1_vm" }
-  "10.104.128.0/24" = { az = "eu-west-2b", set = "app1_vm" }
-  "10.104.2.0/24"   = { az = "eu-west-2a", set = "app1_lb" }
-  "10.104.130.0/24" = { az = "eu-west-2b", set = "app1_lb" }
-  "10.104.3.0/24"   = { az = "eu-west-2a", set = "app1_gwlbe" }
-  "10.104.131.0/24" = { az = "eu-west-2b", set = "app1_gwlbe" }
+  "10.104.0.0/24"   = { az = "us-east-1a", set = "app1_vm" }
+  "10.104.128.0/24" = { az = "us-east-1b", set = "app1_vm" }
+  "10.104.2.0/24"   = { az = "us-east-1a", set = "app1_lb" }
+  "10.104.130.0/24" = { az = "us-east-1b", set = "app1_lb" }
+  "10.104.3.0/24"   = { az = "us-east-1a", set = "app1_gwlbe" }
+  "10.104.131.0/24" = { az = "us-east-1b", set = "app1_gwlbe" }
 }
 
 app1_vpc_security_groups = {
