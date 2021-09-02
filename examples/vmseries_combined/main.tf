@@ -54,7 +54,7 @@ module "transit_gateway" {
 module "security_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  name                        = var.security_transit_gateway_attachment
+  name                        = var.security_transit_gateway_attachment_name
   vpc_id                      = module.security_subnet_sets["tgw_attach"].vpc_id
   subnets                     = module.security_subnet_sets["tgw_attach"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["from_security_vpc"]

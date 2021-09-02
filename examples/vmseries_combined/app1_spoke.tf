@@ -34,7 +34,7 @@ module "app1_transit_gateway_attachment" {
 module "app1_gwlbe_inbound" {
   source = "../../modules/gwlb_endpoint_set"
 
-  name              = var.gwlb_endpoint_set_app1_name
+  name              = var.app1_gwlb_endpoint_set_name
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name # this is cross-vpc
   vpc_id            = module.app1_subnet_sets["app1_gwlbe"].vpc_id
   subnets           = module.app1_subnet_sets["app1_gwlbe"].subnets
@@ -119,7 +119,8 @@ resource "aws_eip" "lb" {
   vpc = true
 }
 
-# The Load Balancer.
+### Inbound Load Balancer ###
+
 # It is not for balancing the load per se, but rather as a route separation tool (as it introduces extra route tables).
 module "app1_lb" {
   source = "terraform-aws-modules/alb/aws"

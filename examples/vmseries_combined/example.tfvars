@@ -20,9 +20,9 @@ gwlb_name                       = "security-gwlb"
 gwlb_endpoint_set_eastwest_name = "eastwest-gwlb-endpoint"
 gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
 
-transit_gateway_name                = "tgw"
-transit_gateway_asn                 = "65200"
-security_transit_gateway_attachment = "security-vpc"
+transit_gateway_name                     = "tgw"
+transit_gateway_asn                      = "65200"
+security_transit_gateway_attachment_name = "security-vpc"
 
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
@@ -75,20 +75,20 @@ security_vpc_security_groups = {
         type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
       }
-      testbox = {
-        description = "Permit SSH from App1 spoke VPC - optional test"
-        type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["10.104.0.0/23"]
+      https = {
+        description = "Permit HTTPS"
+        type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here
       }
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"] # TODO: update here
       }
-      https = {
-        description = "Permit HTTPS"
-        type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"] # TODO: update here
+      panorama_ssh = {
+        description = "Permit Panorama SSH (Optional)"
+        type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+        cidr_blocks = ["10.0.0.0/8"]
       }
       panorama_mgmt = {
         description = "Permit Panorama Management"
@@ -194,7 +194,7 @@ create_ssh_key           = true
 ssh_key_name             = "vmseries_key_pair"
 ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
-### Security VPC ROUTES ###
+### Security VPC routes ###
 
 security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
   "10.0.0.0/8",
@@ -212,10 +212,16 @@ security_vpc_mgmt_routes_to_tgw = [
   "10.255.0.0/16", # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
 ]
 
-### Application1 VPC ###
+### App1 VPC ###
 
 app1_vpc_name = "app1-spoke-vpc"
 app1_vpc_cidr = "10.104.0.0/16"
+
+app1_transit_gateway_attachment_name = "app1-spoke-vpc"
+
+# Pull back info from existing GWLB in security VPC.
+existing_gwlb_name          = "security-gwlb"
+app1_gwlb_endpoint_set_name = "app1-gwlb-endpoint"
 
 app1_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
@@ -239,25 +245,18 @@ app1_vpc_security_groups = {
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here
       }
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here
       }
       http = {
         description = "Permit HTTP"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["10.0.0.0/8", "84.207.227.0/28"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here
       }
     }
   }
 }
-
-### Application1 GWLB ###
-
-# Pull back info from existing GWLB endpoint service in security VPC
-existing_gwlb_name                   = "security-gwlb"
-gwlb_endpoint_set_app1_name          = "app1-gwlb-endpoint"
-app1_transit_gateway_attachment_name = "app1-vpc"
