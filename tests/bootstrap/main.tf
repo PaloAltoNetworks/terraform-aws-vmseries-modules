@@ -16,11 +16,11 @@ module "bootstrap" {
 }
 
 output "bucket_name_correct" {
-  value = (substr(module.bootstrap.bucket_name, 0, 2) == "a-")
+  value = (substr(module.bootstrap.bucket_name, 0, 1) == "a")
 }
 
 output "instance_profile_name_correct" {
-  value = (substr(module.bootstrap.instance_profile_name, 0, 2) == "a-")
+  value = (substr(module.bootstrap.instance_profile_name, 0, 1) == "a")
 }
 
 output "bucket_domain_name" {
