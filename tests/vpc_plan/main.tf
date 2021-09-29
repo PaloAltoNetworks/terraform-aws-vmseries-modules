@@ -43,6 +43,7 @@ module "vpc" {
       name = local.u_string
     }
   }
+
   # Inputs that can handle unknown values.
   name                             = local.u_string
   enable_dns_hostnames             = local.u_true
@@ -74,6 +75,7 @@ module "vpc_noigw" {
       name = local.u_string
     }
   }
+
   # Inputs that can handle unknown values.
   name                             = local.u_string
   enable_dns_hostnames             = local.u_true
@@ -91,6 +93,7 @@ module "novpc_igw" {
   # Inputs that cannot handle unknown values.
   create_vpc              = false
   create_internet_gateway = true # the change
+
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
   enable_dns_hostnames             = local.u_true
@@ -109,6 +112,7 @@ module "novpc_noigw" {
   create_vpc              = false # the change
   create_internet_gateway = false
   use_internet_gateway    = true
+
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
   enable_dns_hostnames             = local.u_true
@@ -127,6 +131,7 @@ module "novpc_noigw_nouse" {
   create_vpc              = false
   create_internet_gateway = false
   use_internet_gateway    = false # the change
+
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
   enable_dns_hostnames             = local.u_true
@@ -159,6 +164,7 @@ module "vpc_vgw" {
       name = local.u_string
     }
   }
+
   # Inputs that can handle unknown values.
   name                             = local.u_string
   enable_dns_hostnames             = local.u_true
@@ -191,6 +197,7 @@ module "vpc_vgw_noigw" {
       name = local.u_string
     }
   }
+
   # Inputs that can handle unknown values.
   name                             = local.u_string
   enable_dns_hostnames             = local.u_true
@@ -209,6 +216,7 @@ module "novpc_igw_vgw" {
   create_vpc              = false # the change
   create_internet_gateway = true
   create_vpn_gateway      = true
+
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
   enable_dns_hostnames             = local.u_true
@@ -220,121 +228,31 @@ module "novpc_igw_vgw" {
   vpc_tags                         = local.u_map
 }
 
-################ Consumption #######################################################
+################ Consumption of Outputs ######################################################
+#
+# There is no need and no intention to run `terraform apply` on any of this code.
 #
 # For all module calls under test feed the map outputs to a dummy for_each.
-# The Plan will immediately test whether an output is for_each-compatible,
-# there is no need to run the entire `terraform apply`.
-
-# TODO: Invalid for_each argument:  module.vpc.ipv6_routing_cidrs
-
-# module.vpc
-
-resource "random_pet" "consume_vpc_routing_cidrs" {
-  for_each = module.vpc.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_vpc_security_group_ids" {
-  for_each = module.vpc.security_group_ids
-
-  prefix = each.key
-}
-
-# module.vpc_noigw
-
-resource "random_pet" "consume_vpc_noigw_routing_cidrs" {
-  for_each = module.vpc_noigw.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_vpc_noigw_security_group_ids" {
-  for_each = module.vpc_noigw.security_group_ids
-
-  prefix = each.key
-}
-
-# module.novpc_igw
-
-resource "random_pet" "consume_novpc_igw_routing_cidrs" {
-  for_each = module.novpc_igw.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_novpc_igw_security_group_ids" {
-  for_each = module.novpc_igw.security_group_ids
-
-  prefix = each.key
-}
-
-# module.novpc_noigw_nouse
-
-resource "random_pet" "consume_novpc_noigw_nouse_routing_cidrs" {
-  for_each = module.novpc_noigw_nouse.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_novpc_noigw_nouse_security_group_ids" {
-  for_each = module.novpc_noigw_nouse.security_group_ids
-
-  prefix = each.key
-}
-
-# module.novpc_noigw
-
-resource "random_pet" "consume_novpc_noigw_routing_cidrs" {
-  for_each = module.novpc_noigw.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_novpc_noigw_security_group_ids" {
-  for_each = module.novpc_noigw.security_group_ids
-
-  prefix = each.key
-}
-
-# module.vpc_vgw
-
-resource "random_pet" "consume_vpc_vgw_routing_cidrs" {
-  for_each = module.vpc_vgw.routing_cidrs
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_vpc_vgw_security_group_ids" {
-  for_each = module.vpc_vgw.security_group_ids
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_vpc_vgw_maps" {
-  for_each = merge(
-    module.vpc_vgw.routing_cidrs,
-    module.vpc_vgw.security_group_ids,
-  )
-
-  prefix = each.key
-}
-
-resource "random_pet" "consume_vpc_vgw_bools" {
-  count = contains([
-    true,
-    # local.u_true,
-    true,
-  ], false) ? 1 : 0
-}
-
-# module.vpc_vgw_noigw
-
-# module.novpc_igw_vgw
+# The Plan will succeed when every argument to the `for_each = merge(...)` is
+# for_each-compatible, or it will immediately fail otherwise with "Invalid for_each argument".
 
 resource "random_pet" "consume_maps" {
   for_each = merge(
+    module.vpc.routing_cidrs,
+    module.vpc.security_group_ids,
+
+    module.vpc_noigw.routing_cidrs,
+    module.vpc_noigw.security_group_ids,
+
+    module.novpc_igw.routing_cidrs,
+    module.novpc_igw.security_group_ids,
+
+    module.novpc_noigw_nouse.routing_cidrs,
+    module.novpc_noigw_nouse.security_group_ids,
+
+    module.novpc_noigw.routing_cidrs,
+    module.novpc_noigw.security_group_ids,
+
     module.vpc_vgw.routing_cidrs,
     module.vpc_vgw.security_group_ids,
 
@@ -345,3 +263,5 @@ resource "random_pet" "consume_maps" {
     module.novpc_igw_vgw.security_group_ids,
   )
 }
+
+# TODO: Invalid for_each argument:  module.vpc.ipv6_routing_cidrs
