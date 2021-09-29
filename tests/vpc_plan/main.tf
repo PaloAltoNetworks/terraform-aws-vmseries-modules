@@ -54,6 +54,59 @@ module "vpc" {
   vpc_tags                         = local.u_map
 }
 
+module "vpc_nosg" {
+  source = "../../modules/vpc"
+
+  # Inputs that cannot handle unknown values.
+  create_vpc              = true
+  cidr_block              = "10.0.0.0/24"
+  secondary_cidr_blocks   = ["10.0.1.0/24", "10.0.2.0/24"]
+  create_internet_gateway = true
+  security_groups         = {} # the change
+
+  # Inputs that can handle unknown values.
+  name                             = local.u_string
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
+  instance_tenancy                 = local.u_string
+  vpn_gateway_amazon_side_asn      = local.u_number
+  global_tags                      = local.u_map
+  vpc_tags                         = local.u_map
+}
+
+module "vpc_nosecond" {
+  source = "../../modules/vpc"
+
+  # Inputs that cannot handle unknown values.
+  create_vpc              = true
+  cidr_block              = "10.0.0.0/24"
+  secondary_cidr_blocks   = [] # the change
+  create_internet_gateway = true
+  security_groups = {
+    sg = {
+      rules = {
+        r = {
+          # Nested attributes that can handle unknown values.
+          type = local.u_sg_rule_type
+        }
+      }
+      # Nested attributes that can handle unknown values.
+      name = local.u_string
+    }
+  }
+
+  # Inputs that can handle unknown values.
+  name                             = local.u_string
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
+  instance_tenancy                 = local.u_string
+  vpn_gateway_amazon_side_asn      = local.u_number
+  global_tags                      = local.u_map
+  vpc_tags                         = local.u_map
+}
+
 module "vpc_noigw" {
   source = "../../modules/vpc"
 
@@ -92,6 +145,18 @@ module "novpc_igw" {
   # Inputs that cannot handle unknown values.
   create_vpc              = false
   create_internet_gateway = true # the change
+  security_groups = {
+    sg = {
+      rules = {
+        r = {
+          # Nested attributes that can handle unknown values.
+          type = local.u_sg_rule_type
+        }
+      }
+      # Nested attributes that can handle unknown values.
+      name = local.u_string
+    }
+  }
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
@@ -111,6 +176,18 @@ module "novpc_noigw" {
   create_vpc              = false # the change
   create_internet_gateway = false
   use_internet_gateway    = true
+  security_groups = {
+    sg = {
+      rules = {
+        r = {
+          # Nested attributes that can handle unknown values.
+          type = local.u_sg_rule_type
+        }
+      }
+      # Nested attributes that can handle unknown values.
+      name = local.u_string
+    }
+  }
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
@@ -130,6 +207,18 @@ module "novpc_noigw_nouse" {
   create_vpc              = false
   create_internet_gateway = false
   use_internet_gateway    = false # the change
+  security_groups = {
+    sg = {
+      rules = {
+        r = {
+          # Nested attributes that can handle unknown values.
+          type = local.u_sg_rule_type
+        }
+      }
+      # Nested attributes that can handle unknown values.
+      name = local.u_string
+    }
+  }
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
@@ -215,6 +304,18 @@ module "novpc_igw_vgw" {
   create_vpc              = false # the change
   create_internet_gateway = true
   create_vpn_gateway      = true
+  security_groups = {
+    sg = {
+      rules = {
+        r = {
+          # Nested attributes that can handle unknown values.
+          type = local.u_sg_rule_type
+        }
+      }
+      # Nested attributes that can handle unknown values.
+      name = local.u_string
+    }
+  }
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
@@ -231,14 +332,20 @@ module "novpc_igw_vgw" {
 #
 # There is no need and no intention to run `terraform apply` on any of this code.
 #
-# For all module calls under test feed the map outputs to a dummy for_each.
-# The Plan will succeed when every argument to the `for_each = merge(...)` is
-# for_each-compatible, or it will immediately fail otherwise with "Invalid for_each argument".
+# For all module calls under test, feed the map outputs to a dummy for_each.
+# The Plan succeeds only if every argument to the `for_each = merge(...)` is for_each-compatible,
+# otherwise it fails immediately with "Invalid for_each argument".
 
 resource "random_pet" "consume_maps" {
   for_each = merge(
     module.vpc.routing_cidrs,
     module.vpc.security_group_ids,
+
+    module.vpc_nosg.routing_cidrs,
+    module.vpc_nosg.security_group_ids,
+
+    module.vpc_nosecond.routing_cidrs,
+    module.vpc_nosecond.security_group_ids,
 
     module.vpc_noigw.routing_cidrs,
     module.vpc_noigw.security_group_ids,
@@ -262,5 +369,3 @@ resource "random_pet" "consume_maps" {
     module.novpc_igw_vgw.security_group_ids,
   )
 }
-
-# TODO: Invalid for_each argument:  module.vpc.ipv6_routing_cidrs
