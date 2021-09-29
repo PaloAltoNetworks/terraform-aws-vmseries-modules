@@ -1,9 +1,8 @@
-# Description, just enough for a newcomer to be able to understand the reason why this code exist.
-# And how to change the test when the main code changes.
+# Test the behavior of unknown values in module's inputs and outputs.
+# See https://github.com/PaloAltoNetworks/terraform-best-practices/blob/91c6481de8a470390dd04a1286eb0f2e6cabcc3f/tests.md#the-unknown-value-pitfall
 #
-# Core tests:
-#   - Do the unknown inputs work? (Meaning the ones shown as `(known after apply)` in a Terraform Plan.)
-#   - Can we consume the module output in a subsequent for_each?
+# This test needs an update when adding/removing any inputs.
+# This test needs an update when adding/removing selected outputs (specifically map outputs).
 
 resource "random_pet" "this" {}
 
