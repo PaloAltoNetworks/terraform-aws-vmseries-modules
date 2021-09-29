@@ -5,18 +5,18 @@
 #   - Do the unknown inputs work? (Meaning the ones shown as `(known after apply)` in a Terraform Plan.)
 #   - Can we consume the module output in a subsequent for_each?
 
-data "aws_availability_zones" "this" {
-  state = "available"
-}
-
 resource "random_pet" "this" {}
 
 # The "u_" values are unknown during the `terraform plan`.
 locals {
-  u_bool         = length(random_pet.this.id) > 0
-  u_string       = random_pet.this.id
-  u_int          = length(random_pet.this.id)
-  u_map          = merge({ (local.u_string) = local.u_string }, { (local.u_string) = local.u_string })
+  u_bool   = length(random_pet.this.id) > 0
+  u_string = random_pet.this.id
+  u_number = length(random_pet.this.id)
+  u_map = merge(
+    { (local.u_string) = local.u_string },
+    { knownkey = "knownvalue" },
+    # It is unknown whether the merge is a single-element map or a two-element map.
+  )
   u_sg_rule_type = local.u_bool ? "egress" : "ingress"
 }
 
@@ -49,7 +49,7 @@ module "vpc" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -81,7 +81,7 @@ module "vpc_noigw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -99,7 +99,7 @@ module "novpc_igw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -118,7 +118,7 @@ module "novpc_noigw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -137,7 +137,7 @@ module "novpc_noigw_nouse" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -170,7 +170,7 @@ module "vpc_vgw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -203,7 +203,7 @@ module "vpc_vgw_noigw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
@@ -222,7 +222,7 @@ module "novpc_igw_vgw" {
   enable_dns_support               = local.u_bool
   assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
-  vpn_gateway_amazon_side_asn      = local.u_int
+  vpn_gateway_amazon_side_asn      = local.u_number
   global_tags                      = local.u_map
   vpc_tags                         = local.u_map
 }
