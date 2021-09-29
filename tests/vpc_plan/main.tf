@@ -13,12 +13,11 @@ resource "random_pet" "this" {}
 
 # The "u_" values are unknown during the `terraform plan`.
 locals {
-  u_true         = length(random_pet.this.id) > 0
-  u_false        = length(random_pet.this.id) < 0
+  u_bool         = length(random_pet.this.id) > 0
   u_string       = random_pet.this.id
   u_int          = length(random_pet.this.id)
   u_map          = merge({ (local.u_string) = local.u_string }, { (local.u_string) = local.u_string })
-  u_sg_rule_type = local.u_true ? "egress" : "ingress"
+  u_sg_rule_type = local.u_bool ? "egress" : "ingress"
 }
 
 ### The code under test. ###
@@ -46,9 +45,9 @@ module "vpc" {
 
   # Inputs that can handle unknown values.
   name                             = local.u_string
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -78,9 +77,9 @@ module "vpc_noigw" {
 
   # Inputs that can handle unknown values.
   name                             = local.u_string
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -96,9 +95,9 @@ module "novpc_igw" {
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -115,9 +114,9 @@ module "novpc_noigw" {
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -134,9 +133,9 @@ module "novpc_noigw_nouse" {
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -167,9 +166,9 @@ module "vpc_vgw" {
 
   # Inputs that can handle unknown values.
   name                             = local.u_string
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -200,9 +199,9 @@ module "vpc_vgw_noigw" {
 
   # Inputs that can handle unknown values.
   name                             = local.u_string
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
@@ -219,9 +218,9 @@ module "novpc_igw_vgw" {
 
   # Inputs that can handle unknown values.
   name                             = module.vpc.name
-  enable_dns_hostnames             = local.u_true
-  enable_dns_support               = local.u_true
-  assign_generated_ipv6_cidr_block = local.u_true
+  enable_dns_hostnames             = local.u_bool
+  enable_dns_support               = local.u_bool
+  assign_generated_ipv6_cidr_block = local.u_bool
   instance_tenancy                 = local.u_string
   vpn_gateway_amazon_side_asn      = local.u_int
   global_tags                      = local.u_map
