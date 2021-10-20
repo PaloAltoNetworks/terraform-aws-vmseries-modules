@@ -5,16 +5,17 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-// GenericTest runs the Terratest with generic settings.
-// It checks the dynamic inputs, the output consumption within for_each, the import of pre-existing resources,
-// as well as other usual checks.
-func GenericTest(t *testing.T, terraformOptions *terraform.Options) (func(), *terraform.Options) {
-	// Assign standard variables.
-	switchme := "true"
+// CheckFunc is a function that can be run on an applied Terraform test-case as given by t.
+// The terraformOptions should be the same which were used to apply t.
+// The function should either exit cleanly, or invoke t.Errorf() which fails the entire test-case in a usual way.
+type CheckFunc func(t *testing.T, terraformOptions *terraform.Options)
 
+// GenericTest runs the Terratest with generic settings.
+func GenericTest(t *testing.T, terraformOptions *terraform.Options, checkFunc CheckFunc) *terraform.Options {
 	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
 	// terraform testing.
 	if terraformOptions == nil {
@@ -24,29 +25,35 @@ func GenericTest(t *testing.T, terraformOptions *terraform.Options) (func(), *te
 
 			// Variables to pass to our Terraform code using -var options
 			Vars: map[string]interface{}{
-				"switchme": switchme,
+				"switchme": "true",
 			},
 		})
 	}
 
+	if checkFunc == nil {
+		checkFunc = func(t *testing.T, terraformOptions *terraform.Options) { /* noop */ }
+	}
+
 	// Schedule `terraform destroy` at the end of the test, to clean up the created resources.
 	destroyFunc := func() {
-		t.Log("########################################################################")
-		t.Log("### The test results are shown above.")
+		logger.Log(t, "#################### End of logs for the Apply. Cleaning up now. ####################")
 		terraform.Destroy(t, terraformOptions)
 	}
+	defer destroyFunc()
 
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors.
 	terraform.InitAndApply(t, terraformOptions)
 	CheckOutputsCorrect(t, terraformOptions)
+	checkFunc(t, terraformOptions)
 
 	// Run `terraform init` and `terraform apply` again, with modified input.
 	// We will see whether the cloud resources can be modified after their initial creation.
 	terraformOptions.Vars["switchme"] = "false"
 	terraform.InitAndApply(t, terraformOptions)
 	CheckOutputsCorrect(t, terraformOptions)
+	checkFunc(t, terraformOptions)
 
-	return destroyFunc, terraformOptions
+	return terraformOptions
 }
 
 // CheckOutputsCorrect verifies whether every terraform output named xxx_correct returned "true".
