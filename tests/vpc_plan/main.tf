@@ -142,8 +142,8 @@ module "novpc_igw" {
   source = "../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
-  create_vpc              = false
-  create_internet_gateway = true # the change
+  create_vpc              = false # the change
+  create_internet_gateway = true
   security_groups = {
     sg = {
       rules = {
@@ -172,8 +172,8 @@ module "novpc_noigw" {
   source = "../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
-  create_vpc              = false # the change
-  create_internet_gateway = false
+  create_vpc              = false
+  create_internet_gateway = false # the change
   use_internet_gateway    = true
   security_groups = {
     sg = {
@@ -329,7 +329,8 @@ module "novpc_igw_vgw" {
 
 ################ Consumption of Outputs ######################################################
 #
-# There is no need and no intention to run `terraform apply` on any of this code.
+# There is no need and no intention to run `terraform apply` on this. This code is only
+# concerned with `terraform plan` succeeding.
 #
 # For all module calls under test, feed the map outputs to a dummy for_each.
 # The Plan succeeds only if every argument to the `for_each = merge(...)` is for_each-compatible,
