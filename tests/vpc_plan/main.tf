@@ -173,7 +173,7 @@ module "vpc_nosg" {
   vpc_tags                         = local.u_map
 }
 
-module "vpc_nosecond" {
+module "vpc_noseccidr" {
   source = "../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
