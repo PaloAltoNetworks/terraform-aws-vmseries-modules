@@ -16,19 +16,31 @@ locals {
     { knownkey = "knownvalue" },
     # It is unknown whether the merge is a single-element map or a two-element map.
   )
-  u_sg_rule_type = local.u_bool ? "egress" : "ingress"
 
-  # Just for brevity:
+  # Just for brevity, include a complex map which is repeatedly used.
+  # At its core the map is a known value, just because the key set is known (["sg"]). However, its values contain
+  # a mix of known and unknown sub-attributes.
   security_groups = {
     sg = {
+      name = local.u_string
       rules = {
-        r = {
-          # Nested attributes that can handle unknown values.
-          type = local.u_sg_rule_type
+        rule_ingress = {
+          type        = "ingress"
+          from_port   = local.u_number
+          to_port     = local.u_number
+          protocol    = local.u_string
+          description = local.u_string
+          cidr_blocks = [local.u_string]
+        }
+        rule_egress = {
+          type        = "egress"
+          from_port   = local.u_number
+          to_port     = local.u_number
+          protocol    = local.u_string
+          description = local.u_string
+          cidr_blocks = [local.u_string]
         }
       }
-      # Nested attributes that can handle unknown values.
-      name = local.u_string
     }
   }
 }
@@ -182,18 +194,7 @@ module "vpc_noseccidr" {
   secondary_cidr_blocks   = [] # the change
   create_internet_gateway = true
   create_vpn_gateway      = true
-  security_groups = {
-    sg = {
-      rules = {
-        r = {
-          # Nested attributes that can handle unknown values.
-          type = local.u_sg_rule_type
-        }
-      }
-      # Nested attributes that can handle unknown values.
-      name = local.u_string
-    }
-  }
+  security_groups         = local.security_groups
 
   # Inputs that can handle unknown values.
   name                             = local.u_string
