@@ -223,8 +223,8 @@ resource "random_pet" "consume_maps" {
     module.vpc_nosg.routing_cidrs,
     module.vpc_nosg.security_group_ids,
 
-    module.vpc_nosecond.routing_cidrs,
-    module.vpc_nosecond.security_group_ids,
+    module.vpc_noseccidr.routing_cidrs,
+    module.vpc_noseccidr.security_group_ids,
 
     module.vpc_noigw.routing_cidrs,
     module.vpc_noigw.security_group_ids,
