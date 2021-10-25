@@ -21,16 +21,3 @@ output "unique_route_table_ids" {
 output "availability_zones" {
   value = toset(keys(local.input_subnets))
 }
-
-output "routing_cidrs" {
-  description = "Usable for vpc_route module. Example."
-  value = { for k, v in local.subnets :
-    v.cidr_block => "ipv4" if v.cidr_block != null && v.cidr_block != ""
-  }
-}
-
-output "ipv6_routing_cidrs" {
-  value = { for k, v in local.subnets :
-    v.ipv6_cidr_block => "ipv6" if v.ipv6_cidr_block != null && v.ipv6_cidr_block != ""
-  }
-}

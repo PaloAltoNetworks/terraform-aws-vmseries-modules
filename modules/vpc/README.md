@@ -75,9 +75,7 @@ No modules.
 | <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
 | <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |
 | <a name="output_internet_gateway_route_table"></a> [internet\_gateway\_route\_table](#output\_internet\_gateway\_route\_table) | The Route Table object created to handle traffic from Internet Gateway (IGW). It is null when `create_internet_gateway` is false. |
-| <a name="output_ipv6_routing_cidrs"></a> [ipv6\_routing\_cidrs](#output\_ipv6\_routing\_cidrs) | Does not have the same limitation as routing\_cidr output. |
 | <a name="output_name"></a> [name](#output\_name) | The VPC Name Tag (either created or pre-existing). |
-| <a name="output_routing_cidrs"></a> [routing\_cidrs](#output\_routing\_cidrs) | Returns the concatenation of `cidr_block` and `secondary_cidr_blocks` inputs. Even when `create_vpc = false` the `data.aws_vpc.cidr_block_associations` will not be usable to build routes on it because of Terraform limitation ('Invalid count argument'). |
 | <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Map of Security Group Name -> ID (newly created). |
 | <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |
 | <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
