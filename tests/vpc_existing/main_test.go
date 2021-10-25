@@ -21,7 +21,7 @@
 //
 // VScode users should keep `Go: Test On Save` at the default false value, and not set to true. This option is spelled
 // `go.testOnSave` in settings.json.
-package vpc_existing
+package vpc_read
 
 import (
 	"testing"

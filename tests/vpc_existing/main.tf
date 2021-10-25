@@ -2,10 +2,11 @@
 # It is a temporary deployment intended solely to perform tests.
 # For a quick start see the file main_test.go, which executes the terratest library.
 #
-# Change this code in the same pull request that changes the main code, e.g. the code inside `modules` directory.
+# Change this code in the same pull request that changes the code in `modules` directory.
 #
 # Core tests:
 #   - Do various combinations of known inputs produce expected outputs?
+#   - Can we discover a pre-existing vpc?
 #
 # Boilerplate tests:
 #   - Can we call the module twice?
@@ -23,37 +24,23 @@ locals {
 }
 
 module "vpc" {
-  for_each = toset(["test4-vpc1", "test4-vpc2"])
-  source   = "../../modules/vpc"
-
-  name                    = each.key
-  create_vpc              = true
-  create_internet_gateway = true
-  create_vpn_gateway      = false
-  use_internet_gateway    = false
-  cidr_block              = "10.0.0.0/16"
-  secondary_cidr_blocks   = ["10.4.0.0/16", "10.5.0.0/16", "10.6.0.0/16"]
-}
-
-module "vpc_noigw" {
   source = "../../modules/vpc"
 
-  name                    = "test4-vpc3"
+  name                    = "test4-vpc1"
   create_vpc              = true
-  create_internet_gateway = false
-  create_vpn_gateway      = false
-  use_internet_gateway    = false
+  create_internet_gateway = true
+  create_vpn_gateway      = true
   cidr_block              = "10.0.0.0/16"
   secondary_cidr_blocks   = ["10.4.0.0/16", "10.5.0.0/16", "10.6.0.0/16"]
 }
 
 ### Reuse Existing Resources ###
 
-module "vpc_data" {
+module "vpc_read" {
   source = "../../modules/vpc"
 
   create_vpc              = false
-  name                    = module.vpc["test4-vpc1"].name
+  name                    = module.vpc.name
   create_internet_gateway = false
   use_internet_gateway    = true
 }
@@ -61,17 +48,17 @@ module "vpc_data" {
 ### Test Results ###
 
 output "is_vpc_cidr_block_correct" {
-  value = (module.vpc["test4-vpc1"].vpc.cidr_block == "10.0.0.0/16")
+  value = (module.vpc.vpc.cidr_block == "10.0.0.0/16")
 }
 
 output "is_vpc_name_correct" {
-  value = (module.vpc["test4-vpc1"].name == "test4-vpc1")
+  value = (module.vpc.name == "test4-vpc1")
 }
 
-output "is_vpc_data_cidr_block_correct" {
-  value = (module.vpc_data.vpc.cidr_block == "10.0.0.0/16")
+output "is_vpc_read_cidr_block_correct" {
+  value = (module.vpc_read.vpc.cidr_block == "10.0.0.0/16")
 }
 
-output "is_vpc_data_name_correct" {
-  value = (module.vpc_data.name == "test4-vpc1")
+output "is_vpc_read_name_correct" {
+  value = (module.vpc_read.name == "test4-vpc1")
 }
