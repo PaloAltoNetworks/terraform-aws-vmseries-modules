@@ -37,6 +37,10 @@ resource "aws_subnet" "this" {
   vpc_id                  = var.vpc_id
   map_public_ip_on_launch = var.map_public_ip_on_launch
   tags                    = merge(var.global_tags, each.value.local_tags, { Name = each.value.name })
+
+  depends_on = [
+    var.has_secondary_cidrs
+  ]
 }
 
 #### One route table per each subnet by default #### 

@@ -30,9 +30,10 @@ module "subnet_sets" {
   for_each = toset(distinct([for _, v in var.subnets : v.set]))
   source   = "../../modules/subnet_set"
 
-  name   = each.key
-  cidrs  = { for k, v in var.subnets : k => v if v.set == each.key }
-  vpc_id = module.vpc.id
+  name                = each.key
+  cidrs               = { for k, v in var.subnets : k => v if v.set == each.key }
+  vpc_id              = module.vpc.id
+  has_secondary_cidrs = module.vpc.has_secondary_cidrs
 }
 
 module "nat_gateway_set" {

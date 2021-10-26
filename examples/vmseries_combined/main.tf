@@ -18,9 +18,10 @@ module "security_subnet_sets" {
   for_each = toset(distinct([for _, v in var.security_vpc_subnets : v.set]))
   source   = "../../modules/subnet_set"
 
-  name   = each.key
-  vpc_id = module.security_vpc.id
-  cidrs  = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
+  name                = each.key
+  vpc_id              = module.security_vpc.id
+  has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
+  cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
 }
 
 ### NATGW ###

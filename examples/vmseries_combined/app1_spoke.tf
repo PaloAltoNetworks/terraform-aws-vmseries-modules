@@ -14,9 +14,10 @@ module "app1_subnet_sets" {
   for_each = toset(distinct([for _, v in var.app1_vpc_subnets : v.set]))
   source   = "../../modules/subnet_set"
 
-  name   = each.key
-  vpc_id = module.app1_vpc.id
-  cidrs  = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
+  name                = each.key
+  vpc_id              = module.app1_vpc.id
+  has_secondary_cidrs = module.app1_vpc.has_secondary_cidrs
+  cidrs               = { for k, v in var.app1_vpc_subnets : k => v if v.set == each.key }
 }
 
 module "app1_transit_gateway_attachment" {

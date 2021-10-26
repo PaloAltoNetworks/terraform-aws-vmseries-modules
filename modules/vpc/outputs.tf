@@ -58,3 +58,7 @@ output "igw_as_next_hop_set" {
 #     ids  = {}
 #   }
 # }
+
+output "has_secondary_cidrs" {
+  value = contains([for k, v in aws_vpc_ipv4_cidr_block_association.this : length(v.id) > 0], true)
+}
