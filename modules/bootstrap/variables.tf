@@ -16,6 +16,12 @@ variable "iam_instance_profile_name" {
   type        = string
 }
 
+variable "force_destroy" {
+  description = "Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects."
+  default     = true
+  type        = bool
+}
+
 variable "bootstrap_directories" {
   description = "The directories comprising the bootstrap package."
   default = [
