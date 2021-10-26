@@ -71,6 +71,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_has_secondary_cidrs"></a> [has\_secondary\_cidrs](#output\_has\_secondary\_cidrs) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | The VPC identifier (either created or pre-existing). |
 | <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
 | <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |

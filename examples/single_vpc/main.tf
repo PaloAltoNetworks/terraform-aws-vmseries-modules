@@ -18,9 +18,10 @@ module "subnet_sets" {
   for_each = toset(distinct([for _, v in var.subnets : v.set]))
   source   = "../../modules/subnet_set"
 
-  name   = each.key
-  cidrs  = { for k, v in var.subnets : k => v if v.set == each.key }
-  vpc_id = module.vpc.id
+  name                = each.key
+  cidrs               = { for k, v in var.subnets : k => v if v.set == each.key }
+  vpc_id              = module.vpc.id
+  has_secondary_cidrs = module.vpc.has_secondary_cidrs
 }
 
 module "nat_gateway_set" {
@@ -54,28 +55,28 @@ module "vpc_route" {
   to_cidr         = each.value.to_cidr
 }
 
-module "vmseries" {
-  source = "../../modules/vmseries"
+# module "vmseries" {
+#   source = "../../modules/vmseries"
 
-  region               = var.region
-  security_groups_map  = module.vpc.security_group_ids
-  prefix_name_tag      = var.prefix_name_tag
-  interfaces           = var.interfaces
-  addtional_interfaces = var.addtional_interfaces
-  tags                 = var.global_tags
-  ssh_key_name         = var.ssh_key_name
-  firewalls            = var.firewalls
-  fw_license_type      = var.fw_license_type
-  fw_version           = var.fw_version
-  fw_instance_type     = var.fw_instance_type
+#   region               = var.region
+#   security_groups_map  = module.vpc.security_group_ids
+#   prefix_name_tag      = var.prefix_name_tag
+#   interfaces           = var.interfaces
+#   addtional_interfaces = var.addtional_interfaces
+#   tags                 = var.global_tags
+#   ssh_key_name         = var.ssh_key_name
+#   firewalls            = var.firewalls
+#   fw_license_type      = var.fw_license_type
+#   fw_version           = var.fw_version
+#   fw_instance_type     = var.fw_instance_type
 
-  # Because vmseries module does not yet handle subnet_set,
-  # convert to a backward compatible map.
-  subnets_map = { for v in flatten([for _, set in module.subnet_sets :
-    [for _, subnet in set.subnets :
-      {
-        subnet = subnet
-      }
-    ]
-  ]) : v.subnet.tags.Name => v.subnet.id }
-}
+#   # Because vmseries module does not yet handle subnet_set,
+#   # convert to a backward compatible map.
+#   subnets_map = { for v in flatten([for _, set in module.subnet_sets :
+#     [for _, subnet in set.subnets :
+#       {
+#         subnet = subnet
+#       }
+#     ]
+#   ]) : v.subnet.tags.Name => v.subnet.id }
+# }
