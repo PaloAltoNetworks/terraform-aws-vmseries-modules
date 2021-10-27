@@ -1,7 +1,5 @@
-# Check module for variable definitions and documentation
-
 variable "region" {
-  default = ""
+  default = "us-east-1"
 }
 
 variable "prefix_name_tag" {
@@ -9,33 +7,5 @@ variable "prefix_name_tag" {
 }
 
 variable "global_tags" {
-  default = {}
-}
-
-variable "vpc" {
-  default = {}
-}
-
-variable "vpc_route_tables" {
-  default = {}
-}
-
-variable "subnets" {
-  default = {}
-}
-
-variable "nat_gateways" {
-  default = {}
-}
-
-variable "vpn_gateways" {
-  default = {}
-}
-
-variable "vpc_endpoints" {
-  default = {}
-}
-
-variable "security_groups" {
   default = {}
 }
