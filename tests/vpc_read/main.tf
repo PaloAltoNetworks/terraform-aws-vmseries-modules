@@ -13,20 +13,19 @@
 
 variable "switchme" {} # unused but required by generictt
 
-data "aws_availability_zones" "this" {
-  state = "available"
+# Random name allows parallel runs on the same cloud account.
+resource "random_pet" "this" {
+  prefix = "test-vpc-read"
 }
 
 locals {
-  az_a = data.aws_availability_zones.this.names[0]
-  az_b = data.aws_availability_zones.this.names[1]
-  az_c = data.aws_availability_zones.this.names[2]
+  vpc_name = random_pet.this.id
 }
 
 module "vpc" {
   source = "../../modules/vpc"
 
-  name                    = "test4-vpc1"
+  name                    = local.vpc_name
   create_vpc              = true
   create_internet_gateway = true
   create_vpn_gateway      = true
@@ -52,7 +51,7 @@ output "is_vpc_cidr_block_correct" {
 }
 
 output "is_vpc_name_correct" {
-  value = (module.vpc.name == "test4-vpc1")
+  value = (module.vpc.name == local.vpc_name)
 }
 
 output "is_vpc_read_cidr_block_correct" {
@@ -60,5 +59,5 @@ output "is_vpc_read_cidr_block_correct" {
 }
 
 output "is_vpc_read_name_correct" {
-  value = (module.vpc_read.name == "test4-vpc1")
+  value = (module.vpc_read.name == local.vpc_name)
 }
