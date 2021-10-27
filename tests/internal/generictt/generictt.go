@@ -2,7 +2,7 @@
 package generictt
 
 import (
-	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/logger"
@@ -14,7 +14,8 @@ import (
 // The function should either exit cleanly, or invoke t.Errorf() which fails the entire test-case in a usual way.
 type CheckFunc func(t *testing.T, terraformOptions *terraform.Options)
 
-// GenericTest runs the Terratest with generic settings.
+// GenericTest runs the Terratest with generic settings. The outputs of the Terraform need to pass both
+// checkFunc and the standard CheckOutputsCorrect function.
 func GenericTest(t *testing.T, terraformOptions *terraform.Options, checkFunc CheckFunc) *terraform.Options {
 	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
 	// terraform testing.
@@ -56,21 +57,18 @@ func GenericTest(t *testing.T, terraformOptions *terraform.Options, checkFunc Ch
 	return terraformOptions
 }
 
-// CheckOutputsCorrect verifies whether every terraform output named xxx_correct returned "true".
+// CheckOutputsCorrect verifies whether none of the terraform outputs returns "false". The comparison
+// is case insensitive. Only scalar values are checked, a list containing "false" is allowed, as is an empty list.
 func CheckOutputsCorrect(t *testing.T, terraformOptions *terraform.Options) {
-	reVerifiableOutput := regexp.MustCompile("correct$")
-	want := "true"
+	notwant := "false"
 
 	for output := range terraform.OutputAll(t, terraformOptions) {
-		if !reVerifiableOutput.MatchString(output) {
-			continue
-		}
-
-		// Run `terraform output` and get the named result.
+		// Run `terraform output` and check the results.
 		got := terraform.Output(t, terraformOptions, output)
+		got = strings.ToLower(got)
 
-		if got != want {
-			t.Errorf("Mismatched result for terraform output %q:\ngot:  %q\nwant: %q\n", output, got, want)
+		if got == notwant {
+			t.Errorf("Mismatched result for terraform output %q:\ngot:  %q\nwant anything but %q\n", output, got, notwant)
 		}
 	}
 }
