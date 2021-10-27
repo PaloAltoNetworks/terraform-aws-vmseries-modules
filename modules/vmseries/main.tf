@@ -85,6 +85,12 @@ resource "aws_eip_association" "this" {
 
   network_interface_id = aws_network_interface.this[each.key].id
   allocation_id        = aws_eip.this[each.key].id
+
+  depends_on = [
+    # Workaround for:
+    # Error associating EIP: IncorrectInstanceState: The pending-instance-creation instance to which 'eni' is attached is not in a valid state for this operation
+    aws_instance.pa_vm_series
+  ]
 }
 
 
