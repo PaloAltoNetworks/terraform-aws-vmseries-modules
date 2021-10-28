@@ -1,6 +1,5 @@
 locals {
-  eips = var.create_eip ? aws_eip.this : data.aws_eip.this
-  # eips = var.create_eip && var.create_nat_gateway ? aws_eip.this : var.create_nat_gateway ? data.aws_eip.this : {}
+  eips         = var.create_eip ? aws_eip.this : data.aws_eip.this
   nat_gateways = var.create_nat_gateway ? aws_nat_gateway.this : data.aws_nat_gateway.this
 }
 
@@ -8,7 +7,7 @@ locals {
 # Elastic IPs: either new or pre-existing.
 #
 resource "aws_eip" "this" {
-  for_each = var.create_eip && var.create_nat_gateway ? var.subnet_set.subnets : {}
+  for_each = var.create_eip && var.create_nat_gateway ? var.subnets : {}
 
   vpc = true
   tags = merge(
@@ -30,7 +29,7 @@ data "aws_eip" "this" {
 # NAT Gateways: either new or pre-existing.
 #
 resource "aws_nat_gateway" "this" {
-  for_each = var.create_nat_gateway ? var.subnet_set.subnets : {}
+  for_each = var.create_nat_gateway ? var.subnets : {}
 
   allocation_id = local.eips[each.key].id
   subnet_id     = each.value.id
@@ -48,7 +47,7 @@ resource "aws_nat_gateway" "this" {
 }
 
 data "aws_nat_gateway" "this" {
-  for_each = var.create_nat_gateway == false ? var.subnet_set.subnets : {}
+  for_each = var.create_nat_gateway == false ? var.subnets : {}
 
   subnet_id = each.value.id
   state     = "available"
