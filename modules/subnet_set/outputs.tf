@@ -7,7 +7,7 @@ output "subnets" {
 }
 
 output "subnet_names" {
-  value = { for k, v in local.subnets : k => try(v.tags.Name, null) }
+  value = { for k, v in local.input_subnets : k => v.name }
 }
 
 output "route_tables" {

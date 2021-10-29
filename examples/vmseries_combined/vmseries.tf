@@ -29,12 +29,13 @@ module "vmseries" {
   # Because vmseries module does not yet handle subnet_set,
   # convert to a backward compatible map.
   subnets_map = { for v in flatten([for _, set in module.security_subnet_sets :
-    [for _, subnet in set.subnets :
+    [for az, subnet in set.subnets :
       {
-        subnet = subnet
+        subnet_name = set.subnet_names[az]
+        subnet_id   = subnet.id
       }
     ]
-  ]) : v.subnet.tags.Name => v.subnet.id }
+  ]) : v.subnet_name => v.subnet_id }
 }
 
 resource "aws_key_pair" "this" {
