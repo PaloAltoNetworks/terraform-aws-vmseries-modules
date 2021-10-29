@@ -218,25 +218,12 @@ module "vpc_noseccidr" {
 
 resource "random_pet" "consume_maps" {
   for_each = merge(
-    module.vpc.routing_cidrs,
     module.vpc.security_group_ids,
-
-    module.vpc_nosg.routing_cidrs,
     module.vpc_nosg.security_group_ids,
-
-    module.vpc_noseccidr.routing_cidrs,
     module.vpc_noseccidr.security_group_ids,
-
-    module.vpc_noigw.routing_cidrs,
     module.vpc_noigw.security_group_ids,
-
-    module.vpc_useigw.routing_cidrs,
     module.vpc_useigw.security_group_ids,
-
-    module.vpc_novgw.routing_cidrs,
     module.vpc_novgw.security_group_ids,
-
-    module.novpc.routing_cidrs,
     module.novpc.security_group_ids,
   )
 }
