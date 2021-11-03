@@ -40,9 +40,26 @@ variable "nat_gateway_names" {
   type        = map(string)
 }
 
-variable "subnet_set" {
-  description = "The subnet set object that owns this NAT Gateway set. The result of the call to the module `subnet_set`, for example `subnet_set = module.natgw_subnet_set`."
-  default     = true
+variable "subnets" {
+  description = <<-EOF
+  Map of Subnets where to create the NAT Gateways. Each map's key is the availability zone name and each map's object has an attribute `id` identifying AWS Subnet. Importantly, the traffic returning from the NAT Gateway uses the Subnet's route table.
+  The keys of this input map are used for the output map `endpoints`.
+  Example for users of module `subnet_set`:
+  ```
+  subnets = module.subnet_set.subnets
+  ```
+  Example:
+  ```
+  subnets = {
+    "us-east-1a" = { id = "snet-123007" }
+    "us-east-1b" = { id = "snet-123008" }
+  }
+  ```
+  EOF
+  type = map(object({
+    id   = string
+    tags = map(string)
+  }))
 }
 
 variable "nat_gateway_tags" {

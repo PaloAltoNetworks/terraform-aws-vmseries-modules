@@ -26,7 +26,7 @@ module "subnet_sets" {
 module "nat_gateway_set" {
   source = "../../modules/nat_gateway_set"
 
-  subnet_set = module.subnet_sets["natgw-1"]
+  subnets = module.subnet_sets["natgw-1"].subnets
 }
 
 module "vpc_route" {

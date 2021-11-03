@@ -29,7 +29,7 @@ module "natgw_set" {
   # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
   source = "../../modules/nat_gateway_set"
 
-  subnet_set = module.security_subnet_sets["natgw"]
+  subnets = module.security_subnet_sets["natgw"].subnets
 }
 
 ### TGW ###
