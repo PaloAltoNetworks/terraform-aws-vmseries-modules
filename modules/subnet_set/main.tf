@@ -15,8 +15,8 @@ locals {
   #
   # Convenient combined objects, each is either a `resource` object or a `data` object.
   #
-  subnets      = { for k, v in local.input_subnets : k => v.create_subnet ? try(aws_subnet.this[k], null) : try(data.aws_subnet.this[k], null) }
-  route_tables = { for k, v in local.input_subnets : k => v.read_route_table == false ? try(aws_route_table.this[k], null) : try(data.aws_route_table.this[k], null) }
+  subnets      = { for k, v in local.input_subnets : k => v.create_subnet ? aws_subnet.this[k] : data.aws_subnet.this[k] }
+  route_tables = { for k, v in local.input_subnets : k => v.read_route_table == false ? aws_route_table.this[k] : data.aws_route_table.this[k] }
 }
 
 #### Existing Subnets ####
