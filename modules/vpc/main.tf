@@ -1,6 +1,6 @@
 locals {
-  vpc              = var.create_vpc ? try(aws_vpc.this[0], null) : try(data.aws_vpc.this[0], null)
-  internet_gateway = var.create_internet_gateway ? try(aws_internet_gateway.this[0], null) : try(data.aws_internet_gateway.this[0], null)
+  vpc              = var.create_vpc ? aws_vpc.this[0] : data.aws_vpc.this[0]
+  internet_gateway = var.create_internet_gateway ? aws_internet_gateway.this[0] : var.use_internet_gateway ? data.aws_internet_gateway.this[0] : null
 }
 
 # Either use a pre-existing resource or create a new one. So, is it a pre-existing VPC then?
