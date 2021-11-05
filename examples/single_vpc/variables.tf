@@ -6,6 +6,12 @@ variable "region" {
   type        = string
 }
 
+variable "create_ssh_key" {
+  default = true
+}
+variable "ssh_key_name" {}
+variable "ssh_public_key_file_path" {}
+
 variable "prefix_name_tag" {
   description = "Prepend a string to Name tags for the created resources. Can be empty."
   default     = ""
@@ -43,7 +49,6 @@ variable "security_groups" {
 }
 
 variable "interfaces" {}
-variable "ssh_key_name" {}
 variable "firewalls" {
   default = {}
 }

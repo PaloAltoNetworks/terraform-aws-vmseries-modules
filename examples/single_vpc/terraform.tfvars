@@ -59,7 +59,10 @@ security_groups = {
 fw_instance_type = "m5.xlarge"
 fw_license_type  = "byol"
 fw_version       = "9.1.3"
-ssh_key_name     = "bar"
+
+create_ssh_key           = true
+ssh_key_name             = "vmseries_key"
+ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 interfaces = [
   {
