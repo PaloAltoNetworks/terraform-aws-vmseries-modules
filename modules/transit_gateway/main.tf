@@ -4,7 +4,7 @@
 ###########################################################################################
 
 locals {
-  transit_gateway              = var.create ? try(aws_ec2_transit_gateway.this[0], null) : try(data.aws_ec2_transit_gateway.this[0], null)
+  transit_gateway              = var.create ? aws_ec2_transit_gateway.this[0] : data.aws_ec2_transit_gateway.this[0]
   transit_gateway_route_tables = { for k, v in var.route_tables : k => v.create ? aws_ec2_transit_gateway_route_table.this[k] : data.aws_ec2_transit_gateway_route_table.this[k] }
 }
 
