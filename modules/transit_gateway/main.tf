@@ -46,6 +46,11 @@ data "aws_ec2_transit_gateway_route_table" "this" {
   for_each = { for k, v in var.route_tables : k => v if v.create == false }
 
   filter {
+    name   = "transit-gateway-id"
+    values = [local.transit_gateway.id]
+  }
+
+  filter {
     name   = "tag:Name"
     values = [each.value.name]
   }
