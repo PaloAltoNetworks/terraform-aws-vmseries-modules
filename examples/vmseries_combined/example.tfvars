@@ -11,7 +11,14 @@ global_tags = {
   Creator     = "login"
 }
 
-security_vpc_name = "security1"
+transit_gateway_name = "tgw"
+transit_gateway_asn  = "65200"
+
+### Security VPC ###
+
+security_transit_gateway_attachment_name = "security-vpc-attach"
+
+security_vpc_name = "security-vpc"
 security_vpc_cidr = "10.100.0.0/16"
 
 nat_gateway_name = "natgw"
@@ -19,10 +26,6 @@ nat_gateway_name = "natgw"
 gwlb_name                       = "security-gwlb"
 gwlb_endpoint_set_eastwest_name = "eastwest-gwlb-endpoint"
 gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
-
-transit_gateway_name                     = "tgw"
-transit_gateway_asn                      = "65200"
-security_transit_gateway_attachment_name = "security-vpc"
 
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
@@ -104,7 +107,25 @@ security_vpc_security_groups = {
   }
 }
 
-### VMSERIES ###
+### Security VPC routes ###
+
+security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
+  "10.0.0.0/8",
+]
+
+security_vpc_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
+  "0.0.0.0/0",
+]
+
+security_vpc_routes_eastwest_cidrs = [ # eastwest traffic incoming for inspection from TGW
+  "10.0.0.0/8",
+]
+
+security_vpc_mgmt_routes_to_tgw = [
+  "10.255.0.0/16", # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
+]
+
+### EC2 VM-Series ###
 
 firewalls = [
   {
@@ -190,34 +211,18 @@ interfaces = [
   },
 ]
 
+### EC2 SSH Key ###
+
 create_ssh_key           = true
 ssh_key_name             = "vmseries_key"
 ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
-### Security VPC routes ###
-
-security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
-  "10.0.0.0/8",
-]
-
-security_vpc_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
-  "0.0.0.0/0",
-]
-
-security_vpc_routes_eastwest_cidrs = [ # eastwest traffic incoming for inspection from TGW
-  "10.0.0.0/8",
-]
-
-security_vpc_mgmt_routes_to_tgw = [
-  "10.255.0.0/16", # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
-]
-
 ### App1 VPC ###
+
+app1_transit_gateway_attachment_name = "app1-spoke-vpc"
 
 app1_vpc_name = "app1-spoke-vpc"
 app1_vpc_cidr = "10.104.0.0/16"
-
-app1_transit_gateway_attachment_name = "app1-spoke-vpc"
 
 # Pull back info from existing GWLB in security VPC.
 existing_gwlb_name          = "security-gwlb"
