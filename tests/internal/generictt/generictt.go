@@ -7,6 +7,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 // CheckFunc is a function that can be run on an applied Terraform test-case as given by t.
@@ -50,11 +51,48 @@ func GenericTest(t *testing.T, terraformOptions *terraform.Options, checkFunc Ch
 	// Run `terraform init` and `terraform apply` again, with modified input.
 	// We will see whether the cloud resources can be modified after their initial creation.
 	terraformOptions.Vars["switchme"] = "false"
+
+	// Plan file is required later by InitAndPlanAndShowWithStruct function.
+	prev := terraformOptions.PlanFilePath
+	defer func() { terraformOptions.PlanFilePath = prev }()
+	terraformOptions.PlanFilePath = "tmp.plan"
+
+	ps := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+	terraformOptions.PlanFilePath = prev
+
+	for _, v := range ps.ResourceChangesMap {
+		checkResourceChange(t, v)
+	}
+
+	// Don't waste time for a lenghty apply if checks failed so far.
+	if t.Failed() {
+		return terraformOptions
+	}
+
 	terraform.InitAndApply(t, terraformOptions)
 	CheckOutputsCorrect(t, terraformOptions)
 	checkFunc(t, terraformOptions)
 
 	return terraformOptions
+}
+
+func checkResourceChange(t *testing.T, v *tfjson.ResourceChange) {
+	hasDel, hasCre := false, false
+
+	for _, action := range v.Change.Actions {
+		if action == tfjson.ActionDelete {
+			hasDel = true
+		}
+		if action == tfjson.ActionCreate {
+			hasCre = true
+		}
+	}
+
+	if hasDel && hasCre && v.Type != "aws_flow_log" {
+		t.Errorf(`Resource about to be deleted and then created again after changing var \"switchme\".
+This likely introduces a visible traffic outage. It is expected that resources are either created or deleted, but not both.
+Resource: %v`, v.Address)
+	}
 }
 
 // CheckOutputsCorrect verifies whether none of the terraform outputs returns "false". The comparison
