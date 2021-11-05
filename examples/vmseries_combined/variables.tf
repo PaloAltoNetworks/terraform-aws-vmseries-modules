@@ -72,6 +72,7 @@ variable "ssh_public_key_file_path" {
 
 variable "transit_gateway_name" {}
 variable "transit_gateway_asn" {}
+variable "transit_gateway_route_tables" {}
 
 ##### Security VPC #####
 

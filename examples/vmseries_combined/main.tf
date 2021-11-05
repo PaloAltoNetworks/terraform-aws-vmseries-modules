@@ -38,18 +38,9 @@ module "natgw_set" {
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
-  name = var.transit_gateway_name
-  asn  = var.transit_gateway_asn
-  route_tables = {
-    "from_security_vpc" = {
-      create = true
-      name   = "${var.prefix_name_tag}from_security"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "${var.prefix_name_tag}from_spokes"
-    }
-  }
+  name         = var.transit_gateway_name
+  asn          = var.transit_gateway_asn
+  route_tables = var.transit_gateway_route_tables
 }
 
 module "security_transit_gateway_attachment" {
