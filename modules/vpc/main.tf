@@ -138,7 +138,7 @@ resource "aws_security_group" "this" {
     }
   }
 
-  tags = merge(var.global_tags, { Name = var.name })
+  tags = merge(var.global_tags, { Name = each.value.name })
 
   lifecycle {
     create_before_destroy = true
