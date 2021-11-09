@@ -83,4 +83,6 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_firewalls"></a> [firewalls](#output\_firewalls) | n/a |
+| <a name="output_network_interfaces"></a> [network\_interfaces](#output\_network\_interfaces) | n/a |
+| <a name="output_raw_network_interfaces"></a> [raw\_network\_interfaces](#output\_raw\_network\_interfaces) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
