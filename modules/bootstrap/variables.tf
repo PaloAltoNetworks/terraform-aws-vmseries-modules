@@ -15,8 +15,14 @@ variable "iam_instance_profile_name" {
   type        = string
 }
 
+variable "source_root_directory" {
+  description = "The source directory to become the bucket's root directory. If empty uses `files` subdirectory of a Terraform configuration root directory."
+  default     = ""
+  type        = string
+}
+
 variable "bootstrap_directories" {
-  description = "The directories comprising the bootstrap package."
+  description = "The standard directories which are always created on the bucket, even if not present inside the `source_root_directory`."
   default = [
     "config/",
     "content/",
@@ -24,4 +30,5 @@ variable "bootstrap_directories" {
     "license/",
     "plugins/"
   ]
+  type = list(string)
 }

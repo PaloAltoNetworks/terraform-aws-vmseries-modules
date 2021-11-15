@@ -17,12 +17,16 @@ resource "aws_s3_bucket_object" "bootstrap_dirs" {
   content = "/dev/null"
 }
 
+locals {
+  source_root_directory = coalesce(var.source_root_directory, "${path.root}/files/")
+}
+
 resource "aws_s3_bucket_object" "bootstrap_files" {
-  for_each = fileset("${path.root}/files", "**")
+  for_each = fileset(local.source_root_directory, "**")
 
   bucket = aws_s3_bucket.this.id
   key    = each.value
-  source = "${path.root}/files/${each.value}"
+  source = "${local.source_root_directory}/${each.value}"
 }
 
 resource "aws_iam_role" "this" {
