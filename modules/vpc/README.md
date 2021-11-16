@@ -1,67 +1,91 @@
-# Base AWS Infrrastructure Resources for VM-Series
+# VPC Terraform Module for AWS
 
-## Overview  
-Create VPC, Subnets, Security Groups, Transit Gateways, Route Tables, and other optional resources to support a Palo Alto Networks VM-Series Deployment.
+## Overview
+
+Module for a single VPC and associated networking infrastructure resources.
+
+One advantage of this module over the [terraform-aws-vpc](https://github.com/terraform-aws-modules/terraform-aws-vpc)
+module is that it does not create multiple resources based on Terraform `count` iterator. This allows for example
+[easier removal](https://github.com/PaloAltoNetworks/terraform-best-practices#22-looping) of any single subnet,
+without the need to briefly destroy and re-create any other subnet.
 
 ### Usage
-```
-provider "aws" {
-  region = var.region
-}
 
-module "vpc" {
-  source     = "git::https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/modules/vpc?ref=v0.1.0"
+See the examples for details of usage.
 
-prefix_name_tag = "my-prefix"   // Used for resource name Tags. Leave as empty string if not desired
-
-global_tags = {
- Environment = "us-east-1"
- Group       = "SecOps"
- Managed_By  = "Terraform"
- Description = "Example Usage"
-*}
-
-vpc = {
- vmseries_vpc = {
-  existing              = false
-   name                  = "vmseries-vpc"
-   cidr_block            = "10.100.0.0/16"
-   secondary_cidr_blocks = ["10.200.0.0/16", "10.201.0.0/16"]
-   instance_tenancy      = "default"
-   enable_dns_support    = true
-   enable_dns_hostname   = true
-   igw                   = true
- }
-*}
-```
-
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 0.13 |
-| aws | ~> 3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.29, < 1.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | ~> 3 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_route_table.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [aws_vpc_ipv4_cidr_block_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association) | resource |
+| [aws_vpn_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
+| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/internet_gateway) | data source |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| global\_tags | Optional Map of arbitrary tags to apply to all resources | `map(any)` | `{}` | no |
-| prefix\_name\_tag | Prepended to name tags for various resources. Leave as empty string if not desired. | `string` | `""` | no |
-| subnets | Map of subnets to create in the vpc. | `any` | `{}` | no |
-| vpc | Map of parameters for the VPC. | `any` | `{}` | no |
+| <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | n/a | `any` | `null` | no |
+| <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | n/a | `any` | `null` | no |
+| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
+| <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | n/a | `any` | `null` | no |
+| <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | n/a | `any` | `null` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
+| <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | n/a | `any` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
+| <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
+| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of AWS Security Groups. | `any` | `{}` | no |
+| <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
+| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
+| <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| route\_table\_ids | n/a |
-| subnet\_ids | n/a |
-| vpc | VPC attributes |
+| <a name="output_id"></a> [id](#output\_id) | The VPC identifier (either created or pre-existing). |
+| <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
+| <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |
+| <a name="output_internet_gateway_route_table"></a> [internet\_gateway\_route\_table](#output\_internet\_gateway\_route\_table) | The Route Table object created to handle traffic from Internet Gateway (IGW). It is null when `create_internet_gateway` is false. |
+| <a name="output_name"></a> [name](#output\_name) | The VPC Name Tag (either created or pre-existing). |
+| <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Map of Security Group Name -> ID (newly created). |
+| <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |
+| <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
+| <a name="output_vpn_gateway_route_table"></a> [vpn\_gateway\_route\_table](#output\_vpn\_gateway\_route\_table) | The Route Table object created to handle traffic from Virtual Private Gateway (VGW). It is null when `create_vpn_gateway` is false. |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
+## Nested Map Input Variable Definitions
+
+For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
+
+### security_groups
+
+The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.

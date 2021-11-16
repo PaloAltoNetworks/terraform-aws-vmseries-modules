@@ -1,37 +1,41 @@
 # Check module for variable definitions and documentation
 
-variable region {
+variable "region" {
   default = ""
 }
 
-variable prefix_name_tag {
+variable "prefix_name_tag" {
   default = ""
 }
 
-variable global_tags {
+variable "global_tags" {
   default = {}
 }
 
-variable vpc {
+variable "vpc" {
   default = {}
 }
 
-variable vpc_route_tables {
+variable "vpc_route_tables" {
   default = {}
 }
 
-variable subnets {
+variable "subnets" {
   default = {}
 }
 
-variable vgws {
+variable "nat_gateways" {
   default = {}
 }
 
-variable vpc_endpoints {
+variable "vpn_gateways" {
   default = {}
 }
 
-variable security_groups {
+variable "vpc_endpoints" {
+  default = {}
+}
+
+variable "security_groups" {
   default = {}
 }

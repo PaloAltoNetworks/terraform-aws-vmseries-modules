@@ -1,74 +1,25 @@
-variable prefix_name_tag {
-  type        = string
-  default     = ""
-  description = "Prepended to name tags for various resources. Leave as empty string if not desired."
-}
-
-variable global_tags {
-  description = "Optional Map of arbitrary tags to apply to all resources"
-  type        = map(any)
+variable "global_tags" {
+  description = "Optional map of arbitrary tags to apply to all the created resources."
   default     = {}
+  type        = map(string)
 }
 
-variable vpc {
-  description = "Map of parameters for the VPC."
+variable "security_groups" {
+  description = "Map of AWS Security Groups."
+  default     = {}
   type        = any
-  default     = {}
 }
 
-variable vpc_route_tables {
-  type        = any
-  description = "Map of VPC route Tables to create"
-  default     = {}
-}
-
-variable subnets {
-  description = "Map of Subnets to create"
-  type        = any
-  default     = {}
-}
-
-variable vgws {
-  type        = any
-  description = "Map of VGWs to create"
-  default     = {}
-}
-
-variable vpc_endpoints {
-  type        = any
-  description = "Map of VPC endpoints"
-  default     = {}
-}
-
-variable security_groups {
-  type        = any
-  description = "Map of Security Groups"
-  default     = {}
-}
-
-
-### Testing concept of explicit schema for map vars
-
-# variable vpc {
-#   description = "Parameters for the VPC"
-#   type        = map(object({
-#     name = string
-#     cidr_block = string
-#     secondary_cidr_blocks = list(string)
-#     tenancy = string
-#     igw = bool
-#   }))
-#   default     = {}
-# }
-
-# variable subnets {
-#   description = "Map of subnets to create in the vpc."
-#   type        = map(object({
-#     existing = bool
-#     name = string
-#     cidr = string
-#     az = string
-#     rt = string
-#   }))
-#   default     = {}
-# }
+variable "name" { default = null }
+variable "create_vpc" { default = true }
+variable "cidr_block" { default = null }
+variable "secondary_cidr_blocks" { default = [] }
+variable "create_internet_gateway" { default = false }
+variable "use_internet_gateway" { default = false }
+variable "enable_dns_support" { default = null }
+variable "enable_dns_hostnames" { default = null }
+variable "instance_tenancy" { default = null }
+variable "assign_generated_ipv6_cidr_block" { default = null }
+variable "create_vpn_gateway" { default = false }
+variable "vpn_gateway_amazon_side_asn" { default = null }
+variable "vpc_tags" { default = {} }
