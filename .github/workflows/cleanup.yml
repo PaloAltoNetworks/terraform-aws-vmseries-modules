@@ -1,0 +1,16 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v4
+        with:
+          stale-issue-message: 'Hello 👋, Hello, this issue has been inactive for 60 days, please close this out if no longer required.'
+          stale-pr-message: 'Hello 👋, Hello, this PR has been inactive for 60 days, please close this out if no longer required.'
+          close-issue-message: 'Closing this issue due to inactivity, please reopen if required.'
+          close-pr-message: 'Closing this PR due to inactivity, please reopen if required.'
+          delete-branch: true
