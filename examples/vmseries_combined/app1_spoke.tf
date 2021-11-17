@@ -80,20 +80,15 @@ module "app1_route" {
 ### App1 EC2 instance ###
 
 data "aws_ami" "this" {
-  most_recent = true
+  most_recent = true # newest by time, not by version number
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["bitnami-nginx-1.21*-linux-debian-10-x86_64-hvm-ebs-nami"]
     # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"]
+  owners = ["979382823631"] # bitnami = 979382823631
 }
 
 module "app1_ec2" {
