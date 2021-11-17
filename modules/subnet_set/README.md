@@ -1,6 +1,6 @@
 # Palo Alto Networks Subnet-Set Module for AWS
 
-A Terraform module for deploying a subnet-set in AWS cloud. The "set" means that the module will create an identical/similar subnet in each Availability Zone.
+A Terraform module for deploying a subnet-set in AWS cloud. The "set" means that the module will create an identical/similar subnet in each specified Availability Zone.
 
 ## Usage
 
@@ -25,7 +25,6 @@ module "subnet_sets" {
   name   = each.key
   cidrs  = { for k, v in var.subnets : k => v if v.set == each.key }
   vpc_id = module.vpc.id
-}
 }
 ```
 
