@@ -6,7 +6,8 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 
 ```hcl
 module "vpc" {
-  source           = "../../../vpc"
+  source           = "../../modules/vpc"
+  
   global_tags      = var.global_tags
   prefix_name_tag  = var.prefix_name_tag
   vpc              = var.vpcs
@@ -16,7 +17,8 @@ module "vpc" {
 }
 
 module "vmseries" {
-  source              = "../.."
+  source              = "../../modules/vmseries/"
+
   region              = var.region
   prefix_name_tag     = var.prefix_name_tag
   ssh_key_name        = var.ssh_key_name
