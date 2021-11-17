@@ -8,7 +8,7 @@ output "security_gwlb_service_name" {
 ##### App1 VPC #####
 
 output "app1_inspected_dns_name" {
-  description = "The DNS name that you can use to SSH into a testbox. Use `ssh ubuntu@<<value>>` command with the same public key as given in the `ssh_public_key_file_path` input."
+  description = "The DNS name that you can use to SSH into a testbox. Use username `bitnami` and the private key matching the public key configured with the input `ssh_public_key_file_path`."
   value       = module.app1_lb.lb_dns_name
 }
 

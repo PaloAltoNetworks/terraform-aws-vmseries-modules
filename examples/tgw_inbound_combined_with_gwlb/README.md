@@ -102,7 +102,7 @@ In a nutshell it means:
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | The DNS name that you can use to SSH into a testbox. Use `ssh ubuntu@<<value>>` command with the same public key as given in the `ssh_public_key_file_path` input. |
+| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | The DNS name that you can use to SSH into a testbox. Use username `bitnami` and the private key matching the public key configured with the input `ssh_public_key_file_path`. |
 | <a name="output_app1_inspected_public_ip"></a> [app1\_inspected\_public\_ip](#output\_app1\_inspected\_public\_ip) | The IP address behind the `app1_inspected_dns_name`. |
 | <a name="output_security_gwlb_service_name"></a> [security\_gwlb\_service\_name](#output\_security\_gwlb\_service\_name) | The AWS Service Name of the created GWLB, which is suitable to use for subsequent VPC Endpoints. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
