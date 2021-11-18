@@ -145,11 +145,21 @@ module "app1_lb" {
       protocol           = "TCP"
       target_group_index = 0
     },
+    {
+      port               = 80
+      protocol           = "TCP"
+      target_group_index = 1
+    },
+    {
+      port               = 443
+      protocol           = "TCP"
+      target_group_index = 2
+    },
   ]
 
   target_groups = [
     {
-      name_prefix          = "tg0"
+      name                 = "app1-tcp-22"
       backend_protocol     = "TCP"
       backend_port         = 22
       target_type          = "instance"
@@ -160,7 +170,33 @@ module "app1_lb" {
           port      = 22
         }
       }
-    }
+    },
+    {
+      name                 = "app1-tcp-80"
+      backend_protocol     = "TCP"
+      backend_port         = 80
+      target_type          = "instance"
+      deregistration_delay = 10
+      targets = {
+        my_ec2 = {
+          target_id = try(module.app1_ec2.id[0], null)
+          port      = 80
+        }
+      }
+    },
+    {
+      name                 = "app1-tcp-443"
+      backend_protocol     = "TCP"
+      backend_port         = 443
+      target_type          = "instance"
+      deregistration_delay = 10
+      targets = {
+        my_ec2 = {
+          target_id = try(module.app1_ec2.id[0], null)
+          port      = 443
+        }
+      }
+    },
   ]
 
   tags = var.global_tags
