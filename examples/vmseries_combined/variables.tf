@@ -165,5 +165,11 @@ variable "app1_vpc_name" {}
 variable "app1_vpc_cidr" {}
 variable "app1_vpc_subnets" {}
 variable "app1_vpc_security_groups" {}
-variable "existing_gwlb_name" {}
+
+variable "security_gwlb_service_name" {
+  description = "Optional Service Name of the GWLB which should inspect traffic inbound from Internet to the Spoke VPC."
+  default     = ""
+  type        = string
+}
+
 variable "app1_gwlb_endpoint_set_name" {}

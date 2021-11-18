@@ -36,7 +36,7 @@ module "app1_gwlbe_inbound" {
   source = "../../modules/gwlb_endpoint_set"
 
   name              = var.app1_gwlb_endpoint_set_name
-  gwlb_service_name = module.security_gwlb.endpoint_service.service_name # this is cross-vpc
+  gwlb_service_name = coalesce(var.security_gwlb_service_name, module.security_gwlb.endpoint_service.service_name) # this is cross-vpc
   vpc_id            = module.app1_subnet_sets["app1_gwlbe"].vpc_id
   subnets           = module.app1_subnet_sets["app1_gwlbe"].subnets
   act_as_next_hop_for = {
