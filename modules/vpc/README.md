@@ -1,17 +1,27 @@
-# VPC Terraform Module for AWS
+# Palo Alto Networks VPC Module for AWS
 
-## Overview
-
-Module for a single VPC and associated networking infrastructure resources.
+A Terraform module for deploying a VPC in AWS.
 
 One advantage of this module over the [terraform-aws-vpc](https://github.com/terraform-aws-modules/terraform-aws-vpc)
 module is that it does not create multiple resources based on Terraform `count` iterator. This allows for example
 [easier removal](https://github.com/PaloAltoNetworks/terraform-best-practices#22-looping) of any single subnet,
 without the need to briefly destroy and re-create any other subnet.
 
-### Usage
+## Usage
 
-See the examples for details of usage.
+```hcl
+module "vpc" {
+  source = "../../modules/vpc"
+
+  name                    = var.name
+  cidr_block              = var.vpc_cidr_block
+  secondary_cidr_blocks   = var.vpc_secondary_cidr_blocks
+  create_internet_gateway = true
+  global_tags             = var.global_tags
+  vpc_tags                = var.vpc_tags
+  security_groups         = var.security_groups
+}
+```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -62,7 +72,7 @@ No modules.
 | <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | n/a | `any` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
 | <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Map of AWS Security Groups. | `any` | `{}` | no |
+| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.<br>  The key of each entry acts as the Security Group name.<br>  List of available attributes of each Security Group entry:<br>  - `rules`: A list of objects representing a Security Group rule. The key of each entry acts as the name of the rule and<br>      needs to be unique across all rules in the Security Group.<br>      List of attributes available to define a Security Group rule:<br>      - `description`: Security Group description.<br>      - `type`: Specifies if rule will be evaluated on ingress (inbound) or egress (outbound) traffic.<br>      - `cidr_blocks`: List of CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress<br>      Determines the traffic that can leave your instance, and where it can go.<br><br><br>  Example:<pre>security_groups = {<br>    vmseries-mgmt = {<br>      name = "vmseries-mgmt"<br>      rules = {<br>        all-outbound = {<br>          description = "Permit All traffic outbound"<br>          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        https-inbound-private = {<br>          description = "Permit HTTPS for VM-Series Management"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["10.0.0.0/8"]<br>        }<br>        https-inbound-eip = {<br>          description = "Permit HTTPS for VM-Series Management from known public IPs"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["100.100.100.100/32"]<br>        }<br>        ssh-inbound-eip = {<br>          description = "Permit SSH for VM-Series Management from known public IPs"<br>          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"<br>          cidr_blocks = ["100.100.100.100/32"]<br>        }<br>      }<br>    }<br>  }</pre> | `any` | `{}` | no |
 | <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
 | <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
 | <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
@@ -81,11 +91,3 @@ No modules.
 | <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
 | <a name="output_vpn_gateway_route_table"></a> [vpn\_gateway\_route\_table](#output\_vpn\_gateway\_route\_table) | The Route Table object created to handle traffic from Virtual Private Gateway (VGW). It is null when `create_vpn_gateway` is false. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
-## Nested Map Input Variable Definitions
-
-For each of the nested map variables, the key of each map will be the terraform state resource identifier within terraform and must be unique, but is not used for resource naming.
-
-### security_groups
-
-The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.
