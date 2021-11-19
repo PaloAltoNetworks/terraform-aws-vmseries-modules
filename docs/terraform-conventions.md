@@ -15,7 +15,7 @@
 ## `1. Versioning`
 
 ### `1.1 Terraform Version`
-* All terraform configuration should be written using the latest version of the Terraform GA release available (0.12.26 as of writing this guide). 
+* All terraform configuration should be written using the latest version of the Terraform GA release available. 
 
   > Existing Terraform modules should be tested against the latest Terraform releases using a test methodology to be defined later. 
 
@@ -365,8 +365,6 @@ Reference - https://www.hashicorp.com/blog/hashicorp-terraform-0-12-preview-for-
 
 
 Reference - https://www.terraform.io/docs/configuration/functions/flatten.html
-
-  > This technique will likely result in a minor problem on Terraform 0.12 (`Invalid for_each argument` in specific situations). The first recommendation is **to use Terraform 0.13**. There is [another less-preferred workaround](empty_state_and_tf12.md) available.
 
 
 ### `3.3 How to normalise data`

@@ -191,7 +191,7 @@ interfaces = [
 ]
 
 create_ssh_key           = true
-ssh_key_name             = "vmseries_key_pair"
+ssh_key_name             = "vmseries_key"
 ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
 
 ### Security VPC routes ###
