@@ -10,14 +10,16 @@ set -euo pipefail
 
 cd "$(dirname $0)"
 
-curl -sL https://github.com/terraform-docs/terraform-docs/releases/download/v0.12.1/terraform-docs-v0.12.1-linux-amd64 > terraform-docs    & \
+curl -sL https://github.com/terraform-docs/terraform-docs/releases/download/v0.15.0/terraform-docs-v0.15.0-linux-amd64.tar.gz > terraform-docs.tar.gz    & \
 curl -sL https://github.com/tfsec/tfsec/releases/download/v0.34.0/tfsec-linux-amd64 > tfsec    & \
-curl -sL https://github.com/terraform-linters/tflint/releases/download/v0.20.3/tflint_linux_amd64.zip > tflint.zip    & \
+curl -sL https://github.com/terraform-linters/tflint/releases/download/v0.29.0/tflint_linux_amd64.zip > tflint.zip & \
 wait
 echo Finished successfully all parallel downloads ------------------------------------------------------------------
 
-chmod +x terraform-docs
+tar zxf terraform-docs.tar.gz
+rm terraform-docs.tar.gz
 mv terraform-docs /usr/local/bin/
+
 chmod +x tfsec
 mv tfsec /usr/local/bin/
 
