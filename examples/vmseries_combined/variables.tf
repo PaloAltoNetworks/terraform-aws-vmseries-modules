@@ -88,22 +88,36 @@ variable "gwlb_endpoint_set_outbound_name" {}
 ##### Security VPC Routes #####
 
 variable "security_vpc_routes_outbound_source_cidrs" {
-  description = "From the perspective of Security VPC, the source addresses of packets coming from TGW and flowing outside. Used for return traffic routes post-inspection. A list of strings, for example `[\"10.0.0.0/8\"]`."
+  description = <<-EOF
+  From the perspective of Security VPC, the source addresses of packets coming from TGW and flowing outside.
+  Used for return traffic routes post-inspection. 
+  A list of strings, for example `[\"10.0.0.0/8\"]`.
+  EOF
   type        = list(string)
 }
 
 variable "security_vpc_routes_outbound_destin_cidrs" {
-  description = "From the perspective of Security VPC, the destination addresses of packets coming from TGW and flowing outside. A list of strings, for example `[\"0.0.0.0/0\"]`."
+  description = <<-EOF
+  From the perspective of Security VPC, the destination addresses of packets coming from TGW and flowing outside. 
+  A list of strings, for example `[\"0.0.0.0/0\"]`.
+  EOF
   type        = list(string)
 }
 
 variable "security_vpc_mgmt_routes_to_tgw" {
-  description = "The eastwest inspection of traffic heading to VM-Series mgmt is not possible. Due to AWS own limitations, anything from tgw destined for mgmt could *not* possibly override LocalVPC route. Henceforth no mgmt routes go back to gwlbe_eastwest."
+  description = <<-EOF
+  The eastwest inspection of traffic heading to VM-Series management interface is not possible. 
+  Due to AWS own limitations, anything from the TGW destined for the management interface could *not* possibly override LocalVPC route. 
+  Henceforth no management routes go back to gwlbe_eastwest.
+  EOF
   type        = list(string)
 }
 
 variable "security_vpc_routes_eastwest_cidrs" {
-  description = "From the perspective of Security VPC, the source addresses of packets coming from TGW and flowing back to TGW. A list of strings, for example `[\"10.0.0.0/8\"]`."
+  description = <<-EOF
+  From the perspective of Security VPC, the source addresses of packets coming from TGW and flowing back to TGW. 
+  A list of strings, for example `[\"10.0.0.0/8\"]`.
+  EOF
   type        = list(string)
 }
 
