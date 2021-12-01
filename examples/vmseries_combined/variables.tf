@@ -158,18 +158,37 @@ variable "security_vpc_routes_eastwest_cidrs" {
   type        = list(string)
 }
 
-##### Spoke VPC app1 #####
+##### Spoke VPC App1 #####
 
-variable "app1_transit_gateway_attachment_name" {}
-variable "app1_vpc_name" {}
-variable "app1_vpc_cidr" {}
+variable "app1_transit_gateway_attachment_name" {
+  description = "The name of the TGW Attachment to be created inside the App1 VPC."
+  type        = string
+}
+
+variable "app1_vpc_name" {
+  description = "The name tag of the created App1 VPC."
+  type        = string
+}
+
+variable "app1_vpc_cidr" {
+  description = "The primary IPv4 CIDR of the created App1 VPC."
+  type        = string
+}
+
 variable "app1_vpc_subnets" {}
 variable "app1_vpc_security_groups" {}
 
 variable "security_gwlb_service_name" {
-  description = "Optional Service Name of the GWLB which should inspect traffic inbound from Internet to the Spoke VPC."
+  description = <<-EOF
+  Optional Service Name of the pre-existing GWLB which should receive traffic from `app1_gwlb_endpoint_set_name`.
+  If empty or null, instead use the Service Name of the default GWLB named `gwlb_name`.
+  Example: "com.amazonaws.vpce.us-west-2.vpce-svc-0123".
+  EOF
   default     = ""
   type        = string
 }
 
-variable "app1_gwlb_endpoint_set_name" {}
+variable "app1_gwlb_endpoint_set_name" {
+  description = "The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer."
+  type        = string
+}
