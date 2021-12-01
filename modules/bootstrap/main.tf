@@ -3,7 +3,7 @@ resource "random_id" "bucket_id" {
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${var.prefix}-${random_id.bucket_id.hex}"
+  bucket = "${var.prefix}${random_id.bucket_id.hex}"
   acl    = "private"
   tags   = var.global_tags
 }
@@ -43,7 +43,7 @@ resource "aws_s3_bucket_object" "bootstrap_files" {
 }
 
 resource "aws_iam_role" "this" {
-  name = "${var.prefix}-${random_id.bucket_id.hex}"
+  name = "${var.prefix}${random_id.bucket_id.hex}"
 
   tags               = var.global_tags
   assume_role_policy = <<EOF
@@ -63,7 +63,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  name   = "${var.prefix}-${random_id.bucket_id.hex}"
+  name   = "${var.prefix}${random_id.bucket_id.hex}"
   role   = aws_iam_role.this.id
   policy = <<EOF
 {
@@ -85,7 +85,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = coalesce(var.iam_instance_profile_name, "${var.prefix}-${random_id.bucket_id.hex}")
+  name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
   role = aws_iam_role.this.name
   path = "/"
 }
