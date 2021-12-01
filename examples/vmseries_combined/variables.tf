@@ -70,9 +70,45 @@ variable "ssh_public_key_file_path" {
 
 ##### TGW #####
 
-variable "transit_gateway_name" {}
-variable "transit_gateway_asn" {}
-variable "transit_gateway_route_tables" {}
+variable "transit_gateway_name" {
+  description = "The name tag of the created Transit Gateway."
+  type        = string
+}
+
+variable "transit_gateway_asn" {
+  description = <<-EOF
+  Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.
+  The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+  EOF
+  type        = number
+}
+
+variable "transit_gateway_route_tables" {
+  description = <<-EOF
+  Complex input with the Route Tables of the Transit Gateway. Example:
+
+  ```
+  {
+    "from_security_vpc" = {
+      create = true
+      name   = "myrt1"
+    }
+    "from_spoke_vpc" = {
+      create = true
+      name   = "myrt2"
+    }
+  }
+  ```
+
+  Two keys are required:
+
+  - from_security_vpc describes which route table routes the traffic coming from the Security VPC,
+  - from_spoke_vpc describes which route table routes the traffic coming from the Spoke (App1) VPC.
+
+  Each of these entries can specify `create = true` which creates a new RT with a `name`.
+  With `create = false` the pre-existing RT named `name` is used.
+  EOF
+}
 
 ##### Security VPC #####
 

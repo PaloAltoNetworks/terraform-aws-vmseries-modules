@@ -59,7 +59,7 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   transit_gateway_route_table_id = module.transit_gateway.route_tables["from_spoke_vpc"].id
   # Next hop.
   transit_gateway_attachment_id = module.security_transit_gateway_attachment.attachment.id
-  # Inspect every packet egressing spokes without exception.
+  # Default to inspect all packets coming through TGW route table from_spoke_vpc:
   destination_cidr_block = "0.0.0.0/0"
   blackhole              = false
 }
