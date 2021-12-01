@@ -1,12 +1,13 @@
 variable "global_tags" {
-  description = "Optional Map of arbitrary tags to apply to all resources."
+  description = "(optional) Map of arbitrary tags to apply to all resources."
   default     = {}
   type        = map(any)
 }
 
 variable "prefix" {
-  default = "bootstrap"
-  type    = string
+  description = "(optional) The prefix to use for bucket name, IAM role name, and IAM role policy name. It is allowed to use dash \"-\" as the last character."
+  default     = "bootstrap-"
+  type        = string
 }
 
 variable "iam_instance_profile_name" {
