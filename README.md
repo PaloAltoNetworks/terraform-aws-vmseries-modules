@@ -24,6 +24,10 @@ This repository has the following directory structure:
 The compatibility with Terraform is defined individually per each module. In general, expect the earliest compatible
 Terraform version to be 0.13.7 across most of the modules.
 
+## Roadmap
+
+We are maintaining a [public roadmap](https://github.com/orgs/PaloAltoNetworks/projects/33/views/1) to help users understand when we will release new features, bug fixes and enhancements.
+
 ## Versioning
 
 These modules follow the principles of [Semantic Versioning](http://semver.org/). You can find each new release,
