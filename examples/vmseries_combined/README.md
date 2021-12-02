@@ -4,8 +4,8 @@ Deployment of Palo Alto Networks VM-Series into a variation on one of its [Refer
 
 In a nutshell it means:
 
-- Multiple Application VPCs can be secured using a single Security VPC. Therefore these form a spokes-and-hub model,
-  where the Application VPCs are the spokes and the Security VPC is the hub.
+- Multiple Application VPCs can be secured using a single Security VPC. Therefore these form a hub and spoke model,
+  where the Security VPC is the hub and the Application VPCs are the spokes.
 - This case is simplified to a single App1 VPC, but readily extendedable to multiple Application VPCs.
 - The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB).
 - The outbound dataplane traffic traverses a _single_ interface per each VM-Series, so it is in intrazone category
