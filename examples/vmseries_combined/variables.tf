@@ -56,17 +56,11 @@ variable "fw_license_type" {}
 variable "fw_version" {}
 
 ##### EC2 SSH Key #####
-
-variable "ssh_key_name" {
-  default = "sshkey"
-}
-
 variable "create_ssh_key" {
   default = true
 }
-
-variable "ssh_public_key_file_path" {
-}
+variable "ssh_key_name" {}
+variable "ssh_public_key_path" {}
 
 ##### TGW #####
 

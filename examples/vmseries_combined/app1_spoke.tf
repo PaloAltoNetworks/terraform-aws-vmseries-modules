@@ -104,8 +104,8 @@ module "app1_ec2" {
   instance_count = 1
 
   ami                    = data.aws_ami.this.id
-  instance_type          = "t2.micro"
-  key_name               = local.ssh_key_name
+  instance_type          = "t3.micro"
+  key_name               = local.key_name
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
   tags                   = var.global_tags
@@ -114,6 +114,8 @@ module "app1_ec2" {
 locals {
   # Just use a single virtual machine in a single AZ as a test box.
   app1_az = "${var.region}a"
+  # Reuse the same key pair as for VMSeries instances.
+  key_name = element(values(module.vmseries.firewalls), 0).key_name
 }
 
 resource "aws_eip" "lb" {

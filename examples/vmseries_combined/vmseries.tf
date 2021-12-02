@@ -21,7 +21,9 @@ module "vmseries" {
   security_groups_map = module.security_vpc.security_group_ids
   prefix_name_tag     = var.prefix_name_tag
   tags                = var.global_tags
-  ssh_key_name        = local.ssh_key_name
+  create_ssh_key      = var.create_ssh_key
+  ssh_key_name        = var.ssh_key_name
+  ssh_public_key_path = var.ssh_public_key_path
   fw_license_type     = var.fw_license_type
   fw_version          = var.fw_version
   fw_instance_type    = var.fw_instance_type
@@ -36,16 +38,4 @@ module "vmseries" {
       }
     ]
   ]) : v.subnet_name => v.subnet_id }
-}
-
-resource "aws_key_pair" "this" {
-  count = var.create_ssh_key ? 1 : 0
-
-  key_name   = var.ssh_key_name
-  public_key = file(var.ssh_public_key_file_path)
-  tags       = var.global_tags
-}
-
-locals {
-  ssh_key_name = var.create_ssh_key ? aws_key_pair.this[0].key_name : var.ssh_key_name
 }

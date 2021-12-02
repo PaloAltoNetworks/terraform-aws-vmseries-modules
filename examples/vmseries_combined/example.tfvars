@@ -223,9 +223,9 @@ interfaces = [
 
 ### EC2 SSH Key ###
 
-create_ssh_key           = true
-ssh_key_name             = "vmseries_key"
-ssh_public_key_file_path = "~/.ssh/id_rsa.pub"
+create_ssh_key      = true
+ssh_key_name        = "vmseries_key"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
 
 ### App1 VPC ###
 
