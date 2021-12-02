@@ -1,15 +1,3 @@
-locals {
-  ssh_key_name = var.create_ssh_key ? aws_key_pair.this[0].key_name : var.ssh_key_name
-}
-
-resource "aws_key_pair" "this" {
-  count = var.create_ssh_key ? 1 : 0
-
-  key_name   = var.ssh_key_name
-  public_key = file(var.ssh_public_key_file_path)
-  tags       = var.global_tags
-}
-
 module "vpc" {
   source = "../../modules/vpc"
 
@@ -76,7 +64,9 @@ module "vmseries" {
   interfaces           = var.interfaces
   addtional_interfaces = var.addtional_interfaces
   tags                 = var.global_tags
+  create_ssh_key       = var.create_ssh_key
   ssh_key_name         = var.ssh_key_name
+  ssh_public_key_path  = var.ssh_public_key_path
   firewalls            = var.firewalls
   fw_license_type      = var.fw_license_type
   fw_version           = var.fw_version

@@ -10,7 +10,7 @@ variable "create_ssh_key" {
   default = true
 }
 variable "ssh_key_name" {}
-variable "ssh_public_key_file_path" {}
+variable "ssh_public_key_path" {}
 
 variable "prefix_name_tag" {
   description = "Prepend a string to Name tags for the created resources. Can be empty."
