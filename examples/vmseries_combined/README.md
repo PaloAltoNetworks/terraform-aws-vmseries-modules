@@ -4,7 +4,9 @@ Deployment of Palo Alto Networks VM-Series into a variation on one of its [Refer
 
 In a nutshell it means:
 
-- Multiple Application VPCs can be secured using a single Security VPC.
+- A single Security VPC can protect multiple Application VPCs. Therefore these form the hub and spokes model,
+  where the Security VPC is the hub and the Application VPCs are the spokes.
+- This case is simplified to a single App1 VPC, but readily extendedable to multiple Application VPCs.
 - The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB).
 - The outbound dataplane traffic traverses a _single_ interface per each VM-Series, so it is in intrazone category
   instead of interzone. There is no overlay routing on VM-Series. This is a slight departure from the Reference Architecture.
@@ -56,10 +58,10 @@ In a nutshell it means:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_app1_gwlb_endpoint_set_name"></a> [app1\_gwlb\_endpoint\_set\_name](#input\_app1\_gwlb\_endpoint\_set\_name) | n/a | `any` | n/a | yes |
-| <a name="input_app1_transit_gateway_attachment_name"></a> [app1\_transit\_gateway\_attachment\_name](#input\_app1\_transit\_gateway\_attachment\_name) | n/a | `any` | n/a | yes |
-| <a name="input_app1_vpc_cidr"></a> [app1\_vpc\_cidr](#input\_app1\_vpc\_cidr) | n/a | `any` | n/a | yes |
-| <a name="input_app1_vpc_name"></a> [app1\_vpc\_name](#input\_app1\_vpc\_name) | n/a | `any` | n/a | yes |
+| <a name="input_app1_gwlb_endpoint_set_name"></a> [app1\_gwlb\_endpoint\_set\_name](#input\_app1\_gwlb\_endpoint\_set\_name) | The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer. | `string` | n/a | yes |
+| <a name="input_app1_transit_gateway_attachment_name"></a> [app1\_transit\_gateway\_attachment\_name](#input\_app1\_transit\_gateway\_attachment\_name) | The name of the TGW Attachment to be created inside the App1 VPC. | `string` | n/a | yes |
+| <a name="input_app1_vpc_cidr"></a> [app1\_vpc\_cidr](#input\_app1\_vpc\_cidr) | The primary IPv4 CIDR of the created App1 VPC. | `string` | n/a | yes |
+| <a name="input_app1_vpc_name"></a> [app1\_vpc\_name](#input\_app1\_vpc\_name) | The name tag of the created App1 VPC. | `string` | n/a | yes |
 | <a name="input_app1_vpc_security_groups"></a> [app1\_vpc\_security\_groups](#input\_app1\_vpc\_security\_groups) | n/a | `any` | n/a | yes |
 | <a name="input_app1_vpc_subnets"></a> [app1\_vpc\_subnets](#input\_app1\_vpc\_subnets) | n/a | `any` | n/a | yes |
 | <a name="input_aws_access_key"></a> [aws\_access\_key](#input\_aws\_access\_key) | See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
@@ -68,7 +70,6 @@ In a nutshell it means:
 | <a name="input_aws_secret_key"></a> [aws\_secret\_key](#input\_aws\_secret\_key) | See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
 | <a name="input_aws_shared_credentials_file"></a> [aws\_shared\_credentials\_file](#input\_aws\_shared\_credentials\_file) | Example: "/Users/tf\_user/.aws/creds". See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
 | <a name="input_create_ssh_key"></a> [create\_ssh\_key](#input\_create\_ssh\_key) | n/a | `bool` | `true` | no |
-| <a name="input_existing_gwlb_name"></a> [existing\_gwlb\_name](#input\_existing\_gwlb\_name) | n/a | `any` | n/a | yes |
 | <a name="input_firewalls"></a> [firewalls](#input\_firewalls) | n/a | `any` | n/a | yes |
 | <a name="input_fw_instance_type"></a> [fw\_instance\_type](#input\_fw\_instance\_type) | n/a | `any` | n/a | yes |
 | <a name="input_fw_license_type"></a> [fw\_license\_type](#input\_fw\_license\_type) | n/a | `any` | n/a | yes |
@@ -81,6 +82,7 @@ In a nutshell it means:
 | <a name="input_nat_gateway_name"></a> [nat\_gateway\_name](#input\_nat\_gateway\_name) | n/a | `any` | n/a | yes |
 | <a name="input_prefix_name_tag"></a> [prefix\_name\_tag](#input\_prefix\_name\_tag) | n/a | `any` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | n/a | `any` | n/a | yes |
+| <a name="input_security_gwlb_service_name"></a> [security\_gwlb\_service\_name](#input\_security\_gwlb\_service\_name) | Optional Service Name of the pre-existing GWLB which should receive traffic from `app1_gwlb_endpoint_set_name`.<br>If empty or null, instead use the Service Name of the default GWLB named `gwlb_name`.<br>Example: "com.amazonaws.vpce.us-west-2.vpce-svc-0123". | `string` | `""` | no |
 | <a name="input_security_transit_gateway_attachment_name"></a> [security\_transit\_gateway\_attachment\_name](#input\_security\_transit\_gateway\_attachment\_name) | n/a | `any` | n/a | yes |
 | <a name="input_security_vpc_cidr"></a> [security\_vpc\_cidr](#input\_security\_vpc\_cidr) | n/a | `any` | n/a | yes |
 | <a name="input_security_vpc_mgmt_routes_to_tgw"></a> [security\_vpc\_mgmt\_routes\_to\_tgw](#input\_security\_vpc\_mgmt\_routes\_to\_tgw) | The eastwest inspection of traffic heading to VM-Series management interface is not possible. <br>Due to AWS own limitations, anything from the TGW destined for the management interface could *not* possibly override LocalVPC route. <br>Henceforth no management routes go back to gwlbe\_eastwest. | `list(string)` | n/a | yes |
@@ -92,8 +94,9 @@ In a nutshell it means:
 | <a name="input_security_vpc_subnets"></a> [security\_vpc\_subnets](#input\_security\_vpc\_subnets) | n/a | `any` | n/a | yes |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | n/a | `string` | `"sshkey"` | no |
 | <a name="input_ssh_public_key_file_path"></a> [ssh\_public\_key\_file\_path](#input\_ssh\_public\_key\_file\_path) | n/a | `any` | n/a | yes |
-| <a name="input_transit_gateway_asn"></a> [transit\_gateway\_asn](#input\_transit\_gateway\_asn) | n/a | `any` | n/a | yes |
-| <a name="input_transit_gateway_name"></a> [transit\_gateway\_name](#input\_transit\_gateway\_name) | n/a | `any` | n/a | yes |
+| <a name="input_transit_gateway_asn"></a> [transit\_gateway\_asn](#input\_transit\_gateway\_asn) | Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.<br>The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs. | `number` | n/a | yes |
+| <a name="input_transit_gateway_name"></a> [transit\_gateway\_name](#input\_transit\_gateway\_name) | The name tag of the created Transit Gateway. | `string` | n/a | yes |
+| <a name="input_transit_gateway_route_tables"></a> [transit\_gateway\_route\_tables](#input\_transit\_gateway\_route\_tables) | Complex input with the Route Tables of the Transit Gateway. Example:<pre>{<br>  "from_security_vpc" = {<br>    create = true<br>    name   = "myrt1"<br>  }<br>  "from_spoke_vpc" = {<br>    create = true<br>    name   = "myrt2"<br>  }<br>}</pre>Two keys are required:<br><br>- from\_security\_vpc describes which route table routes the traffic coming from the Security VPC,<br>- from\_spoke\_vpc describes which route table routes the traffic coming from the Spoke (App1) VPC.<br><br>Each of these entries can specify `create = true` which creates a new RT with a `name`.<br>With `create = false` the pre-existing RT named `name` is used. | `any` | n/a | yes |
 
 ## Outputs
 
@@ -101,4 +104,5 @@ In a nutshell it means:
 |------|-------------|
 | <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | The DNS name that you can use to SSH into a testbox. Use `ssh ubuntu@<<value>>` command with the same public key as given in the `ssh_public_key_file_path` input. |
 | <a name="output_app1_inspected_public_ip"></a> [app1\_inspected\_public\_ip](#output\_app1\_inspected\_public\_ip) | The IP address behind the `app1_inspected_dns_name`. |
+| <a name="output_security_gwlb_service_name"></a> [security\_gwlb\_service\_name](#output\_security\_gwlb\_service\_name) | The AWS Service Name of the created GWLB, which is suitable to use for subsequent VPC Endpoints. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

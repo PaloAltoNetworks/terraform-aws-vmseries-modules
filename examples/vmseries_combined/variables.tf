@@ -70,8 +70,45 @@ variable "ssh_public_key_file_path" {
 
 ##### TGW #####
 
-variable "transit_gateway_name" {}
-variable "transit_gateway_asn" {}
+variable "transit_gateway_name" {
+  description = "The name tag of the created Transit Gateway."
+  type        = string
+}
+
+variable "transit_gateway_asn" {
+  description = <<-EOF
+  Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.
+  The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+  EOF
+  type        = number
+}
+
+variable "transit_gateway_route_tables" {
+  description = <<-EOF
+  Complex input with the Route Tables of the Transit Gateway. Example:
+
+  ```
+  {
+    "from_security_vpc" = {
+      create = true
+      name   = "myrt1"
+    }
+    "from_spoke_vpc" = {
+      create = true
+      name   = "myrt2"
+    }
+  }
+  ```
+
+  Two keys are required:
+
+  - from_security_vpc describes which route table routes the traffic coming from the Security VPC,
+  - from_spoke_vpc describes which route table routes the traffic coming from the Spoke (App1) VPC.
+
+  Each of these entries can specify `create = true` which creates a new RT with a `name`.
+  With `create = false` the pre-existing RT named `name` is used.
+  EOF
+}
 
 ##### Security VPC #####
 
@@ -121,12 +158,37 @@ variable "security_vpc_routes_eastwest_cidrs" {
   type        = list(string)
 }
 
-##### Spoke VPC app1 #####
+##### Spoke VPC App1 #####
 
-variable "app1_transit_gateway_attachment_name" {}
-variable "app1_vpc_name" {}
-variable "app1_vpc_cidr" {}
+variable "app1_transit_gateway_attachment_name" {
+  description = "The name of the TGW Attachment to be created inside the App1 VPC."
+  type        = string
+}
+
+variable "app1_vpc_name" {
+  description = "The name tag of the created App1 VPC."
+  type        = string
+}
+
+variable "app1_vpc_cidr" {
+  description = "The primary IPv4 CIDR of the created App1 VPC."
+  type        = string
+}
+
 variable "app1_vpc_subnets" {}
 variable "app1_vpc_security_groups" {}
-variable "existing_gwlb_name" {}
-variable "app1_gwlb_endpoint_set_name" {}
+
+variable "security_gwlb_service_name" {
+  description = <<-EOF
+  Optional Service Name of the pre-existing GWLB which should receive traffic from `app1_gwlb_endpoint_set_name`.
+  If empty or null, instead use the Service Name of the default GWLB named `gwlb_name`.
+  Example: "com.amazonaws.vpce.us-west-2.vpce-svc-0123".
+  EOF
+  default     = ""
+  type        = string
+}
+
+variable "app1_gwlb_endpoint_set_name" {
+  description = "The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer."
+  type        = string
+}
