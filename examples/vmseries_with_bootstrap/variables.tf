@@ -17,10 +17,8 @@ variable "global_tags" {
   type        = map(string)
 }
 
-
-
 ### VPC
-variable "cidr_block" {
+variable "vpc_cidr_block" {
   type = string
 }
 
@@ -29,14 +27,10 @@ variable "security_groups" {
   type    = map(any)
 }
 
-
-
 ### SUBNET_SET
 variable "subnets" {
   default = {}
 }
-
-
 
 ### VMSERIES
 variable "fw_instance_type" {}

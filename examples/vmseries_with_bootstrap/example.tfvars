@@ -1,16 +1,14 @@
 ### GLOBAL
 region          = "us-east-1"
-prefix_name_tag = "kbechler-qqq-bar-" // Used for Name Tags of all created resources. Can be empty.
+prefix_name_tag = "foo-bar-" // Used for Name Tags of all created resources. Can be empty.
 
 global_tags = {
   Foo        = "Bar"
   Managed-by = "Terraform"
 }
 
-
-
 ### VPC
-cidr_block = "172.22.0.0/16"
+vpc_cidr_block = "172.22.0.0/16"
 
 security_groups = {
   vmseries-mgmt = {
@@ -35,14 +33,10 @@ security_groups = {
   }
 }
 
-
-
 ### SUBNET_SET
 subnets = {
   "172.22.0.0/24" = { az = "us-east-1a", set = "mgmt-1" }
 }
-
-
 
 ### VMSERIES
 fw_instance_type = "m5.xlarge"
@@ -71,5 +65,4 @@ firewalls = [
       index = "0"
     }]
   },
-
 ]

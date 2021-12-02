@@ -1,7 +1,11 @@
-# output "vpc_id" {
-#   value = module.vpc.id
-# }
+output "vpc_id" {
+  value = module.vpc.id
+}
 
-# output "security_group_ids" {
-#   value = module.vpc.security_group_ids
-# }
+output "security_group_ids" {
+  value = module.vpc.security_group_ids
+}
+
+output "firewalls" {
+  value = module.vmseries.firewalls
+}

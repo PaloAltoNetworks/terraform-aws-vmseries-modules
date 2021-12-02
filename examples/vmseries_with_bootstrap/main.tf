@@ -2,7 +2,7 @@ module "vpc" {
   source = "../../modules/vpc"
 
   name                    = "${var.prefix_name_tag}vpc"
-  cidr_block              = var.cidr_block
+  cidr_block              = var.vpc_cidr_block
   create_internet_gateway = true
   global_tags             = var.global_tags
   security_groups         = var.security_groups
