@@ -15,6 +15,7 @@ locals {
     if lookup(interface, "eip_name", null) != null
   }
 
+  key_name = var.create_ssh_key ? aws_key_pair.this[0].key_name : var.ssh_key_name
 }
 
 
@@ -97,13 +98,20 @@ resource "aws_eip_association" "this" {
 ################
 # Create PA VM-series instances
 ################
+resource "aws_key_pair" "this" {
+  count = var.create_ssh_key ? 1 : 0
+
+  key_name   = var.ssh_key_name
+  public_key = file(var.ssh_public_key_path)
+  tags       = var.tags
+}
 
 resource "aws_instance" "pa_vm_series" {
   for_each = local.firewalls
 
   ami                                  = data.aws_ami.pa_vm.id
   instance_type                        = var.fw_instance_type
-  key_name                             = var.ssh_key_name
+  key_name                             = local.key_name
   iam_instance_profile                 = lookup(each.value, "iam_instance_profile", null)
   disable_api_termination              = false
   ebs_optimized                        = true

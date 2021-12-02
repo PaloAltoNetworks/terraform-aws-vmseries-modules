@@ -52,6 +52,7 @@ No modules.
 | [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_eip_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip_association) | resource |
 | [aws_instance.pa_vm_series](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 | [aws_network_interface.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
 | [aws_network_interface_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface_attachment) | resource |
 | [aws_route.to_eni](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
@@ -63,6 +64,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_addtional_interfaces"></a> [addtional\_interfaces](#input\_addtional\_interfaces) | Map additional interfaces after initial EC2 deployment. | `map(any)` | `{}` | no |
 | <a name="input_buckets_map"></a> [buckets\_map](#input\_buckets\_map) | Map of S3 Bucket name to ID, can be passed from remote state output or data source.<br><br>Example:<pre>buckets_map = {<br>  "bootstrap_bucket1 = {<br>     arn = "arn:aws-us-gov:s3:::bootstrap_bucket1<br>     name = "bootstrap_bucket1"<br>  }<br>  "bootstrap_bucket2 = {<br>     arn = "arn:aws-us-gov:s3:::bootstrap_bucket2<br>     name = "bootstrap_bucket2"<br>  }<br>}</pre> | `map(any)` | `{}` | no |
+| <a name="input_create_ssh_key"></a> [create\_ssh\_key](#input\_create\_ssh\_key) | If true, create a new key pair using info provided in `ssh_key_name` and `ssh_public_key_path` inputs.<br>Otherwise, use the key of specified name. | `bool` | `true` | no |
 | <a name="input_firewalls"></a> [firewalls](#input\_firewalls) | Map of VM-Series Firewalls to create with interface mappings.<br><br>Required: `name`, `interfaces` (a map of names and indexes).<br><br>Example:<pre>firewalls = [{<br>  name = "ingress-fw1"<br>  bootstrap_options = {<br>    mgmt-interface-swap = "disable" # Change to "enable" for interface swap<br>  }<br>  interfaces = [{<br>    name  = "ingress-fw1-mgmt"<br>    index = "0"<br>    },<br>    {<br>      name  = "ingress-fw1-untrust"<br>      index = "1"<br>    },<br>    {<br>      name  = "ingress-fw1-trust"<br>      index = "2"<br>  }]<br>}]</pre> | `any` | n/a | yes |
 | <a name="input_fw_instance_type"></a> [fw\_instance\_type](#input\_fw\_instance\_type) | EC2 Instance Type. | `string` | `"m5.xlarge"` | no |
 | <a name="input_fw_license_type"></a> [fw\_license\_type](#input\_fw\_license\_type) | Select the VM-Series Firewall license type - available options: `byol`, `payg1`, `payg2`. | `string` | `"byol"` | no |
@@ -74,7 +76,8 @@ No modules.
 | <a name="input_route_tables_map"></a> [route\_tables\_map](#input\_route\_tables\_map) | Map of Route Tables Name to ID, can be passed from remote state output or data source. | `map(any)` | `{}` | no |
 | <a name="input_rts_to_fw_eni"></a> [rts\_to\_fw\_eni](#input\_rts\_to\_fw\_eni) | Map of RTs from base\_infra output and the FW ENI to map default route to. | `map(any)` | `{}` | no |
 | <a name="input_security_groups_map"></a> [security\_groups\_map](#input\_security\_groups\_map) | Map of security group name to ID, can be passed from remote state output or data source.<br><br>Example:<pre>security_groups_map = {<br>  "panorama-mgmt-inbound-sg" = "sg-0e1234567890"<br>  "panorama-mgmt-outbound-sg" = "sg-0e1234567890"<br>}</pre> | `map(any)` | `{}` | no |
-| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of AWS keypair to associate with instances. | `string` | `""` | no |
+| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of a key pair to, optionally, create and associate with instances. | `string` | `"vmseries-sshkey"` | no |
+| <a name="input_ssh_public_key_path"></a> [ssh\_public\_key\_path](#input\_ssh\_public\_key\_path) | Path to a file that contains a public key to use if a new key pair is created. | `string` | `""` | no |
 | <a name="input_subnets_map"></a> [subnets\_map](#input\_subnets\_map) | Map of subnet name to ID, can be passed from remote state output or data source.<br><br>Example:<pre>subnets_map = {<br>  "panorama-mgmt-1a" = "subnet-0e1234567890"<br>  "panorama-mgmt-1b" = "subnet-0e1234567890"<br>}</pre> | `map(any)` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of additional tags to apply to all resources. | `map(any)` | `{}` | no |
 

@@ -142,8 +142,24 @@ variable "firewalls" {
   EOF
 }
 
+variable "create_ssh_key" {
+  description = <<-EOF
+  If true, create a new key pair using info provided in `ssh_key_name` and `ssh_public_key_path` inputs.
+  Otherwise, use the key of specified name.
+  EOF
+  type        = bool
+  default     = true
+}
+
 variable "ssh_key_name" {
-  description = "Name of AWS keypair to associate with instances."
+  description = "Name of a key pair to, optionally, create and associate with instances."
+  type        = string
+  default     = "vmseries-sshkey"
+}
+
+variable "ssh_public_key_path" {
+  description = "Path to a file that contains a public key to use if a new key pair is created."
+  type        = string
   default     = ""
 }
 
