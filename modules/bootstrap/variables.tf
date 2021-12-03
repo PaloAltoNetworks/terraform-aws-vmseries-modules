@@ -23,7 +23,7 @@ variable "force_destroy" {
 }
 
 variable "bootstrap_directories" {
-  description = "The directories comprising the bootstrap package."
+  description = "List of subdirectories to be created inside the bucket (whether or not they exist locally). A hardcoded pan-os requirement."
   default = [
     "config/",
     "content/",
