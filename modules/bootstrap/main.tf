@@ -18,6 +18,8 @@ resource "aws_s3_bucket_object" "bootstrap_dirs" {
 }
 
 resource "aws_s3_bucket_object" "init_cfg" {
+  count = contains(fileset("${path.root}/files", "**"), "config/init-cfg.txt") ? 0 : 1
+
   bucket = aws_s3_bucket.this.id
   key    = "config/init-cfg.txt"
   content = templatefile("${path.module}/init-cfg.txt.tmpl",
