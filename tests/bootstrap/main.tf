@@ -10,9 +10,11 @@ variable "switchme" {
 }
 
 module "bootstrap" {
-  source      = "../../modules/bootstrap"
-  prefix      = "a"
-  global_tags = var.switchme ? {} : { switchme = var.switchme }
+  source = "../../modules/bootstrap"
+
+  prefix                = "a"
+  source_root_directory = var.switchme ? "${path.root}/NON-EXISTENT" : "${path.root}/files"
+  global_tags           = var.switchme ? {} : { switchme = var.switchme }
 }
 
 output "bucket_name_correct" {

@@ -35,12 +35,12 @@ resource "aws_s3_bucket_object" "init_cfg" {
   )
 }
 
-resource "aws_s3_bucket_object" "bootstrap_files" {
-  for_each = fileset("${path.root}/files", "**")
+resource "aws_s3_bucket_object" "copied" {
+  for_each = fileset(var.source_root_directory, "**")
 
   bucket = aws_s3_bucket.this.id
   key    = each.value
-  source = "${path.root}/files/${each.value}"
+  source = "${var.source_root_directory}/${each.value}"
 }
 
 resource "aws_iam_role" "this" {

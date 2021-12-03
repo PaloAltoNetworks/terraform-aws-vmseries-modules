@@ -1,7 +1,9 @@
 module "bootstrap" {
-  source      = "../../modules/bootstrap"
-  prefix      = var.prefix_name_tag
-  global_tags = var.global_tags
+  source = "../../modules/bootstrap"
+
+  prefix                = var.prefix_name_tag
+  source_root_directory = "${path.root}/files"
+  global_tags           = var.global_tags
 }
 
 module "vmseries" {

@@ -22,6 +22,16 @@ variable "force_destroy" {
   type        = bool
 }
 
+variable "source_root_directory" {
+  description = "The source directory to be copied recursively onto the bucket's root directory. Examples: \"/home/me/bucket\" or \"$${path.root}/files\""
+  type        = string
+
+  validation {
+    condition     = !contains(fileset(var.source_root_directory, "**"), "config/init-cfg.txt")
+    error_message = "Please remove disallowed file 'config/init-cfg.txt' from under this directory, and instead specify here the inputs like `panorama-server`, etc."
+  }
+}
+
 variable "bootstrap_directories" {
   description = "The directories comprising the bootstrap package."
   default = [
