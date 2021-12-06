@@ -26,6 +26,7 @@
 .terraform.d
 *.tfstate
 *.tfstate.*
+.terragrunt-cache
 .vscode
 .idea
 .idea
