@@ -43,7 +43,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.13.7
+          terraform_version: 0.15.3
 
       - name: terraform validate
         env:
@@ -52,6 +52,13 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           for dir in $(find modules examples -type d -not \( -name ".?*" \) -maxdepth 1 -mindepth 1);
           do
+            if [[ "$dir" == "modules/transit_gateway_peering" ]];
+            then
+              echo "Skipping directory: $dir"
+              echo "Terraform does not support validating a module which uses an aliased provider (module-specific; validating an entire configuration works fine)."
+              continue
+            fi
+
             echo "Processing directory: $dir"
             cd "$GITHUB_WORKSPACE/$dir"
             terraform init -backend=false
