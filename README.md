@@ -40,7 +40,7 @@ along with the changelog, on the GitHub [Releases](https://github.com/PaloAltoNe
 ## Contributing
 
 Contributions are welcome, and they are greatly appreciated! Every little bit helps,
-and credit will always be given. Please follow our contributing guide.
+and credit will always be given. Please follow our [contributing guide](https://github.com/PaloAltoNetworks/terraform-best-practices/blob/main/CONTRIBUTING.md).
 
 <!-- ## Who maintains these modules?
 
