@@ -1,56 +1,110 @@
+# General
+variable "name" {
+  description = "Name for the Panorama instance."
+  type        = string
+  default     = "pan-panorama"
+}
+
 variable "global_tags" {
-  description = "A map of tags to abe associated with all created resources."
+  description = <<-EOF
+  A map of tags to assign to the resources.
+  If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level."
+  EOF
   default     = {}
   type        = map(any)
 }
 
-# Panorama version for AMI lookup
+# Panorama
 variable "panorama_version" {
   description = <<-EOF
   Panorama PAN-OS Software version. List published images with: 
-  `aws ec2 describe-images --filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" --output json --query "Images[].Description" | grep -o 'Panorama-AWS-.*' | tr -d '",'`
+  `aws ec2 describe-images \
+      --filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \
+      --output json --query "Images[].Description" | grep -o 'Panorama-AWS-.*' | tr -d '",'`
+  EOF
   default     = "10.0.2"
   type        = string
-  EOF
 }
 
-# Panorama Deployment Variables
-variable "panoramas" {
-  description = "Map of Panoramas to be built."
-  default     = {}
-  type        = any
+variable "instance_type" {
+  description = "EC2 instance type for Panorama. Default set to Palo Alto Networks recommended instance type."
+  type        = string
+  default     = "c5.4xlarge"
 }
 
-variable "subnets_map" {
+variable "availability_zone" {
+  description = "Availability zone in which Panorama will be deployed."
+  type        = string
+  default     = "us-east-1a"
+}
+
+variable "ssh_key_name" {
+  description = "AWS EC2 key pair name."
+  type        = string
+  default     = null
+}
+
+variable "public_ip_address" {
+  description = "Whether to associate a public IP address to the Panorama instance."
+  type        = bool
+  default     = false
+}
+
+variable "private_ip_address" {
+  description = "If provided, associates a private IP address to the Panorama instance."
+  type        = string
+  default     = null
+}
+
+variable "vpc_security_group_ids" {
+  description = "A list of security group IDs to associate Panorama with."
+  type        = list(any)
+  default     = null
+}
+
+variable "size" {
+  description = "The size of the drive in GiBs."
+  type        = string
+  default     = "2000"
+}
+
+variable "encrypted" {
+  description = "If true, the Panorama disk will be encrypted."
+  type        = bool
+  default     = false
+}
+
+variable "kms_key_id" {
   description = <<-EOF
-  Map of subnet name to ID, can be passed from remote state output or data source.
-  
-  Example:
-
-  ```
-  subnets_map = {
-    "panorama-mgmt-1a" = "subnet-0e1234567890"
-    "panorama-mgmt-1b" = "subnet-0e1234567890"
-  }
-  ```
+  The ARN for the KMS encryption key. When specifying `kms_key_id`, the `encrypted` variable needs to be set to true. 
+  Note: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key 
+  as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.
+  If null, the default EBS encryption KMS key in the current region is used.
   EOF
-  default     = {}
-  type        = map(any)
+  type        = string
+  default     = null
 }
 
-variable "security_groups_map" {
+variable "device_name" {
   description = <<-EOF
-  Map of security group name to ID, can be passed from remote state output or data source.
-
-  Example:
-
-  ```
-  security_groups_map = {
-    "panorama-mgmt-inbound-sg" = "sg-0e1234567890"
-    "panorama-mgmt-outbound-sg" = "sg-0e1234567890"
-  } 
-  ```
+  The device name to expose to the instance (for example, /dev/sdh or xvdh).
+  See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
   EOF
-  default     = {}
-  type        = map(any)
+  type        = string
+  default     = "/dev/sdb"
+}
+
+variable "force_detach" {
+  description = "Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss."
+  type        = bool
+  default     = false
+}
+
+variable "skip_destroy" {
+  description = <<EOF
+  Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
+  This is useful when destroying an instance which has volumes created by some other means attached.
+  EOF
+  type        = bool
+  default     = false
 }
