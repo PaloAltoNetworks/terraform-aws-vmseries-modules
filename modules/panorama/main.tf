@@ -20,7 +20,7 @@ resource "aws_instance" "this" {
   instance_type                        = var.instance_type
   availability_zone                    = var.availability_zone
   key_name                             = var.ssh_key_name
-  associate_public_ip_address          = var.public_ip_address //Check if EIP is automatically created
+  associate_public_ip_address          = var.public_ip_address //Check if EIP is automatically created if set to "true"
   private_ip                           = var.private_ip_address
   disable_api_termination              = false
   instance_initiated_shutdown_behavior = "stop"
