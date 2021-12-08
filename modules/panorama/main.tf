@@ -1,20 +1,18 @@
-
 #### Panorama AMI ID Lookup based on license type, region, version ####
 data "aws_ami" "this" {
   most_recent = true
   owners      = ["aws-marketplace"]
 
   filter {
-    name   = "product-code"
-    values = [var.pano_license_type_map[var.pano_license_type]]
-  }
-
-  filter {
     name   = "name"
     values = ["Panorama-AWS-${var.panorama_version}*"]
   }
-}
 
+  filter {
+    name   = "product-code"
+    values = ["eclz7j04vu9lf8ont8ta3n17o"] // Product code for Panorama BYOL license type
+  }
+}
 
 locals {
   logger_panoramas = { for name, panorama in var.panoramas : name => panorama if contains(keys(panorama), "ebs") }
@@ -68,7 +66,6 @@ resource "aws_ebs_volume" "this" {
     lookup(each.value, "tags", {})
   )
 }
-
 
 resource "aws_volume_attachment" "this" {
   for_each     = local.logger_panoramas
