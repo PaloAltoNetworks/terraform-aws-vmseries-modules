@@ -63,7 +63,6 @@ variable "private_ip_address" {
 variable "subnet_id" {
   description = "VPC Subnet ID to launch Panorama in."
   type        = string
-  default     = null
 }
 
 variable "vpc_security_group_ids" {
