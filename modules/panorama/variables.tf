@@ -115,7 +115,7 @@ variable "force_detach" {
 variable "skip_destroy" {
   description = <<EOF
   Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
-  This is useful when destroying an instance which has volumes created by some other means attached.
+  This is useful when destroying an instance attached to third-party volumes.
   EOF
   type        = bool
   default     = false
