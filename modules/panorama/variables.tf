@@ -15,6 +15,12 @@ variable "global_tags" {
 }
 
 # Panorama
+variable "product_code" {
+  description = "Product code for Panorama BYOL license."
+  type        = string
+  default     = "eclz7j04vu9lf8ont8ta3n17o"
+}
+
 variable "panorama_version" {
   description = <<-EOF
   Panorama PAN-OS Software version. List published images with: 
@@ -22,7 +28,7 @@ variable "panorama_version" {
       --filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \
       --output json --query "Images[].Description" | grep -o 'Panorama-AWS-.*' | tr -d '",'`
   EOF
-  default     = "10.0.2"
+  default     = "10.0.6"
   type        = string
 }
 
@@ -44,8 +50,8 @@ variable "ssh_key_name" {
   default     = null
 }
 
-variable "public_ip_address" {
-  description = "Whether to associate a public IP address to the Panorama instance."
+variable "create_public_ip" {
+  description = "If true, create an Elastic IP address for Panorama."
   type        = bool
   default     = false
 }
@@ -56,20 +62,26 @@ variable "private_ip_address" {
   default     = null
 }
 
+variable "subnet_id" {
+  description = "VPC Subnet ID to launch Panorama in."
+  type        = string
+  default     = null
+}
+
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate Panorama with."
   type        = list(any)
   default     = null
 }
 
-variable "size" {
-  description = "The size of the drive in GiBs."
+variable "ebs_size" {
+  description = "The size of the EBS volume in GiBs."
   type        = string
   default     = "2000"
 }
 
-variable "encrypted" {
-  description = "If true, the Panorama disk will be encrypted."
+variable "ebs_encrypted" {
+  description = "If true, the Panorama EBS volume will be encrypted."
   type        = bool
   default     = false
 }
@@ -85,9 +97,9 @@ variable "kms_key_id" {
   default     = null
 }
 
-variable "device_name" {
+variable "ebs_device_name" {
   description = <<-EOF
-  The device name to expose to the instance (for example, /dev/sdh or xvdh).
+  The EBS device name to expose to the instance (for example, /dev/sdh or xvdh).
   See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
   EOF
   type        = string
