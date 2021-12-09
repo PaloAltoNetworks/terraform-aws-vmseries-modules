@@ -46,7 +46,6 @@ variable "availability_zone" {
 variable "ssh_key_name" {
   description = "AWS EC2 key pair name."
   type        = string
-  default     = null
 }
 
 variable "create_public_ip" {
