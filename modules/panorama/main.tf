@@ -45,18 +45,14 @@ resource "aws_eip" "this" {
   tags = merge(var.global_tags, { Name = "${var.name}-eip" })
 }
 
-# The default EBS encryption KMS key in the current region
+# Get the default EBS encryption KMS key in the current region.
 data "aws_ebs_default_kms_key" "current" {}
-
-data "aws_kms_key" "current" {
-  key_id = data.aws_ebs_default_kms_key.current.key_arn
-}
 
 resource "aws_ebs_volume" "this" {
   availability_zone = var.availability_zone
   size              = var.ebs_size
   encrypted         = var.ebs_encrypted
-  kms_key_id        = var.ebs_encrypted == false ? null : var.kms_key_id != null ? var.kms_key_id : data.aws_kms_key.current.arn
+  kms_key_id        = var.ebs_encrypted == false ? null : var.kms_key_id != null ? var.kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
 
   tags = merge(var.global_tags, { Name = "${var.name}-ebs" })
 }

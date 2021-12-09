@@ -6,26 +6,7 @@ Panorama deployed on AWS is Bring Your Own License (BYOL), supports all deployme
 
 ## Usage
 
-```hcl
-locals {
-  subnets_map = {
-    "mgmt" = "subnet-0b67c0660aae33e2a"
-  }
-
-  security_groups_map = {
-    "sg1" = "sg-0f4bf202f60c9a159"
-  }
-}
-
-module "panorama" {
-  source              = "../../modules/panorama/"
-  panorama_version    = var.panorama_version
-  global_tags         = var.global_tags
-  panoramas           = var.panoramas
-  subnets_map         = local.subnets_map
-  security_groups_map = local.security_groups_map
-}
-```
+For usage, check the "examples" folder in the root of the repository.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -49,7 +30,6 @@ No modules.
 | [aws_volume_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/volume_attachment) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_ebs_default_kms_key.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ebs_default_kms_key) | data source |
-| [aws_kms_key.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_key) | data source |
 
 ## Inputs
 
@@ -63,7 +43,7 @@ No modules.
 | <a name="input_force_detach"></a> [force\_detach](#input\_force\_detach) | Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss. | `bool` | `false` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | A map of tags to assign to the resources.<br>If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level." | `map(any)` | `{}` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type for Panorama. Default set to Palo Alto Networks recommended instance type. | `string` | `"c5.4xlarge"` | no |
-| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true. <br>Note: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key <br>as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.<br>If null, the default EBS encryption KMS key in the current region is used. | `string` | `null` | no |
+| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.<br>If the `kms_key_id` is not provided but the `ebs_encrypted` is set to `true`, the default EBS encryption KMS key in the current region will be used.<br><br>\_\_Note\_\_: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key <br>as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.<br>If null, the default EBS encryption KMS key in the current region is used. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name for the Panorama instance. | `string` | `"pan-panorama"` | no |
 | <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama PAN-OS Software version. List published images with:<pre>aws ec2 describe-images \\<br>--filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \\<br>--output json --query "Images[].Description" \| grep -o 'Panorama-AWS-.*' \| tr -d '",'</pre> | `string` | `"10.0.6"` | no |
 | <a name="input_private_ip_address"></a> [private\_ip\_address](#input\_private\_ip\_address) | If provided, associates a private IP address to the Panorama instance. | `string` | `null` | no |
