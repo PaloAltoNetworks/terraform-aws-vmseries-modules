@@ -41,7 +41,6 @@ variable "instance_type" {
 variable "availability_zone" {
   description = "Availability zone in which Panorama will be deployed."
   type        = string
-  default     = "us-east-1a"
 }
 
 variable "ssh_key_name" {
