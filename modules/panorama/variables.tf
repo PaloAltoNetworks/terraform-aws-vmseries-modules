@@ -77,10 +77,9 @@ variable "ebs_volumes" {
   description = <<-EOF
   List of EBS volumes to create and attach to Panorama.
   Available options:
-  - `name`              (Required) Name tag for the EBS volume.
+  - `name`              (Optional) Name tag for the EBS volume. If not provided defaults to the value of `var.name`.
   - `ebs_device_name`   (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). 
   See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
-  - `availability_zone` (Required) The AZ where the EBS volume will exist.
   - `ebs_size`          (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.
   - `ebs_encrypted`     (Optional) If true, the Panorama EBS volume will be encrypted.
   - `force_detach`      (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
@@ -99,7 +98,6 @@ variable "ebs_volumes" {
     {
       name              = "ebs-1"
       ebs_device_name   = "/dev/sdb"
-      availability_zone = "us-east-1a"
       ebs_size          = "2000"
       ebs_encrypted     = true
       kms_key_id        = "arn:aws:kms:us-east-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
@@ -107,14 +105,12 @@ variable "ebs_volumes" {
     {
       name              = "ebs-2"
       ebs_device_name   = "/dev/sdb"
-      availability_zone = "us-east-1a"
       ebs_size          = "2000"
       ebs_encrypted     = true
     },
     {
       name              = "ebs-3"
       ebs_device_name   = "/dev/sdb"
-      availability_zone = "us-east-1a"
       ebs_size          = "2000"
     },
   ]
