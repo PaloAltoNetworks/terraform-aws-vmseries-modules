@@ -49,8 +49,9 @@ data "aws_route_table" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.read_route_table }
 
   vpc_id         = var.vpc_id
+  subnet_id      = each.value.create_subnet ? null : data.aws_subnet.this[each.key].id
   route_table_id = each.value.existing_route_table_id
-  tags           = { Name = coalesce(each.value.route_table_name, each.value.name) }
+  tags           = each.value.create_subnet ? { Name = coalesce(each.value.route_table_name, each.value.name) } : {}
 }
 
 resource "aws_route_table" "this" {
