@@ -73,51 +73,53 @@ variable "vpc_security_group_ids" {
   default     = []
 }
 
-variable "ebs_size" {
-  description = "The size of the EBS volume in GiBs."
-  type        = string
-  default     = "2000"
-}
-
-variable "ebs_encrypted" {
-  description = "If true, the Panorama EBS volume will be encrypted."
-  type        = bool
-  default     = false
-}
-
-variable "kms_key_id" {
+variable "ebs_volumes" {
   description = <<-EOF
-  The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.
+  List of EBS volumes to create and attach to Panorama.
+  Available options:
+  - `name`              = (Required) Name tag for the EBS volume.
+  - `ebs_device_name`   = (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). 
+  See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
+  - `availability_zone` = (Required) The AZ where the EBS volume will exist.
+  - `ebs_size`          = (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.
+  - `ebs_encrypted`     = (Optional) If true, the Panorama EBS volume will be encrypted.
+  - `force_detach`      = (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
+  - `skip_destroy`      = (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
+  This is useful when destroying an instance attached to third-party volumes.
+  - `kms_key_id`        = (Optional) The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.
   If the `kms_key_id` is not provided but the `ebs_encrypted` is set to `true`, the default EBS encryption KMS key in the current region will be used.
-
+  
   __Note__: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key 
   as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.
   If null, the default EBS encryption KMS key in the current region is used.
+
+  Example:
+  ```
+  ebs_volumes = [
+    {
+      name              = "ebs-1" // used for the name tag
+      ebs_device_name   = "/dev/sdb"
+      availability_zone = "us-east-1a"
+      ebs_size          = "2000"
+      ebs_encrypted     = true
+      kms_key_id        = "arn:aws:kms:us-east-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+    },
+    {
+      name              = "ebs-2"
+      ebs_device_name   = "/dev/sdb"
+      availability_zone = "us-east-1a"
+      ebs_size          = "2000"
+      ebs_encrypted     = true
+    },
+    {
+      name              = "ebs-3"
+      ebs_device_name   = "/dev/sdb"
+      availability_zone = "us-east-1a"
+      ebs_size          = "2000"
+    },
+  ]
+  ```
   EOF
-  type        = string
-  default     = null
+  default     = []
 }
 
-variable "ebs_device_name" {
-  description = <<-EOF
-  The EBS device name to expose to the instance (for example, /dev/sdh or xvdh).
-  See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
-  EOF
-  type        = string
-  default     = "/dev/sdb"
-}
-
-variable "force_detach" {
-  description = "Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss."
-  type        = bool
-  default     = false
-}
-
-variable "skip_destroy" {
-  description = <<EOF
-  Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
-  This is useful when destroying an instance attached to third-party volumes.
-  EOF
-  type        = bool
-  default     = false
-}

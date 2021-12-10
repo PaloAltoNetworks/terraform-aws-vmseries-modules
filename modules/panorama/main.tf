@@ -49,18 +49,22 @@ resource "aws_eip" "this" {
 data "aws_ebs_default_kms_key" "current" {}
 
 resource "aws_ebs_volume" "this" {
-  availability_zone = var.availability_zone
-  size              = var.ebs_size
-  encrypted         = var.ebs_encrypted
-  kms_key_id        = var.ebs_encrypted == false ? null : var.kms_key_id != null ? var.kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
+  for_each = { for k, v in var.ebs_volumes : k => v }
 
-  tags = merge(var.global_tags, { Name = "${var.name}-ebs" })
+  availability_zone = try(each.value.availability_zone, var.availability_zone)
+  size              = try(each.value.ebs_size, "2000")
+  encrypted         = try(each.value.ebs_encrypted, false)
+  kms_key_id        = try(each.value.ebs_encrypted == false ? null : each.value.kms_key_id != null ? each.value.kms_key_id : data.aws_ebs_default_kms_key.current.key_arn, null)
+
+  tags = merge(var.global_tags, { Name = each.value.name })
 }
 
 resource "aws_volume_attachment" "this" {
-  device_name  = var.ebs_device_name
+  for_each = { for k, v in var.ebs_volumes : k => v }
+
+  device_name  = each.value.ebs_device_name
   instance_id  = aws_instance.this.id
-  volume_id    = aws_ebs_volume.this.id
-  force_detach = var.force_detach
-  skip_destroy = var.skip_destroy
+  volume_id    = aws_ebs_volume.this[each.key].id
+  force_detach = try(each.value.force_detach, false)
+  skip_destroy = try(each.value.skip_destroy, false)
 }
