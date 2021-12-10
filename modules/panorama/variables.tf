@@ -77,16 +77,16 @@ variable "ebs_volumes" {
   description = <<-EOF
   List of EBS volumes to create and attach to Panorama.
   Available options:
-  - `name`              = (Required) Name tag for the EBS volume.
-  - `ebs_device_name`   = (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). 
+  - `name`              (Required) Name tag for the EBS volume.
+  - `ebs_device_name`   (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). 
   See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
-  - `availability_zone` = (Required) The AZ where the EBS volume will exist.
-  - `ebs_size`          = (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.
-  - `ebs_encrypted`     = (Optional) If true, the Panorama EBS volume will be encrypted.
-  - `force_detach`      = (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
-  - `skip_destroy`      = (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
+  - `availability_zone` (Required) The AZ where the EBS volume will exist.
+  - `ebs_size`          (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.
+  - `ebs_encrypted`     (Optional) If true, the Panorama EBS volume will be encrypted.
+  - `force_detach`      (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
+  - `skip_destroy`      (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
   This is useful when destroying an instance attached to third-party volumes.
-  - `kms_key_id`        = (Optional) The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.
+  - `kms_key_id`        (Optional) The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.
   If the `kms_key_id` is not provided but the `ebs_encrypted` is set to `true`, the default EBS encryption KMS key in the current region will be used.
   
   Note: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key 
