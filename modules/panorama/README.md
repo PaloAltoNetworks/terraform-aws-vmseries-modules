@@ -6,26 +6,7 @@ Panorama deployed on AWS is Bring Your Own License (BYOL), supports all deployme
 
 ## Usage
 
-```hcl
-locals {
-  subnets_map = {
-    "mgmt" = "subnet-0b67c0660aae33e2a"
-  }
-
-  security_groups_map = {
-    "sg1" = "sg-0f4bf202f60c9a159"
-  }
-}
-
-module "panorama" {
-  source              = "../../modules/panorama/"
-  panorama_version    = var.panorama_version
-  global_tags         = var.global_tags
-  panoramas           = var.panoramas
-  subnets_map         = local.subnets_map
-  security_groups_map = local.security_groups_map
-}
-```
+For usage, check the "examples" folder in the root of the repository.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -44,25 +25,32 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_ebs_volume.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume) | resource |
+| [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_instance.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_volume_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/volume_attachment) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_ebs_default_kms_key.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ebs_default_kms_key) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | A map of tags to add to all resources. | `map(any)` | `{}` | no |
-| <a name="input_pano_license_type"></a> [pano\_license\_type](#input\_pano\_license\_type) | Select License type (byol only for Panorama) | `string` | `"byol"` | no |
-| <a name="input_pano_license_type_map"></a> [pano\_license\_type\_map](#input\_pano\_license\_type\_map) | Map of Panorama licence types and corresponding Panorama Amazon Machine Image (AMI) ID.<br>The key is the licence type, and the value is the Panorama AMI ID." | `map(string)` | <pre>{<br>  "byol": "eclz7j04vu9lf8ont8ta3n17o"<br>}</pre> | no |
-| <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama version to deploy. For example: "8.1.2". | `string` | `"10.0.2"` | no |
-| <a name="input_panoramas"></a> [panoramas](#input\_panoramas) | Map of Panoramas to be built. | `any` | `{}` | no |
-| <a name="input_security_groups_map"></a> [security\_groups\_map](#input\_security\_groups\_map) | Map of security group name to ID, can be passed from remote state output or data source.<br><br>Example:<pre>security_groups_map = {<br>  "panorama-mgmt-inbound-sg" = "sg-0e1234567890"<br>  "panorama-mgmt-outbound-sg" = "sg-0e1234567890"<br>}</pre> | `map(any)` | `{}` | no |
-| <a name="input_subnets_map"></a> [subnets\_map](#input\_subnets\_map) | Map of subnet name to ID, can be passed from remote state output or data source.<br><br>Example:<pre>subnets_map = {<br>  "panorama-mgmt-1a" = "subnet-0e1234567890"<br>  "panorama-mgmt-1b" = "subnet-0e1234567890"<br>}</pre> | `map(any)` | `{}` | no |
+| <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | Availability zone in which Panorama will be deployed. | `string` | n/a | yes |
+| <a name="input_create_public_ip"></a> [create\_public\_ip](#input\_create\_public\_ip) | If true, create an Elastic IP address for Panorama. | `bool` | `false` | no |
+| <a name="input_ebs_volumes"></a> [ebs\_volumes](#input\_ebs\_volumes) | List of EBS volumes to create and attach to Panorama.<br>Available options:<br>- `name`              (Optional) Name tag for the EBS volume. If not provided defaults to the value of `var.name`.<br>- `ebs_device_name`   (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). <br>See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.<br>- `ebs_size`          (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.<br>- `ebs_encrypted`     (Optional) If true, the Panorama EBS volume will be encrypted.<br>- `force_detach`      (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.<br>- `skip_destroy`      (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. <br>This is useful when destroying an instance attached to third-party volumes.<br>- `kms_key_id`        (Optional) The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.<br>If the `kms_key_id` is not provided but the `ebs_encrypted` is set to `true`, the default EBS encryption KMS key in the current region will be used.<br><br>Note: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key <br>as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.<br>If null, the default EBS encryption KMS key in the current region is used.<br><br>Example:<pre>ebs_volumes = [<br>  {<br>    name              = "ebs-1"<br>    ebs_device_name   = "/dev/sdb"<br>    ebs_size          = "2000"<br>    ebs_encrypted     = true<br>    kms_key_id        = "arn:aws:kms:us-east-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"<br>  },<br>  {<br>    name              = "ebs-2"<br>    ebs_device_name   = "/dev/sdb"<br>    ebs_size          = "2000"<br>    ebs_encrypted     = true<br>  },<br>  {<br>    name              = "ebs-3"<br>    ebs_device_name   = "/dev/sdb"<br>    ebs_size          = "2000"<br>  },<br>]</pre> | `list` | `[]` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | A map of tags to assign to the resources.<br>If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level." | `map(any)` | `{}` | no |
+| <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type for Panorama. Default set to Palo Alto Networks recommended instance type. | `string` | `"c5.4xlarge"` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name for the Panorama instance. | `string` | `"pan-panorama"` | no |
+| <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama PAN-OS Software version. List published images with:<pre>aws ec2 describe-images \\<br>--filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \\<br>--output json --query "Images[].Description" \| grep -o 'Panorama-AWS-.*' \| tr -d '",'</pre> | `string` | `"10.0.6"` | no |
+| <a name="input_private_ip_address"></a> [private\_ip\_address](#input\_private\_ip\_address) | If provided, associates a private IP address to the Panorama instance. | `string` | `null` | no |
+| <a name="input_product_code"></a> [product\_code](#input\_product\_code) | Product code for Panorama BYOL license. | `string` | `"eclz7j04vu9lf8ont8ta3n17o"` | no |
+| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | AWS EC2 key pair name. | `string` | n/a | yes |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | VPC Subnet ID to launch Panorama in. | `string` | n/a | yes |
+| <a name="input_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#input\_vpc\_security\_group\_ids) | A list of security group IDs to associate Panorama with. | `list(any)` | `[]` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_panoramas"></a> [panoramas](#output\_panoramas) | n/a |
+| <a name="output_mgmt_ip_address"></a> [mgmt\_ip\_address](#output\_mgmt\_ip\_address) | Panorama management IP address. If `create_public_ip` was `true`, it is a public IP address, otherwise a private IP address. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

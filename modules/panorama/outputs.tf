@@ -1,12 +1,4 @@
-output "panoramas" {
-  value = {
-    for k, panorama in aws_instance.this :
-    k => {
-      # name = bucket.id
-      id         = panorama.id
-      public_ip  = panorama.public_ip
-      private_ip = panorama.private_ip
-      key_name   = panorama.key_name
-    }
-  }
+output "mgmt_ip_address" {
+  description = "Panorama management IP address. If `create_public_ip` was `true`, it is a public IP address, otherwise a private IP address."
+  value       = try(aws_eip.this[0].public_ip, aws_instance.this.private_ip)
 }
