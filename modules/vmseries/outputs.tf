@@ -5,8 +5,8 @@ output "mgmt_ip_address" {
 }
 
 output "interfaces" {
-  description = "Map of VM-Series network interfaces. The keys of the map are interface names. The values of the map are `aws_network_interface` objects."
-  value       = { for k, v in aws_network_interface.this : var.interfaces[k].name => v }
+  description = "List of VM-Series network interfaces objects, in the same order as the input list `interfaces`. The entries of the list are `aws_network_interface` objects. If you need a map instead, use code similar to `{ for k, v in module.this.interfaces : var.interfaces[k].name => v }`."
+  value       = aws_network_interface.this
 }
 
 output "public_ips" {
