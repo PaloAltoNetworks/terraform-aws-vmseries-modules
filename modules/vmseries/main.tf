@@ -42,7 +42,7 @@ resource "aws_network_interface" "this" {
 
 # Create and Associate EIPs
 resource "aws_eip" "this" {
-  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) && try(v.eip_allocation_id, false) == false }
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) }
 
   vpc              = true
   public_ipv4_pool = try(each.value.public_ipv4_pool, "amazon")
