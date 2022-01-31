@@ -1,4 +1,4 @@
-#### PA VM AMI ID Lookup based on license type, region, version ####
+# VM-Series AMI ID Lookup based on license type, region, version
 data "aws_ami" "this" {
   count       = var.use_custom_ami ? 1 : 0
   most_recent = true
@@ -21,16 +21,14 @@ data "aws_ami" "this" {
   owners = ["aws-marketplace"]
 }
 
-# The default EBS encryption KMS key in the current region.
+# Get the default EBS encryption KMS key in the current region.
 data "aws_ebs_default_kms_key" "current" {}
 
 data "aws_kms_key" "current" {
   key_id = data.aws_ebs_default_kms_key.current.key_arn
 }
 
-###################
-# Network Interfaces
-###################
+# Create Network Interfaces
 resource "aws_network_interface" "this" {
   for_each = { for k, v in var.interfaces : k => v } # convert list to map
 
@@ -42,9 +40,7 @@ resource "aws_network_interface" "this" {
   tags              = merge(var.tags, { Name = each.value.name })
 }
 
-###################
 # Create and Associate EIPs
-###################
 resource "aws_eip" "this" {
   for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) && try(v.eip_allocation_id, false) == false }
 
@@ -61,9 +57,7 @@ resource "aws_eip_association" "this" {
 }
 
 
-################
-# Create PA VM-series instances
-################
+# Create VM-Series Instance
 resource "aws_instance" "this" {
   disable_api_termination              = false
   instance_initiated_shutdown_behavior = "stop"
