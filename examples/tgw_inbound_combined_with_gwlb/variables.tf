@@ -1,7 +1,5 @@
-##### AWS Provider Authentication and Attributes #####
-
+### AWS Provider Authentication and Attributes
 variable "region" {}
-
 variable "aws_access_key" {
   description = "See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details."
   default     = null
@@ -42,20 +40,14 @@ variable "aws_assume_role" {
   type        = map(string)
 }
 
-##### General #####
-
-variable "prefix_name_tag" {}
+### General
+variable "name" {}
+variable "name_prefix" {}
 variable "global_tags" {}
 
-##### EC2 #####
-
-variable "firewalls" {}
-variable "interfaces" {}
-variable "fw_instance_type" {}
-variable "fw_license_type" {}
-variable "fw_version" {}
-
-##### EC2 SSH Key #####
+### VM-Series
+variable "vmseries" {}
+variable "vmseries_common" {}
 
 variable "ssh_key_name" {
   default = "sshkey"
@@ -65,11 +57,9 @@ variable "create_ssh_key" {
   default = true
 }
 
-variable "ssh_public_key_file_path" {
-}
+variable "ssh_public_key_file" {}
 
-##### TGW #####
-
+### Transit gateway
 variable "transit_gateway_name" {
   description = "The name tag of the created Transit Gateway."
   type        = string
@@ -110,20 +100,14 @@ variable "transit_gateway_route_tables" {
   EOF
 }
 
-##### Security VPC #####
-
-variable "security_transit_gateway_attachment_name" {}
+### Security VPC
 variable "security_vpc_name" {}
 variable "security_vpc_cidr" {}
 variable "security_vpc_subnets" {}
 variable "security_vpc_security_groups" {}
-variable "nat_gateway_name" {}
-variable "gwlb_name" {}
-variable "gwlb_endpoint_set_eastwest_name" {}
-variable "gwlb_endpoint_set_outbound_name" {}
+variable "security_vpc_tgw_attachment_name" {}
 
-##### Security VPC Routes #####
-
+# Security VPC Routes
 variable "security_vpc_routes_outbound_source_cidrs" {
   description = <<-EOF
   From the perspective of Security VPC, the source addresses of packets coming from TGW and flowing outside.
@@ -158,8 +142,12 @@ variable "security_vpc_routes_eastwest_cidrs" {
   type        = list(string)
 }
 
-##### Spoke VPC App1 #####
+variable "gwlb_name" {}
+variable "gwlb_endpoint_set_eastwest_name" {}
+variable "gwlb_endpoint_set_outbound_name" {}
+variable "nat_gateway_name" {}
 
+### Spoke VPC App1
 variable "app1_transit_gateway_attachment_name" {
   description = "The name of the TGW Attachment to be created inside the App1 VPC."
   type        = string

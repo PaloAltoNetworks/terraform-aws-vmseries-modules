@@ -1,145 +1,75 @@
-variable "subnets_map" {
-  description = <<-EOF
-  Map of subnet name to ID, can be passed from remote state output or data source.
-
-  Example:
-
-  ```
-  subnets_map = {
-    "panorama-mgmt-1a" = "subnet-0e1234567890"
-    "panorama-mgmt-1b" = "subnet-0e1234567890"
-  }
-  ```
-  EOF
-  default     = {}
-  type        = map(any)
-}
-
-variable "security_groups_map" {
-  description = <<-EOF
-  Map of security group name to ID, can be passed from remote state output or data source.
-
-  Example:
-
-  ```
-  security_groups_map = {
-    "panorama-mgmt-inbound-sg" = "sg-0e1234567890"
-    "panorama-mgmt-outbound-sg" = "sg-0e1234567890"
-  } 
-  ```
-  EOF
-  default     = {}
-  type        = map(any)
-}
-
-variable "buckets_map" {
-  description = <<-EOF
-  Map of S3 Bucket name to ID, can be passed from remote state output or data source.
-
-  Example:
-
-  ```
-  buckets_map = {
-    "bootstrap_bucket1 = {
-       arn = "arn:aws-us-gov:s3:::bootstrap_bucket1
-       name = "bootstrap_bucket1"
-    }
-    "bootstrap_bucket2 = {
-       arn = "arn:aws-us-gov:s3:::bootstrap_bucket2
-       name = "bootstrap_bucket2"
-    }
-  }
-  ```
-  EOF
-  default     = {}
-  type        = map(any)
-}
-
-variable "route_tables_map" {
-  description = "Map of Route Tables Name to ID, can be passed from remote state output or data source."
-  default     = {}
-  type        = map(any)
-}
 
 variable "region" {
   description = "AWS Region"
 }
 
-variable "tags" {
-  description = "Map of additional tags to apply to all resources."
-  default     = {}
-  type        = map(any)
+variable "name" {
+  description = "Name of the VM-Series instance."
+  default     = null
+  type        = string
 }
 
-variable "prefix_name_tag" {
-  description = "Prefix used to build name tags for resources."
+variable "name_prefix" {
+  description = "Optional prefix for resource names."
   default     = ""
   type        = string
 }
 
-# variable "prefix_bootstrap" {
-#   type        = string
-#   default     = "pan-bootstrap"
-#   description = "Prefix used to build bootstrap related resources"
-# }
-
-variable "interfaces" {
+# VM-Series version setup
+variable "vmseries_ami_id" {
   description = <<-EOF
-  Map of interfaces to create with optional parameters.
-
-  Required: name, subnet_name, security_group
-  Optional: `eip_name`, `source_dest_check`.
-
-  Example:
-  ```
-  interfaces = [
-    {
-      name              = "ingress-fw1-mgmt"
-      eip_name          = "ingress-fw1-mgmt-eip"
-      source_dest_check = true
-      subnet_name       = "ingress-mgmt-subnet-az1"
-      security_group    = "sg-123456789"
-    },
-    {
-      name              = "ingress-fw1-trust"
-      source_dest_check = false
-      subnet_name       = "ingress-trust-subnet-az1"
-      security_group    = "sg-123456789"
-  }]
-  ```
+  Specific AMI ID to use for VM-Series instance.
+  If `null` (the default), `vmseries_version` and `vmseries_product_code` vars are used to determine a public image to use.
   EOF
+  default     = null
+  type        = string
 }
 
-variable "firewalls" {
+variable "vmseries_version" {
   description = <<-EOF
-  Map of VM-Series Firewalls to create with interface mappings.
-
-  Required: `name`, `interfaces` (a map of names and indexes).
-
-  Example:
-
+  "VM-Series Firewall version to deploy.
+  To list available versions please run:
   ```
-  firewalls = [{
-    name = "ingress-fw1"
-    bootstrap_options = {
-      mgmt-interface-swap = "disable" # Change to "enable" for interface swap
-    }
-    interfaces = [{
-      name  = "ingress-fw1-mgmt"
-      index = "0"
-      },
-      {
-        name  = "ingress-fw1-untrust"
-        index = "1"
-      },
-      {
-        name  = "ingress-fw1-trust"
-        index = "2"
-    }]
-  }]
-  ```
-
+  # The product-code may need to be updated, please check variable below for more details.
+  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" | grep -o 'PA-VM-AWS-.*' | sort
+  ```"
   EOF
+  default     = "10.1.3"
+  type        = string
+}
+
+variable "vmseries_product_code" {
+  description = <<-EOF
+  "Product code for VM-Series image, determines licensing model. BYOL by default.
+  For all valid codes, please refer to
+  [VM-Series docs](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)"
+  EOF
+  type        = string
+  default     = "6njl1pau431dv1qxipg63mvah"
+}
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile."
+  type        = string
+  default     = null
+}
+
+variable "instance_type" {
+  description = "EC2 instance type."
+  type        = string
+  default     = "m5.xlarge"
+}
+
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on volumes."
+  type        = bool
+  default     = false
+}
+
+variable "ebs_kms_key_id" {
+  description = "The ARN for the KMS key to use for volume encryption."
+  type        = string
+  default     = null
 }
 
 variable "ssh_key_name" {
@@ -147,58 +77,62 @@ variable "ssh_key_name" {
   default     = ""
 }
 
-# Firewall version for AMI lookup
-
-variable "fw_version" {
+variable "interfaces" {
   description = <<-EOF
-  Select which VM-Series Firewall version to deploy.
-
+  List of the network interface specifications.
+  By default, the first interface maps to the management interface on the firewall, which does not participate in data filtering. The remaining ones are the dataplane interfaces.
+  If "mgmt-interface-swap" bootstrap option is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall management interface.
+  Available options:
+  - `name`               = (Required|string) Name tag for the ENI.
+  - `subnet_id`          = (Required|string) Subnet ID to create the ENI in.
+  - `description`        = (Optional|string) A descriptive name for the ENI.
+  - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
+  - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
+  - `private_ips`        = (Optional|string) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
+  - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. 
+  - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
+  - `security_groups`    = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.
   Example:
-
   ```
-  #default = "9.1.0"
-  #default = "8.1.9"
-  #default = "8.1.0"
+  interfaces = [
+    {
+      name              = "mgmt"
+      subnet_id         = aws_subnet.mgmt.id
+      create_public_ip  = true
+      source_dest_check = true
+      security_groups   = ["sg-123456"]
+    },
+    {
+      name             = "public"
+      subnet_id        = aws_subnet.public.id
+      create_public_ip = true
+    },
+    {
+      name      = "private"
+      subnet_id = aws_subnet.private.id
+    },
+  ]
   ```
   EOF
-  default     = "9.0.6"
-  type        = string
+  default     = []
+  # For now it's not possible to have a more strict definition of variable type, optional
+  # object attributes are still experimental
+  type = list(any)
 }
 
-# License type for AMI lookup
-variable "fw_license_type" {
-  description = "Select the VM-Series Firewall license type - available options: `byol`, `payg1`, `payg2`."
-  default     = "byol"
-}
-
-# Product code map based on license type for ami filter
-variable "fw_license_type_map" {
+variable "bootstrap_options" {
   description = <<-EOF
-  Map of the VM-Series Firewall licence types and corresponding VM-Series Firewall Amazon Machine Image (AMI) ID.
-  The key is the licence type, and the value is the VM-Series Firewall AMI ID."
+  VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.
+  If empty (the default), bootstrap process is not triggered at all.
+  For more information on available methods, please refer to VM-Series documentation for specific version.
+  For 10.1 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/bootstrap-the-vm-series-firewall.html).
   EOF
-  default = {
-    "byol"  = "6njl1pau431dv1qxipg63mvah"
-    "payg1" = "6kxdw3bbmdeda3o6i1ggqt4km"
-    "payg2" = "806j2of0qy5osgjjixq9gqc6g"
-  }
-  type = map(string)
-}
-
-variable "fw_instance_type" {
-  description = "EC2 Instance Type."
   type        = string
-  default     = "m5.xlarge"
+  default     = ""
 }
 
-variable "addtional_interfaces" {
-  description = "Map additional interfaces after initial EC2 deployment."
-  type        = map(any)
+variable "tags" {
+  description = "Map of additional tags to apply to all resources."
   default     = {}
-}
-
-variable "rts_to_fw_eni" {
-  description = "Map of RTs from base_infra output and the FW ENI to map default route to."
   type        = map(any)
-  default     = {}
 }
