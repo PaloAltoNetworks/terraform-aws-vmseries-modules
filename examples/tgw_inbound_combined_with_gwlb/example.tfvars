@@ -4,7 +4,7 @@ name_prefix = "example-"
 
 global_tags = {
   ManagedBy   = "terraform"
-  Application = "Palo Alto Networks VM-Series nextgen firewall"
+  Application = "Palo Alto Networks VM-Series NGFW"
   Owner       = "PS Team"
   # Creator     = "login"
 }

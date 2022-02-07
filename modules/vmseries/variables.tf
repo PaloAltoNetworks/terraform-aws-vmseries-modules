@@ -27,12 +27,12 @@ variable "vmseries_ami_id" {
 
 variable "vmseries_version" {
   description = <<-EOF
-  "VM-Series Firewall version to deploy.
-  To list available versions please run:
+  VM-Series Firewall version to deploy.
+  To list all available VM-Series versions, run the command provided below. 
+  Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.
   ```
-  # The product-code may need to be updated, please check variable below for more details.
-  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" | grep -o 'PA-VM-AWS-.*' | sort
-  ```"
+  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort
+  ```
   EOF
   default     = "10.1.3"
   type        = string
@@ -40,9 +40,9 @@ variable "vmseries_version" {
 
 variable "vmseries_product_code" {
   description = <<-EOF
-  "Product code for VM-Series image, determines licensing model. BYOL by default.
-  For all valid codes, please refer to
-  [VM-Series docs](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)"
+  Product code corresponding to a chosen VM-Series license type model - by default - BYOL. 
+  To check the available license type models and their codes, please refer to the
+  [VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)
   EOF
   type        = string
   default     = "6njl1pau431dv1qxipg63mvah"
@@ -92,6 +92,7 @@ variable "interfaces" {
   - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. 
   - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
   - `security_groups`    = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.
+  
   Example:
   ```
   interfaces = [
