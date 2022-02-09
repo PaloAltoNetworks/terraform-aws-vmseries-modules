@@ -25,9 +25,9 @@ resource "aws_network_interface" "this" {
   subnet_id         = each.value.subnet_id
   private_ips       = lookup(each.value, "private_ips", null)
   source_dest_check = lookup(each.value, "source_dest_check", false)
-  security_groups   = lookup(each.value, "security_groups", null)
+  security_groups   = lookup(each.value, "security_group_ids", null)
   description       = lookup(each.value, "description", null)
-  tags              = merge(var.tags, { Name = "${var.name_prefix}${each.value.name}" })
+  tags              = merge(var.tags, { Name = each.value.name })
 }
 
 # Create and/or associate EIPs
@@ -37,7 +37,7 @@ resource "aws_eip" "this" {
   vpc               = true
   network_interface = aws_network_interface.this[each.key].id
   public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
-  tags              = merge(var.tags, { Name = "${var.name_prefix}${each.value.name}-eip" })
+  tags              = merge(var.tags, { Name = "${each.value.name}-eip" })
 }
 
 resource "aws_eip_association" "this" {
@@ -56,7 +56,7 @@ resource "aws_eip_association" "this" {
 # Create PA VM-series instances
 resource "aws_instance" "this" {
 
-  ami                                  = var.vmseries_ami_id != null ? var.vmseries_ami_id : data.aws_ami.this[0].id
+  ami                                  = coalesce(var.vmseries_ami_id, data.aws_ami.this[0].id)
   iam_instance_profile                 = var.iam_instance_profile
   instance_type                        = var.instance_type
   key_name                             = var.ssh_key_name
@@ -71,7 +71,7 @@ resource "aws_instance" "this" {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
     kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
-    tags                  = merge(var.tags, { Name = "${var.name_prefix}${var.name}" })
+    tags                  = merge(var.tags, { Name = var.name })
   }
 
   # Attach primary interface to the instance
@@ -80,7 +80,7 @@ resource "aws_instance" "this" {
     network_interface_id = aws_network_interface.this[0].id
   }
 
-  tags = merge(var.tags, { Name = "${var.name_prefix}${var.name}" })
+  tags = merge(var.tags, { Name = var.name })
 }
 
 resource "aws_network_interface_attachment" "this" {

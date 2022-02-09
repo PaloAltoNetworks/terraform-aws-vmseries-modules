@@ -5,31 +5,15 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 ## Usage
 
 ```hcl
-module "vpc" {
-  source           = "../../modules/vpc"
-  
-  global_tags      = var.global_tags
-  prefix_name_tag  = var.prefix_name_tag
-  vpc              = var.vpcs
-  vpc_route_tables = var.route_tables
-  subnets          = var.vpc_subnets
-  security_groups  = var.security_groups
-}
-
 module "vmseries" {
   source              = "../../modules/vmseries/"
 
-  region              = var.region
-  prefix_name_tag     = var.prefix_name_tag
-  ssh_key_name        = var.ssh_key_name
-  fw_license_type     = var.fw_license_type
-  fw_version          = var.fw_version
-  fw_instance_type    = var.fw_instance_type
-  tags                = var.global_tags
-  firewalls           = var.firewalls
-  interfaces          = var.interfaces
-  subnets_map         = module.vpc.subnet_ids
-  security_groups_map = module.vpc.security_group_ids
+  name
+  vmseries_version  = "10.1.3"
+  interfaces        = var.interfaces
+  bootstrap_options = var.bootstrap_options
+  ssh_key_name      = var.ssh_key_name
+  tags              = var.global_tags
 }
 ```
 
@@ -61,20 +45,18 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.<br>If empty (the default), bootstrap process is not triggered at all.<br>For more information on available methods, please refer to VM-Series documentation for specific version.<br>For 10.1 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/bootstrap-the-vm-series-firewall.html). | `string` | `""` | no |
+| <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.<br>If empty (the default), bootstrap process is not triggered at all.<br>For more information on available methods, please refer to VM-Series documentation for specific version.<br>For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html). | `string` | `""` | no |
 | <a name="input_ebs_encrypted"></a> [ebs\_encrypted](#input\_ebs\_encrypted) | Whether to enable EBS encryption on volumes. | `bool` | `false` | no |
 | <a name="input_ebs_kms_key_id"></a> [ebs\_kms\_key\_id](#input\_ebs\_kms\_key\_id) | The ARN for the KMS key to use for volume encryption. | `string` | `null` | no |
 | <a name="input_iam_instance_profile"></a> [iam\_instance\_profile](#input\_iam\_instance\_profile) | IAM instance profile. | `string` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type. | `string` | `"m5.xlarge"` | no |
-| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | List of the network interface specifications.<br>By default, the first interface maps to the management interface on the firewall, which does not participate in data filtering. The remaining ones are the dataplane interfaces.<br>If "mgmt-interface-swap" bootstrap option is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall management interface.<br>Available options:<br>- `name`               = (Required\|string) Name tag for the ENI.<br>- `subnet_id`          = (Required\|string) Subnet ID to create the ENI in.<br>- `description`        = (Optional\|string) A descriptive name for the ENI.<br>- `create_public_ip`   = (Optional\|bool) Whether to create a public IP for the ENI. Defaults to false.<br>- `eip_allocation_id`  = (Optional\|string) Associate an existing EIP to the ENI.<br>- `private_ips`        = (Optional\|string) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.<br>- `public_ipv4_pool`   = (Optional\|string) EC2 IPv4 address pool identifier. <br>- `source_dest_check`  = (Optional\|bool) Whether to enable source destination checking for the ENI. Defaults to false.<br>- `security_groups`    = (Optional\|list) A list of Security Group IDs to assign to this interface. Defaults to null.<br><br>Example:<pre>interfaces = [<br>  {<br>    name              = "mgmt"<br>    subnet_id         = aws_subnet.mgmt.id<br>    create_public_ip  = true<br>    source_dest_check = true<br>    security_groups   = ["sg-123456"]<br>  },<br>  {<br>    name             = "public"<br>    subnet_id        = aws_subnet.public.id<br>    create_public_ip = true<br>  },<br>  {<br>    name      = "private"<br>    subnet_id = aws_subnet.private.id<br>  },<br>]</pre> | `list(any)` | `[]` | no |
+| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | List of the network interface specifications.<br>By default, the first interface maps to the management interface on the firewall, which does not participate in data filtering. The remaining ones are the dataplane interfaces.<br>If "mgmt-interface-swap" bootstrap option is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall management interface.<br>Available options:<br>- `name`               = (Required\|string) Name tag for the ENI.<br>- `subnet_id`          = (Required\|string) Subnet ID to create the ENI in.<br>- `description`        = (Optional\|string) A descriptive name for the ENI.<br>- `create_public_ip`   = (Optional\|bool) Whether to create a public IP for the ENI. Defaults to false.<br>- `eip_allocation_id`  = (Optional\|string) Associate an existing EIP to the ENI.<br>- `private_ips`        = (Optional\|list) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.<br>- `public_ipv4_pool`   = (Optional\|string) EC2 IPv4 address pool identifier. <br>- `source_dest_check`  = (Optional\|bool) Whether to enable source destination checking for the ENI. Defaults to false.<br>- `security_group_ids` = (Optional\|list) A list of Security Group IDs to assign to this interface. Defaults to null.<br><br>Example:<pre>interfaces = [<br>  {<br>    name               = "mgmt"<br>    subnet_id          = aws_subnet.mgmt.id<br>    create_public_ip   = true<br>    source_dest_check  = true<br>    security_group_ids = ["sg-123456"]<br>  },<br>  {<br>    name             = "public"<br>    subnet_id        = aws_subnet.public.id<br>    create_public_ip = true<br>  },<br>  {<br>    name      = "private"<br>    subnet_id = aws_subnet.private.id<br>  },<br>]</pre> | `list(any)` | `[]` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the VM-Series instance. | `string` | `null` | no |
-| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Optional prefix for resource names. | `string` | `""` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS Region | `any` | n/a | yes |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of AWS keypair to associate with instances. | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of additional tags to apply to all resources. | `map(any)` | `{}` | no |
 | <a name="input_vmseries_ami_id"></a> [vmseries\_ami\_id](#input\_vmseries\_ami\_id) | Specific AMI ID to use for VM-Series instance.<br>If `null` (the default), `vmseries_version` and `vmseries_product_code` vars are used to determine a public image to use. | `string` | `null` | no |
-| <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL. <br>To check the available license type models and their codes, please refer to the<br>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
-| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall version to deploy.<br>To list all available VM-Series versions, run the command provided below. <br>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort</pre> | `string` | `"10.1.3"` | no |
+| <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL. <br>To check the available license type models and their codes, please refer to the<br>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
+| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall version to deploy.<br>To list all available VM-Series versions, run the command provided below. <br>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort</pre> | `string` | `"10.0.8-h8"` | no |
 
 ## Outputs
 

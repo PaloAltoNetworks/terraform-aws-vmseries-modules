@@ -1,17 +1,6 @@
-
-variable "region" {
-  description = "AWS Region"
-}
-
 variable "name" {
   description = "Name of the VM-Series instance."
   default     = null
-  type        = string
-}
-
-variable "name_prefix" {
-  description = "Optional prefix for resource names."
-  default     = ""
   type        = string
 }
 
@@ -34,7 +23,7 @@ variable "vmseries_version" {
   aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort
   ```
   EOF
-  default     = "10.1.3"
+  default     = "10.0.8-h8"
   type        = string
 }
 
@@ -42,39 +31,40 @@ variable "vmseries_product_code" {
   description = <<-EOF
   Product code corresponding to a chosen VM-Series license type model - by default - BYOL. 
   To check the available license type models and their codes, please refer to the
-  [VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)
+  [VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)
   EOF
-  type        = string
   default     = "6njl1pau431dv1qxipg63mvah"
+  type        = string
 }
 
 variable "iam_instance_profile" {
   description = "IAM instance profile."
-  type        = string
   default     = null
+  type        = string
 }
 
 variable "instance_type" {
   description = "EC2 instance type."
-  type        = string
   default     = "m5.xlarge"
+  type        = string
 }
 
 variable "ebs_encrypted" {
   description = "Whether to enable EBS encryption on volumes."
-  type        = bool
   default     = false
+  type        = bool
 }
 
 variable "ebs_kms_key_id" {
   description = "The ARN for the KMS key to use for volume encryption."
-  type        = string
   default     = null
+  type        = string
 }
 
 variable "ssh_key_name" {
   description = "Name of AWS keypair to associate with instances."
   default     = ""
+  type        = string
 }
 
 variable "interfaces" {
@@ -88,20 +78,20 @@ variable "interfaces" {
   - `description`        = (Optional|string) A descriptive name for the ENI.
   - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
   - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
-  - `private_ips`        = (Optional|string) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
+  - `private_ips`        = (Optional|list) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
   - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. 
   - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
-  - `security_groups`    = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.
+  - `security_group_ids` = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.
   
   Example:
   ```
   interfaces = [
     {
-      name              = "mgmt"
-      subnet_id         = aws_subnet.mgmt.id
-      create_public_ip  = true
-      source_dest_check = true
-      security_groups   = ["sg-123456"]
+      name               = "mgmt"
+      subnet_id          = aws_subnet.mgmt.id
+      create_public_ip   = true
+      source_dest_check  = true
+      security_group_ids = ["sg-123456"]
     },
     {
       name             = "public"
@@ -126,10 +116,10 @@ variable "bootstrap_options" {
   VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.
   If empty (the default), bootstrap process is not triggered at all.
   For more information on available methods, please refer to VM-Series documentation for specific version.
-  For 10.1 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/bootstrap-the-vm-series-firewall.html).
+  For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html).
   EOF
-  type        = string
   default     = ""
+  type        = string
 }
 
 variable "tags" {

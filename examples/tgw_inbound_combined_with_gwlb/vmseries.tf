@@ -8,16 +8,12 @@ module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name        = each.key
-  name_prefix = var.name_prefix
-  region      = var.region
-
-  iam_instance_profile = module.bootstrap.instance_profile_name
+  name = "${var.name_prefix}${each.key}"
 
   interfaces = [
     {
       index             = "0"
-      name              = "${each.key}_data1"
+      name              = "${var.name_prefix}${each.key}_data1"
       security_groups   = [module.security_vpc.security_group_ids["vmseries_data"]]
       source_dest_check = false
       subnet_id         = module.security_subnet_sets["data1"].subnets[each.value.az].id
@@ -25,7 +21,7 @@ module "vmseries" {
     },
     {
       index             = "1"
-      name              = "${each.key}_mgmt"
+      name              = "${var.name_prefix}${each.key}_mgmt"
       security_groups   = [module.security_vpc.security_group_ids["vmseries_mgmt"]]
       source_dest_check = true
       subnet_id         = module.security_subnet_sets["mgmt"].subnets[each.value.az].id
@@ -38,8 +34,9 @@ module "vmseries" {
     [for k, v in var.vmseries_common.bootstrap_options : "${k}=${v}"],
   )))
 
-  tags         = var.global_tags
-  ssh_key_name = local.ssh_key_name
+  iam_instance_profile = module.bootstrap.instance_profile_name
+  ssh_key_name         = var.ssh_key_name
+  tags                 = var.global_tags
 }
 
 resource "aws_key_pair" "this" {
@@ -48,8 +45,4 @@ resource "aws_key_pair" "this" {
   key_name   = var.ssh_key_name
   public_key = file(var.ssh_public_key_file)
   tags       = var.global_tags
-}
-
-locals {
-  ssh_key_name = var.create_ssh_key ? aws_key_pair.this[0].key_name : var.ssh_key_name
 }

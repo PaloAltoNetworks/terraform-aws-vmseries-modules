@@ -100,7 +100,7 @@ module "app1_ec2" {
 
   ami                    = data.aws_ami.this.id
   instance_type          = "t2.micro"
-  key_name               = local.ssh_key_name
+  key_name               = var.ssh_key_name
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
   tags                   = var.global_tags
