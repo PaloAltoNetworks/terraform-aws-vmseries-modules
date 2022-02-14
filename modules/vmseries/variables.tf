@@ -63,7 +63,6 @@ variable "ebs_kms_key_id" {
 
 variable "ssh_key_name" {
   description = "Name of AWS keypair to associate with instances."
-  default     = ""
   type        = string
 }
 

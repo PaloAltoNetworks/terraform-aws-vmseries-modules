@@ -22,7 +22,7 @@ In a nutshell it means:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 3.50 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 3.74 |
 
 ## Modules
 
@@ -51,10 +51,10 @@ In a nutshell it means:
 
 | Name | Type |
 |------|------|
-| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/ec2_transit_gateway_route) | resource |
-| [aws_eip.lb](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/eip) | resource |
-| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/key_pair) | resource |
-| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/data-sources/ami) | data source |
+| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/ec2_transit_gateway_route) | resource |
+| [aws_eip.lb](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/eip) | resource |
+| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/key_pair) | resource |
+| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/data-sources/ami) | data source |
 
 ## Inputs
 
@@ -90,7 +90,7 @@ In a nutshell it means:
 | <a name="input_security_vpc_security_groups"></a> [security\_vpc\_security\_groups](#input\_security\_vpc\_security\_groups) | n/a | `any` | n/a | yes |
 | <a name="input_security_vpc_subnets"></a> [security\_vpc\_subnets](#input\_security\_vpc\_subnets) | n/a | `any` | n/a | yes |
 | <a name="input_security_vpc_tgw_attachment_name"></a> [security\_vpc\_tgw\_attachment\_name](#input\_security\_vpc\_tgw\_attachment\_name) | n/a | `any` | n/a | yes |
-| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | n/a | `string` | `"sshkey"` | no |
+| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | n/a | `any` | n/a | yes |
 | <a name="input_ssh_public_key_file"></a> [ssh\_public\_key\_file](#input\_ssh\_public\_key\_file) | n/a | `any` | n/a | yes |
 | <a name="input_transit_gateway_asn"></a> [transit\_gateway\_asn](#input\_transit\_gateway\_asn) | Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.<br>The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs. | `number` | n/a | yes |
 | <a name="input_transit_gateway_name"></a> [transit\_gateway\_name](#input\_transit\_gateway\_name) | The name tag of the created Transit Gateway. | `string` | n/a | yes |

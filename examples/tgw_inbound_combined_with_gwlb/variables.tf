@@ -49,9 +49,7 @@ variable "global_tags" {}
 variable "vmseries" {}
 variable "vmseries_common" {}
 
-variable "ssh_key_name" {
-  default = "sshkey"
-}
+variable "ssh_key_name" {}
 
 variable "create_ssh_key" {
   default = true
