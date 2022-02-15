@@ -20,7 +20,7 @@ In a nutshell it means:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 3.50 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 3.67 |
 
 ## Modules
 
@@ -49,10 +49,10 @@ In a nutshell it means:
 
 | Name | Type |
 |------|------|
-| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/ec2_transit_gateway_route) | resource |
-| [aws_eip.lb](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/eip) | resource |
-| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/resources/key_pair) | resource |
-| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.50/docs/data-sources/ami) | data source |
+| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.67/docs/resources/ec2_transit_gateway_route) | resource |
+| [aws_eip.lb](https://registry.terraform.io/providers/hashicorp/aws/3.67/docs/resources/eip) | resource |
+| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.67/docs/resources/key_pair) | resource |
+| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.67/docs/data-sources/ami) | data source |
 
 ## Inputs
 
