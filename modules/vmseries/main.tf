@@ -65,7 +65,7 @@ resource "aws_instance" "this" {
   instance_initiated_shutdown_behavior = "stop"
   monitoring                           = false
 
-  user_data = var.bootstrap_options
+  user_data = base64encode(var.bootstrap_options)
 
   root_block_device {
     delete_on_termination = true
