@@ -20,7 +20,7 @@ data "aws_ebs_default_kms_key" "current" {}
 
 # Network Interfaces
 resource "aws_network_interface" "this" {
-  for_each = { for k, v in var.interfaces : k => v } # convert list to map
+  for_each = var.interfaces
 
   subnet_id         = each.value.subnet_id
   private_ips       = lookup(each.value, "private_ips", null)
@@ -75,18 +75,22 @@ resource "aws_instance" "this" {
   }
 
   # Attach primary interface to the instance
-  network_interface {
-    device_index         = 0
-    network_interface_id = aws_network_interface.this[0].id
+  dynamic "network_interface" {
+    for_each = { for k, v in var.interfaces : k => v if v.device_index == 0 }
+
+    content {
+      device_index         = 0
+      network_interface_id = aws_network_interface.this[network_interface.key].id
+    }
   }
 
   tags = merge(var.tags, { Name = var.name })
 }
 
 resource "aws_network_interface_attachment" "this" {
-  for_each = { for k, v in aws_network_interface.this : k => v if k > 0 }
+  for_each = { for k, v in var.interfaces : k => v if v.device_index > 0 }
 
   instance_id          = aws_instance.this.id
-  network_interface_id = each.value.id
-  device_index         = each.key
+  network_interface_id = aws_network_interface.this[each.key].id
+  device_index         = each.value.device_index
 }
