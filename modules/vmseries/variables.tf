@@ -69,8 +69,7 @@ variable "ssh_key_name" {
 variable "interfaces" {
   description = <<-EOF
   Map of the network interface specifications.
-  By default, the first interface maps to the management interface on the firewall, which does not participate in data filtering. The remaining ones are the dataplane interfaces.
-  If "mgmt-interface-swap" bootstrap option is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall management interface.
+  If "mgmt-interface-swap" bootstrap option is enabled, ensure dataplane interface `device_index` is set to 0 and the firewall management interface `device_index` is set to 1.
   Available options:
   - `device_index`       = (Required|int) Determines order in which interfaces are attached to the instance. Interface with `0` is attached at boot time.
   - `name`               = (Required|string) Name tag for the ENI.
@@ -105,7 +104,7 @@ variable "interfaces" {
   ]
   ```
   EOF
-  default     = {}
+  default     = null
   # For now it's not possible to have a more strict definition of variable type, optional
   # object attributes are still experimental
   type = map(any)
