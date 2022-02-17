@@ -10,24 +10,22 @@ module "vmseries" {
 
   name = "${var.name_prefix}${each.key}"
 
-  interfaces = [
-    {
-      index             = "0"
-      name              = "${var.name_prefix}${each.key}_data1"
-      security_groups   = [module.security_vpc.security_group_ids["vmseries_data"]]
-      source_dest_check = false
-      subnet_id         = module.security_subnet_sets["data1"].subnets[each.value.az].id
-      create_public_ip  = false
+  interfaces = {
+    data1 = {
+      device_index       = 0
+      security_group_ids = [module.security_vpc.security_group_ids["vmseries_data"]]
+      source_dest_check  = false
+      subnet_id          = module.security_subnet_sets["data1"].subnets[each.value.az].id
+      create_public_ip   = false
     },
-    {
-      index             = "1"
-      name              = "${var.name_prefix}${each.key}_mgmt"
-      security_groups   = [module.security_vpc.security_group_ids["vmseries_mgmt"]]
-      source_dest_check = true
-      subnet_id         = module.security_subnet_sets["mgmt"].subnets[each.value.az].id
-      create_public_ip  = true
+    mgmt = {
+      device_index       = 1
+      security_group_ids = [module.security_vpc.security_group_ids["vmseries_mgmt"]]
+      source_dest_check  = true
+      subnet_id          = module.security_subnet_sets["mgmt"].subnets[each.value.az].id
+      create_public_ip   = true
     }
-  ]
+  }
 
   bootstrap_options = join(",", compact(concat(
     ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],

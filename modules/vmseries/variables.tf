@@ -68,12 +68,12 @@ variable "ssh_key_name" {
 
 variable "interfaces" {
   description = <<-EOF
-  List of the network interface specifications.
-  By default, the first interface maps to the management interface on the firewall, which does not participate in data filtering. The remaining ones are the dataplane interfaces.
-  If "mgmt-interface-swap" bootstrap option is enabled, first interface maps to a dataplane interface and the second interface maps to the firewall management interface.
+  Map of the network interface specifications.
+  If "mgmt-interface-swap" bootstrap option is enabled, ensure dataplane interface `device_index` is set to 0 and the firewall management interface `device_index` is set to 1.
   Available options:
-  - `name`               = (Required|string) Name tag for the ENI.
+  - `device_index`       = (Required|int) Determines order in which interfaces are attached to the instance. Interface with `0` is attached at boot time.
   - `subnet_id`          = (Required|string) Subnet ID to create the ENI in.
+  - `name`               = (Optional|string) Name tag for the ENI. Defaults to instance name suffixed by map's key.
   - `description`        = (Optional|string) A descriptive name for the ENI.
   - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
   - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
@@ -84,30 +84,32 @@ variable "interfaces" {
   
   Example:
   ```
-  interfaces = [
-    {
-      name               = "mgmt"
+  interfaces = {
+    mgmt = {
+      device_index       = 0
       subnet_id          = aws_subnet.mgmt.id
+      name               = "mgmt"
       create_public_ip   = true
       source_dest_check  = true
       security_group_ids = ["sg-123456"]
     },
-    {
-      name             = "public"
+    public = {
+      device_index     = 1
       subnet_id        = aws_subnet.public.id
+      name             = "public"
       create_public_ip = true
     },
-    {
-      name      = "private"
-      subnet_id = aws_subnet.private.id
+    private = {
+      device_index = 2
+      subnet_id    = aws_subnet.private.id
+      name         = "private"
     },
   ]
   ```
   EOF
-  default     = []
   # For now it's not possible to have a more strict definition of variable type, optional
   # object attributes are still experimental
-  type = list(any)
+  type = map(any)
 }
 
 variable "bootstrap_options" {
