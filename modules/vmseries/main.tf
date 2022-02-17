@@ -27,7 +27,7 @@ resource "aws_network_interface" "this" {
   source_dest_check = lookup(each.value, "source_dest_check", false)
   security_groups   = lookup(each.value, "security_group_ids", null)
   description       = lookup(each.value, "description", null)
-  tags              = merge(var.tags, { Name = each.value.name })
+  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
 # Create and/or associate EIPs
@@ -37,7 +37,7 @@ resource "aws_eip" "this" {
   vpc               = true
   network_interface = aws_network_interface.this[each.key].id
   public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
-  tags              = merge(var.tags, { Name = "${each.value.name}-eip" })
+  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
 resource "aws_eip_association" "this" {
