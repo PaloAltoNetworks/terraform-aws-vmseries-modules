@@ -27,7 +27,7 @@ module "vmseries" {
     }
   }
 
-  bootstrap_options = join(",", compact(concat(
+  bootstrap_options = join(";", compact(concat(
     ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
     [for k, v in var.vmseries_common.bootstrap_options : "${k}=${v}"],
   )))
