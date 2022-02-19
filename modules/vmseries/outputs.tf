@@ -1,19 +1,8 @@
-output "firewalls" {
-  value = {
-    for k, f in aws_instance.pa_vm_series :
-    k => f
-  }
+output "instance" {
+  value = aws_instance.this
 }
 
-output "raw_network_interfaces" {
-  value = aws_network_interface.this
-}
-
-output "network_interfaces" {
-  value = { for k, v in local.interfaces : k => merge(v,
-    {
-      id         = aws_network_interface.this[k].id
-      private_ip = aws_network_interface.this[k].private_ip
-    })
-  }
+output "interfaces" {
+  description = "Map of VM-Series network interfaces. The entries are `aws_network_interface` objects."
+  value       = aws_network_interface.this
 }

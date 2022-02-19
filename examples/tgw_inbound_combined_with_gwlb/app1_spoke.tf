@@ -1,7 +1,7 @@
 module "app1_vpc" {
   source = "../../modules/vpc"
 
-  name                    = var.app1_vpc_name
+  name                    = "${var.name_prefix}${var.app1_vpc_name}"
   cidr_block              = var.app1_vpc_cidr
   security_groups         = var.app1_vpc_security_groups
   create_internet_gateway = true
@@ -95,12 +95,12 @@ module "app1_ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "2.19.0"
 
-  name           = "app1"
+  name           = "${var.name_prefix}app1"
   instance_count = 1
 
   ami                    = data.aws_ami.this.id
   instance_type          = "t2.micro"
-  key_name               = local.ssh_key_name
+  key_name               = var.ssh_key_name
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
   tags                   = var.global_tags
@@ -124,7 +124,7 @@ module "app1_lb" {
   # It means it can create a load balancer of type "application" (ALB) or "network" (NLB).
   version = "~> 6.5"
 
-  name               = "lb1"
+  name               = "${var.name_prefix}app1-lb"
   load_balancer_type = "network"
   vpc_id             = module.app1_subnet_sets["app1_lb"].vpc_id
   subnet_mapping = [

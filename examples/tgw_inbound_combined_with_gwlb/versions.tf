@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "= 3.67" # Could be moved down as far as 3.24.1 probably, which contains https://github.com/hashicorp/terraform-provider-aws/issues/15474
+      version = "= 3.74"
     }
   }
 }
