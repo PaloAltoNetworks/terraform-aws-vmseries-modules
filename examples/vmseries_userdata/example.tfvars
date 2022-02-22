@@ -1,14 +1,14 @@
-region = "eu-west-1"
-
-name = "vmseries-example"
+# General
+region = "us-east-1"
+name   = "vmseries-example"
 global_tags = {
-  ManagedBy   = "terraform"
+  ManagedBy   = "Terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
 }
-security_vpc_name = "security-vpc"
+
+# VPC
+security_vpc_name = "security-vpc-example"
 security_vpc_cidr = "10.100.0.0/16"
-ssh_key_name      = "dfedeczko-aws-lab"
-vmseries_version  = "10.1.3"
 
 # Subnets
 security_vpc_subnets = {
@@ -40,10 +40,25 @@ security_vpc_security_groups = {
   }
 }
 
+# VM-Series
+ssh_key_name     = "dfedeczko-aws-lab"
+vmseries_version = "10.1.3"
+vmseries = {
+  vmseries01 = { az = "us-east-1a" }
+}
+
+bootstrap_options = {
+  plugin-op-commands = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
+  type               = "dhcp-client"
+  hostname           = ""
+  tplname            = ""
+  dgname             = ""
+  panorama-server    = ""
+  panorama-server-2  = ""
+  vm-auth-key        = ""
+  authcodes          = ""
+  op-command-modes   = ""
+}
+
 # Routes
-security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
-  "10.100.0.0/16",
-]
-security_vpc_routes_outbound_destin_cidrs = [ # outbound traffic incoming for inspection from TGW
-  "0.0.0.0/0",
-]
+security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
