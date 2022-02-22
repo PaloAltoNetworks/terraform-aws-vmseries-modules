@@ -5,6 +5,11 @@ output "security_gwlb_service_name" {
   value       = module.security_gwlb.endpoint_service.service_name
 }
 
+output "vmseries_public_ips" {
+  description = "Map of public IPs created within `vmseries` module instances."
+  value       = { for k, v in module.vmseries : k => v.public_ips }
+}
+
 ##### App1 VPC #####
 
 output "app1_inspected_dns_name" {
