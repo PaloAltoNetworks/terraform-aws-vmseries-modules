@@ -64,4 +64,5 @@ No modules.
 |------|-------------|
 | <a name="output_instance"></a> [instance](#output\_instance) | n/a |
 | <a name="output_interfaces"></a> [interfaces](#output\_interfaces) | Map of VM-Series network interfaces. The entries are `aws_network_interface` objects. |
+| <a name="output_public_ips"></a> [public\_ips](#output\_public\_ips) | Map of newly created AWS EIPs associated with this VM-Series instance. The entries are `aws_eip` objects. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
