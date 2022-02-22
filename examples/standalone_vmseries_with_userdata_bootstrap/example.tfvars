@@ -41,7 +41,7 @@ security_vpc_security_groups = {
 }
 
 # VM-Series
-ssh_key_name     = "CHANGE_ME"
+ssh_key_name     = "example-ssh-key"
 vmseries_version = "10.1.3"
 vmseries = {
   vmseries01 = { az = "us-east-1a" }
