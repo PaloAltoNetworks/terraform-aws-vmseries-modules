@@ -47,18 +47,7 @@ vmseries = {
   vmseries01 = { az = "us-east-1a" }
 }
 
-bootstrap_options = {
-  plugin-op-commands = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
-  type               = "dhcp-client"
-  hostname           = ""
-  tplname            = ""
-  dgname             = ""
-  panorama-server    = ""
-  panorama-server-2  = ""
-  vm-auth-key        = ""
-  authcodes          = ""
-  op-command-modes   = ""
-}
+bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"
 
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]

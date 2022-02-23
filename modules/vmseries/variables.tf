@@ -118,10 +118,6 @@ variable "bootstrap_options" {
   If empty (the default), bootstrap process is not triggered at all.
   For more information on available methods, please refer to VM-Series documentation for specific version.
   For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html).
-
-  If you need to supply more than one bootstrap option, you will need to use a map instead of a string in your `.tvfars` file.
-  
-  For example usage, please refer to the [standalone_vmseries_with_userdata_bootstrap](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) example.
   EOF
   default     = ""
   type        = string
