@@ -77,5 +77,5 @@ No resources.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_mgmt_eip"></a> [mgmt\_eip](#output\_mgmt\_eip) | The Elastic IP of the VM-Series Management interface. |
+| <a name="output_public_ips"></a> [public\_ips](#output\_public\_ips) | Map of public IPs created within the module. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
