@@ -1,4 +1,4 @@
-output "mgmt_eip" {
-  description = "The Elastic IP of the VM-Series Management interface."
-  value       = module.vmseries["vmseries01"].instance.public_ip
+output "public_ips" {
+  description = "Map of public IPs created within the module."
+  value       = { for k, v in module.vmseries : k => v.public_ip }
 }
