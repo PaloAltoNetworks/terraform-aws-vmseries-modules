@@ -4,18 +4,7 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 
 ## Usage
 
-```hcl
-module "vmseries" {
-  source              = "../../modules/vmseries/"
-
-  name
-  vmseries_version  = "10.1.3"
-  interfaces        = var.interfaces
-  bootstrap_options = var.bootstrap_options
-  ssh_key_name      = var.ssh_key_name
-  tags              = var.global_tags
-}
-```
+For example usage, please refer to the [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) directory.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
