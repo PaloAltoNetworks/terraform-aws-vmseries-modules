@@ -15,8 +15,8 @@ For copyright and license see the LICENSE file.
 
 This repository has the following directory structure:
 
-* [modules](./modules): This directory contains several standalone, reusable, production-grade Terraform modules. Each module is individually documented.
-* [examples](./examples): This directory shows examples of different ways to combine the modules contained in the
+* `modules` - this directory contains several standalone, reusable, production-grade Terraform modules. Each module is individually documented.
+* `examples` - this directory shows examples of different ways to combine the modules contained in the
   `modules` directory.
 
 ## Compatibility
@@ -31,16 +31,16 @@ We are maintaining a [public roadmap](https://github.com/orgs/PaloAltoNetworks/p
 ## Versioning
 
 These modules follow the principles of [Semantic Versioning](http://semver.org/). You can find each new release,
-along with the changelog, on the GitHub [Releases](../../releases) page.
+along with the changelog, on the GitHub [Releases](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/releases) page.
 
 ## Getting Help
 
-[Open an issue](../../issues) on Github.
+[Open an issue](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/issues) on Github.
 
 ## Contributing
 
 Contributions are welcome, and they are greatly appreciated! Every little bit helps,
-and credit will always be given. Please follow our [contributing guide](./docs/contributing.md).
+and credit will always be given. Please follow our [contributing guide](https://github.com/PaloAltoNetworks/terraform-best-practices/blob/main/CONTRIBUTING.md).
 
 <!-- ## Who maintains these modules?
 

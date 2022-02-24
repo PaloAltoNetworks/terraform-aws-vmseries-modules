@@ -1,9 +1,13 @@
 # Transit Gateway module for VM-Series
 
-## Overview  
-
-Module for AWS Transit Gateways. The module does not use default route tables by design, specify all the route
+A Terraform module for deploying AWS Transit Gateways. The module does not use default route tables by design - specify all the route
 tables explicitly through respective input variables.
+
+>A transit gateway is a network transit hub that you can use to interconnect your virtual private clouds (VPCs) and on-premises networks. As your cloud infrastructure expands globally, inter-Region peering connects transit gateways together using the AWS Global Infrastructure.
+
+## Usage
+
+For example usage, please refer to the [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) directory.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

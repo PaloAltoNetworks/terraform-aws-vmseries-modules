@@ -22,7 +22,7 @@ output "next_hop_set" {
   }
 }
 
-output "enpoints" {
+output "endpoints" {
   description = "Map of the created endpoints. The keys are the same as the keys of the input `subnets`."
   value       = aws_vpc_endpoint.this
 }

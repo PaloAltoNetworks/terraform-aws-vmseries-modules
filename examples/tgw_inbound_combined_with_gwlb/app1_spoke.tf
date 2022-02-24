@@ -1,7 +1,7 @@
 module "app1_vpc" {
   source = "../../modules/vpc"
 
-  name                    = var.app1_vpc_name
+  name                    = "${var.name_prefix}${var.app1_vpc_name}"
   cidr_block              = var.app1_vpc_cidr
   security_groups         = var.app1_vpc_security_groups
   create_internet_gateway = true
@@ -80,32 +80,27 @@ module "app1_route" {
 ### App1 EC2 instance ###
 
 data "aws_ami" "this" {
-  most_recent = true
+  most_recent = true # newest by time, not by version number
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["bitnami-nginx-1.21*-linux-debian-10-x86_64-hvm-ebs-nami"]
     # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"]
+  owners = ["979382823631"] # bitnami = 979382823631
 }
 
 module "app1_ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "2.19.0"
 
-  name           = "app1"
+  name           = "${var.name_prefix}app1"
   instance_count = 1
 
   ami                    = data.aws_ami.this.id
   instance_type          = "t2.micro"
-  key_name               = local.ssh_key_name
+  key_name               = var.ssh_key_name
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
   tags                   = var.global_tags
@@ -129,7 +124,7 @@ module "app1_lb" {
   # It means it can create a load balancer of type "application" (ALB) or "network" (NLB).
   version = "~> 6.5"
 
-  name               = "lb1"
+  name               = "${var.name_prefix}app1-lb"
   load_balancer_type = "network"
   vpc_id             = module.app1_subnet_sets["app1_lb"].vpc_id
   subnet_mapping = [
@@ -145,11 +140,21 @@ module "app1_lb" {
       protocol           = "TCP"
       target_group_index = 0
     },
+    {
+      port               = 80
+      protocol           = "TCP"
+      target_group_index = 1
+    },
+    {
+      port               = 443
+      protocol           = "TCP"
+      target_group_index = 2
+    },
   ]
 
   target_groups = [
     {
-      name_prefix          = "tg0"
+      name                 = "app1-tcp-22"
       backend_protocol     = "TCP"
       backend_port         = 22
       target_type          = "instance"
@@ -160,7 +165,33 @@ module "app1_lb" {
           port      = 22
         }
       }
-    }
+    },
+    {
+      name                 = "app1-tcp-80"
+      backend_protocol     = "TCP"
+      backend_port         = 80
+      target_type          = "instance"
+      deregistration_delay = 10
+      targets = {
+        my_ec2 = {
+          target_id = try(module.app1_ec2.id[0], null)
+          port      = 80
+        }
+      }
+    },
+    {
+      name                 = "app1-tcp-443"
+      backend_protocol     = "TCP"
+      backend_port         = 443
+      target_type          = "instance"
+      deregistration_delay = 10
+      targets = {
+        my_ec2 = {
+          target_id = try(module.app1_ec2.id[0], null)
+          port      = 443
+        }
+      }
+    },
   ]
 
   tags = var.global_tags

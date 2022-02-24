@@ -1,140 +1,96 @@
-locals {
-  firewalls = {
-    for firewall in var.firewalls :
-    firewall.name => firewall
-  }
+# PA VM AMI ID lookup based on version and license type (determined by product code)
+data "aws_ami" "this" {
+  count = var.vmseries_ami_id != null ? 0 : 1
 
-  interfaces = {
-    for interface in var.interfaces :
-    interface.name => interface
-  }
-
-  eips = {
-    for interface in var.interfaces :
-    interface.name => interface
-    if lookup(interface, "eip_name", null) != null
-  }
-
-}
-
-
-
-#### PA VM AMI ID Lookup based on license type, region, version ####
-
-data "aws_ami" "pa_vm" {
   most_recent = true
   owners      = ["aws-marketplace"]
 
   filter {
-    name   = "product-code"
-    values = [var.fw_license_type_map[var.fw_license_type]]
-  }
-
-  filter {
     name   = "name"
-    values = ["PA-VM-AWS-${var.fw_version}*"]
+    values = ["PA-VM-AWS-${var.vmseries_version}*"]
+  }
+  filter {
+    name   = "product-code"
+    values = [var.vmseries_product_code]
   }
 }
 
-################
-# VPC Routes to FW ENI
-################
+# The default EBS encryption KMS key in the current region.
+data "aws_ebs_default_kms_key" "current" {}
 
-# Create Default route to FW ENI
-
-resource "aws_route" "to_eni" {
-  for_each = var.rts_to_fw_eni
-
-  route_table_id         = var.route_tables_map[each.value.route_table]
-  destination_cidr_block = each.value.destination_cidr
-  network_interface_id   = aws_network_interface.this[each.value.eni].id
-}
-
-
-###################
 # Network Interfaces
-###################
 resource "aws_network_interface" "this" {
-  for_each = local.interfaces
+  for_each = var.interfaces
 
-  subnet_id         = var.subnets_map[each.value.subnet_name]
-  source_dest_check = lookup(each.value, "source_dest_check", null)
-  security_groups   = [var.security_groups_map[each.value.security_group]]
-  tags = merge(
-    { Name = each.value.name },
-    var.tags
-  )
+  subnet_id         = each.value.subnet_id
+  private_ips       = lookup(each.value, "private_ips", null)
+  source_dest_check = lookup(each.value, "source_dest_check", false)
+  security_groups   = lookup(each.value, "security_group_ids", null)
+  description       = lookup(each.value, "description", null)
+  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
-###################
-# Create and Associate EIPs
-###################
-
+# Create and/or associate EIPs
 resource "aws_eip" "this" {
-  for_each = local.eips
+  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) }
 
-  vpc = true
-  tags = merge(
-    { Name = each.value.eip_name },
-    var.tags,
-  )
+  vpc               = true
+  network_interface = aws_network_interface.this[each.key].id
+  public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
+  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
 resource "aws_eip_association" "this" {
-  for_each = local.eips
+  for_each = { for k, v in var.interfaces : k => v if try(v.eip_allocation_id, false) }
 
+  allocation_id        = each.value.eip_allocation_id
   network_interface_id = aws_network_interface.this[each.key].id
-  allocation_id        = aws_eip.this[each.key].id
 
   depends_on = [
     # Workaround for:
     # Error associating EIP: IncorrectInstanceState: The pending-instance-creation instance to which 'eni' is attached is not in a valid state for this operation
-    aws_instance.pa_vm_series
+    aws_instance.this
   ]
 }
 
-
-################
 # Create PA VM-series instances
-################
+resource "aws_instance" "this" {
 
-resource "aws_instance" "pa_vm_series" {
-  for_each = local.firewalls
-
-  ami                                  = data.aws_ami.pa_vm.id
-  instance_type                        = var.fw_instance_type
+  ami                                  = coalesce(var.vmseries_ami_id, data.aws_ami.this[0].id)
+  iam_instance_profile                 = var.iam_instance_profile
+  instance_type                        = var.instance_type
   key_name                             = var.ssh_key_name
-  iam_instance_profile                 = lookup(each.value, "iam_instance_profile", null)
   disable_api_termination              = false
   ebs_optimized                        = true
   instance_initiated_shutdown_behavior = "stop"
   monitoring                           = false
-  tags = merge(
-    { Name = each.value.name },
-    var.tags, each.value.fw_tags
-  )
 
-  user_data = base64encode(join(",", compact(concat(
-    [for k, v in each.value.bootstrap_options : "${k}=${v}"],
-    [lookup(each.value, "bootstrap_bucket", null) != null ? "vmseries-bootstrap-aws-s3bucket=${var.buckets_map[each.value.bootstrap_bucket].name}" : null],
-  ))))
+  user_data = base64encode(var.bootstrap_options)
 
   root_block_device {
     delete_on_termination = true
+    encrypted             = var.ebs_encrypted
+    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
+    tags                  = merge(var.tags, { Name = var.name })
   }
 
+  # Attach primary interface to the instance
   dynamic "network_interface" {
-    for_each = each.value.interfaces
+    for_each = { for k, v in var.interfaces : k => v if v.device_index == 0 }
+
     content {
-      device_index         = network_interface.value.index
-      network_interface_id = aws_network_interface.this[network_interface.value.name].id
+      device_index         = 0
+      network_interface_id = aws_network_interface.this[network_interface.key].id
     }
   }
+
+  tags = merge(var.tags, { Name = var.name })
 }
 
 resource "aws_network_interface_attachment" "this" {
-  for_each             = var.addtional_interfaces
-  instance_id          = aws_instance.pa_vm_series[each.value.ec2_instance].id
+  for_each = { for k, v in var.interfaces : k => v if v.device_index > 0 }
+
+  instance_id          = aws_instance.this.id
   network_interface_id = aws_network_interface.this[each.key].id
-  device_index         = each.value.index
+  device_index         = each.value.device_index
 }
