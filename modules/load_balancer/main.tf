@@ -1,5 +1,7 @@
 # TODO
-# # figure out how to join to maps: vms vs ports->protocols, so that targert groups contain always all FWs
+# # add healthchecks and rules for the load balancer
+# # check if we do not do a round robin by mistake, it looks like each call goes to a differrent bakckend?
+
 
 locals {
   subnet_ids = { for k,v in var.subnet_set_subnets: k => v.id }
