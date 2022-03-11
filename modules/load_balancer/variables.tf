@@ -15,23 +15,27 @@ variable "internal_lb" {
   default     = false
 }
 
-variable "subnet_ids" {
-  description = "A list of subnet ids that this LB should be attached to"
+# variable "subnet_set_name" {
+#   description = "A name of the subnet set that this LB should be attached to (name as a key like 'mgmt' or 'trust'). The module will pick up all subnets from all AZs based on this name)"
+# }
+
+variable "subnet_set_subnets" {
+  
 }
 
 variable "enable_cross_zone_load_balancing" {
   description = "Enable load balancing between instances in different AZs"
-  default     = false
+  default     = true
 }
 
 variable "vpc_id" {
   description = "ID of the security VPC"
 }
 
-variable "balance_ports" {
+variable "balance_rules" {
   description = "A map of pairs protocol->port that should be balanced"
 }
 
-variable "fw_instance_id" {
+variable "fw_instance_ids" {
   
 }
