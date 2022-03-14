@@ -20,7 +20,7 @@ variable "internal_lb" {
 # }
 
 variable "subnet_set_subnets" {
-  
+
 }
 
 variable "enable_cross_zone_load_balancing" {
@@ -36,6 +36,6 @@ variable "balance_rules" {
   description = "A map of pairs protocol->port that should be balanced"
 }
 
-variable "fw_instance_ids" {
-  
+variable "fw_instance_ips" {
+
 }

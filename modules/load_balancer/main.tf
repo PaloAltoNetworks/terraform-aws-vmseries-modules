@@ -1,10 +1,10 @@
 # TODO
-# # add healthchecks and rules for the load balancer
-# # check if we do not do a round robin by mistake, it looks like each call goes to a differrent bakckend?
+# # add rules for the load balancer ?
+# # figure out how is traffic being routed between NLB and public interfaces
 
 
 locals {
-  subnet_ids = { for k,v in var.subnet_set_subnets: k => v.id }
+  subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
 }
 
 resource "aws_eip" "this" {
@@ -15,9 +15,9 @@ resource "aws_eip" "this" {
 }
 
 resource "aws_lb" "this" {
-  name                             = var.lb_name
-  internal                         = var.internal_lb
-  load_balancer_type               = var.create_application_lb ? "application" : "network"
+  name               = var.lb_name
+  internal           = var.internal_lb
+  load_balancer_type = var.create_application_lb ? "application" : "network"
   # subnets                          = var.subnet_ids
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
 
@@ -39,44 +39,73 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.balance_rules
 
-  name     = "target-group-${each.key}"
-  vpc_id   = var.vpc_id
-  port     = each.value.port
-  protocol = each.value.proto
+  name        = "target-group-${each.key}"
+  vpc_id      = var.vpc_id
+  port        = each.value.port
+  protocol    = each.value.proto
+  target_type = "ip"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 10
+    protocol            = "TCP"
+    port                = 22
+  }
+
+  stickiness {
+    enabled = true
+    type    = "source_ip"
+  }
 }
 
 locals {
   balance_rules_list = [
-    for k,v in var.balance_rules: {
-      key = k
+    for k, v in var.balance_rules : {
+      key   = k
       proto = v.proto
-      port = v.port
+      port  = v.port
     }
   ]
 
-  fw_instance_ids_list = [
-    for k,v in var.fw_instance_ids : {
+  fw_instance_ips_list = [
+    for k, v in var.fw_instance_ips : {
       name = k
-      id = v
+      ip   = v
     }
   ]
+  # fw_instance_ids_list = [
+  #   for k, v in var.fw_instance_ids : {
+  #     name = k
+  #     id   = v
+  #   }
+  # ]
 
   combined_rules_instances = {
-    for v in setproduct (local.balance_rules_list, local.fw_instance_ids_list) : 
-      "${v[0].key}-${v[1].name}" => {
-        app_name = v[0].key
-        port = v[0].port
-        proto = v[0].proto
-        instance_id = v[1].id
-      }
+    for v in setproduct(local.balance_rules_list, local.fw_instance_ips_list) :
+    "${v[0].key}-${v[1].name}" => {
+      app_name    = v[0].key
+      port        = v[0].port
+      proto       = v[0].proto
+      instance_ip = v[1].ip
+    }
   }
+  # combined_rules_instances = {
+  #   for v in setproduct(local.balance_rules_list, local.fw_instance_ids_list) :
+  #   "${v[0].key}-${v[1].name}" => {
+  #     app_name    = v[0].key
+  #     port        = v[0].port
+  #     proto       = v[0].proto
+  #     instance_id = v[1].id
+  #   }
+  # }
 }
 
 resource "aws_lb_target_group_attachment" "this" {
   for_each = local.combined_rules_instances
 
   target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
-  target_id        = each.value.instance_id
+  target_id        = each.value.instance_ip
   port             = each.value.port
 }
 
