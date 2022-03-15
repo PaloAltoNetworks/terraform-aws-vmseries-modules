@@ -19,6 +19,7 @@ security_vpc_subnets = {
   "10.100.10.0/24" = { az = "us-east-1b", set = "mgmt" }
   "10.100.11.0/24" = { az = "us-east-1b", set = "trust" }
   "10.100.12.0/24" = { az = "us-east-1b", set = "untrust" }
+  "10.100.20.0/24" = { az = "us-east-1a", set = "application" }
 }
 
 # Security Groups

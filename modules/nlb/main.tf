@@ -1,10 +1,5 @@
-# TODO
-# # add rules for the load balancer ?
-# # figure out how is traffic being routed between NLB and public interfaces
-
-
 locals {
-  # this is a map of subnet IDs where key is set to the subnet name
+  # this is a map of subnet IDs where key is set to the zone name
   # example:
   #  us-east-1a     : some_id
   subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
@@ -13,8 +8,7 @@ locals {
 resource "aws_eip" "this" {
   for_each = var.lb_dedicated_ips ? local.subnet_ids : {}
 
-  # tags = merge({ Name = "fosix_eip_nat" }, var.tags)
-  tags = { Name = "fosix_lb_eip_${each.key}" }
+  tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
 }
 
 resource "aws_lb" "this" {
@@ -35,10 +29,7 @@ resource "aws_lb" "this" {
     }
   }
 
-
-  # tags = {
-  #   Environment = "production"
-  # }
+  tags = var.tags
 }
 
 resource "aws_lb_target_group" "this" {
@@ -63,6 +54,8 @@ resource "aws_lb_target_group" "this" {
     enabled = true
     type    = "source_ip"
   }
+
+  tags = var.tags
 }
 
 # combined_rules_instances is a combination of balance_rules and all FW instances
@@ -115,4 +108,6 @@ resource "aws_lb_listener" "this" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.key].arn
   }
+
+  tags = var.tags
 }

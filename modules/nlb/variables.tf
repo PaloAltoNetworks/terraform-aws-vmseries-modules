@@ -5,6 +5,7 @@ variable "lb_name" {
 
 variable "lb_dedicated_ips" {
   description = "If set to `true`, a set of EIPs will be created for each zone/subnet. Otherwise AWS will handle IP management. Defaults to `false`."
+  type        = bool
   default     = false
 }
 
@@ -26,15 +27,18 @@ variable "subnet_set_subnets" {
 
   This map will be indexed by the subnet name and value will contain subnet's arguments as returned by terraform. This includes the subnet's ID.
   EOF
+  type        = map(any)
 }
 
 variable "enable_cross_zone_load_balancing" {
   description = "Enable load balancing between instances in different AZs. Defaults to `true`. Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. Turning this off means 1:1 correlcation between a public IP assigned to an AZ and a FW deployed in that AZ."
+  type        = bool
   default     = true
 }
 
 variable "vpc_id" {
   description = "ID of the security VPC the LB should be created in."
+  type        = string
 }
 
 variable "balance_rules" {
@@ -84,6 +88,7 @@ variable "balance_rules" {
   }
   ```
   EOF
+  type        = map(any)
 }
 
 variable "fw_instance_ips" {
@@ -97,4 +102,11 @@ variable "fw_instance_ips" {
 
   For format of `var.vmseries` check the `vmseries` module. Basically the key there is the VM name. By using that keys we can loop through all vmseries modules and take private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above).
   EOF
+  type        = map(any)
+}
+
+variable "tags" {
+  description = "Map of AWS tags to apply to all the created resources."
+  default     = {}
+  type        = map(string)
 }

@@ -79,6 +79,8 @@ module "nlb" {
     }
   }
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+
+  tags = var.global_tags
 }
 
 locals {
