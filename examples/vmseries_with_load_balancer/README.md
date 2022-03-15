@@ -47,6 +47,7 @@ terraform destroy
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_nlb"></a> [nlb](#module\_nlb) | ../../modules/nlb | n/a |
 | <a name="module_security_subnet_sets"></a> [security\_subnet\_sets](#module\_security\_subnet\_sets) | ../../modules/subnet_set | n/a |
 | <a name="module_security_vpc"></a> [security\_vpc](#module\_security\_vpc) | ../../modules/vpc | n/a |
 | <a name="module_security_vpc_routes"></a> [security\_vpc\_routes](#module\_security\_vpc\_routes) | ../../modules/vpc_route | n/a |
@@ -77,5 +78,6 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_lb_fqdn"></a> [lb\_fqdn](#output\_lb\_fqdn) | n/a |
 | <a name="output_public_ips"></a> [public\_ips](#output\_public\_ips) | Map of public IPs created within the module. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

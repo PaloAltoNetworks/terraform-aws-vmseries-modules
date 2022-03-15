@@ -4,25 +4,30 @@
 
 
 locals {
+  # this is a map of subnet IDs where key is set to the subnet name
+  # example:
+  #  us-east-1a     : some_id
   subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
 }
 
 resource "aws_eip" "this" {
-  for_each = local.subnet_ids
+  for_each = var.lb_dedicated_ips ? local.subnet_ids : {}
 
   # tags = merge({ Name = "fosix_eip_nat" }, var.tags)
   tags = { Name = "fosix_lb_eip_${each.key}" }
 }
 
 resource "aws_lb" "this" {
-  name               = var.lb_name
-  internal           = var.internal_lb
-  load_balancer_type = var.create_application_lb ? "application" : "network"
-  # subnets                          = var.subnet_ids
+  name                             = var.lb_name
+  internal                         = var.internal_lb
+  load_balancer_type               = "network"
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
 
+  # if we relay on AWS to manage public IPs we use subnets to attach a LB with a subnet
+  subnets = var.lb_dedicated_ips ? null : [for set, id in local.subnet_ids : id]
+  # if we would like to create our own EIPs, we need to assign them to a subnet explicitly, therefore we us subnet mapping
   dynamic "subnet_mapping" {
-    for_each = local.subnet_ids
+    for_each = var.lb_dedicated_ips ? local.subnet_ids : {}
 
     content {
       subnet_id     = subnet_mapping.value
@@ -42,15 +47,16 @@ resource "aws_lb_target_group" "this" {
   name        = "target-group-${each.key}"
   vpc_id      = var.vpc_id
   port        = each.value.port
-  protocol    = each.value.proto
+  protocol    = each.value.protocol
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    interval            = 10
+    healthy_threshold   = try(each.value.threshold, null)
+    unhealthy_threshold = try(each.value.threshold, null)
+    interval            = try(each.value.interval, null)
     protocol            = "TCP"
-    port                = 22
+    port                = try(each.value.health_check_port, each.value.port)
+
   }
 
   stickiness {
@@ -59,11 +65,15 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
+# combined_rules_instances is a combination of balance_rules and all FW instances
+#  this map will contains  each rule vs each instance 
+#  something we can use with group attachmemt, where we need to specify each rule data for
+#  each instance. 
 locals {
   balance_rules_list = [
     for k, v in var.balance_rules : {
       key   = k
-      proto = v.proto
+      proto = v.protocol
       port  = v.port
     }
   ]
@@ -74,12 +84,6 @@ locals {
       ip   = v
     }
   ]
-  # fw_instance_ids_list = [
-  #   for k, v in var.fw_instance_ids : {
-  #     name = k
-  #     id   = v
-  #   }
-  # ]
 
   combined_rules_instances = {
     for v in setproduct(local.balance_rules_list, local.fw_instance_ips_list) :
@@ -90,15 +94,6 @@ locals {
       instance_ip = v[1].ip
     }
   }
-  # combined_rules_instances = {
-  #   for v in setproduct(local.balance_rules_list, local.fw_instance_ids_list) :
-  #   "${v[0].key}-${v[1].name}" => {
-  #     app_name    = v[0].key
-  #     port        = v[0].port
-  #     proto       = v[0].proto
-  #     instance_id = v[1].id
-  #   }
-  # }
 }
 
 resource "aws_lb_target_group_attachment" "this" {
@@ -114,7 +109,7 @@ resource "aws_lb_listener" "this" {
 
   load_balancer_arn = aws_lb.this.arn
   port              = each.value.port
-  protocol          = each.value.proto
+  protocol          = each.value.protocol
 
   default_action {
     type             = "forward"

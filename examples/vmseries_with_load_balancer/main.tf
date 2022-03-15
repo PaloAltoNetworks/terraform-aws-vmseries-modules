@@ -56,30 +56,34 @@ module "vmseries" {
 }
 
 module "nlb" {
-  source = "../../modules/load_balancer"
+  source = "../../modules/nlb"
 
-  lb_name = "fosix-nlb"
-  # subnet_ids = [for v in module.security_subnet_sets["mgmt"].subnets : v.id]
-  # subnet_set_name    = "mgmt"
+  lb_name            = "fosix-nlb"
   subnet_set_subnets = module.security_subnet_sets["untrust"].subnets
-  vpc_id             = module.security_vpc.id
+  # lb_dedicated_ips   = true
+  vpc_id = module.security_vpc.id
   balance_rules = {
     "HTTPS" = {
-      proto = "TCP"
-      port  = "443"
+      protocol          = "TCP"
+      port              = "443"
+      health_check_port = "22"
+      threshold         = 2
+      interval          = 10
     }
     "HTTP" = {
-      proto = "TCP"
-      port  = "80"
+      protocol          = "TCP"
+      port              = "80"
+      health_check_port = "22"
+      threshold         = 2
+      interval          = 10
     }
   }
-  # fw_instance_ids     = { for k,v in var.vmseries: k => module.vmseries[k].instance.id }
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
 }
 
 locals {
   security_vpc_routes = concat(
-    [for subnet_key in [ "mgmt", "untrust" ] :
+    [for subnet_key in ["mgmt", "untrust"] :
       {
         subnet_key   = subnet_key
         next_hop_set = module.security_vpc.igw_as_next_hop_set
