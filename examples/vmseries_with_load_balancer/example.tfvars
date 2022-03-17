@@ -19,7 +19,6 @@ security_vpc_subnets = {
   "10.100.10.0/24" = { az = "us-east-1b", set = "mgmt" }
   "10.100.11.0/24" = { az = "us-east-1b", set = "trust" }
   "10.100.12.0/24" = { az = "us-east-1b", set = "untrust" }
-  "10.100.20.0/24" = { az = "us-east-1a", set = "application" }
 }
 
 # Security Groups
@@ -81,7 +80,7 @@ ssh_key_name     = "fosix-pub-vm"
 vmseries_version = "10.1.3"
 vmseries = {
   vmseries01 = { az = "us-east-1a" }
-  vmseries02 = { az = "us-east-1b" }
+  # vmseries02 = { az = "us-east-1b" }
 }
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"

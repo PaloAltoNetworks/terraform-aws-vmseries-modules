@@ -3,6 +3,6 @@ output "public_ips" {
   value       = { for k, v in module.vmseries : k => v.public_ips }
 }
 
-output "lb_fqdn" {
-  value = module.nlb.lb_fqdn
-}
+# output "lb_fqdn" {
+#   value = module.public_nlb.lb_fqdn
+# }

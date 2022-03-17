@@ -55,33 +55,56 @@ module "vmseries" {
   tags = var.global_tags
 }
 
-module "nlb" {
+module "public_nlb" {
   source = "../../modules/nlb"
 
-  lb_name            = "fosix-nlb"
+  lb_name            = "fosix-public-nlb"
   subnet_set_subnets = module.security_subnet_sets["untrust"].subnets
   # lb_dedicated_ips   = true
   vpc_id = module.security_vpc.id
   balance_rules = {
-    "HTTPS" = {
+    "ssh-app-vm" = {
       protocol          = "TCP"
-      port              = "443"
-      health_check_port = "22"
+      port              = "22"
+      health_check_port = "443"
       threshold         = 2
       interval          = 10
-    }
-    "HTTP" = {
-      protocol          = "TCP"
-      port              = "80"
-      health_check_port = "22"
-      threshold         = 2
-      interval          = 10
+
+      target_port = 22
+      target_type = "ip"
+      targets     = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+      stickiness  = true
     }
   }
-  fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
 
   tags = var.global_tags
+
+  depends_on = [
+    module.vmseries["vmseries01"]
+  ]
 }
+
+# module "private_nlb" {
+#   source = "../../modules/nlb"
+
+#   lb_name            = "fosix-private-nlb"
+#   internal_lb        = true
+#   lb_dedicated_ips   = true
+#   subnet_set_subnets = module.security_subnet_sets["trust"].subnets
+#   vpc_id             = module.security_vpc.id
+#   balance_rules = {
+#     "http" = {
+#       protocol          = "TCP"
+#       port              = "80"
+#       health_check_port = "80"
+#       threshold         = 2
+#       interval          = 10
+#     }
+#   }
+#   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["trust"].private_ip }
+
+#   tags = var.global_tags
+# }
 
 locals {
   security_vpc_routes = concat(

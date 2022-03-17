@@ -31,7 +31,7 @@ variable "subnet_set_subnets" {
 }
 
 variable "enable_cross_zone_load_balancing" {
-  description = "Enable load balancing between instances in different AZs. Defaults to `true`. Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. Turning this off means 1:1 correlcation between a public IP assigned to an AZ and a FW deployed in that AZ."
+  description = "Enable load balancing between instances in different AZs. Defaults to `true`. Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ."
   type        = bool
   default     = true
 }
@@ -44,16 +44,18 @@ variable "vpc_id" {
 variable "balance_rules" {
   description = <<-EOF
   A object that contains the actual listener, target group and healthcheck configuration. 
-  It consist of maps of applications like follows (for NLB - layer 4):
+  It consist of maps of applications like follows:
 
   ```hcl
   balance_rules = {
     "application_name" = {
-      protocol            = "communication protocol, for NLB prefered is "TCP"
+      protocol            = "communication protocol, since this is a NLB module accepted values are TCP or TLS"
       port                = "communication port"
       health_check_port   = "port used by the target group healthcheck"
       threshold           = "number of consecutive health checks before considering target healthy or unhealthy, defaults to 3"
       interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
+      certificate_arn     = "this is the arn of a certificate used only for TLS listeners"
+      alpn_policy         = "ALPN policy name, for possible values check (terraform documentation)[https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener#alpn_policy], defaults to `None`"
     }
   }
   ```
@@ -62,7 +64,7 @@ variable "balance_rules" {
 
   All listeners are always of forward action.
 
-  All target groups are always set to `ip`. This way we make sure that the traffic is routed to the correct interface.
+  All target groups are always set to `ip`. This way we make sure that the traffic is routed to the correct FW interface.
 
   Healthchecks are by default of type TCP. Reason for that is the fact, that HTTP requests might flow through the FW to the actual application. So instead of checking the status of the FW we might check the status of the application.
 
@@ -85,25 +87,33 @@ variable "balance_rules" {
       threshold           = 2
       interval            = 10
     }
+    "TLS" = {
+      protocol          = "TLS"
+      port              = "443"
+      health_check_port = "80"
+      threshold         = 2
+      interval          = 10
+      certificate_arn   = data.aws_acm_certificate.example.arn
+      alpn_policy       = "None"
   }
   ```
   EOF
   type        = map(any)
 }
 
-variable "fw_instance_ips" {
-  description = <<-EOF
-  A map of FWs private IPs. IPs should be from the subnet set that the LB was created in.
-  An example on how to feed this variable with data:
+# variable "fw_instance_ips" {
+#   description = <<-EOF
+#   A map of FWs private IPs. IPs should be from the subnet set that the LB was created in.
+#   An example on how to feed this variable with data:
 
-  ```hcl
-  fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-  ```
+#   ```hcl
+#   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+#   ```
 
-  For format of `var.vmseries` check the `vmseries` module. Basically the key there is the VM name. By using that keys we can loop through all vmseries modules and take private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above).
-  EOF
-  type        = map(any)
-}
+#   For format of `var.vmseries` check the (`vmseries` module)[../vmseries/README.md]. Basically the key there is the VM name. By using that keys we can loop through all vmseries modules and take private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above).
+#   EOF
+#   type        = map(any)
+# }
 
 variable "tags" {
   description = "Map of AWS tags to apply to all the created resources."
