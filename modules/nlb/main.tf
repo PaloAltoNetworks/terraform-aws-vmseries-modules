@@ -6,6 +6,7 @@ locals {
 }
 
 resource "aws_eip" "this" {
+  # an EIP will be created only if we choose to have dedicated IPs (not AWS generated) and if the LB is public facing
   for_each = var.lb_dedicated_ips && !var.internal_lb ? local.subnet_ids : {}
 
   tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
@@ -18,8 +19,10 @@ resource "aws_lb" "this" {
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
 
   # if we relay on AWS to manage public IPs we use subnets to attach a LB with a subnet
+  #  we use `subnets` property also for non-public LBs
   subnets = var.lb_dedicated_ips && !var.internal_lb ? null : [for set, id in local.subnet_ids : id]
-  # if we would like to create our own EIPs, we need to assign them to a subnet explicitly, therefore we us subnet mapping
+  # if we would like to have a public LB with our own EIPs
+  #  we need to assign them to a subnet explicitly, therefore we use subnet mapping
   dynamic "subnet_mapping" {
     for_each = var.lb_dedicated_ips && !var.internal_lb ? local.subnet_ids : {}
 
@@ -51,6 +54,7 @@ resource "aws_lb_target_group" "this" {
   }
 
   dynamic "stickiness" {
+    # for TLS proto stickiness is not supported
     for_each = each.value.stickiness && each.value.protocol != "TLS" ? [1] : []
 
     content {
@@ -59,16 +63,15 @@ resource "aws_lb_target_group" "this" {
     }
   }
 
-
   tags = var.tags
 }
 
-# target_attachments is a flattened version of `var.balance_rules` 
+# `target_attachments` is a flattened version of `var.balance_rules` 
 #  it contains maps of target attachment properties
 #  each map contains target id + port + a name of the app rule which is a key used
 #  to reference the actual target group instance
 locals {
-  fw_instance_list = distinct(flatten([
+  fw_instance_list = flatten([
     for k, v in var.balance_rules : [
       for target_name, target_id in v.targets :
       {
@@ -78,7 +81,7 @@ locals {
         port     = try(v.target_port, v.port)
       }
     ]
-  ]))
+  ])
 
   target_attachments = {
     for v in local.fw_instance_list :
@@ -91,15 +94,7 @@ locals {
 }
 
 resource "aws_lb_target_group_attachment" "this" {
-  # for_each = local.target_attachments
-  for_each = {
-    for v in local.fw_instance_list :
-    "${v.app_name}-${v.name}" => {
-      app_name = v.app_name
-      id       = v.id
-      port     = v.port
-    }
-  }
+  for_each = local.target_attachments
 
   target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
   target_id        = each.value.id
@@ -113,14 +108,32 @@ resource "aws_lb_listener" "this" {
   port              = each.value.port
   protocol          = each.value.protocol
 
-  # the values below is for TLS probes only
+  # the values below is for TLS only
   certificate_arn = each.value.protocol == "TLS" ? try(each.value.certificate_arn, null) : null
-  alpn_policy     = each.value.protocol == "TLS" ? try(each.value.alpn_policy, null) : null
+  alpn_policy     = each.value.protocol == "TLS" ? try(each.value.alpn_policy, "None") : null
 
+  # this is ment to be a typical Layer4 LB, so the only supported action is `forward`
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.key].arn
   }
 
   tags = var.tags
+}
+
+# the data below is to take the private LB's IP addresses
+#  this can be handy to have them in TR output, especially that they can be used
+#  for Mangement Profile configuration inside the FWs
+data "aws_network_interface" "this" {
+  for_each = var.subnet_set_subnets
+
+  filter {
+    name   = "description"
+    values = ["ELB ${aws_lb.this.arn_suffix}"]
+  }
+
+  filter {
+    name   = "subnet-id"
+    values = [each.value.id]
+  }
 }

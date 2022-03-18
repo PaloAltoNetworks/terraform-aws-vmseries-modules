@@ -80,7 +80,7 @@ ssh_key_name     = "fosix-pub-vm"
 vmseries_version = "10.1.3"
 vmseries = {
   vmseries01 = { az = "us-east-1a" }
-  # vmseries02 = { az = "us-east-1b" }
+  vmseries02 = { az = "us-east-1b" }
 }
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"

@@ -60,8 +60,8 @@ module "public_nlb" {
 
   lb_name            = "fosix-public-nlb"
   subnet_set_subnets = module.security_subnet_sets["untrust"].subnets
-  # lb_dedicated_ips   = true
-  vpc_id = module.security_vpc.id
+  lb_dedicated_ips   = true
+  vpc_id             = module.security_vpc.id
   balance_rules = {
     "ssh-app-vm" = {
       protocol          = "TCP"
@@ -69,8 +69,16 @@ module "public_nlb" {
       health_check_port = "443"
       threshold         = 2
       interval          = 10
-
-      target_port = 22
+      target_port       = 22
+      target_type       = "ip"
+      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+      stickiness        = true
+    }
+    "https-mgmt" = {
+      protocol    = "TCP"
+      port        = "443"
+      threshold   = 2
+      interval    = 10
       target_type = "ip"
       targets     = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
       stickiness  = true
@@ -78,33 +86,31 @@ module "public_nlb" {
   }
 
   tags = var.global_tags
-
-  depends_on = [
-    module.vmseries["vmseries01"]
-  ]
 }
 
-# module "private_nlb" {
-#   source = "../../modules/nlb"
+module "private_nlb" {
+  source = "../../modules/nlb"
 
-#   lb_name            = "fosix-private-nlb"
-#   internal_lb        = true
-#   lb_dedicated_ips   = true
-#   subnet_set_subnets = module.security_subnet_sets["trust"].subnets
-#   vpc_id             = module.security_vpc.id
-#   balance_rules = {
-#     "http" = {
-#       protocol          = "TCP"
-#       port              = "80"
-#       health_check_port = "80"
-#       threshold         = 2
-#       interval          = 10
-#     }
-#   }
-#   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["trust"].private_ip }
+  lb_name                          = "fosix-private-nlb"
+  internal_lb                      = true
+  subnet_set_subnets               = module.security_subnet_sets["trust"].subnets
+  vpc_id                           = module.security_vpc.id
+  enable_cross_zone_load_balancing = true
 
-#   tags = var.global_tags
-# }
+  balance_rules = {
+    "http" = {
+      protocol    = "TCP"
+      port        = "22"
+      threshold   = 2
+      interval    = 10
+      target_type = "ip"
+      targets     = { ubuntu = aws_instance.app_vm.private_ip }
+      stickiness  = true
+    }
+  }
+
+  tags = var.global_tags
+}
 
 locals {
   security_vpc_routes = concat(
@@ -126,11 +132,3 @@ module "security_vpc_routes" {
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
-# module "security_vpc_routes" {
-#   for_each = { for route in local.security_vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
-#   source   = "../../modules/vpc_route"
-
-#   route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
-#   to_cidr         = each.value.to_cidr
-#   next_hop_set    = each.value.next_hop_set
-# }
