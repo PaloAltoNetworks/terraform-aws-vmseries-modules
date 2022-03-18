@@ -51,7 +51,7 @@ variable "balance_rules" {
     "application_name" = {
       protocol            = "communication protocol, since this is a NLB module accepted values are TCP or TLS"
       port                = "communication port"
-      target_type         = "type of the target that will be attached to a target group"
+      target_type         = "type of the target that will be attached to a target group, no defaults here, has to be provided explicitly (regardless the defaults terraform could accept)"
       target_port         = "for target types supporting port values, the port number on which the target accepts communication, defaults to the communication port value"
       target              = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target ID (IP, resource ID, etc - the actual value depends on the target type)"
 

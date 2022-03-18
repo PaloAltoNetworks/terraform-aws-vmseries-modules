@@ -75,13 +75,14 @@ module "public_nlb" {
       stickiness        = true
     }
     "https-mgmt" = {
-      protocol    = "TCP"
-      port        = "443"
-      threshold   = 2
-      interval    = 10
-      target_type = "ip"
-      targets     = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      stickiness  = true
+      protocol          = "TCP"
+      port              = "443"
+      health_check_port = "22"
+      threshold         = 2
+      interval          = 10
+      target_type       = "instance"
+      targets           = { for k, v in var.vmseries : k => module.vmseries[k].instance.id }
+      stickiness        = true
     }
   }
 
