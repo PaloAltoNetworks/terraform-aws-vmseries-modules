@@ -1,16 +1,16 @@
 variable "lb_name" {
-  description = "Name of the LB to be created"
+  description = "(REQUIRED) Name of the Load Balancer to be created"
   type        = string
 }
 
 variable "lb_dedicated_ips" {
-  description = "If set to `true`, a set of EIPs will be created for each zone/subnet. Otherwise AWS will handle IP management. Defaults to `false`."
+  description = "If set to `true`, a set of EIPs will be created for each zone/subnet. Otherwise AWS will handle IP management."
   type        = bool
   default     = false
 }
 
 variable "internal_lb" {
-  description = "Determines if this will be a public facing LB (default) or an internal one."
+  description = "Determines if this Load Balancer will be a public (default) or an internal one."
   type        = bool
   default     = false
 }
@@ -18,7 +18,7 @@ variable "internal_lb" {
 
 variable "subnet_set_subnets" {
   description = <<-EOF
-  A map of subnet objects as returned by the `subnet_set` module for a particular subnet set. 
+  (REQUIRED) A map of subnet objects as returned by the `subnet_set` module for a particular subnet set. 
   An example how to feed this variable with data (assuming usage of this modules as in examples and a subnet set named *untrust*):
 
   ```hcl
@@ -31,13 +31,18 @@ variable "subnet_set_subnets" {
 }
 
 variable "enable_cross_zone_load_balancing" {
-  description = "Enable load balancing between instances in different AZs. Defaults to `true`. Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ."
-  type        = bool
-  default     = true
+  description = <<-EOF
+  Enable load balancing between instances in different AZs. Defaults to `true`. 
+  Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. 
+  Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ.
+  EOF
+
+  type    = bool
+  default = true
 }
 
 variable "vpc_id" {
-  description = "ID of the security VPC the LB should be created in."
+  description = "(REQUIRED) ID of the security VPC the Load Balancer should be created in."
   type        = string
 }
 
@@ -74,7 +79,7 @@ variable "balance_rules" {
   All listeners are always of forward action.
 
   <hr>
-  If you add FWs as targets, make sure you use `target_type = "ip"` and you provide the correct FW IPs in `target` map. IPs should be from the subnet set that the LB was created in. An example on how to feed this variable with data:
+  If you add FWs as targets, make sure you use `target_type = "ip"` and you provide the correct FW IPs in `target` map. IPs should be from the subnet set that the Load Balancer was created in. An example on how to feed this variable with data:
 
   ```hcl
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
