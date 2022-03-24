@@ -7,9 +7,9 @@ A Terraform module for deploying a Network Load Balancer in AWS cloud. This can 
 Example usage as a public LB:
 
 * The code below is designed to be used with [`vmseries`](../vmseries/README.md), [`vpc`](../vpc/README.md) and [`subnet_set`](../subnet_set/README.md) modules. Check these modules for information on outputs used in this code.
-* Friewalls' public facing interfaces are places in a subnet set called *untrust*.
-* health check port is set to `22` because it uses the SSH Management Service (limited on the FW to Load Balancer's private IP only)
-* in the `HTTPS-traffic` rule one can see a port shift, from `443` on the LB to `8443` in the firewall.
+* Firewalls' public facing interfaces are placed in a subnet set called *untrust*.
+* Health check port is set to `22` because it uses the SSH Management Service (restricted on the firewall to Load Balancer's private IP only).
+* In the `HTTPS-traffic` rule one can see a port shift, from `443` on the LB to `8443` on the firewall.
 
 ```hcl
 module "public_nlb" {
