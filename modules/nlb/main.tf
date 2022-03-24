@@ -6,7 +6,6 @@ locals {
 }
 
 resource "aws_eip" "this" {
-  # an EIP will be created only if we choose to have dedicated IPs (not AWS generated) and if the Load Balancer is public facing
   for_each = var.lb_dedicated_ips && !var.internal_lb ? local.subnet_ids : {}
 
   tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
