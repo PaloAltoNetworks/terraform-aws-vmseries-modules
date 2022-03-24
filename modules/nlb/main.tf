@@ -52,7 +52,7 @@ resource "aws_lb_target_group" "this" {
   }
 
   dynamic "stickiness" {
-    # for TLS protocol stickiness is not supported - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups
+    # For TLS stickiness is not supported - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups.
     for_each = each.value.stickiness && each.value.protocol != "TLS" ? [1] : []
 
     content {
