@@ -46,7 +46,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.balance_rules
 
-  name        = "target-group-${each.key}"
+  name        = "${var.lb_name}-tg-${each.key}"
   vpc_id      = var.vpc_id
   port        = try(each.value.target_port, each.value.port)
   protocol    = each.value.protocol
