@@ -6,7 +6,7 @@ locals {
 }
 
 resource "aws_eip" "this" {
-  for_each = var.lb_dedicated_ips && !var.internal_lb ? local.subnet_ids : {}
+  for_each = var.create_dedicated_eips && !var.internal_lb ? local.subnet_ids : {}
 
   tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
 }
@@ -21,9 +21,9 @@ resource "aws_lb" "this" {
   # we use `subnets` property also for non-public LBs.
   # On the contrary, if we would like to have a public Load Balancer with our own EIPs
   # we need to assign them to a subnet explicitly, therefore we use `subnet mapping`.
-  subnets = var.lb_dedicated_ips && !var.internal_lb ? null : [for set, id in local.subnet_ids : id]
+  subnets = var.create_dedicated_eips && !var.internal_lb ? null : [for set, id in local.subnet_ids : id]
   dynamic "subnet_mapping" {
-    for_each = var.lb_dedicated_ips && !var.internal_lb ? local.subnet_ids : {}
+    for_each = var.create_dedicated_eips && !var.internal_lb ? local.subnet_ids : {}
 
     content {
       subnet_id     = subnet_mapping.value

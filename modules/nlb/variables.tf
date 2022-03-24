@@ -3,7 +3,7 @@ variable "lb_name" {
   type        = string
 }
 
-variable "lb_dedicated_ips" {
+variable "create_dedicated_eips" {
   description = "If set to `true`, a set of EIPs will be created for each zone/subnet. Otherwise AWS will handle IP management."
   type        = bool
   default     = false
