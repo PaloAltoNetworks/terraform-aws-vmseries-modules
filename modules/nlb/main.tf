@@ -108,7 +108,7 @@ resource "aws_lb_listener" "this" {
   certificate_arn = each.value.protocol == "TLS" ? try(each.value.certificate_arn, null) : null
   alpn_policy     = each.value.protocol == "TLS" ? try(each.value.alpn_policy, "None") : null
 
-  # this is meant to be a typical Layer4 LB, so the only supported action is `forward`
+  # This is meant to be a typical Layer4 LB, so the only supported action is `forward`.
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.key].arn
