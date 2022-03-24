@@ -64,10 +64,8 @@ resource "aws_lb_target_group" "this" {
   tags = var.tags
 }
 
-# `target_attachments` is a flattened version of `var.balance_rules` 
-#  it contains maps of target attachment properties
-#  each map contains target id + port + a name of the app rule which is a key used
-#  to reference the actual target group instance
+# `target_attachments` is a flattened version of `var.balance_rules`, it contains maps of target attachments' properties.
+#  Each map contains target `id`, `port` and `app_name`, which is a key used to reference the actual target group instance.
 locals {
   fw_instance_list = flatten([
     for k, v in var.balance_rules : [
