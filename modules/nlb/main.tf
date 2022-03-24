@@ -7,6 +7,29 @@ locals {
   # It is used later in several places related to the way me map the Load Balancer to the subnets.
   public_lb_with_eip = var.create_dedicated_eips && !var.internal_lb
 
+  # `target_attachments` is a flattened version of `var.balance_rules`, it contains maps of target attachments' properties.
+  # Each map contains target `id`, `port` and `app_name`, which is a key used to reference the actual target group instance.
+  # It is used only for `aws_lb_target_group_attachment` resource.
+  fw_instance_list = flatten([
+    for k, v in var.balance_rules : [
+      for target_name, target_id in v.targets :
+      {
+        app_name = k
+        name     = target_name
+        id       = target_id
+        port     = try(v.target_port, v.port)
+      }
+    ]
+  ])
+
+  target_attachments = {
+    for v in local.fw_instance_list :
+    "${v.app_name}-${v.name}" => {
+      app_name = v.app_name
+      id       = v.id
+      port     = v.port
+    }
+  }
 }
 
 resource "aws_eip" "this" {
@@ -72,31 +95,6 @@ resource "aws_lb_target_group" "this" {
   }
 
   tags = var.tags
-}
-
-# `target_attachments` is a flattened version of `var.balance_rules`, it contains maps of target attachments' properties.
-#  Each map contains target `id`, `port` and `app_name`, which is a key used to reference the actual target group instance.
-locals {
-  fw_instance_list = flatten([
-    for k, v in var.balance_rules : [
-      for target_name, target_id in v.targets :
-      {
-        app_name = k
-        name     = target_name
-        id       = target_id
-        port     = try(v.target_port, v.port)
-      }
-    ]
-  ])
-
-  target_attachments = {
-    for v in local.fw_instance_list :
-    "${v.app_name}-${v.name}" => {
-      app_name = v.app_name
-      id       = v.id
-      port     = v.port
-    }
-  }
 }
 
 resource "aws_lb_target_group_attachment" "this" {
