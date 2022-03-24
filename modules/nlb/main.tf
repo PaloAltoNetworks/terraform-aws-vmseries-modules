@@ -2,10 +2,15 @@ locals {
   # Map of subnet IDs, where the key is a zone name, for example:
   #  { us-east-1a = "subnet-123456" }
   subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
+
+  # Boolean that agregates initial conditions on the type of the Load Balancer that will be created.
+  # It is used later in several places related to the way me map the Load Balancer to the subnets.
+  public_lb_with_eip = var.create_dedicated_eips && !var.internal_lb
+
 }
 
 resource "aws_eip" "this" {
-  for_each = var.create_dedicated_eips && !var.internal_lb ? local.subnet_ids : {}
+  for_each = local.public_lb_with_eip ? local.subnet_ids : {}
 
   tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
 }
@@ -20,9 +25,11 @@ resource "aws_lb" "this" {
   # we use `subnets` property also for non-public LBs.
   # On the contrary, if we would like to have a public Load Balancer with our own EIPs
   # we need to assign them to a subnet explicitly, therefore we use `subnet mapping`.
-  subnets = var.create_dedicated_eips && !var.internal_lb ? null : [for set, id in local.subnet_ids : id]
+  # The code below does the proper use of `subnets` and `subnet_mapping`
+  # based on the use cases described above.
+  subnets = local.public_lb_with_eip ? null : [for set, id in local.subnet_ids : id]
   dynamic "subnet_mapping" {
-    for_each = var.create_dedicated_eips && !var.internal_lb ? local.subnet_ids : {}
+    for_each = local.public_lb_with_eip ? local.subnet_ids : {}
 
     content {
       subnet_id     = subnet_mapping.value
