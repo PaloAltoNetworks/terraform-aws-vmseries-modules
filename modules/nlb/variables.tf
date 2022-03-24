@@ -58,7 +58,7 @@ variable "balance_rules" {
       port                = "communication port"
       target_type         = "type of the target that will be attached to a target group, no defaults here, has to be provided explicitly (regardless the defaults terraform could accept)"
       target_port         = "for target types supporting port values, the port number on which the target accepts communication, defaults to the communication port value"
-      target              = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target ID (IP, resource ID, etc - the actual value depends on the target type)"
+      targets             = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target ID (IP, resource ID, etc - the actual value depends on the target type)"
 
       health_check_port   = "port used by the target group healthcheck, if ommited, `traffic-port` will be used"
       threshold           = "number of consecutive health checks before considering target healthy or unhealthy, defaults to 3"
