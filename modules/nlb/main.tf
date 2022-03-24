@@ -117,9 +117,8 @@ resource "aws_lb_listener" "this" {
   tags = var.tags
 }
 
-# the data below is to take the private LB's IP addresses
-# it can be handy to have them in TR output, especially that they can be used
-# for Mangement Profile configuration inside the FWs (to limit health check probe traffic to LB's internall IPs only)
+# Private LB's IP addresses can be handy to have in module output, especially that they can be used
+# for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
 data "aws_network_interface" "this" {
   for_each = var.subnet_set_subnets
 
