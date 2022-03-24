@@ -1,7 +1,6 @@
 locals {
-  # this is a map of subnet IDs where key is set to the zone name
-  # example:
-  #  us-east-1a     : some_id
+  # Map of subnet IDs, where the key is a zone name, for example:
+  #  { us-east-1a = "subnet-123456" }
   subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
 }
 
