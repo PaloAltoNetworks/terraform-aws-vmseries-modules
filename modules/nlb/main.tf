@@ -21,12 +21,15 @@ resource "aws_lb" "this" {
   load_balancer_type               = "network"
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
 
-  # If we relay on AWS to manage public IPs we use `subnets` to attach a Load Balancer with a subnet
-  # we use `subnets` property also for non-public LBs.
+  # If we relay on AWS to manage public IPs we use `subnets` to attach a Load Balancer with a subnet.
+  # We use `subnets` property also for non-public LBs.
   # On the contrary, if we would like to have a public Load Balancer with our own EIPs
   # we need to assign them to a subnet explicitly, therefore we use `subnet mapping`.
   # The code below does the proper use of `subnets` and `subnet_mapping`
   # based on the use cases described above.
+  #
+  # Generally, the decision is being made on a fact if we have a public Load Balancer 
+  # with dedicated EIPs or not.
   subnets = local.public_lb_with_eip ? null : [for set, id in local.subnet_ids : id]
   dynamic "subnet_mapping" {
     for_each = local.public_lb_with_eip ? local.subnet_ids : {}
