@@ -1,15 +1,15 @@
 # Palo Alto Networks Network Load Balancer Module for AWS
 
-A Terraform module for deploying a Network Load Balancer in AWS cloud. This can be used both as a public facing LB (to balance incoming traffic to NGFWs) or as an internal LB (to balance traffic from FW to the actual application.)
+A Terraform module for deploying a Network Load Balancer in AWS cloud. This can be used both as a public facing Load Balancer (to balance incoming traffic to Firewalls) or as an internal Load Balancer (to balance traffic from Firewalls to the actual application.)
 
 ## Usage
 
-Example usage as a public LB:
+Example usage as a public Load Balancer:
 
 * The code below is designed to be used with [`vmseries`](../vmseries/README.md), [`vpc`](../vpc/README.md) and [`subnet_set`](../subnet_set/README.md) modules. Check these modules for information on outputs used in this code.
 * Firewalls' public facing interfaces are placed in a subnet set called *untrust*.
 * Health check port is set to `22` because it uses the SSH Management Service (restricted on the firewall to Load Balancer's private IP only).
-* In the `HTTPS-traffic` rule one can see a port shift, from `443` on the LB to `8443` on the firewall.
+* In the `HTTPS-traffic` rule one can see a port shift, from `443` on the Load Balancer to `8443` on the firewall.
 
 ```hcl
 module "public_nlb" {
