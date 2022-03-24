@@ -59,7 +59,7 @@ resource "aws_lb_target_group" "this" {
   }
 
   dynamic "stickiness" {
-    # for TLS protocol stickiness is not supported - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups
+    # For TLS stickiness is not supported - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups.
     for_each = each.value.stickiness && each.value.protocol != "TLS" ? [1] : []
 
     content {
@@ -71,10 +71,8 @@ resource "aws_lb_target_group" "this" {
   tags = var.tags
 }
 
-# `target_attachments` is a flattened version of `var.balance_rules` 
-#  it contains maps of target attachment properties
-#  each map contains target id + port + a name of the app rule which is a key used
-#  to reference the actual target group instance
+# `target_attachments` is a flattened version of `var.balance_rules`, it contains maps of target attachments' properties.
+#  Each map contains target `id`, `port` and `app_name`, which is a key used to reference the actual target group instance.
 locals {
   fw_instance_list = flatten([
     for k, v in var.balance_rules : [
@@ -117,7 +115,7 @@ resource "aws_lb_listener" "this" {
   certificate_arn = each.value.protocol == "TLS" ? try(each.value.certificate_arn, null) : null
   alpn_policy     = each.value.protocol == "TLS" ? try(each.value.alpn_policy, "None") : null
 
-  # this is meant to be a typical Layer4 LB, so the only supported action is `forward`
+  # This is meant to be a typical Layer4 LB, so the only supported action is `forward`.
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.key].arn
@@ -126,9 +124,8 @@ resource "aws_lb_listener" "this" {
   tags = var.tags
 }
 
-# the data below is to take the private LB's IP addresses
-# it can be handy to have them in TR output, especially that they can be used
-# for Mangement Profile configuration inside the FWs (to limit health check probe traffic to LB's internall IPs only)
+# Private LB's IP addresses can be handy to have in module output, especially that they can be used
+# for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
 data "aws_network_interface" "this" {
   for_each = var.subnet_set_subnets
 
