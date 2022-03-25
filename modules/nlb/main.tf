@@ -1,8 +1,4 @@
 locals {
-  # Map of subnet IDs, where the key is a zone name, for example:
-  #  { us-east-1a = "subnet-123456" }
-  subnet_ids = { for k, v in var.subnet_set_subnets : k => v.id }
-
   # Boolean that agregates initial conditions on the type of the Load Balancer that will be created.
   # It is used later in several places related to the way me map the Load Balancer to the subnets.
   public_lb_with_eip = var.create_dedicated_eips && !var.internal_lb
@@ -33,7 +29,7 @@ locals {
 }
 
 resource "aws_eip" "this" {
-  for_each = local.public_lb_with_eip ? local.subnet_ids : {}
+  for_each = local.public_lb_with_eip ? var.subnets : {}
 
   tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
 }
@@ -53,12 +49,12 @@ resource "aws_lb" "this" {
   #
   # Generally, the decision is being made on a fact if we have a public Load Balancer 
   # with dedicated EIPs or not.
-  subnets = local.public_lb_with_eip ? null : [for set, id in local.subnet_ids : id]
+  subnets = local.public_lb_with_eip ? null : [for k, v in var.subnets : v.id]
   dynamic "subnet_mapping" {
-    for_each = local.public_lb_with_eip ? local.subnet_ids : {}
+    for_each = local.public_lb_with_eip ? var.subnets : {}
 
     content {
-      subnet_id     = subnet_mapping.value
+      subnet_id     = subnet_mapping.value.id
       allocation_id = aws_eip.this[subnet_mapping.key].id
     }
   }
@@ -85,7 +81,8 @@ resource "aws_lb_target_group" "this" {
   }
 
   dynamic "stickiness" {
-    # For TLS stickiness is not supported - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups.
+    # For TLS stickiness is not supported, see link:
+    # https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups.
     for_each = each.value.stickiness && each.value.protocol != "TLS" ? [1] : []
 
     content {
@@ -125,10 +122,10 @@ resource "aws_lb_listener" "this" {
   tags = var.tags
 }
 
-# Private LB's IP addresses can be handy to have in module output, especially that they can be used
+# Private Load Balancer's IP addresses. It can be handy to have them in module's output, especially that they can be used
 # for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
 data "aws_network_interface" "this" {
-  for_each = var.subnet_set_subnets
+  for_each = var.subnets
 
   filter {
     name   = "description"

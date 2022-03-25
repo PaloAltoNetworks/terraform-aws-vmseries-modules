@@ -16,18 +16,32 @@ variable "internal_lb" {
 }
 
 
-variable "subnet_set_subnets" {
+variable "subnets" {
   description = <<-EOF
-  (REQUIRED) A map of subnet objects as returned by the `subnet_set` module for a particular subnet set. 
-  An example how to feed this variable with data (assuming usage of this modules as in examples and a subnet set named *untrust*):
+  Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and each map's object has an attribute
+  `id` identifying AWS subnet.
+  
+  Examples:
+
+  You can define the values directly:
 
   ```hcl
-  subnet_set_subnets   = module.subnet_set["untrust"].subnets
+  subnets = {
+    "us-east-1a" = { id = "snet-123007" }
+    "us-east-1b" = { id = "snet-123008" }
+  }
   ```
 
-  This map will be indexed by the subnet name and value will contain subnet's arguments as returned by terraform. This includes the subnet's ID.
+  You can also use output from the `subnet_sets` module:
+  
+  ```hcl
+  subnets        = { for k, v in module.subnet_sets["untrust"].subnets : k => { id = v.id } }
+  ```
+  
   EOF
-  type        = map(any)
+  type = map(object({
+    id = string
+  }))
 }
 
 variable "enable_cross_zone_load_balancing" {
