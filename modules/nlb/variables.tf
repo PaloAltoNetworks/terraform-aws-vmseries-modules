@@ -1,18 +1,18 @@
 variable "lb_name" {
-  description = "(REQUIRED) Name of the Load Balancer to be created"
+  description = "Name of the Load Balancer to be created"
   type        = string
 }
 
 variable "create_dedicated_eips" {
   description = "If set to `true`, a set of EIPs will be created for each zone/subnet. Otherwise AWS will handle IP management."
-  type        = bool
   default     = false
+  type        = bool
 }
 
 variable "internal_lb" {
   description = "Determines if this Load Balancer will be a public (default) or an internal one."
-  type        = bool
   default     = false
+  type        = bool
 }
 
 
@@ -51,12 +51,12 @@ variable "enable_cross_zone_load_balancing" {
   Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ.
   EOF
 
-  type    = bool
   default = true
+  type    = bool
 }
 
 variable "vpc_id" {
-  description = "(REQUIRED) ID of the security VPC the Load Balancer should be created in."
+  description = "ID of the security VPC the Load Balancer should be created in."
   type        = string
 }
 
@@ -133,6 +133,10 @@ variable "balance_rules" {
   }
   ```
   EOF
+  # For the moment there is no other possibility to specify a `type` for this kind of variable.
+  # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
+  # Actually, in our case they have the same type, but they differ in the mount of inner elements.
+  type = any
 }
 
 variable "tags" {
