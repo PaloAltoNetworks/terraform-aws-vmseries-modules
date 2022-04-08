@@ -31,7 +31,7 @@ locals {
 resource "aws_eip" "this" {
   for_each = local.public_lb_with_eip ? var.subnets : {}
 
-  tags = merge({ Name = "${var.lb_name}_eip_${each.key}" }, var.tags)
+  tags = merge({ Name = "${var.lb_name}-eip-${each.key}" }, var.tags)
 }
 
 resource "aws_lb" "this" {
