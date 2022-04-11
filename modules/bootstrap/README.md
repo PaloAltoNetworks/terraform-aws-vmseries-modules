@@ -37,16 +37,14 @@ provider "aws" {
 
 module "panos-bootstrap" {
   source  = "PaloAltoNetworks/panos-bootstrap/aws"
-  version = "1.0.0"
 
-  bootstrap_region      = var.bootstrap_region
-
-  hostname         = "my-firewall"
-  panorama-server  = "panorama1.example.org"
-  panorama-server2 = "panorama2.example.org"
-  tplname          = "My Firewall Template"
-  dgname           = "My Firewalls"
-  vm-auth-key      = "supersecretauthkey"
+  hostname           = "my-firewall"
+  panorama-server    = "panorama1.example.org"
+  panorama-server2   = "panorama2.example.org"
+  tplname            = "My Firewall Template"
+  dgname             = "My Firewalls"
+  vm-auth-key        = "supersecretauthkey"
+  plugin-op-commands = "aws-gwlb-inspect:enable"
 }
 ```
 
