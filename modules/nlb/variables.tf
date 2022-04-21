@@ -25,7 +25,7 @@ variable "subnets" {
 
   You can define the values directly:
 
-  ```hcl
+  ```
   subnets = {
     "us-east-1a" = { id = "snet-123007" }
     "us-east-1b" = { id = "snet-123008" }
@@ -34,7 +34,7 @@ variable "subnets" {
 
   You can also use output from the `subnet_sets` module:
   
-  ```hcl
+  ```
   subnets        = { for k, v in module.subnet_sets["untrust"].subnets : k => { id = v.id } }
   ```
   
@@ -65,7 +65,7 @@ variable "balance_rules" {
   A object that contains the actual listener, target group and healthcheck configuration. 
   It consist of maps of applications like follows:
 
-  ```hcl
+  ```
   balance_rules = {
     "application_name" = {
       protocol            = "communication protocol, since this is a NLB module accepted values are TCP or TLS"
@@ -95,13 +95,13 @@ variable "balance_rules" {
   <hr>
   If you add FWs as targets, make sure you use `target_type = "ip"` and you provide the correct FW IPs in `target` map. IPs should be from the subnet set that the Load Balancer was created in. An example on how to feed this variable with data:
 
-  ```hcl
+  ```
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
   ```
 
   For format of `var.vmseries` check the (`vmseries` module)[../vmseries/README.md]. Basically the key there is the VM name. By using that keys we can loop through all vmseries modules and take private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
 
-  ```hcl
+  ```
   {
     vm01 = "1.1.1.1"
     vm02 = "2.2.2.2"
@@ -117,7 +117,7 @@ variable "balance_rules" {
   <hr>
   EXAMPLE
 
-  ```hcl
+  ```
   balance_rules = {
     "HTTPS-APP" = {
       protocol          = "TCP"
