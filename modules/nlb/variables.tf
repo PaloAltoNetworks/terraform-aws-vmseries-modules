@@ -62,7 +62,7 @@ variable "vpc_id" {
 
 variable "balance_rules" {
   description = <<-EOF
-  A object that contains the actual listener, target group and healthcheck configuration. 
+  An object that contains the listener, target group, and health check configuration. 
   It consist of maps of applications like follows:
 
   ```
