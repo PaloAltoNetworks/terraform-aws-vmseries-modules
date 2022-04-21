@@ -18,7 +18,7 @@ variable "internal_lb" {
 
 variable "subnets" {
   description = <<-EOF
-  Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and each map's object has an attribute
+  Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
   `id` identifying AWS subnet.
   
   Examples:
