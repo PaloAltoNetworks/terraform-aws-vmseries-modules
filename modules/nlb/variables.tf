@@ -47,7 +47,7 @@ variable "subnets" {
 variable "enable_cross_zone_load_balancing" {
   description = <<-EOF
   Enable load balancing between instances in different AZs. Defaults to `true`. 
-  Change to `false` only if you know what you're doing. By default there is only one FW in each AZ. 
+  Change to `false` only if absolutely necessary. By default, there is only one FW in each AZ. 
   Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ.
   EOF
 
