@@ -84,6 +84,10 @@ resource "aws_instance" "this" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [root_block_device[0].kms_key_id]
+  }
+
   tags = merge(var.tags, { Name = var.name })
 }
 

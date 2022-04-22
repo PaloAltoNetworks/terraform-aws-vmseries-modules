@@ -1,5 +1,5 @@
 module "security_vpc" {
-  source = "/Users/lpawlega/Git/terraform-aws-vmseries-modules/modules/vpc"
+  source = "../../modules/vpc"
 
   name                    = var.security_vpc_name
   cidr_block              = var.security_vpc_cidr
@@ -11,7 +11,7 @@ module "security_vpc" {
 }
 
 module "security_subnet_sets" {
-  source = "/Users/lpawlega/Git/terraform-aws-vmseries-modules/modules/subnet_set"
+  source = "../../modules/subnet_set"
 
   for_each = toset(distinct([for _, v in var.security_vpc_subnets : v.set]))
 
@@ -23,11 +23,12 @@ module "security_subnet_sets" {
 
 module "vmseries" {
   for_each = var.vmseries
-  source   = "/Users/lpawlega/Git/terraform-aws-vmseries-modules/modules/vmseries"
+  source   = "../../modules/vmseries"
 
   name              = var.name
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
+  ebs_encrypted     = true
   interfaces = {
     mgmt = {
       device_index       = 0
@@ -104,7 +105,7 @@ locals {
 
 module "security_vpc_routes" {
   for_each = { for route in local.security_vpc_routes : route.subnet_key => route }
-  source   = "/Users/lpawlega/Git/terraform-aws-vmseries-modules/modules/vpc_route"
+  source   = "../../modules/vpc_route"
 
   route_table_ids = module.security_subnet_sets[each.key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
