@@ -21,6 +21,7 @@
 .terrascan
 # Terraform dot files
 .terraform
+.terraform.lock.hcl
 .terraformrc
 **/.terraform/*
 .terraform.d
