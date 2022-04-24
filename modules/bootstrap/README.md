@@ -36,7 +36,7 @@ provider "aws" {
 }
 
 module "panos-bootstrap" {
-  source  = "PaloAltoNetworks/panos-bootstrap/aws"
+  source = "../../modules/bootstrap"
 
   hostname           = "my-firewall"
   panorama-server    = "panorama1.example.org"
