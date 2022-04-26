@@ -70,25 +70,24 @@ module "public_nlb" {
   security_groups            = [module.security_vpc.security_group_ids["load_balancer"]]
 
   balance_rules = {
-    "ssh-app-vm" = {
-      protocol          = "TCP"
-      port              = "22"
-      health_check_port = "443"
-      threshold         = 2
-      interval          = 10
-      target_port       = 22
-      target_type       = "ip"
-      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      stickiness        = true
+    "http-app" = {
+      protocol = "HTTP"
+      targets  = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
     }
-    "https-mgmt" = {
-      protocol    = "TCP"
-      port        = "443"
-      threshold   = 2
-      interval    = 10
-      target_type = "instance"
-      targets     = { for k, v in var.vmseries : k => module.vmseries[k].instance.id }
-      stickiness  = true
+    "https-app" = {
+      protocol                         = "HTTPS"
+      port                             = "444"
+      health_check_port                = "80"
+      health_check_healthy_threshold   = 2
+      health_check_unhealthy_threshold = 10
+      health_check_interval            = 10
+      health_check_protocol            = "HTTP"
+      health_check_matcher             = "200-301"
+      health_check_path                = "/login.php"
+      target_port                      = 8443
+      round_robin                      = false
+
+      targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
     }
   }
 

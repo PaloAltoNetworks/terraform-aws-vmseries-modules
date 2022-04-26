@@ -9,7 +9,7 @@ locals {
         app_name = k
         name     = target_name
         id       = target_id
-        port     = try(v.target_port, v.port)
+        port     = try(v.target_port, try(v.port, v.protocol == "HTTP" ? "80" : "443"))
       }
     ]
   ])
@@ -84,7 +84,7 @@ resource "aws_lb" "this" {
   subnets = [for k, v in var.subnets : v.id]
 
   dynamic "access_logs" {
-    for_each = var.configure_access_logs ? { 1 = 1 } : {}
+    for_each = var.configure_access_logs ? [1] : []
 
     content {
       bucket  = var.access_logs_byob ? data.aws_s3_bucket.this[0].id : aws_s3_bucket.this[0].id
@@ -100,45 +100,37 @@ resource "aws_lb" "this" {
   ]
 }
 
-# resource "aws_lb_target_group" "this" {
-#   for_each = var.balance_rules
+resource "aws_lb_target_group" "this" {
+  for_each = var.balance_rules
 
-#   name        = "${var.lb_name}-tg-${each.key}"
-#   vpc_id      = var.vpc_id
-#   port        = try(each.value.target_port, each.value.port)
-#   protocol    = each.value.protocol
-#   target_type = each.value.target_type
+  name                          = "${var.lb_name}-tg-${each.key}"
+  vpc_id                        = var.vpc_id
+  port                          = try(each.value.target_port, try(each.value.port, each.value.protocol == "HTTP" ? "80" : 443))
+  protocol                      = each.value.protocol
+  protocol_version              = try(each.value.protocol_version, null)
+  target_type                   = "ip"
+  load_balancing_algorithm_type = try(each.value.round_robin, null) != null ? (each.value.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
 
+  health_check {
+    healthy_threshold   = try(each.value.health_check_healthy_threshold, null)
+    unhealthy_threshold = try(each.value.health_check_unhealthy_threshold, null)
+    interval            = try(each.value.health_check_interval, null)
+    protocol            = try(each.value.health_check_protocol, each.value.protocol)
+    port                = try(each.value.health_check_port, "traffic-port")
+    matcher             = try(each.value.health_check_matcher, null)
+    path                = try(each.value.health_check_path, "/")
+  }
 
-#   health_check {
-#     healthy_threshold   = try(each.value.threshold, null)
-#     unhealthy_threshold = try(each.value.threshold, null)
-#     interval            = try(each.value.interval, null)
-#     protocol            = "TCP"
-#     port                = try(each.value.health_check_port, "traffic-port")
-#   }
+  tags = var.tags
+}
 
-#   dynamic "stickiness" {
-#     # For TLS stickiness is not supported, see link:
-#     # https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#sticky-sessions#:~:text=Sticky%20sessions%20are%20not%20supported%20with%20TLS%20listeners%20and%20TLS%20target%20groups.
-#     for_each = each.value.stickiness && each.value.protocol != "TLS" ? [1] : []
+resource "aws_lb_target_group_attachment" "this" {
+  for_each = local.target_attachments
 
-#     content {
-#       enabled = true
-#       type    = "source_ip"
-#     }
-#   }
-
-#   tags = var.tags
-# }
-
-# resource "aws_lb_target_group_attachment" "this" {
-#   for_each = local.target_attachments
-
-#   target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
-#   target_id        = each.value.id
-#   port             = each.value.port
-# }
+  target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
+  target_id        = each.value.id
+  port             = each.value.port
+}
 
 # resource "aws_lb_listener" "this" {
 #   for_each = var.balance_rules
@@ -160,18 +152,3 @@ resource "aws_lb" "this" {
 #   tags = var.tags
 # }
 
-# # Private Load Balancer's IP addresses. It can be handy to have them in module's output, especially that they can be used
-# # for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
-# data "aws_network_interface" "this" {
-#   for_each = var.subnets
-
-#   filter {
-#     name   = "description"
-#     values = ["ELB ${aws_lb.this.arn_suffix}"]
-#   }
-
-#   filter {
-#     name   = "subnet-id"
-#     values = [each.value.id]
-#   }
-# }
