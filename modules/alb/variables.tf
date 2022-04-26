@@ -3,6 +3,11 @@ variable "lb_name" {
   type        = string
 }
 
+variable "region" {
+  description = "A region used to deploy ALB resource. It's only used to map a region to ALB account ID."
+  type        = string
+}
+
 variable "drop_invalid_header_fields" {
   description = "Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer or not (default)"
   default     = false
@@ -24,26 +29,75 @@ variable "desync_mitigation_mode" {
   type        = string
 }
 
+variable "elb_account_ids" {
+  description = "A map of account IDs used by ELB. Usefull for setting up `access logs` for ALB."
+  default = {
+    "us-east-1"      = "127311923021"
+    "us-east-2"      = "033677994240"
+    "us-west-1"      = "027434742980"
+    "us-west-2"      = "797873946194"
+    "af-south-1"     = "098369216593"
+    "ca-central-1"   = "985666609251"
+    "eu-central-1"   = "054676820928"
+    "eu-west-1"      = "156460612806"
+    "eu-west-2"      = "652711504416"
+    "eu-south-1"     = "635631232127"
+    "eu-west-3"      = "009996457667"
+    "eu-north-1"     = "897822967062"
+    "ap-east-1"      = "754344448648"
+    "ap-northeast-1" = "582318560864"
+    "ap-northeast-2" = "600734575887"
+    "ap-northeast-3" = "383597477331"
+    "ap-southeast-1" = "114774131450"
+    "ap-southeast-2" = "783225319266"
+    "ap-south-1"     = "718504428378"
+    "me-south-1"     = "076674570225"
+    "sa-east-1"      = "507241528517"
+    "us-gov-west-1"  = "048591011584"
+    "us-gov-east-1"  = "190560391635"
+    "cn-north-1"     = "638102146993"
+    "cn-northwest-1" = "037604701340"
+  }
+  type = map(string)
+}
+
 variable "configure_access_logs" {
-  description = "value"
+  description = <<-EOF
+  Configure Load Blanacer to store access logs in an S3 Bucket.
+  
+  When used with `access_logs_byob` set to `false` forces a creation of a new bucket.
+  If however `access_logs_byob` is set to `true` an existing bucket can be used.
+
+  The name of the newly created or existing bucket is controled via `access_logs_s3_bucket_name`.
+  EOF
   default     = false
   type        = bool
 }
 
 variable "access_logs_byob" {
-  description = "value"
+  description = <<-EOF
+  Bring Your Own Bucket - in case you would like to re-use an existing S3 Bucket for Load Balancer's access logs.
+
+  NOTICE.
+  This code does not set up proper `Bucket Policies` for existing buckets. They have to be already in place.
+  EOF
   default     = false
   type        = bool
 }
 
 variable "access_logs_s3_bucket_name" {
-  description = "value"
+  description = <<-EOF
+  Name of an S3 Bucket that will be used as storage for Load Balancer's access logs.
+
+  When used with `configure_access_logs` it becomes the name of a newly created S3 Bucket.
+  When used with `access_logs_byob` it is a name of an existing bucket.
+  EOF
   default     = "pantf-alb-access-logs-bucket"
   type        = string
 }
 
 variable "access_logs_s3_bucket_prefix" {
-  description = "value"
+  description = "A path to a location inside a bucket under which the access logs will be stored. When omited defaults to the root folder of a bucket."
   default     = null
   type        = string
 }

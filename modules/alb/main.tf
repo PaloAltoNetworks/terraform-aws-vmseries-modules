@@ -24,11 +24,42 @@ locals {
   }
 }
 
+# ## Access Logs Bucket ##
 resource "aws_s3_bucket" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
-  bucket = var.access_logs_s3_bucket_name
+  bucket        = var.access_logs_s3_bucket_name
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_acl" "example_bucket_acl" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
   acl    = "private"
+}
+
+data "aws_iam_policy_document" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [var.elb_account_ids[var.region]]
+    }
+
+    actions = ["s3:PutObject"]
+
+    resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/AWSLogs/*"]
+    # resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix}/AWSLogs/"]
+  }
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
+  policy = data.aws_iam_policy_document.this[0].json
 }
 
 data "aws_s3_bucket" "this" {
@@ -36,7 +67,7 @@ data "aws_s3_bucket" "this" {
 
   bucket = var.access_logs_s3_bucket_name
 }
-
+###########################
 
 resource "aws_lb" "this" {
   name                             = var.lb_name
@@ -55,13 +86,17 @@ resource "aws_lb" "this" {
     for_each = var.configure_access_logs ? { 1 = 1 } : {}
 
     content {
-      bucket  = var.access_logs_byob ? data.aws_s3_bucket.this[0].name : aws_s3_bucket.this[0].name
+      bucket  = var.access_logs_byob ? data.aws_s3_bucket.this[0].id : aws_s3_bucket.this[0].id
       prefix  = var.access_logs_s3_bucket_prefix
       enabled = true
     }
   }
 
   tags = var.tags
+
+  depends_on = [
+    aws_s3_bucket_policy.this[0]
+  ]
 }
 
 # resource "aws_lb_target_group" "this" {
