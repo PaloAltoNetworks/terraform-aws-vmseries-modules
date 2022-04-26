@@ -74,21 +74,23 @@ module "public_nlb" {
       protocol = "HTTP"
       targets  = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
     }
-    "https-app" = {
-      protocol                         = "HTTPS"
-      port                             = "444"
-      health_check_port                = "80"
-      health_check_healthy_threshold   = 2
-      health_check_unhealthy_threshold = 10
-      health_check_interval            = 10
-      health_check_protocol            = "HTTP"
-      health_check_matcher             = "200-301"
-      health_check_path                = "/login.php"
-      target_port                      = 8443
-      round_robin                      = false
+    # "https-app" = {
+    #   protocol                         = "HTTPS"
+    #   port                             = "444"
+    #   health_check_port                = "80"
+    #   health_check_healthy_threshold   = 2
+    #   health_check_unhealthy_threshold = 10
+    #   health_check_interval            = 10
+    #   health_check_protocol            = "HTTP"
+    #   health_check_matcher             = "200-301"
+    #   health_check_path                = "/login.php"
+    #   target_port                      = 8443
+    #   round_robin                      = false
 
-      targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-    }
+    #   # certificate_arn = 
+
+    #   targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+    # }
   }
 
   tags = var.global_tags

@@ -132,23 +132,21 @@ resource "aws_lb_target_group_attachment" "this" {
   port             = each.value.port
 }
 
-# resource "aws_lb_listener" "this" {
-#   for_each = var.balance_rules
+resource "aws_lb_listener" "this" {
+  for_each = var.balance_rules
 
-#   load_balancer_arn = aws_lb.this.arn
-#   port              = each.value.port
-#   protocol          = each.value.protocol
+  load_balancer_arn = aws_lb.this.arn
+  port              = try(each.value.port, each.value.protocol == "HTTP" ? "80" : "443")
+  protocol          = each.value.protocol
 
-#   # TLS specific values
-#   certificate_arn = each.value.protocol == "TLS" ? try(each.value.certificate_arn, null) : null
-#   alpn_policy     = each.value.protocol == "TLS" ? try(each.value.alpn_policy, "None") : null
+  # HTTPS specific values
+  certificate_arn = each.value.protocol == "HTTPS" ? try(each.value.certificate_arn, null) : null
 
-#   # This is meant to be a typical Layer4 LB, so the only supported action is `forward`.
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.this[each.key].arn
-#   }
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this[each.key].arn
+  }
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
 
