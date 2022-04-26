@@ -7,6 +7,7 @@
 - [x] access logs
 - [x] idle timeout
 
-## target group
+## listener
 
-- [ ] 
+- [ ] ssl support for listener
+- [ ] possibility to use SSL Policies
