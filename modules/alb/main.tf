@@ -79,6 +79,7 @@ resource "aws_lb" "this" {
   drop_invalid_header_fields = true
   idle_timeout               = 30
   desync_mitigation_mode     = var.desync_mitigation_mode
+  security_groups            = var.security_groups
 
   subnets = [for k, v in var.subnets : v.id]
 

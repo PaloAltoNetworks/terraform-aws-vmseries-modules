@@ -23,6 +23,26 @@ security_vpc_subnets = {
 
 # Security Groups
 security_vpc_security_groups = {
+  load_balancer = {
+    name = "fosix_alb"
+    rules = {
+      all_inbound = {
+        description = "Permit all incoming traffic"
+        type        = "ingress", from_port = "0", to_port = "0", protocol = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      fw_traffic = {
+        description = "Permit all  traffic to FW"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      # health_check_traffic = {
+      #   description = "Permit all  traffic to FW"
+      #   type = "egress", from_port = "0", to_port = "0", protocol = "TCP"
+      #   cidr_blocks = ["0.0.0.0/0"]
+      # }
+    }
+  }
   vmseries_mgmt = {
     name = "fosix_vmseries_mgmt"
     rules = {

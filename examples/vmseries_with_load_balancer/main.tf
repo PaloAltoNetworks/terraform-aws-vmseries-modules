@@ -67,6 +67,7 @@ module "public_nlb" {
   vpc_id                     = module.security_vpc.id
   configure_access_logs      = true
   access_logs_s3_bucket_name = "fosix-alb-logs-bucket"
+  security_groups            = [module.security_vpc.security_group_ids["load_balancer"]]
 
   balance_rules = {
     "ssh-app-vm" = {

@@ -102,6 +102,12 @@ variable "access_logs_s3_bucket_prefix" {
   type        = string
 }
 
+variable "security_groups" {
+  description = "A list of security group IDs to use with a Load Balancer"
+  default     = null
+  type        = list(string)
+}
+
 variable "subnets" {
   description = <<-EOF
   Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
