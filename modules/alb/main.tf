@@ -141,6 +141,7 @@ resource "aws_lb_listener" "this" {
 
   # HTTPS specific values
   certificate_arn = each.value.protocol == "HTTPS" ? try(each.value.certificate_arn, null) : null
+  ssl_policy      = try(each.value.ssl_policy, null)
 
   default_action {
     type             = "forward"
