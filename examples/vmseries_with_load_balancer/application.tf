@@ -16,7 +16,7 @@
 # }
 
 # resource "aws_network_interface" "app_nic" {
-#   subnet_id       = module.security_subnet_sets["trust"].subnets["us-east-2a"].id
+#   subnet_id       = module.security_subnet_sets["trust"].subnets["eu-west-1a"].id
 #   security_groups = [module.security_vpc.security_group_ids["vmseries_trust"]]
 #   tags            = merge({ Name = "fosix_nic_app" }, var.global_tags)
 # }

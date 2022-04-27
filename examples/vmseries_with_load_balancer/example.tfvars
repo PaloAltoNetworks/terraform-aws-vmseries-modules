@@ -1,6 +1,6 @@
 # General
-region = "us-east-2"
-name   = "fosix_vmseries-example"
+region = "eu-west-1"
+name   = "fosix_vmseries"
 global_tags = {
   ManagedBy   = "Terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
@@ -13,12 +13,12 @@ security_vpc_cidr = "10.100.0.0/16"
 # Subnets
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-  "10.100.0.0/24"  = { az = "us-east-2a", set = "mgmt" }
-  "10.100.1.0/24"  = { az = "us-east-2a", set = "trust" }
-  "10.100.2.0/24"  = { az = "us-east-2a", set = "untrust" }
-  "10.100.10.0/24" = { az = "us-east-2b", set = "mgmt" }
-  "10.100.11.0/24" = { az = "us-east-2b", set = "trust" }
-  "10.100.12.0/24" = { az = "us-east-2b", set = "untrust" }
+  "10.100.0.0/24"  = { az = "eu-west-1a", set = "mgmt" }
+  "10.100.1.0/24"  = { az = "eu-west-1a", set = "trust" }
+  "10.100.2.0/24"  = { az = "eu-west-1a", set = "untrust" }
+  "10.100.10.0/24" = { az = "eu-west-1b", set = "mgmt" }
+  "10.100.11.0/24" = { az = "eu-west-1b", set = "trust" }
+  "10.100.12.0/24" = { az = "eu-west-1b", set = "untrust" }
 }
 
 # Security Groups
@@ -99,8 +99,8 @@ security_vpc_security_groups = {
 ssh_key_name     = "fosix-pub-vm"
 vmseries_version = "10.1.3"
 vmseries = {
-  vmseries01 = { az = "us-east-2a" }
-  vmseries02 = { az = "us-east-2b" }
+  vmseries01 = { az = "eu-west-1a" }
+  vmseries02 = { az = "eu-west-1b" }
 }
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"
