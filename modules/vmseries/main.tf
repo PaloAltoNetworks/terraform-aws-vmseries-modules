@@ -16,7 +16,14 @@ data "aws_ami" "this" {
 }
 
 # The default EBS encryption KMS key in the current region.
-data "aws_ebs_default_kms_key" "current" {}
+data "aws_ebs_default_kms_key" "current" {
+  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
+}
+
+data "aws_kms_alias" "current_arn" {
+  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
+  name  = data.aws_ebs_default_kms_key.current[0].key_arn
+}
 
 # Network Interfaces
 resource "aws_network_interface" "this" {
@@ -70,7 +77,7 @@ resource "aws_instance" "this" {
   root_block_device {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
-    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
+    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_kms_alias.current_arn[0].target_key_arn
     tags                  = merge(var.tags, { Name = var.name })
   }
 
@@ -84,9 +91,9 @@ resource "aws_instance" "this" {
     }
   }
 
-  lifecycle {
-    ignore_changes = [root_block_device[0].kms_key_id]
-  }
+  # lifecycle {
+  #   ignore_changes = [root_block_device[0].kms_key_id]
+  # }
 
   tags = merge(var.tags, { Name = var.name })
 }
