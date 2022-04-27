@@ -66,58 +66,73 @@ variables and associated values.
 8. Validate the plan using the `terraform plan` command.
 9. Apply the plan using the `terraform apply` command. 
 
-## Utilization
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
 
-The module output will provide values for the `bucket_id` and 
-`instance_profile_name`.  The `bucket_id` value can then be used in a
-`aws_instance` resource to instantiate a VM-Series instance.  It is used in
-the `user-data` parameter.  The `instance_profile_name` value is used in the
-`iam_instance_profile` parameter.  Both are neeeded to define the location of
-the S3 bootstrap bucket and the permissions needed to access it.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~>3.0 |
 
-```terraform
-resource "aws_instance" "fw" {
-  ami           = "${data.aws_ami.fw_ami.id}"
-  instance_type = "${var.fw_instance_type}"
-  key_name      = "${var.ssh_key_name}"
+## Providers
 
-  disable_api_termination              = false
-  instance_initiated_shutdown_behavior = "stop"
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~>3.0 |
 
-  ebs_optimized = true
+## Modules
 
-  root_block_device {
-    volume_type           = "gp2"
-    delete_on_termination = true
-  }
+No modules.
 
-  network_interface {
-    device_index         = 0
-    network_interface_id = "${aws_network_interface.fw_mgmt.id}"
-  }
+## Resources
 
-  network_interface {
-    device_index         = 1
-    network_interface_id = "${aws_network_interface.fw_eth1.id}"
-  }
+| Name | Type |
+|------|------|
+| [aws_iam_instance_profile.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
+| [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.bootstrap](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_object.bootstrap_dirs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object) | resource |
+| [aws_s3_bucket_object.bootstrap_files](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object) | resource |
+| [aws_s3_bucket_object.init_cfg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object) | resource |
+| [random_id.bucket_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/s3_bucket) | data source |
 
-  network_interface {
-    device_index         = 2
-    network_interface_id = "${aws_network_interface.fw_eth2.id}"
-  }
+## Inputs
 
-  network_interface {
-    device_index         = 3
-    network_interface_id = "${aws_network_interface.fw_eth3.id}"
-  }
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_bootstrap_directories"></a> [bootstrap\_directories](#input\_bootstrap\_directories) | List of subdirectories to be created inside the bucket (whether or not they exist locally inside the `source_root_directory`). A hardcoded pan-os requirement. | `list(string)` | <pre>[<br>  "config/",<br>  "content/",<br>  "software/",<br>  "license/",<br>  "plugins/"<br>]</pre> | no |
+| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of the bucket to create. If empty, name will be auto-generated.. | `string` | `""` | no |
+| <a name="input_create_bucket"></a> [create\_bucket](#input\_create\_bucket) | Re-use existing bucket. | `bool` | `true` | no |
+| <a name="input_dgname"></a> [dgname](#input\_dgname) | The Panorama device group name. | `string` | `""` | no |
+| <a name="input_dns-primary"></a> [dns-primary](#input\_dns-primary) | The IP address of the primary DNS server. | `string` | `""` | no |
+| <a name="input_dns-secondary"></a> [dns-secondary](#input\_dns-secondary) | The IP address of the secondary DNS server. | `string` | `""` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects. | `bool` | `true` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of arbitrary tags to apply to all resources. | `map(any)` | `{}` | no |
+| <a name="input_hostname"></a> [hostname](#input\_hostname) | The hostname of the VM-series instance. | `string` | `""` | no |
+| <a name="input_iam_instance_profile_name"></a> [iam\_instance\_profile\_name](#input\_iam\_instance\_profile\_name) | Name of the instance profile to create. If empty, name will be auto-generated. | `string` | `""` | no |
+| <a name="input_op-command-modes"></a> [op-command-modes](#input\_op-command-modes) | Set jumbo-frame and/or mgmt-interface-swap. | `string` | `""` | no |
+| <a name="input_panorama-server"></a> [panorama-server](#input\_panorama-server) | The FQDN or IP address of the primary Panorama server. | `string` | `""` | no |
+| <a name="input_panorama-server2"></a> [panorama-server2](#input\_panorama-server2) | The FQDN or IP address of the secondary Panorama server. | `string` | `""` | no |
+| <a name="input_plugin-op-commands"></a> [plugin-op-commands](#input\_plugin-op-commands) | Set plugin-op-commands. | `string` | `""` | no |
+| <a name="input_prefix"></a> [prefix](#input\_prefix) | The prefix to use for bucket name, IAM role name, and IAM role policy name. It is allowed to use dash "-" as the last character. | `string` | `"bootstrap-"` | no |
+| <a name="input_source_root_directory"></a> [source\_root\_directory](#input\_source\_root\_directory) | The source directory to become the bucket's root directory. If empty uses `files` subdirectory of a Terraform configuration root directory. | `string` | `""` | no |
+| <a name="input_tplname"></a> [tplname](#input\_tplname) | The Panorama template stack name. | `string` | `""` | no |
+| <a name="input_vm-auth-key"></a> [vm-auth-key](#input\_vm-auth-key) | Virtual machine authentication key. | `string` | `""` | no |
 
-  iam_instance_profile = "${module.panos-bootstrap.instance_profile_name}"
-  user_data            = "${base64encode(join("", list("vmseries-bootstrap-aws-s3bucket=", module.panos-bootstrap.bootstrap_id)))}"
+## Outputs
 
-  tags = "${merge(map("Name", format("%s", var.name)), var.tags)}"
-}
-```
-
+| Name | Description |
+|------|-------------|
+| <a name="output_bucket_domain_name"></a> [bucket\_domain\_name](#output\_bucket\_domain\_name) | Global domain name of the created bucket. |
+| <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | AWS identifier of the created bucket. |
+| <a name="output_bucket_name"></a> [bucket\_name](#output\_bucket\_name) | Name of the created bucket. |
+| <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | Regional domain name of the created bucket. |
+| <a name="output_instance_profile_name"></a> [instance\_profile\_name](#output\_instance\_profile\_name) | Name of created IAM instance profile. |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## References
 * [VM-Series Firewall Bootstrap Workflow](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall/vm-series-firewall-bootstrap-workflow.html#id59fe5979-c29d-42aa-8e72-14a2c12855f6)

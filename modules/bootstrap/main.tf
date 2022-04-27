@@ -2,8 +2,22 @@ resource "random_id" "bucket_id" {
   byte_length = 8
 }
 
+locals {
+  bucket_name   = coalesce(var.bucket_name, "${var.prefix}${random_id.bucket_id.hex}")
+  aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
+}
+
+# Either use a pre-existing resource or create a new one. So, is it a pre-existing VPC then?
+data "aws_s3_bucket" "this" {
+  count = var.create_bucket == false ? 1 : 0
+
+  bucket = local.bucket_name
+}
+
 resource "aws_s3_bucket" "this" {
-  bucket        = "${var.prefix}${random_id.bucket_id.hex}"
+  count = var.create_bucket ? 1 : 0
+
+  bucket        = local.bucket_name
   acl           = "private"
   force_destroy = var.force_destroy
   tags          = var.global_tags
@@ -12,7 +26,7 @@ resource "aws_s3_bucket" "this" {
 resource "aws_s3_bucket_object" "bootstrap_dirs" {
   for_each = toset(var.bootstrap_directories)
 
-  bucket  = aws_s3_bucket.this.id
+  bucket  = local.aws_s3_bucket.id
   key     = each.value
   content = "/dev/null"
 }
@@ -20,7 +34,7 @@ resource "aws_s3_bucket_object" "bootstrap_dirs" {
 resource "aws_s3_bucket_object" "init_cfg" {
   count = contains(fileset(local.source_root_directory, "**"), "config/init-cfg.txt") ? 0 : 1
 
-  bucket = aws_s3_bucket.this.id
+  bucket = local.aws_s3_bucket.id
   key    = "config/init-cfg.txt"
   content = templatefile("${path.module}/init-cfg.txt.tmpl",
     {
@@ -45,7 +59,7 @@ locals {
 resource "aws_s3_bucket_object" "bootstrap_files" {
   for_each = fileset(local.source_root_directory, "**")
 
-  bucket = aws_s3_bucket.this.id
+  bucket = local.aws_s3_bucket.id
   key    = each.value
   source = "${local.source_root_directory}/${each.value}"
 }
@@ -80,12 +94,12 @@ resource "aws_iam_role_policy" "bootstrap" {
     {
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::${aws_s3_bucket.this.bucket}"
+      "Resource": "arn:aws:s3:::${local.aws_s3_bucket.bucket}"
     },
     {
     "Effect": "Allow",
     "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::${aws_s3_bucket.this.bucket}/*"
+    "Resource": "arn:aws:s3:::${local.aws_s3_bucket.bucket}/*"
     }
   ]
 }

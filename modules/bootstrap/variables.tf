@@ -100,3 +100,15 @@ variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # T
   default     = ""
   type        = string
 }
+
+variable "create_bucket" {
+  description = "Re-use existing bucket."
+  default     = true
+  type        = bool
+}
+
+variable "bucket_name" {
+  description = "Name of the bucket to create. If empty, name will be auto-generated.."
+  default     = ""
+  type        = string
+}
