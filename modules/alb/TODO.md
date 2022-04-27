@@ -9,5 +9,6 @@
 
 ## listener
 
-- [ ] ssl support for listener
-- [ ] possibility to use SSL Policies
+- [x] ssl support for listener
+- [x] possibility to use SSL Policies
+- [ ] add listener rules support, in case of routing based on FQDNs and HostHeaders
