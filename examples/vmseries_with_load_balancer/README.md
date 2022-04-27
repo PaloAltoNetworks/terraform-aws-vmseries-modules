@@ -43,12 +43,15 @@ terraform destroy
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.74 |
 
+## Providers
+
+No providers.
+
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_private_nlb"></a> [private\_nlb](#module\_private\_nlb) | ../../modules/nlb | n/a |
-| <a name="module_public_nlb"></a> [public\_nlb](#module\_public\_nlb) | ../../modules/nlb | n/a |
+| <a name="module_public_nlb"></a> [public\_nlb](#module\_public\_nlb) | ../../modules/alb | n/a |
 | <a name="module_security_subnet_sets"></a> [security\_subnet\_sets](#module\_security\_subnet\_sets) | ../../modules/subnet_set | n/a |
 | <a name="module_security_vpc"></a> [security\_vpc](#module\_security\_vpc) | ../../modules/vpc | n/a |
 | <a name="module_security_vpc_routes"></a> [security\_vpc\_routes](#module\_security\_vpc\_routes) | ../../modules/vpc_route | n/a |
@@ -56,12 +59,7 @@ terraform destroy
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_eip.app_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
-| [aws_instance.app_vm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
-| [aws_network_interface.app_nic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
-| [aws_ami.ubuntu](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+No resources.
 
 ## Inputs
 
@@ -84,8 +82,5 @@ terraform destroy
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app_vm_ips"></a> [app\_vm\_ips](#output\_app\_vm\_ips) | n/a |
 | <a name="output_fw_public_ips"></a> [fw\_public\_ips](#output\_fw\_public\_ips) | Map of public IPs created within the module. |
-| <a name="output_private_lb"></a> [private\_lb](#output\_private\_lb) | n/a |
-| <a name="output_public_lb"></a> [public\_lb](#output\_public\_lb) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

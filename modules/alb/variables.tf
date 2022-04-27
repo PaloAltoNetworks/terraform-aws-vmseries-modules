@@ -4,12 +4,13 @@ variable "lb_name" {
 }
 
 variable "region" {
-  description = "A region used to deploy ALB resource. It's only used to map a region to ALB account ID."
+  description = "A region used to deploy ALB resource. Only required when creating a new S3 Bucket to store access logs. It's used to map a region to ALB account ID."
+  default     = "null"
   type        = string
 }
 
 variable "drop_invalid_header_fields" {
-  description = "Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer or not (default)"
+  description = "Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer or not."
   default     = false
   type        = bool
 }
@@ -30,7 +31,7 @@ variable "desync_mitigation_mode" {
 }
 
 variable "elb_account_ids" {
-  description = "A map of account IDs used by ELB. Usefull for setting up `access logs` for ALB."
+  description = "A map of account IDs used by ELB. Useful for setting up `access logs` for ALB."
   default = {
     "us-east-1"      = "127311923021"
     "us-east-2"      = "033677994240"
@@ -63,12 +64,12 @@ variable "elb_account_ids" {
 
 variable "configure_access_logs" {
   description = <<-EOF
-  Configure Load Blanacer to store access logs in an S3 Bucket.
+  Configure Load Balancer to store access logs in an S3 Bucket.
   
   When used with `access_logs_byob` set to `false` forces a creation of a new bucket.
   If however `access_logs_byob` is set to `true` an existing bucket can be used.
 
-  The name of the newly created or existing bucket is controled via `access_logs_s3_bucket_name`.
+  The name of the newly created or existing bucket is controlled via `access_logs_s3_bucket_name`.
   EOF
   default     = false
   type        = bool
@@ -97,14 +98,13 @@ variable "access_logs_s3_bucket_name" {
 }
 
 variable "access_logs_s3_bucket_prefix" {
-  description = "A path to a location inside a bucket under which the access logs will be stored. When omited defaults to the root folder of a bucket."
+  description = "A path to a location inside a bucket under which the access logs will be stored. When omitted defaults to the root folder of a bucket."
   default     = null
   type        = string
 }
 
 variable "security_groups" {
-  description = "A list of security group IDs to use with a Load Balancer"
-  default     = null
+  description = "A list of security group IDs to use with a Load Balancer."
   type        = list(string)
 }
 
@@ -148,30 +148,36 @@ variable "enable_cross_zone_load_balancing" {
 }
 
 variable "vpc_id" {
-  description = "ID of the security VPC the Load Balancer should be created in."
+  description = "ID of the security VPC for the Load Balancer."
   type        = string
 }
 
 variable "balance_rules" {
   description = <<-EOF
   An object that contains the listener, target group, and health check configuration. 
-  It consist of maps of applications like follows:
+  It consists of maps of applications like follows:
 
   ```
   balance_rules = {
     "application_name" = {
-      protocol            = "communication protocol, since this is a NLB module accepted values are TCP or TLS"
-      port                = "communication port"
-      target_type         = "type of the target that will be attached to a target group, no defaults here, has to be provided explicitly (regardless the defaults terraform could accept)"
-      target_port         = "for target types supporting port values, the port number on which the target accepts communication, defaults to the communication port value"
-      targets             = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target ID (IP, resource ID, etc - the actual value depends on the target type)"
+      protocol            = "communication protocol, since this is an ALB module accepted values are `HTTP` or `HTTPS`"
+      port                = "communication port, defaults to protocol's default port"
+      target_port         = "the port number on which the target accepts communication, defaults to the communication port value"
+      targets             = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target IP (all supported targets are of type `IP`)"
+      round_robin         = "use round robin to select backend servers, defaults to `true`, when set to `false` `least_outstanding_requests` is used instead"
 
-      health_check_port   = "port used by the target group healthcheck, if ommited, `traffic-port` will be used"
-      threshold           = "number of consecutive health checks before considering target healthy or unhealthy, defaults to 3"
-      interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
 
-      certificate_arn     = "(TLS ONLY) this is the arn of a certificate"
-      alpn_policy         = "(TLS ONLY) ALPN policy name, for possible values check (terraform documentation)[https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener#alpn_policy], defaults to `None`"
+      health_check_protocol            = "this can be either `HTTP` or `HTTPS`, default to communication protocol"
+      health_check_port                = "port used by the target group health check, if omitted, `traffic-port` will be used"
+      health_check_healthy_threshold   = "number of consecutive health checks before considering target healthy, defaults to 3"
+      health_check_unhealthy_threshold = "number of consecutive health checks before considering target unhealthy, defaults to 3"
+      health_check_interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
+      health_check_matcher             = "response codes expected during health check, defaults to `200` for HTTP(s)"
+      health_check_path                = "destination used by the health check request, defaults to `/`"
+
+
+      certificate_arn   = "(HTTPS ONLY) this is the arn of a certificate"
+      ssl_policy        = "(HTTPS ONLY) name of an ssl policy used by the Load Balancer's listener, defaults to AWS default, for available options see [AWS documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies)"
     }
   }
   ```
@@ -185,13 +191,13 @@ variable "balance_rules" {
   All listeners are always of forward action.
 
   <hr>
-  If you add FWs as targets, make sure you use `target_type = "ip"` and you provide the correct FW IPs in `target` map. IPs should be from the subnet set that the Load Balancer was created in. An example on how to feed this variable with data:
+  All target are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
 
   ```
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
   ```
 
-  For format of `var.vmseries` check the (`vmseries` module)[../vmseries/README.md]. The key is the VM name. By using those keys, we can loop through all vmseries modules and take the private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
+  For format of `var.vmseries` check the [`vmseries` module](../vmseries/README.md). The key is the VM name. By using those keys, we can loop through all vmseries modules and take the private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
 
   ```
   {
@@ -202,9 +208,7 @@ variable "balance_rules" {
   ```
 
   <hr>
-  Healthchecks are by default of type TCP. Reason for that is the fact, that HTTP requests might flow through the FW to the actual application. So instead of checking the status of the FW we might check the status of the application.
-
-  You have an option to specify a health check port. This way you can set up a Management Profile with an Administrative Management Service limited only to NLBs private IPs and use a port for that service as the health check port. This way you make sure you separate the actual health check from the application rule's port.
+  Health checks by default use the same protocol as the target group. But this can be overridden. Due to the fact that this module sets up an Application Load Balancer the only options available are: `HTTP` or `HTTPS`.
 
   <hr>
   EXAMPLE
@@ -212,22 +216,29 @@ variable "balance_rules" {
   ```
   balance_rules = {
     "HTTPS-APP" = {
-      protocol          = "TCP"
-      port              = "443"
-      health_check_port = "22"
-      threshold         = 2
-      interval          = 10
-      target_port       = 8443
-      target_type       = "ip"
-      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      stickiness        = true
+      protocol                         = "HTTPS"
+      port                             = "444"
+      health_check_port                = "80"
+      health_check_protocol            = "HTTP"
+      health_check_healthy_threshold   = 2
+      health_check_unhealthy_threshold = 10
+      health_check_interval            = 10
+      health_check_matcher             = "200-301"
+      health_check_path                = "/login.php"
+      target_port                      = 8443
+      round_robin                      = false
+
+      certificate_arn = "arn:aws:acm:eu-west-1:123456789012:certificate/11111111-2222-3333-4444-555555555555"
+      ssl_policy      = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+
+      targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
     }
   }
   ```
   EOF
   # For the moment there is no other possibility to specify a `type` for this kind of variable.
   # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
-  # Actually, in our case they have the same type, but they differ in the mount of inner elements.
+  # Actually, in our case they have the same type, but they differ in the amount of inner elements.
   type = any
 }
 
