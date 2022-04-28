@@ -80,13 +80,13 @@ module "public_nlb" {
       health_check_path     = "/"
 
       listener_rules = {
-        "100" = {
-          host_header     = ["www.something.com"]
+        "1" = {
+          host_headers    = ["fosix-public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
           target_port     = 8080
           target_protocol = "HTTP"
         }
         "99" = {
-          host_header     = ["www.else.org"]
+          host_headers    = ["www.else.org"]
           target_port     = 8081
           target_protocol = "HTTP"
         }

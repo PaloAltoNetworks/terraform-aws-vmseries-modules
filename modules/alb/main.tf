@@ -1,8 +1,9 @@
 locals {
-  listener_tg_list = flatten([
+  rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        name                     = "${k}-${l_v.target_port}"
+        tg_key                   = "${k}-${l_v.target_port}"
+        app_name                 = k
         port                     = l_v.target_port
         proto                    = l_v.target_protocol
         proto_v                  = try(l_v.target_protocol_version, null)
@@ -15,12 +16,23 @@ locals {
         h_ch_matcher             = try(v.health_check_matcher, null)
         h_ch_path                = try(v.health_check_path, "/")
         lb_algorithm             = try(v.round_robin, null) != null ? (v.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
+        priority                 = l_k
+        host_headers             = try(l_v.host_headers, null)
       }
     ]
   ])
 
+  listener_rules = {
+    for v in local.rules_flattened : "${v.app_name}-${v.priority}" => {
+      listener_key = v.app_name
+      priority     = v.priority
+      tg_key       = v.tg_key
+      host_headers = v.host_headers
+    }
+  }
+
   listener_tg = {
-    for v in local.listener_tg_list : v.name => {
+    for v in local.rules_flattened : v.tg_key => {
       port                     = v.port
       proto                    = v.proto
       proto_v                  = v.proto_v
@@ -38,12 +50,12 @@ locals {
   }
 
   listener_tg_attachments_list = flatten([
-    for v in local.listener_tg_list : [
+    for v in local.rules_flattened : [
       for t_k, t_v in var.targets : {
         host             = t_k
         ip               = t_v
         port             = v.port
-        listener_tg_name = v.name
+        listener_tg_name = v.tg_key
       }
     ]
   ])
@@ -136,7 +148,6 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = local.listener_tg
 
-  # name                          = "${var.lb_name}-tg-${each.key}"
   vpc_id                        = var.vpc_id
   port                          = each.value.port
   protocol                      = each.value.proto
@@ -181,11 +192,28 @@ resource "aws_lb_listener" "this" {
     type = "fixed-response"
     fixed_response {
       content_type = "text/plain"
-      # message_body = "Fixed response content"
-      status_code = "503"
+      message_body = "Fixed response content"
+      status_code  = "200"
     }
   }
 
   tags = var.tags
 }
 
+resource "aws_lb_listener_rule" "this" {
+  for_each = local.listener_rules
+
+  listener_arn = aws_lb_listener.this[each.value.listener_key].arn
+  priority     = each.value.priority
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this[each.value.tg_key].arn
+  }
+
+  condition {
+    host_header {
+      values = each.value.host_headers
+    }
+  }
+}
