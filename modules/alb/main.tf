@@ -106,7 +106,7 @@ resource "aws_lb_target_group" "this" {
   name                          = "${var.lb_name}-tg-${each.key}"
   vpc_id                        = var.vpc_id
   port                          = try(each.value.target_port, try(each.value.port, each.value.protocol == "HTTP" ? "80" : 443))
-  protocol                      = each.value.protocol
+  protocol                      = try(each.value.target_protocol, each.value.protocol)
   protocol_version              = try(each.value.protocol_version, null)
   target_type                   = "ip"
   load_balancing_algorithm_type = try(each.value.round_robin, null) != null ? (each.value.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
@@ -115,6 +115,7 @@ resource "aws_lb_target_group" "this" {
     healthy_threshold   = try(each.value.health_check_healthy_threshold, null)
     unhealthy_threshold = try(each.value.health_check_unhealthy_threshold, null)
     interval            = try(each.value.health_check_interval, null)
+    timeout             = try(each.value.health_check_timeout, null)
     protocol            = try(each.value.health_check_protocol, each.value.protocol)
     port                = try(each.value.health_check_port, "traffic-port")
     matcher             = try(each.value.health_check_matcher, null)

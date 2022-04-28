@@ -162,7 +162,9 @@ variable "balance_rules" {
     "application_name" = {
       protocol            = "communication protocol, since this is an ALB module accepted values are `HTTP` or `HTTPS`"
       port                = "communication port, defaults to protocol's default port"
+
       target_port         = "the port number on which the target accepts communication, defaults to the communication port value"
+      target_protocol     = "protocol used by the target instances"
       targets             = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target IP (all supported targets are of type `IP`)"
       round_robin         = "use round robin to select backend servers, defaults to `true`, when set to `false` `least_outstanding_requests` is used instead"
 
@@ -172,6 +174,7 @@ variable "balance_rules" {
       health_check_healthy_threshold   = "number of consecutive health checks before considering target healthy, defaults to 3"
       health_check_unhealthy_threshold = "number of consecutive health checks before considering target unhealthy, defaults to 3"
       health_check_interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
+      health_check_timeout             = "health check probe timeout"
       health_check_matcher             = "response codes expected during health check, defaults to `200` for HTTP(s)"
       health_check_path                = "destination used by the health check request, defaults to `/`"
 

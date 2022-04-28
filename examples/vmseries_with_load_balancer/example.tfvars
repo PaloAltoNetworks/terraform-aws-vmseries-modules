@@ -28,12 +28,12 @@ security_vpc_security_groups = {
     rules = {
       all_inbound = {
         description = "Permit all incoming traffic"
-        type        = "ingress", from_port = "0", to_port = "0", protocol = "TCP"
+        type        = "ingress", from_port = "0", to_port = "65535", protocol = "TCP"
         cidr_blocks = ["0.0.0.0/0"]
       }
       fw_traffic = {
         description = "Permit all  traffic to FW"
-        type        = "egress", from_port = "0", to_port = "0", protocol = "TCP"
+        type        = "egress", from_port = "0", to_port = "65535", protocol = "TCP"
         cidr_blocks = ["0.0.0.0/0"]
       }
       # health_check_traffic = {
