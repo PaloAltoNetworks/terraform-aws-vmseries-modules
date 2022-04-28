@@ -152,7 +152,7 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "balance_rules" {
+variable "rules" {
   description = <<-EOF
   An object that contains the listener, target group, and health check configuration. 
   It consists of maps of applications like follows:
@@ -243,6 +243,29 @@ variable "balance_rules" {
   # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
   # Actually, in our case they have the same type, but they differ in the amount of inner elements.
   type = any
+}
+
+variable "targets" {
+  description = <<-EOF
+  A list of backends accepting traffic.
+
+  All target are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
+
+  ```
+  fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+  ```
+
+  For format of `var.vmseries` check the [`vmseries` module](../vmseries/README.md). The key is the VM name. By using those keys, we can loop through all vmseries modules and take the private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
+
+  ```
+  {
+    vm01 = "1.1.1.1"
+    vm02 = "2.2.2.2"
+    ...
+  }
+  ```
+  EOF
+  type        = map(string)
 }
 
 variable "tags" {

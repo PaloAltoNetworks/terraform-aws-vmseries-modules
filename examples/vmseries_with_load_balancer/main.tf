@@ -69,30 +69,32 @@ module "public_nlb" {
   access_logs_s3_bucket_name = "fosix-alb-logs-bucket"
   security_groups            = [module.security_vpc.security_group_ids["load_balancer"]]
 
-  balance_rules = {
-    # "http-app" = {
-    #   protocol = "HTTP"
-    #   targets  = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-    # }
-    "https-app" = {
-      protocol = "HTTPS"
-      # port                             = ""
-      health_check_port                = "80"
-      health_check_healthy_threshold   = 2
-      health_check_unhealthy_threshold = 2
-      health_check_interval            = 10
-      health_check_protocol            = "HTTP"
-      health_check_matcher             = "302"
-      health_check_path                = "/"
-      target_port                      = 8080
-      target_protocol                  = "HTTP"
-
+  rules = {
+    "some-app" = {
+      protocol        = "HTTPS"
       certificate_arn = "arn:aws:acm:eu-west-1:354128141335:certificate/11e854e2-849d-443c-92fc-53327cf88e07"
-      ssl_policy      = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
 
-      targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+      health_check_port     = "80"
+      health_check_protocol = "HTTP"
+      health_check_matcher  = "302"
+      health_check_path     = "/"
+
+      listener_rules = {
+        "100" = {
+          host_header     = ["www.something.com"]
+          target_port     = 8080
+          target_protocol = "HTTP"
+        }
+        "99" = {
+          host_header     = ["www.else.org"]
+          target_port     = 8081
+          target_protocol = "HTTP"
+        }
+      }
     }
   }
+
+  targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
 
   tags = var.global_tags
 }

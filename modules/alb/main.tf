@@ -1,25 +1,58 @@
 locals {
-  # `target_attachments` is a flattened version of `var.balance_rules`, it contains maps of target attachments' properties.
-  # Each map contains target `id`, `port` and `app_name`, which is a key used to reference the actual target group instance.
-  # It is used only for `aws_lb_target_group_attachment` resource.
-  fw_instance_list = flatten([
-    for k, v in var.balance_rules : [
-      for target_name, target_id in v.targets :
-      {
-        app_name = k
-        name     = target_name
-        id       = target_id
-        port     = try(v.target_port, try(v.port, v.protocol == "HTTP" ? "80" : "443"))
+  listener_tg_list = flatten([
+    for k, v in var.rules : [
+      for l_k, l_v in v.listener_rules : {
+        name                     = "${k}-${l_v.target_port}"
+        port                     = l_v.target_port
+        proto                    = l_v.target_protocol
+        proto_v                  = try(l_v.target_protocol_version, null)
+        h_ch_healthy_threshold   = try(v.health_check_healthy_threshold, null)
+        h_ch_unhealthy_threshold = try(v.health_check_unhealthy_threshold, null)
+        h_ch_interval            = try(v.health_check_interval, null)
+        h_ch_timeout             = try(v.health_check_timeout, null)
+        h_ch_protocol            = try(v.health_check_protocol, v.protocol)
+        h_ch_port                = try(v.health_check_port, "traffic-port")
+        h_ch_matcher             = try(v.health_check_matcher, null)
+        h_ch_path                = try(v.health_check_path, "/")
+        lb_algorithm             = try(v.round_robin, null) != null ? (v.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
       }
     ]
   ])
 
-  target_attachments = {
-    for v in local.fw_instance_list :
-    "${v.app_name}-${v.name}" => {
-      app_name = v.app_name
-      id       = v.id
-      port     = v.port
+  listener_tg = {
+    for v in local.listener_tg_list : v.name => {
+      port                     = v.port
+      proto                    = v.proto
+      proto_v                  = v.proto_v
+      h_ch_healthy_threshold   = v.h_ch_healthy_threshold
+      h_ch_unhealthy_threshold = v.h_ch_unhealthy_threshold
+      h_ch_interval            = v.h_ch_interval
+      h_ch_timeout             = v.h_ch_timeout
+      h_ch_protocol            = v.h_ch_protocol
+      h_ch_port                = v.h_ch_port
+      h_ch_matcher             = v.h_ch_matcher
+      h_ch_path                = v.h_ch_path
+      lb_algorithm             = v.lb_algorithm
+
+    }
+  }
+
+  listener_tg_attachments_list = flatten([
+    for v in local.listener_tg_list : [
+      for t_k, t_v in var.targets : {
+        host             = t_k
+        ip               = t_v
+        port             = v.port
+        listener_tg_name = v.name
+      }
+    ]
+  ])
+
+  listener_tg_attachments = {
+    for v in local.listener_tg_attachments_list : "${v.listener_tg_name}-${v.host}" => {
+      ip               = v.ip
+      port             = v.port
+      listener_tg_name = v.listener_tg_name
     }
   }
 }
@@ -101,40 +134,40 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_lb_target_group" "this" {
-  for_each = var.balance_rules
+  for_each = local.listener_tg
 
-  name                          = "${var.lb_name}-tg-${each.key}"
+  # name                          = "${var.lb_name}-tg-${each.key}"
   vpc_id                        = var.vpc_id
-  port                          = try(each.value.target_port, try(each.value.port, each.value.protocol == "HTTP" ? "80" : 443))
-  protocol                      = try(each.value.target_protocol, each.value.protocol)
-  protocol_version              = try(each.value.protocol_version, null)
+  port                          = each.value.port
+  protocol                      = each.value.proto
+  protocol_version              = each.value.proto_v
   target_type                   = "ip"
-  load_balancing_algorithm_type = try(each.value.round_robin, null) != null ? (each.value.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
+  load_balancing_algorithm_type = each.value.lb_algorithm
 
   health_check {
-    healthy_threshold   = try(each.value.health_check_healthy_threshold, null)
-    unhealthy_threshold = try(each.value.health_check_unhealthy_threshold, null)
-    interval            = try(each.value.health_check_interval, null)
-    timeout             = try(each.value.health_check_timeout, null)
-    protocol            = try(each.value.health_check_protocol, each.value.protocol)
-    port                = try(each.value.health_check_port, "traffic-port")
-    matcher             = try(each.value.health_check_matcher, null)
-    path                = try(each.value.health_check_path, "/")
+    healthy_threshold   = each.value.h_ch_healthy_threshold
+    unhealthy_threshold = each.value.h_ch_unhealthy_threshold
+    interval            = each.value.h_ch_interval
+    timeout             = each.value.h_ch_timeout
+    protocol            = each.value.h_ch_protocol
+    port                = each.value.h_ch_port
+    matcher             = each.value.h_ch_matcher
+    path                = each.value.h_ch_path
   }
 
   tags = var.tags
 }
 
 resource "aws_lb_target_group_attachment" "this" {
-  for_each = local.target_attachments
+  for_each = local.listener_tg_attachments
 
-  target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
-  target_id        = each.value.id
+  target_group_arn = aws_lb_target_group.this[each.value.listener_tg_name].arn
+  target_id        = each.value.ip
   port             = each.value.port
 }
 
 resource "aws_lb_listener" "this" {
-  for_each = var.balance_rules
+  for_each = var.rules
 
   load_balancer_arn = aws_lb.this.arn
   port              = try(each.value.port, each.value.protocol == "HTTP" ? "80" : "443")
@@ -145,8 +178,12 @@ resource "aws_lb_listener" "this" {
   ssl_policy      = try(each.value.ssl_policy, null)
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.this[each.key].arn
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      # message_body = "Fixed response content"
+      status_code = "503"
+    }
   }
 
   tags = var.tags
