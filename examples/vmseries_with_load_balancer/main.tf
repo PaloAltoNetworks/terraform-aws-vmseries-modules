@@ -87,6 +87,7 @@ module "public_nlb" {
           http_headers = {
             "X-Forwarded-For" = ["192.168.1.*"]
           }
+          http_request_method = ["GET"]
         }
         "99" = {
           host_headers    = ["www.else.org"]

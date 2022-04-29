@@ -19,17 +19,19 @@ locals {
         priority                 = l_k
         host_headers             = try(l_v.host_headers, null)
         http_headers             = try(l_v.http_headers, null)
+        http_request_method      = try(l_v.http_request_method, null)
       }
     ]
   ])
 
   listener_rules = {
     for v in local.rules_flattened : "${v.app_name}-${v.priority}" => {
-      listener_key = v.app_name
-      priority     = v.priority
-      tg_key       = v.tg_key
-      host_headers = v.host_headers
-      http_headers = v.http_headers
+      listener_key        = v.app_name
+      priority            = v.priority
+      tg_key              = v.tg_key
+      host_headers        = v.host_headers
+      http_headers        = v.http_headers
+      http_request_method = v.http_request_method
     }
   }
 
@@ -237,5 +239,14 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  dynamic "condition" {
+    for_each = each.value.http_request_method != null ? [1] : []
+
+    content {
+      http_request_method {
+        values = each.value.http_request_method
+      }
+    }
+  }
 
 }
