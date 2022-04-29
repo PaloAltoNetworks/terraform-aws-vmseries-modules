@@ -18,6 +18,7 @@ locals {
         lb_algorithm             = try(v.round_robin, null) != null ? (v.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
         priority                 = l_k
         host_headers             = try(l_v.host_headers, null)
+        http_headers             = try(l_v.http_headers, null)
       }
     ]
   ])
@@ -28,6 +29,7 @@ locals {
       priority     = v.priority
       tg_key       = v.tg_key
       host_headers = v.host_headers
+      http_headers = v.http_headers
     }
   }
 
@@ -211,9 +213,29 @@ resource "aws_lb_listener_rule" "this" {
     target_group_arn = aws_lb_target_group.this[each.value.tg_key].arn
   }
 
-  condition {
-    host_header {
-      values = each.value.host_headers
+  dynamic "condition" {
+    for_each = each.value.host_headers != null ? [1] : []
+
+    content {
+      host_header {
+        values = each.value.host_headers
+      }
     }
   }
+
+  dynamic "condition" {
+    for_each = each.value.http_headers != null ? [1] : []
+    content {
+      dynamic "http_header" {
+        for_each = each.value.http_headers
+
+        content {
+          http_header_name = http_header.key
+          values           = http_header.value
+        }
+      }
+    }
+  }
+
+
 }

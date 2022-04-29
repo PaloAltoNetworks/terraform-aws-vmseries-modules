@@ -84,6 +84,9 @@ module "public_nlb" {
           host_headers    = ["fosix-public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
           target_port     = 8080
           target_protocol = "HTTP"
+          http_headers = {
+            "X-Forwarded-For" = ["192.168.1.*"]
+          }
         }
         "99" = {
           host_headers    = ["www.else.org"]
