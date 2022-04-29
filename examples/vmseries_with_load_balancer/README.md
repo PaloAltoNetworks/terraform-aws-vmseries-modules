@@ -45,7 +45,9 @@ terraform destroy
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.74 |
 
 ## Modules
 
@@ -59,7 +61,13 @@ No providers.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [aws_eip.app_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
+| [aws_eip_association.nic_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip_association) | resource |
+| [aws_instance.app_vm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_network_interface.app_nic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
+| [aws_ami.ubuntu](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 
 ## Inputs
 
@@ -82,5 +90,7 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_app_vm_ips"></a> [app\_vm\_ips](#output\_app\_vm\_ips) | n/a |
 | <a name="output_fw_public_ips"></a> [fw\_public\_ips](#output\_fw\_public\_ips) | Map of public IPs created within the module. |
+| <a name="output_public_lb_fqdn"></a> [public\_lb\_fqdn](#output\_public\_lb\_fqdn) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -11,6 +11,9 @@
 
 - [x] ssl support for listener
 - [x] possibility to use SSL Policies
-- [ ] add listener rules support, in case of routing based on FQDNs and HostHeaders
+- [x] add listener rules support, in case of routing based on FQDNs and HostHeaders
 - [x] add possibility to terminate SSL on ALB
-- [ ] add a validation for health_check_interval?? for min, max values
+
+## other
+
+- [ ] testing

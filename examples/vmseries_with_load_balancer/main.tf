@@ -70,35 +70,39 @@ module "public_nlb" {
   security_groups            = [module.security_vpc.security_group_ids["load_balancer"]]
 
   rules = {
-    "some-app" = {
+    "defaults" = {
+      protocol = "HTTP"
+      listener_rules = {
+        "1" = {
+          target_port     = 8080
+          target_protocol = "HTTP"
+          host_headers    = ["default.com", "www.default.com"]
+        }
+      }
+    }
+    "https-custom" = {
       protocol        = "HTTPS"
+      port            = 443
       certificate_arn = "arn:aws:acm:eu-west-1:354128141335:certificate/11e854e2-849d-443c-92fc-53327cf88e07"
 
       health_check_port     = "80"
       health_check_protocol = "HTTP"
       health_check_matcher  = "302"
       health_check_path     = "/"
+      health_check_interval = 10
 
       listener_rules = {
         "1" = {
-          host_headers    = ["fosix-public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
-          target_port     = 8080
-          target_protocol = "HTTP"
-          http_headers = {
-            "X-Forwarded-For" = ["192.168.1.*"]
-          }
-          # http_request_method = ["GET"]
-          # path_pattern        = ["/", "/login.php"]
-          query_strings = {
-            "lang"    = "us"
-            "nokey_1" = "test"
-          }
-          source_ip = ["10.0.0.0/8"]
+          target_port         = 8443
+          target_protocol     = "HTTP"
+          host_headers        = ["www.custom.org"]
+          http_request_method = ["GET", "HEAD"]
         }
-        "99" = {
-          host_headers    = ["www.else.org"]
-          target_port     = 8081
-          target_protocol = "HTTP"
+        "2" = {
+          target_port         = 8444
+          target_protocol     = "HTTP"
+          host_headers        = ["api.custom.org"]
+          http_request_method = ["POST", "OPTIONS", "DELETE"]
         }
       }
     }

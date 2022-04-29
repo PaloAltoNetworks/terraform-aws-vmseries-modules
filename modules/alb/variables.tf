@@ -110,7 +110,7 @@ variable "security_groups" {
 
 variable "subnets" {
   description = <<-EOF
-  Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
+  Map of subnets used with a Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
   `id` identifying AWS subnet.
   
   Examples:
@@ -154,22 +154,19 @@ variable "vpc_id" {
 
 variable "rules" {
   description = <<-EOF
-  An object that contains the listener, target group, and health check configuration. 
-  It consists of maps of applications like follows:
+  An object that contains the listener, listener_rules, target group, and health check configuration. 
+  It consists of maps of applications with their properties, like follows:
 
   ```
-  balance_rules = {
+  rules = {
     "application_name" = {
       protocol            = "communication protocol, since this is an ALB module accepted values are `HTTP` or `HTTPS`"
       port                = "communication port, defaults to protocol's default port"
 
-      target_port         = "the port number on which the target accepts communication, defaults to the communication port value"
-      target_protocol     = "protocol used by the target instances"
-      targets             = "a map of targets, where key is the target name (used to create a name for the target attachment), value is the target IP (all supported targets are of type `IP`)"
-      round_robin         = "use round robin to select backend servers, defaults to `true`, when set to `false` `least_outstanding_requests` is used instead"
+      certificate_arn   = "(HTTPS ONLY) this is the arn of a certificate"
+      ssl_policy        = "(HTTPS ONLY) name of an ssl policy used by the Load Balancer's listener, defaults to AWS default, for available options see [AWS documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies)"
 
-
-      health_check_protocol            = "this can be either `HTTP` or `HTTPS`, default to communication protocol"
+      health_check_protocol            = "this can be either `HTTP` or `HTTPS`, defaults to communication protocol"
       health_check_port                = "port used by the target group health check, if omitted, `traffic-port` will be used"
       health_check_healthy_threshold   = "number of consecutive health checks before considering target healthy, defaults to 3"
       health_check_unhealthy_threshold = "number of consecutive health checks before considering target unhealthy, defaults to 3"
@@ -178,9 +175,7 @@ variable "rules" {
       health_check_matcher             = "response codes expected during health check, defaults to `200` for HTTP(s)"
       health_check_path                = "destination used by the health check request, defaults to `/`"
 
-
-      certificate_arn   = "(HTTPS ONLY) this is the arn of a certificate"
-      ssl_policy        = "(HTTPS ONLY) name of an ssl policy used by the Load Balancer's listener, defaults to AWS default, for available options see [AWS documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies)"
+      listener_rules    = "a map of rules for a listener created for this application, see `listener_rules` block below for more information
     }
   }
   ```
@@ -188,53 +183,56 @@ variable "rules" {
   The `application_name` key is valid only for letters, numbers and a dash (`-`) - that's an AWS limitation.
 
   <hr>
-  `protocol` and `port` are used for `listener`, `target group` and `target group attachment`. Partially also for health checks (see below).
+  There is always one listener created per application. The listener has always a default action that responds with `503`. This should be treated as a `catch-all` rule. For the listener to send traffic to backends a listener rule has to be created. This is controlled via the `listener_rules` map. 
 
-  <hr>
-  All listeners are always of forward action.
+  A key in this map is the priority of the listener rule. Priority can be between `1` and `50000`. All properties under a particular key refer to either rule's condition(s) or the target group that should receive traffic if a rule is met. 
 
-  <hr>
-  All target are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
+  Rule conditions - at least one but not more than five of: `host_headers`, `http_headers`, `http_request_method`, `path_pattern`, `query_strings` or `source_ip` has to be set. For more information on what conditions can be set for each type refer to [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule#condition-blocks).
 
-  ```
-  fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-  ```
+  Target group - keep in mind that all target group attachments are always pointing to VMSeries' public interfaces. The difference between target groups for each rule is the protocol and/or port to which the traffic is being directed.
 
-  For format of `var.vmseries` check the [`vmseries` module](../vmseries/README.md). The key is the VM name. By using those keys, we can loop through all vmseries modules and take the private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
+  The `listener_rules` map presents as follows:
 
   ```
-  {
-    vm01 = "1.1.1.1"
-    vm02 = "2.2.2.2"
-    ...
+  listener_rules = {
+    "rule_priority" = {                                 # string representation of a rule's priority (number from 1 - 50000)
+      target_port           = "port on which the target is listening for requests"
+      target_protocol       = "target protocol, can be `HTTP` or `HTTPS`"
+      protocol_version      = "one of `HTTP1`, `HTTP/2` or `GRPC`, defaults to `HTTP1`"
+      host_headers          = "a list of possible host headers, case insensitive, wildcars (`*`,`?`) are supported"
+      http_headers          = "a map of key-value pairs, where key is a name of an HTTP header and value is a list of possible values, same rules apply like for `host_headers`"
+      http_request_method   = "a list of possible HTTP request methods, case sensitive, strict matching (no wildcars)"
+      path_pattern          = "a list of path patterns (w/o query strings), case sensitive, wildcars supported"
+      query_strings         = "a map of key-value pairs, key is a query string key pattern and value is a query string value pattern, case insensitive, wildcards supported, it is possible to match only a value pattern (the key value should be prefixed with `nokey_`)"
+      source_ip             = "a map of source IP CDIR notation to match"
+    }
   }
   ```
-
-  <hr>
-  Health checks by default use the same protocol as the target group. But this can be overridden. Due to the fact that this module sets up an Application Load Balancer the only options available are: `HTTP` or `HTTPS`.
 
   <hr>
   EXAMPLE
 
   ```
-  balance_rules = {
-    "HTTPS-APP" = {
-      protocol                         = "HTTPS"
-      port                             = "444"
-      health_check_port                = "80"
-      health_check_protocol            = "HTTP"
-      health_check_healthy_threshold   = 2
-      health_check_unhealthy_threshold = 10
-      health_check_interval            = 10
-      health_check_matcher             = "200-301"
-      health_check_path                = "/login.php"
-      target_port                      = 8443
-      round_robin                      = false
-
-      certificate_arn = "arn:aws:acm:eu-west-1:123456789012:certificate/11111111-2222-3333-4444-555555555555"
-      ssl_policy      = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
-
-      targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+  listener_rules = {
+    "1" = {
+      target_port     = 8080
+      target_protocol = "HTTP"
+      host_headers    = ["fosix-public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
+      http_headers = {
+        "X-Forwarded-For" = ["192.168.1.*"]
+      }
+      http_request_method = ["GET"]
+    }
+    "99" = {
+      host_headers    = ["www.else.org"]
+      target_port     = 8081
+      target_protocol = "HTTP"
+      path_pattern    = ["/", "/login.php"]
+      query_strings = {
+        "lang"    = "us"
+        "nokey_1" = "test"
+      }
+      source_ip = ["10.0.0.0/8"]
     }
   }
   ```
@@ -247,9 +245,7 @@ variable "rules" {
 
 variable "targets" {
   description = <<-EOF
-  A list of backends accepting traffic.
-
-  All target are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
+  A list of backends accepting traffic. For Application Load Balancer all targets are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific VMSeries' network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
 
   ```
   fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
