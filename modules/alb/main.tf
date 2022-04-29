@@ -21,6 +21,7 @@ locals {
         http_headers             = try(l_v.http_headers, null)
         http_request_method      = try(l_v.http_request_method, null)
         path_pattern             = try(l_v.path_pattern, null)
+        query_strings            = try(l_v.query_strings, null)
       }
     ]
   ])
@@ -34,6 +35,7 @@ locals {
       http_headers        = v.http_headers
       http_request_method = v.http_request_method
       path_pattern        = v.path_pattern
+      query_strings       = v.query_strings
     }
   }
 
@@ -257,6 +259,20 @@ resource "aws_lb_listener_rule" "this" {
     content {
       path_pattern {
         values = each.value.path_pattern
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = each.value.query_strings != null ? [1] : []
+    content {
+      dynamic "query_string" {
+        for_each = each.value.query_strings
+
+        content {
+          key   = length(regexall("^nokey_.*$", query_string.key)) > 0 ? null : query_string.key
+          value = query_string.value
+        }
       }
     }
   }

@@ -88,7 +88,11 @@ module "public_nlb" {
             "X-Forwarded-For" = ["192.168.1.*"]
           }
           http_request_method = ["GET"]
-          path_pattern        = ["/", "/login.php"]
+          # path_pattern        = ["/", "/login.php"]
+          query_strings = {
+            "lang"    = "us"
+            "nokey_1" = "test"
+          }
         }
         "99" = {
           host_headers    = ["www.else.org"]
