@@ -22,6 +22,7 @@ locals {
         http_request_method      = try(l_v.http_request_method, null)
         path_pattern             = try(l_v.path_pattern, null)
         query_strings            = try(l_v.query_strings, null)
+        source_ip                = try(l_v.source_ip, null)
       }
     ]
   ])
@@ -36,6 +37,7 @@ locals {
       http_request_method = v.http_request_method
       path_pattern        = v.path_pattern
       query_strings       = v.query_strings
+      source_ip           = v.source_ip
     }
   }
 
@@ -273,6 +275,16 @@ resource "aws_lb_listener_rule" "this" {
           key   = length(regexall("^nokey_.*$", query_string.key)) > 0 ? null : query_string.key
           value = query_string.value
         }
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = each.value.source_ip != null ? [1] : []
+
+    content {
+      source_ip {
+        values = each.value.source_ip
       }
     }
   }
