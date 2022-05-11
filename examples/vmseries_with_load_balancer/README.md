@@ -92,5 +92,6 @@ terraform destroy
 |------|-------------|
 | <a name="output_app_vm_ips"></a> [app\_vm\_ips](#output\_app\_vm\_ips) | n/a |
 | <a name="output_fw_public_ips"></a> [fw\_public\_ips](#output\_fw\_public\_ips) | Map of public IPs created within the module. |
+| <a name="output_lb_private_ips"></a> [lb\_private\_ips](#output\_lb\_private\_ips) | n/a |
 | <a name="output_public_lb_fqdn"></a> [public\_lb\_fqdn](#output\_public\_lb\_fqdn) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
