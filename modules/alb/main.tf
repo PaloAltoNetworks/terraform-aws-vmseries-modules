@@ -94,13 +94,15 @@ resource "aws_s3_bucket_acl" "example_bucket_acl" {
   acl    = "private"
 }
 
+data "aws_elb_service_account" "this" {}
+
 data "aws_iam_policy_document" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
   statement {
     principals {
       type        = "AWS"
-      identifiers = [var.elb_account_ids[var.region]]
+      identifiers = [data.aws_elb_service_account.this.arn]
     }
 
     actions = ["s3:PutObject"]
