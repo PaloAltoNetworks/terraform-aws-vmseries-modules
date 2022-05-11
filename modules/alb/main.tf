@@ -1,4 +1,11 @@
 locals {
+  # The list below is used to de-nest the listener rules properties. 
+  # For each application definition you have target group and health check configuration 
+  # and one or more listener rules properties.
+  # In each element of this list you will have lister rule properties combined with 
+  # parent application's target group and health check properties.
+  # This flat list is then used to create maps for target group, target group attachment and 
+  # listener rules configuration.
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
@@ -27,20 +34,12 @@ locals {
     ]
   ])
 
-  listener_rules = {
-    for v in local.rules_flattened : "${v.app_name}-${v.priority}" => {
-      listener_key        = v.app_name
-      priority            = v.priority
-      tg_key              = v.tg_key
-      host_headers        = v.host_headers
-      http_headers        = v.http_headers
-      http_request_method = v.http_request_method
-      path_pattern        = v.path_pattern
-      query_strings       = v.query_strings
-      source_ip           = v.source_ip
-    }
-  }
-
+  # A map of target groups that will be referenced in listener rules.
+  # To minimize a number of target groups we create unique groups
+  # per application and listener rule's port.
+  # Example, if a listener for an application has 3 listener rules using
+  # the same 8080 port, only one target group will be created.
+  # The map below contains also health check properties specific for particular application.
   listener_tg = {
     for v in local.rules_flattened : v.tg_key => {
       port                     = v.port
@@ -59,6 +58,25 @@ locals {
     }
   }
 
+  # Listener rules map. Contains only listener rules properties and a reference a target group.
+  listener_rules = {
+    for v in local.rules_flattened : "${v.app_name}-${v.priority}" => {
+      listener_key        = v.app_name
+      priority            = v.priority
+      tg_key              = v.tg_key
+      host_headers        = v.host_headers
+      http_headers        = v.http_headers
+      http_request_method = v.http_request_method
+      path_pattern        = v.path_pattern
+      query_strings       = v.query_strings
+      source_ip           = v.source_ip
+    }
+  }
+
+  # A flat list that is a combination of target group properties and information
+  # on firewalls' IPs.
+  # This will be used to create a map of target groups attachments.
+  # One of the properties is the target group reference.
   listener_tg_attachments_list = flatten([
     for v in local.rules_flattened : [
       for t_k, t_v in var.targets : {
@@ -70,6 +88,7 @@ locals {
     ]
   ])
 
+  # A map of target group attachments.
   listener_tg_attachments = {
     for v in local.listener_tg_attachments_list : "${v.listener_tg_name}-${v.host}" => {
       ip               = v.ip
@@ -80,6 +99,7 @@ locals {
 }
 
 # ## Access Logs Bucket ##
+# For Application Load Balancers where access logs are stored in S3 Bucket.
 resource "aws_s3_bucket" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
@@ -126,6 +146,7 @@ data "aws_s3_bucket" "this" {
 }
 # ######################## #
 
+# ## Application Load Balancer ##
 resource "aws_lb" "this" {
   name                             = var.lb_name
   internal                         = false
@@ -157,6 +178,9 @@ resource "aws_lb" "this" {
   ]
 }
 
+# ######################## #
+
+# ## Target Group Configuration ##
 resource "aws_lb_target_group" "this" {
   for_each = local.listener_tg
 
@@ -188,7 +212,9 @@ resource "aws_lb_target_group_attachment" "this" {
   target_id        = each.value.ip
   port             = each.value.port
 }
+# ######################## #
 
+# ## Listener Configuration ##
 resource "aws_lb_listener" "this" {
   for_each = var.rules
 
@@ -200,6 +226,7 @@ resource "aws_lb_listener" "this" {
   certificate_arn = each.value.protocol == "HTTPS" ? try(each.value.certificate_arn, null) : null
   ssl_policy      = try(each.value.ssl_policy, null)
 
+  # catch-all rule, if no listener rule matches
   default_action {
     type = "fixed-response"
     fixed_response {
@@ -217,11 +244,13 @@ resource "aws_lb_listener_rule" "this" {
   listener_arn = aws_lb_listener.this[each.value.listener_key].arn
   priority     = each.value.priority
 
+  # we only forward traffic to Firewalls
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this[each.value.tg_key].arn
   }
 
+  # a block for host_header condition
   dynamic "condition" {
     for_each = each.value.host_headers != null ? [1] : []
 
@@ -232,6 +261,7 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  # a block of http_header conditions
   dynamic "condition" {
     for_each = each.value.http_headers != null ? [1] : []
     content {
@@ -246,6 +276,7 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  # a block for http_request_method condition
   dynamic "condition" {
     for_each = each.value.http_request_method != null ? [1] : []
 
@@ -256,6 +287,7 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  # a block for path_pattern condition
   dynamic "condition" {
     for_each = each.value.path_pattern != null ? [1] : []
 
@@ -266,6 +298,7 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  # a block of query_string conditions
   dynamic "condition" {
     for_each = each.value.query_strings != null ? [1] : []
     content {
@@ -280,6 +313,7 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 
+  # a block for source_ip condition
   dynamic "condition" {
     for_each = each.value.source_ip != null ? [1] : []
 
@@ -292,7 +326,7 @@ resource "aws_lb_listener_rule" "this" {
 }
 
 # Private Load Balancer's IP addresses. It can be handy to have them in module's output, especially that they can be used
-# for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
+# for Management Profile configuration - to limit health check probe traffic to LB's internal IPs only.
 data "aws_network_interface" "this" {
   for_each = var.subnets
 
