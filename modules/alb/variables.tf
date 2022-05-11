@@ -1,10 +1,10 @@
 variable "lb_name" {
-  description = "Name of the Load Balancer to be created"
+  description = "Name of the Load Balancer to be created."
   type        = string
 }
 
 variable "drop_invalid_header_fields" {
-  description = "Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer or not."
+  description = "Indicates whether HTTP headers with header fields that are not valid are removed by the Load Balancer or not."
   default     = false
   type        = bool
 }
@@ -17,7 +17,7 @@ variable "idle_timeout" {
 
 variable "desync_mitigation_mode" {
   description = <<-EOF
-  Determines how the load balancer handles requests that might pose a security risk to an application due to HTTP desync.
+  Determines how the Load Balancer handles requests that might pose a security risk to an application due to HTTP desync.
   Defaults to AWS default. For possible values and current defaults refer to [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb#desync_mitigation_mode).
   EOF
   default     = null
@@ -28,8 +28,8 @@ variable "configure_access_logs" {
   description = <<-EOF
   Configure Load Balancer to store access logs in an S3 Bucket.
   
-  When used with `access_logs_byob` set to `false` forces a creation of a new bucket.
-  If however `access_logs_byob` is set to `true` an existing bucket can be used.
+  When used with `access_logs_byob` set to `false` forces creation of a new bucket.
+  If, however, `access_logs_byob` is set to `true` an existing bucket can be used.
 
   The name of the newly created or existing bucket is controlled via `access_logs_s3_bucket_name`.
   EOF
@@ -60,19 +60,27 @@ variable "access_logs_s3_bucket_name" {
 }
 
 variable "access_logs_s3_bucket_prefix" {
-  description = "A path to a location inside a bucket under which the access logs will be stored. When omitted defaults to the root folder of a bucket."
+  description = "A path to a location inside a bucket under which access logs will be stored. When omitted defaults to the root folder of a bucket."
   default     = null
   type        = string
 }
 
 variable "security_groups" {
-  description = "A list of security group IDs to use with a Load Balancer."
+  description = <<-EOF
+  A list of security group IDs to use with a Load Balancer.
+
+  If security groups are created with a [VPC module](../vpc/README.md) you can use output from that module like this:
+  ```
+  security_groups              = [module.vpc.security_group_ids["load_balancer_security_group"]]
+  ```
+  For more information on meaning of the `load_balancer_security_group` key refer to the [VPC module documentation](../vpc/README.md).
+  EOF
   type        = list(string)
 }
 
 variable "subnets" {
   description = <<-EOF
-  Map of subnets used with a Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
+  Map of subnets used with a Load Balancer. Each key is the availability zone name and the value is an object that has an attribute
   `id` identifying AWS subnet.
   
   Examples:
@@ -117,7 +125,7 @@ variable "vpc_id" {
 variable "rules" {
   description = <<-EOF
   An object that contains the listener, listener_rules, target group, and health check configuration. 
-  It consists of maps of applications with their properties, like follows:
+  It consists of maps of applications with their properties, like in the following example:
 
   ```
   rules = {
@@ -125,16 +133,16 @@ variable "rules" {
       protocol            = "communication protocol, since this is an ALB module accepted values are `HTTP` or `HTTPS`"
       port                = "communication port, defaults to protocol's default port"
 
-      certificate_arn   = "(HTTPS ONLY) this is the arn of a certificate"
+      certificate_arn   = "(HTTPS ONLY) this is the arn of an existing certificate, this module will not create one for you"
       ssl_policy        = "(HTTPS ONLY) name of an ssl policy used by the Load Balancer's listener, defaults to AWS default, for available options see [AWS documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies)"
 
       health_check_protocol            = "this can be either `HTTP` or `HTTPS`, defaults to communication protocol"
-      health_check_port                = "port used by the target group health check, if omitted, `traffic-port` will be used"
+      health_check_port                = "port used by the target group health check, if omitted, `traffic-port` will be used (which will be the same as communication port)"
       health_check_healthy_threshold   = "number of consecutive health checks before considering target healthy, defaults to 3"
       health_check_unhealthy_threshold = "number of consecutive health checks before considering target unhealthy, defaults to 3"
       health_check_interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
-      health_check_timeout             = "health check probe timeout"
-      health_check_matcher             = "response codes expected during health check, defaults to `200` for HTTP(s)"
+      health_check_timeout             = "health check probe timeout, defaults to AWS default value"
+      health_check_matcher             = "response codes expected during health check, defaults to `200`"
       health_check_path                = "destination used by the health check request, defaults to `/`"
 
       listener_rules    = "a map of rules for a listener created for this application, see `listener_rules` block below for more information
@@ -147,24 +155,24 @@ variable "rules" {
   <hr>
   There is always one listener created per application. The listener has always a default action that responds with `503`. This should be treated as a `catch-all` rule. For the listener to send traffic to backends a listener rule has to be created. This is controlled via the `listener_rules` map. 
 
-  A key in this map is the priority of the listener rule. Priority can be between `1` and `50000`. All properties under a particular key refer to either rule's condition(s) or the target group that should receive traffic if a rule is met. 
+  A key in this map is the priority of the listener rule. Priority can be between `1` and `50000` (AWS specifics). All properties under a particular key refer to either rule's condition(s) or the target group that should receive traffic if a rule is met. 
 
   Rule conditions - at least one but not more than five of: `host_headers`, `http_headers`, `http_request_method`, `path_pattern`, `query_strings` or `source_ip` has to be set. For more information on what conditions can be set for each type refer to [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule#condition-blocks).
 
-  Target group - keep in mind that all target group attachments are always pointing to VMSeries' public interfaces. The difference between target groups for each rule is the protocol and/or port to which the traffic is being directed.
+  Target group - keep in mind that all target group attachments are always pointing to VMSeries' public interfaces. The difference between target groups for each rule is the protocol and/or port to which the traffic is being directed. And these are the only properties you can configure.
 
   The `listener_rules` map presents as follows:
 
   ```
   listener_rules = {
-    "rule_priority" = {                                 # string representation of a rule's priority (number from 1 - 50000)
+    "rule_priority" = {      # string representation of a rule's priority (number from 1 - 50000)
       target_port           = "port on which the target is listening for requests"
       target_protocol       = "target protocol, can be `HTTP` or `HTTPS`"
       protocol_version      = "one of `HTTP1`, `HTTP/2` or `GRPC`, defaults to `HTTP1`"
-      host_headers          = "a list of possible host headers, case insensitive, wildcars (`*`,`?`) are supported"
+      host_headers          = "a list of possible host headers, case insensitive, wildcards (`*`,`?`) are supported"
       http_headers          = "a map of key-value pairs, where key is a name of an HTTP header and value is a list of possible values, same rules apply like for `host_headers`"
-      http_request_method   = "a list of possible HTTP request methods, case sensitive, strict matching (no wildcars)"
-      path_pattern          = "a list of path patterns (w/o query strings), case sensitive, wildcars supported"
+      http_request_method   = "a list of possible HTTP request methods, case sensitive (upper case only), strict matching (no wildcards)"
+      path_pattern          = "a list of path patterns (w/o query strings), case sensitive, wildcards supported"
       query_strings         = "a map of key-value pairs, key is a query string key pattern and value is a query string value pattern, case insensitive, wildcards supported, it is possible to match only a value pattern (the key value should be prefixed with `nokey_`)"
       source_ip             = "a map of source IP CDIR notation to match"
     }
@@ -179,7 +187,7 @@ variable "rules" {
     "1" = {
       target_port     = 8080
       target_protocol = "HTTP"
-      host_headers    = ["fosix-public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
+      host_headers    = ["public-alb-1050443040.eu-west-1.elb.amazonaws.com"]
       http_headers = {
         "X-Forwarded-For" = ["192.168.1.*"]
       }
