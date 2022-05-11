@@ -127,8 +127,7 @@ data "aws_iam_policy_document" "this" {
 
     actions = ["s3:PutObject"]
 
-    resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/AWSLogs/*"]
-    # resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix}/AWSLogs/"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix != null ? "${var.access_logs_s3_bucket_prefix}/" : ""}AWSLogs/*"]
   }
 }
 
