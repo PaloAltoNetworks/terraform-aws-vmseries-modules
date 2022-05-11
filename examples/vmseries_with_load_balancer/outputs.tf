@@ -6,3 +6,7 @@ output "fw_public_ips" {
 output "public_lb_fqdn" {
   value = module.public_nlb.lb_fqdn
 }
+
+output "lb_private_ips" {
+  value = module.public_nlb.lb_private_ips
+}

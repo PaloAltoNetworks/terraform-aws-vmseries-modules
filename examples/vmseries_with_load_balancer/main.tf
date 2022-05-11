@@ -62,12 +62,12 @@ module "public_nlb" {
   lb_name = "fosix-public-alb"
   region  = var.region
 
-  subnets                    = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
-  desync_mitigation_mode     = "monitor"
-  vpc_id                     = module.security_vpc.id
-  configure_access_logs      = true
-  access_logs_s3_bucket_name = "fosix-alb-logs-bucket"
-  security_groups            = [module.security_vpc.security_group_ids["load_balancer"]]
+  subnets = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
+  # desync_mitigation_mode     = "monitor"
+  vpc_id = module.security_vpc.id
+  # configure_access_logs      = true
+  # access_logs_s3_bucket_name = "fosix-alb-logs-bucket"
+  security_groups = [module.security_vpc.security_group_ids["load_balancer"]]
 
   rules = {
     "defaults" = {
