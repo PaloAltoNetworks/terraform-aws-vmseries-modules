@@ -94,3 +94,9 @@ variable "op-command-modes" { # tflint-ignore: terraform_naming_convention # TOD
   default     = ""
   type        = string
 }
+
+variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+  description = "Set plugin-op-commands."
+  default     = ""
+  type        = string
+}
