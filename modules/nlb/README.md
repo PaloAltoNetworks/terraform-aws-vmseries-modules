@@ -15,10 +15,10 @@ Example usage as a public Load Balancer:
 module "public_nlb" {
   source = "../../modules/nlb"
 
-  lb_name            = "public-nlb"
-  lb_dedicated_ips   = true
-  subnets            = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
-  vpc_id             = module.security_vpc.id
+  lb_name                 = "public-nlb"
+  create_dedicated_eips   = true
+  subnets                 = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
+  vpc_id                  = module.security_vpc.id
   balance_rules = {
     "HTTP-traffic" = {
       protocol          = "TCP"
