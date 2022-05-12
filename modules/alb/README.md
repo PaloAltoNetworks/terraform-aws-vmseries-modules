@@ -13,7 +13,7 @@ Example usage:
   * `https-custom` rule shows some of the configurable properties and example values.
 
 ```
-module "public_nlb" {
+module "public_alb" {
   source = "../../modules/alb"
 
   lb_name = "public-alb"
