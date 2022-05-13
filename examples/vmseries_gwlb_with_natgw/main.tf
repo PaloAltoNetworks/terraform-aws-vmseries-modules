@@ -92,6 +92,13 @@ locals {
   security_vpc_routes = concat(
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
+        subnet_key   = "untrust"
+        next_hop_set = module.natgw_set.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
         subnet_key   = "mgmt"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
