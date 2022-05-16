@@ -121,19 +121,3 @@ resource "aws_lb_listener" "this" {
 
   tags = var.tags
 }
-
-# Private Load Balancer's IP addresses. It can be handy to have them in module's output, especially that they can be used
-# for Mangement Profile configuration - to limit health check probe traffic to LB's internal IPs only.
-data "aws_network_interface" "this" {
-  for_each = var.subnets
-
-  filter {
-    name   = "description"
-    values = ["ELB ${aws_lb.this.arn_suffix}"]
-  }
-
-  filter {
-    name   = "subnet-id"
-    values = [each.value.id]
-  }
-}

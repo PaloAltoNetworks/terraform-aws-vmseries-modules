@@ -74,7 +74,6 @@ No modules.
 | [aws_lb_listener.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_target_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group_attachment) | resource |
-| [aws_network_interface.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/network_interface) | data source |
 
 ## Inputs
 
@@ -94,5 +93,4 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_lb_fqdn"></a> [lb\_fqdn](#output\_lb\_fqdn) | A FQDN for the Load Balancer. |
-| <a name="output_lb_private_ips"></a> [lb\_private\_ips](#output\_lb\_private\_ips) | A map of Load Balancer's private IPs with keys set to AZ names. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
