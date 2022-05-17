@@ -62,13 +62,14 @@ module "vmseries" {
   tags              = var.global_tags
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
+  vmseries_version  = var.vmseries_version
 
   interfaces = {
     data = {
       device_index       = 0
       security_group_ids = [module.security_vpc.security_group_ids["vmseries_data"]]
       source_dest_check  = false
-      subnet_id          = module.security_subnet_sets["data1"].subnets[each.value.az].id
+      subnet_id          = module.security_subnet_sets["data"].subnets[each.value.az].id
       create_public_ip   = false
     }
     mgmt = {
@@ -99,6 +100,13 @@ locals {
     ],
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
+        subnet_key   = "natgw"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
         subnet_key   = "mgmt"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
@@ -111,13 +119,7 @@ locals {
         to_cidr      = cidr
       }
     ],
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "natgw"
-        next_hop_set = module.security_vpc.igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
+
     [for cidr in var.security_vpc_routes_outbound_source_cidrs :
       {
         subnet_key   = "natgw"

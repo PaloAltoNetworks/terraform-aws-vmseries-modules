@@ -14,3 +14,4 @@ variable "ssh_key_name" {}
 variable "nat_gateway_name" {}
 variable "firewalls" {}
 variable "bootstrap_options" {}
+variable "vmseries_version" {}
