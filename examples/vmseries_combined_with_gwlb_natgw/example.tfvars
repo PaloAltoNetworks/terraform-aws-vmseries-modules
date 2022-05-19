@@ -14,6 +14,11 @@ security_vpc_security_groups = {
   vmseries_mgmt = {
     name = "vmseries_mgmt"
     rules = {
+      all_outbound = {
+        description = "Permit All traffic outbound"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
