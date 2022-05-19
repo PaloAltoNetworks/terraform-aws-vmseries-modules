@@ -2,7 +2,7 @@ locals {
   # The list below is used to de-nest the listener rules properties. 
   # For each application definition you have target group and health check configuration 
   # and one or more listener rules properties.
-  # In each element of this list you will have lister rule properties combined with 
+  # In each element of this list you will have listener rule properties combined with 
   # parent application's target group and health check properties.
   # This flat list is then used to create maps for target group, target group attachment and 
   # listener rules configuration.
