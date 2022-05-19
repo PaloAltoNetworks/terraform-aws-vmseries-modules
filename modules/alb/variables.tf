@@ -73,7 +73,7 @@ variable "security_groups" {
   ```
   security_groups              = [module.vpc.security_group_ids["load_balancer_security_group"]]
   ```
-  For more information on meaning of the `load_balancer_security_group` key refer to the [VPC module documentation](../vpc/README.md).
+  For more information on the `load_balancer_security_group` key refer to the [VPC module documentation](../vpc/README.md).
   EOF
   type        = list(string)
 }
