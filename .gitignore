@@ -29,7 +29,6 @@
 .terragrunt-cache
 .vscode
 .idea
-.idea
 
 # Palo auth codes
 authcodes

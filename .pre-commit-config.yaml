@@ -1,6 +1,6 @@
 repos:
-- repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.43.0 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.71.0 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
@@ -8,6 +8,7 @@ repos:
       args: ['--args=--show=data-sources,footer,header,inputs,modules,outputs,requirements,resources']
     - id: terraform_tflint
       args: [
+        --args=--config=__GIT_WORKING_DIR__/.tflint.hcl,
         # --args=--module, # TODO enable it after ensuring `terraform init`
         # --args=--only=terraform_comment_syntax,
         --args=--only=terraform_deprecated_interpolation,
