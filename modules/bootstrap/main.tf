@@ -7,7 +7,6 @@ locals {
   aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
 }
 
-# Either use a pre-existing resource or create a new one. So, is it a pre-existing VPC then?
 data "aws_s3_bucket" "this" {
   count = var.create_bucket == false ? 1 : 0
 
@@ -15,7 +14,7 @@ data "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket" "this" {
-  count = var.create_bucket ? 1 : 0
+  count = var.create_bucket == true ? 1 : 0
 
   bucket        = local.bucket_name
   acl           = "private"

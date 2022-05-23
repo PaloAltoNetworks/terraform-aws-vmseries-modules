@@ -106,7 +106,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_bootstrap_directories"></a> [bootstrap\_directories](#input\_bootstrap\_directories) | List of subdirectories to be created inside the bucket (whether or not they exist locally inside the `source_root_directory`). A hardcoded pan-os requirement. | `list(string)` | <pre>[<br>  "config/",<br>  "content/",<br>  "software/",<br>  "license/",<br>  "plugins/"<br>]</pre> | no |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of the bucket to create. If empty, name will be auto-generated.. | `string` | `""` | no |
-| <a name="input_create_bucket"></a> [create\_bucket](#input\_create\_bucket) | Re-use existing bucket. | `bool` | `true` | no |
+| <a name="input_create_bucket"></a> [create\_bucket](#input\_create\_bucket) | If true, a new bucket will be created. When false, name of existing bucket to use has to be provided in `bucket_name` variable. | `bool` | `true` | no |
 | <a name="input_dgname"></a> [dgname](#input\_dgname) | The Panorama device group name. | `string` | `""` | no |
 | <a name="input_dns-primary"></a> [dns-primary](#input\_dns-primary) | The IP address of the primary DNS server. | `string` | `""` | no |
 | <a name="input_dns-secondary"></a> [dns-secondary](#input\_dns-secondary) | The IP address of the secondary DNS server. | `string` | `""` | no |
@@ -127,10 +127,10 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_bucket_domain_name"></a> [bucket\_domain\_name](#output\_bucket\_domain\_name) | Global domain name of the created bucket. |
-| <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | AWS identifier of the created bucket. |
-| <a name="output_bucket_name"></a> [bucket\_name](#output\_bucket\_name) | Name of the created bucket. |
-| <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | Regional domain name of the created bucket. |
+| <a name="output_bucket_domain_name"></a> [bucket\_domain\_name](#output\_bucket\_domain\_name) | Global domain name of the bucket. |
+| <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | AWS identifier of the bucket. |
+| <a name="output_bucket_name"></a> [bucket\_name](#output\_bucket\_name) | Name of the bucket. |
+| <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | Regional domain name of the bucket. |
 | <a name="output_instance_profile_name"></a> [instance\_profile\_name](#output\_instance\_profile\_name) | Name of created IAM instance profile. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

@@ -102,7 +102,7 @@ variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # T
 }
 
 variable "create_bucket" {
-  description = "Re-use existing bucket."
+  description = "If true, a new bucket will be created. When false, name of existing bucket to use has to be provided in `bucket_name` variable."
   default     = true
   type        = bool
 }
