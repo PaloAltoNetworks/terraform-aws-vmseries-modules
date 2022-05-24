@@ -105,7 +105,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_bootstrap_directories"></a> [bootstrap\_directories](#input\_bootstrap\_directories) | List of subdirectories to be created inside the bucket (whether or not they exist locally inside the `source_root_directory`). A hardcoded pan-os requirement. | `list(string)` | <pre>[<br>  "config/",<br>  "content/",<br>  "software/",<br>  "license/",<br>  "plugins/"<br>]</pre> | no |
-| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of the bucket to create. If empty, name will be auto-generated.. | `string` | `""` | no |
+| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of a bucket to reuse or create (depending on `create_bucket` value). In the latter case - if empty, the name will be auto-generated. | `string` | `""` | no |
 | <a name="input_create_bucket"></a> [create\_bucket](#input\_create\_bucket) | If true, a new bucket will be created. When false, name of existing bucket to use has to be provided in `bucket_name` variable. | `bool` | `true` | no |
 | <a name="input_dgname"></a> [dgname](#input\_dgname) | The Panorama device group name. | `string` | `""` | no |
 | <a name="input_dns-primary"></a> [dns-primary](#input\_dns-primary) | The IP address of the primary DNS server. | `string` | `""` | no |
