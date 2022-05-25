@@ -108,7 +108,7 @@ variable "create_bucket" {
 }
 
 variable "bucket_name" {
-  description = "Name of the bucket to create. If empty, name will be auto-generated.."
+  description = "Name of a bucket to reuse or create (depending on `create_bucket` value). In the latter case - if empty, the name will be auto-generated."
   default     = ""
   type        = string
 }
