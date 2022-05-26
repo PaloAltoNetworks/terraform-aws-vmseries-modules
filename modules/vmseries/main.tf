@@ -63,7 +63,7 @@ resource "aws_eip_association" "this" {
 # Create PA VM-series instances
 resource "aws_instance" "this" {
 
-  ami                                  = coalesce(var.vmseries_ami_id, data.aws_ami.this[0].id)
+  ami                                  = coalesce(var.vmseries_ami_id, try(data.aws_ami.this[0].id, null))
   iam_instance_profile                 = var.iam_instance_profile
   instance_type                        = var.instance_type
   key_name                             = var.ssh_key_name

@@ -49,7 +49,7 @@ pep517==0.10.0
     #   pip-tools
 pip-tools==6.1.0
     # via -r requirements.txt
-pre-commit==2.7.1
+pre-commit==2.17.0
     # via -r requirements.txt
 pyyaml==5.4.1
     # via
