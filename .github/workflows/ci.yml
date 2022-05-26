@@ -81,6 +81,7 @@ jobs:
         with:
           directory: .
           framework: terraform 
+          compact: true
           soft_fail: true
           quiet: true # display only failed checks
           

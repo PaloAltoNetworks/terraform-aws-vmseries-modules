@@ -24,4 +24,7 @@ repos:
     hooks:
     - id: checkov
       verbose: true
-      args: [--soft-fail]
+      args: 
+        - '--compact'
+        - '--quiet'
+        - '--soft-fail'
