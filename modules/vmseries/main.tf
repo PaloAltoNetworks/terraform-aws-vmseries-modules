@@ -15,11 +15,12 @@ data "aws_ami" "this" {
   }
 }
 
-# The default EBS encryption KMS key in the current region.
+# Use the default KMS key in the current region for EBS encryption
 data "aws_ebs_default_kms_key" "current" {
   count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
 }
 
+# Provide an alias for the default KMS key
 data "aws_kms_alias" "current_arn" {
   count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
   name  = data.aws_ebs_default_kms_key.current[0].key_arn
