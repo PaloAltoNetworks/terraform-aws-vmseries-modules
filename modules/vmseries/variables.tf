@@ -51,7 +51,7 @@ variable "instance_type" {
 
 variable "ebs_encrypted" {
   description = "Whether to enable EBS encryption on volumes."
-  default     = false
+  default     = true
   type        = bool
 }
 
