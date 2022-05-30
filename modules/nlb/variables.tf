@@ -122,7 +122,7 @@ variable "balance_rules" {
     "HTTPS-APP" = {
       protocol          = "TCP"
       port              = "443"
-      health_check_port = "22"
+      health_check_port = "80"
       threshold         = 2
       interval          = 10
       target_port       = 8443
