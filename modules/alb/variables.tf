@@ -159,7 +159,7 @@ variable "rules" {
 
   Rule conditions - at least one but not more than five of: `host_headers`, `http_headers`, `http_request_method`, `path_pattern`, `query_strings` or `source_ip` has to be set. For more information on what conditions can be set for each type refer to [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule#condition-blocks).
 
-  Target group - keep in mind that all target group attachments are always pointing to VMSeries' public interfaces. The difference between target groups for each rule is the protocol and/or port to which the traffic is being directed. And these are the only properties you can configure.
+  Target group - keep in mind that all target group attachments are always pointing to VMSeries' public interfaces. The difference between target groups for each rule is the protocol and/or port to which the traffic is being directed. And these are the only properties you can configure (`target_protocol`, `protocol_version` and `target_port` respectively).
 
   The `listener_rules` map presents as follows:
 
@@ -169,12 +169,15 @@ variable "rules" {
       target_port           = "port on which the target is listening for requests"
       target_protocol       = "target protocol, can be `HTTP` or `HTTPS`"
       protocol_version      = "one of `HTTP1`, `HTTP/2` or `GRPC`, defaults to `HTTP1`"
+
+      round_robin           = "bool, if set to true (default) the `round-robin` load balancing algorithm is used, otherwise a target attachment with least outstanding requests is chosen.
+      
       host_headers          = "a list of possible host headers, case insensitive, wildcards (`*`,`?`) are supported"
       http_headers          = "a map of key-value pairs, where key is a name of an HTTP header and value is a list of possible values, same rules apply like for `host_headers`"
       http_request_method   = "a list of possible HTTP request methods, case sensitive (upper case only), strict matching (no wildcards)"
       path_pattern          = "a list of path patterns (w/o query strings), case sensitive, wildcards supported"
       query_strings         = "a map of key-value pairs, key is a query string key pattern and value is a query string value pattern, case insensitive, wildcards supported, it is possible to match only a value pattern (the key value should be prefixed with `nokey_`)"
-      source_ip             = "a map of source IP CDIR notation to match"
+      source_ip             = "a list of source IP CDIR notation to match"
     }
   }
   ```
@@ -207,6 +210,22 @@ variable "rules" {
   }
   ```
   EOF
+  validation {
+    # To mitigate an AWS provider error following validation is introduced.
+    # The error occurs when trying to create a new listener with port and protocol of an existing one.
+    # Instead of throwing an error (due to the port being already taken) the provider will try to create the listener.
+    # From AWS perspective the existing listener will be updated in place. 
+    # From TF state perspective, a new object will be created but it will point to the ARN of the existing listener. 
+    # This leads to a race condition when it comes to applying properties to this listener.
+    # 
+    # What is being compared below is the length of the map containing all rules
+    # to the length of a list containing only unique combination of a port and protocol taken from each rule.
+    # If we have duplicates, the unique list will have less elements.
+    condition = length(var.rules) == length(distinct(flatten([
+      for _, v in var.rules : "${v.protocol}-${try(v.port, v.protocol == "HTTP" ? 80 : 443)}"
+    ])))
+    error_message = "Port and protocol value for each listener must be unique."
+  }
   # For the moment there is no other possibility to specify a `type` for this kind of variable.
   # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
   # Actually, in our case they have the same type, but they differ in the amount of inner elements.
