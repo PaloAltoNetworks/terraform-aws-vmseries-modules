@@ -120,6 +120,12 @@ locals {
 
 # ## Access Logs Bucket ##
 # For Application Load Balancers where access logs are stored in S3 Bucket.
+data "aws_s3_bucket" "this" {
+  count = var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = var.access_logs_s3_bucket_name
+}
+
 resource "aws_s3_bucket" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
@@ -127,7 +133,7 @@ resource "aws_s3_bucket" "this" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_acl" "example_bucket_acl" {
+resource "aws_s3_bucket_acl" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
   bucket = aws_s3_bucket.this[0].id
@@ -156,12 +162,6 @@ resource "aws_s3_bucket_policy" "this" {
 
   bucket = aws_s3_bucket.this[0].id
   policy = data.aws_iam_policy_document.this[0].json
-}
-
-data "aws_s3_bucket" "this" {
-  count = var.access_logs_byob && var.configure_access_logs ? 1 : 0
-
-  bucket = var.access_logs_s3_bucket_name
 }
 # ######################## #
 
