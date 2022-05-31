@@ -6,5 +6,4 @@ set -euo pipefail
 
 pre-commit run --all-files terraform_fmt 
 pre-commit run --all-files terraform_docs 
-git status
 pre-commit run --all-files terraform_tflint
