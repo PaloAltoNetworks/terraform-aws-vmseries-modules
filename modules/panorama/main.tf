@@ -1,7 +1,3 @@
-locals {
-  name = "${var.universal_name_prefix}${var.name}}"
-}
-
 # Panorama AMI ID lookup based on license type, region, version
 data "aws_ami" "this" {
   most_recent = true
@@ -16,62 +12,6 @@ data "aws_ami" "this" {
     name   = "product-code"
     values = [var.product_code]
   }
-}
-
-resource "aws_kms_key" "panorama_instance_ebs_kms_key" {
-  count = var.create_custom_kms_key_for_ebs ? 1 : 0
-
-  description              = "KMS key used for encrypting Panorama instance EBS."
-  deletion_window_in_days  = var.kms_delete_window_in_days
-  customer_master_key_spec = var.kms_cmk_spec
-}
-
-resource "aws_kms_alias" "panorama_instance_ebs_kms_key" {
-  count = var.create_custom_kms_key_for_ebs ? 1 : 0
-
-  name          = "alias/${var.name}"
-  target_key_id = aws_kms_key.panorama_instance_ebs_kms_key[0].arn
-}
-
-# Create IAM role
-resource "aws_iam_role" "panorama_read_only_role" {
-  count       = var.create_read_only_iam_role ? 1 : 0
-  name        = "${var.universal_name_prefix}PanoramaReadOnly"
-  description = "Allow read-only access to AWS resources."
-
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-}
-EOF
-  tags               = var.global_tags
-}
-
-# Attach IAM Policy to IAM Role
-
-resource "aws_iam_policy_attachment" "panorama_iam_ro_attach" {
-  count = var.create_read_only_iam_role ? 1 : 0
-
-  name       = "${var.universal_name_prefix}panorama_ro_iam_policy_attachment"
-  roles      = [aws_iam_role.panorama_read_only_role[0].name]
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
-}
-
-resource "aws_iam_instance_profile" "panorama_instance_profile" {
-  count = var.create_read_only_iam_role ? 1 : 0
-
-  name = "${var.universal_name_prefix}panorama_iam_att_profile"
-  role = aws_iam_role.panorama_read_only_role[0].name
 }
 
 # Create the Panorama Instance
