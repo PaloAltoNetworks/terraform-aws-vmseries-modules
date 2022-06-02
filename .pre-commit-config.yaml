@@ -30,3 +30,4 @@ repos:
         - '--compact'
         - '--quiet'
         - '--soft-fail'
+
