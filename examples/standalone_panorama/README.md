@@ -1,4 +1,8 @@
 <!-- BEGIN_TF_DOCS -->
+
+## Info
+Initial Panorama setup takes a few minutes to complete.
+
 ## Requirements
 
 | Name | Version |
@@ -43,7 +47,7 @@
 | <a name="input_security_vpc_cidr"></a> [security\_vpc\_cidr](#input\_security\_vpc\_cidr) | AWS VPC Cidr block. | `string` | n/a | yes |
 | <a name="input_security_vpc_name"></a> [security\_vpc\_name](#input\_security\_vpc\_name) | VPC Name. | `string` | `"security-vpc"` | no |
 | <a name="input_security_vpc_routes_outbound_destin_cidrs"></a> [security\_vpc\_routes\_outbound\_destin\_cidrs](#input\_security\_vpc\_routes\_outbound\_destin\_cidrs) | VPC Routes outbound cidr | `string` | n/a | yes |
-| <a name="input_security_vpc_security_groups"></a> [security\_vpc\_security\_groups](#input\_security\_vpc\_security\_groups) | Security VPC security groups settings.<br>Structure looks like this:<pre>{<br>  security_group_name = {<br>    {<br>      name = "security_group_name"<br>      rules = {<br>        all_outbound = {<br>          description = "Permit All traffic outbound"<br>          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        https = {<br>          description = "Permit HTTPS"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        ssh = {<br>          description = "Permit SSH"<br>          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>      }<br>    }<br>  }<br>}</pre> | `map(any)` | n/a | yes |
+| <a name="input_vpc_security_groups"></a> [security\_vpc\_security\_groups](#input\_security\_vpc\_security\_groups) | Security VPC security groups settings.<br>Structure looks like this:<pre>{<br>  security_group_name = {<br>    {<br>      name = "security_group_name"<br>      rules = {<br>        all_outbound = {<br>          description = "Permit All traffic outbound"<br>          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        https = {<br>          description = "Permit HTTPS"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        ssh = {<br>          description = "Permit SSH"<br>          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>      }<br>    }<br>  }<br>}</pre> | `map(any)` | n/a | yes |
 | <a name="input_security_vpc_subnets"></a> [security\_vpc\_subnets](#input\_security\_vpc\_subnets) | Security VPC subnets CIDR | `map(any)` | `{}` | no |
 
 ## Outputs

@@ -1,25 +1,25 @@
 ## General
-region         = "us-east-1"
-prefix         = "pimielow-test-"
-create_ssh_key = true
+region                = "us-east-1"
+name_prefix           = "example-"
+panorama_ssh_key_name = "example-key"
 global_tags = {
   ManagedBy   = "terraform"
-  Application = "Palo Alto Networks Panorama NGFW"
+  Application = "Palo Alto Networks Panorama"
   Owner       = "PS Team"
 }
 
 ## Network
-security_vpc_name = "panorama-vpc"
-security_vpc_cidr = "10.104.0.0/24"
+vpc_name = "panorama-vpc"
+vpc_cidr = "10.104.0.0/24"
 
-security_vpc_subnets = {
+vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
   "10.104.0.0/28" = { az = "us-east-1a", set = "mgmt" }
 }
 
-security_vpc_security_groups = {
-  panorama_mgmt = {
-    name = "panorama_mgmt"
+vpc_security_groups = {
+  panorama-mgmt = {
+    name = "panorama-mgmt"
     rules = {
       all_outbound = {
         description = "Permit All traffic outbound"
@@ -29,18 +29,18 @@ security_vpc_security_groups = {
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["36.36.36.36/32"] # TODO: update here
       }
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["36.36.36.36/32"] # TODO: update here
       }
     }
   }
 }
 
-security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
+vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
 ## Panorama
 panorama_ssh_key                     = "panorama"

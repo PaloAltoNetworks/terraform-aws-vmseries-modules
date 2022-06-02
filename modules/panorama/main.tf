@@ -1,5 +1,5 @@
 locals {
-  name = "${var.universal_name_prefix}${var.name}}"
+  name = "${var.name_prefix}${var.name}}"
 }
 
 # Panorama AMI ID lookup based on license type, region, version
@@ -36,7 +36,7 @@ resource "aws_kms_alias" "panorama_instance_ebs_kms_key" {
 # Create IAM role
 resource "aws_iam_role" "panorama_read_only_role" {
   count       = var.create_read_only_iam_role ? 1 : 0
-  name        = "${var.universal_name_prefix}PanoramaReadOnly"
+  name        = "${var.name_prefix}PanoramaReadOnly"
   description = "Allow read-only access to AWS resources."
 
   assume_role_policy = <<EOF
@@ -62,7 +62,7 @@ EOF
 resource "aws_iam_policy_attachment" "panorama_iam_ro_attach" {
   count = var.create_read_only_iam_role ? 1 : 0
 
-  name       = "${var.universal_name_prefix}panorama_ro_iam_policy_attachment"
+  name       = "${var.name_prefix}panorama_ro_iam_policy_attachment"
   roles      = [aws_iam_role.panorama_read_only_role[0].name]
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
@@ -70,7 +70,7 @@ resource "aws_iam_policy_attachment" "panorama_iam_ro_attach" {
 resource "aws_iam_instance_profile" "panorama_instance_profile" {
   count = var.create_read_only_iam_role ? 1 : 0
 
-  name = "${var.universal_name_prefix}panorama_iam_att_profile"
+  name = "${var.name_prefix}panorama_iam_att_profile"
   role = aws_iam_role.panorama_read_only_role[0].name
 }
 
