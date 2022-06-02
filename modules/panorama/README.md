@@ -56,12 +56,12 @@ No modules.
 | <a name="input_kms_cmk_spec"></a> [kms\_cmk\_spec](#input\_kms\_cmk\_spec) | Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing<br>algorithms that the key supports.<br>Valid values: SYMMETRIC\_DEFAULT, RSA\_2048, RSA\_3072, RSA\_4096, HMAC\_256,<br>ECC\_NIST\_P256, ECC\_NIST\_P384, ECC\_NIST\_P521, or ECC\_SECG\_P256K1." | `string` | `"SYMMETRIC_DEFAULT"` | no |
 | <a name="input_kms_delete_window_in_days"></a> [kms\_delete\_window\_in\_days](#input\_kms\_delete\_window\_in\_days) | Number of days KMS key is stay until deleted. | `number` | `7` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name for the Panorama instance. | `string` | `"pan-panorama"` | no |
+| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for create individual environment via same account.<br>It help to organize multiple same origin resources." | `string` | `""` | no |
 | <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama PAN-OS Software version. List published images with:<pre>aws ec2 describe-images \\<br>--filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \\<br>--output json --query "Images[].Description" \| grep -o 'Panorama-AWS-.*' \| tr -d '",'</pre> | `string` | `"10.1.5"` | no |
 | <a name="input_private_ip_address"></a> [private\_ip\_address](#input\_private\_ip\_address) | If provided, associates a private IP address to the Panorama instance. | `string` | `null` | no |
 | <a name="input_product_code"></a> [product\_code](#input\_product\_code) | Product code for Panorama BYOL license. | `string` | `"eclz7j04vu9lf8ont8ta3n17o"` | no |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | AWS EC2 key pair name. | `string` | n/a | yes |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | VPC Subnet ID to launch Panorama in. | `string` | n/a | yes |
-| <a name="input_universal_name_prefix"></a> [universal\_name\_prefix](#input\_universal\_name\_prefix) | Prefix used for create individual environment via same account.<br>It help to organize multiple same origin resources." | `string` | `""` | no |
 | <a name="input_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#input\_vpc\_security\_group\_ids) | A list of security group IDs to associate Panorama with. | `list(any)` | `[]` | no |
 
 ## Outputs

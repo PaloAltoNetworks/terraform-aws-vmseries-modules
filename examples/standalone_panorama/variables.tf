@@ -12,7 +12,7 @@ variable "create_ssh_key" {
   type        = bool
 }
 
-variable "prefix" {
+variable "name_prefix" {
   description = "Prefix use for creating unique names."
   default     = ""
   type        = string
@@ -29,29 +29,29 @@ variable "global_tags" {
 
 ### Network
 
-variable "security_vpc_name" {
+variable "vpc_name" {
   description = "VPC Name."
   default     = "security-vpc"
   type        = string
 }
 
-variable "security_vpc_cidr" {
+variable "vpc_cidr" {
   description = "AWS VPC Cidr block."
   type        = string
 }
 
-variable "security_vpc_routes_outbound_destin_cidrs" {
+variable "vpc_routes_outbound_destin_cidrs" {
   description = "VPC Routes outbound cidr"
   type        = list(string)
 }
 
-variable "security_vpc_subnets" {
+variable "vpc_subnets" {
   description = "Security VPC subnets CIDR"
   default     = {}
   type        = map(any)
 }
 
-variable "security_vpc_security_groups" {
+variable "vpc_security_groups" {
   description = <<-EOF
   Security VPC security groups settings.
   Structure looks like this:
@@ -92,7 +92,7 @@ variable "panorama_az" {
   type        = string
 }
 
-variable "panorama_ssh_key" {
+variable "panorama_ssh_key_name" {
   description = "SSH key used to login into Panorama EC2 server."
   type        = string
 }
@@ -105,13 +105,13 @@ variable "panorama_create_public_ip" {
 
 variable "panorama_version" {
   description = "Panorama OS Version."
-  default     = "10.2"
+  default     = "10.2.0"
   type        = string
 }
 
 variable "panorama_instance_name" {
   description = "Name of Panorama instance"
-  default     = "pan-panorama"
+  default     = "panorama"
   type        = string
 }
 

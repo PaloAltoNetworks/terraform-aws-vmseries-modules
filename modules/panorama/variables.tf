@@ -5,7 +5,7 @@ variable "name" {
   default     = "pan-panorama"
 }
 
-variable "universal_name_prefix" {
+variable "name_prefix" {
   description = <<-EOF
   Prefix used for create individual environment via same account.
   It help to organize multiple same origin resources."
