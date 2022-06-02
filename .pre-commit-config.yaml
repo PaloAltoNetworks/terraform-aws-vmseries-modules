@@ -21,3 +21,12 @@ repos:
         # --args=--only=terraform_unused_declarations,
         --args=--only=terraform_workspace_remote,
       ]
+- repo: https://github.com/bridgecrewio/checkov.git
+  rev: '2.0.1075'
+  hooks:
+    - id: checkov
+      verbose: true
+      args:
+        - '--compact'
+        - '--quiet'
+        - '--soft-fail'
