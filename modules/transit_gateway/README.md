@@ -47,6 +47,7 @@ No modules.
 | <a name="input_auto_accept_shared_attachments"></a> [auto\_accept\_shared\_attachments](#input\_auto\_accept\_shared\_attachments) | See the [provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway). | `string` | `null` | no |
 | <a name="input_create"></a> [create](#input\_create) | n/a | `bool` | `true` | no |
 | <a name="input_dns_support"></a> [dns\_support](#input\_dns\_support) | See the [provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway). | `string` | `null` | no |
+| <a name="input_id"></a> [id](#input\_id) | ID of an existing Transit Gateway. Used in conjunction with `create = false`. When set, takes precedence over `var.name`. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name tag for the Transit Gateway and associated resources. | `string` | n/a | yes |
 | <a name="input_ram_resource_share_name"></a> [ram\_resource\_share\_name](#input\_ram\_resource\_share\_name) | n/a | `any` | `null` | no |
 | <a name="input_route_tables"></a> [route\_tables](#input\_route\_tables) | n/a | `map` | `{}` | no |
