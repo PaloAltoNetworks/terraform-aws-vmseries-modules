@@ -1,6 +1,7 @@
 output "name" {
   description = "Same as the input `name`."
-  value       = var.name
+  # Referencing the actual NAME TAG gives us access to it's value for TGWs referenced only by ID.
+  value = try(local.transit_gateway.tags.Name, null)
 }
 
 output "transit_gateway" {
