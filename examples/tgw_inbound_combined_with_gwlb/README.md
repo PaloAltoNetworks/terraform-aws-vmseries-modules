@@ -34,9 +34,8 @@ In a nutshell it means:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_app1_ec2"></a> [app1\_ec2](#module\_app1\_ec2) | terraform-aws-modules/ec2-instance/aws | 2.19.0 |
 | <a name="module_app1_gwlbe_inbound"></a> [app1\_gwlbe\_inbound](#module\_app1\_gwlbe\_inbound) | ../../modules/gwlb_endpoint_set | n/a |
-| <a name="module_app1_lb"></a> [app1\_lb](#module\_app1\_lb) | terraform-aws-modules/alb/aws | ~> 6.5 |
+| <a name="module_app1_lb"></a> [app1\_lb](#module\_app1\_lb) | ../../modules/nlb | n/a |
 | <a name="module_app1_route"></a> [app1\_route](#module\_app1\_route) | ../../modules/vpc_route | n/a |
 | <a name="module_app1_subnet_sets"></a> [app1\_subnet\_sets](#module\_app1\_subnet\_sets) | ../../modules/subnet_set | n/a |
 | <a name="module_app1_transit_gateway_attachment"></a> [app1\_transit\_gateway\_attachment](#module\_app1\_transit\_gateway\_attachment) | ../../modules/transit_gateway_attachment | n/a |
@@ -58,8 +57,9 @@ In a nutshell it means:
 | Name | Type |
 |------|------|
 | [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/ec2_transit_gateway_route) | resource |
-| [aws_eip.lb](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/eip) | resource |
+| [aws_instance.app1_vm](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/instance) | resource |
 | [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/key_pair) | resource |
+| [aws_network_interface.app1_nic](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/network_interface) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/data-sources/ami) | data source |
 
 ## Inputs
@@ -68,6 +68,7 @@ In a nutshell it means:
 |------|-------------|------|---------|:--------:|
 | <a name="input_app1_gwlb_endpoint_set_name"></a> [app1\_gwlb\_endpoint\_set\_name](#input\_app1\_gwlb\_endpoint\_set\_name) | The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer. | `string` | n/a | yes |
 | <a name="input_app1_transit_gateway_attachment_name"></a> [app1\_transit\_gateway\_attachment\_name](#input\_app1\_transit\_gateway\_attachment\_name) | The name of the TGW Attachment to be created inside the App1 VPC. | `string` | n/a | yes |
+| <a name="input_app1_vms"></a> [app1\_vms](#input\_app1\_vms) | Definition of an exemplary Application VMs. They are based on the latest version of Bitnami's NGINX image.<br>The structure of this map is similar to the one defining VMSeries, only one property is supported though: the Availability Zone the VM should be placed in.<br>EXAMPLE:<pre>app_vms = {<br>  "appvm01" = { az = "us-east-1b" }<br>  "appvm02" = { az = "us-east-1a" }<br>}</pre> | `map(any)` | n/a | yes |
 | <a name="input_app1_vpc_cidr"></a> [app1\_vpc\_cidr](#input\_app1\_vpc\_cidr) | The primary IPv4 CIDR of the created App1 VPC. | `string` | n/a | yes |
 | <a name="input_app1_vpc_name"></a> [app1\_vpc\_name](#input\_app1\_vpc\_name) | The name tag of the created App1 VPC. | `string` | n/a | yes |
 | <a name="input_app1_vpc_security_groups"></a> [app1\_vpc\_security\_groups](#input\_app1\_vpc\_security\_groups) | n/a | `any` | n/a | yes |
@@ -108,8 +109,7 @@ In a nutshell it means:
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | The DNS name that you can use to SSH into a testbox. Use username `bitnami` and the private key matching the public key configured with the input `ssh_public_key_file_path`. |
-| <a name="output_app1_inspected_public_ip"></a> [app1\_inspected\_public\_ip](#output\_app1\_inspected\_public\_ip) | The IP address behind the `app1_inspected_dns_name`. |
+| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | A FQDN of the internal Load Balancer. Can be use in VMSeries configuration to balance traffic between the application instances. |
 | <a name="output_security_gwlb_service_name"></a> [security\_gwlb\_service\_name](#output\_security\_gwlb\_service\_name) | The AWS Service Name of the created GWLB, which is suitable to use for subsequent VPC Endpoints. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
