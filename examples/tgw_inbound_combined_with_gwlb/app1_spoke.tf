@@ -91,113 +91,62 @@ data "aws_ami" "this" {
   owners = ["979382823631"] # bitnami = 979382823631
 }
 
-module "app1_ec2" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "2.19.0"
+resource "aws_network_interface" "app1_nic" {
+  for_each = var.app1_vms
 
-  name           = "${var.name_prefix}app1"
-  instance_count = 1
-
-  ami                    = data.aws_ami.this.id
-  instance_type          = "t2.micro"
-  key_name               = var.ssh_key_name
-  vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
-  subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[local.app1_az].id
-  tags                   = var.global_tags
+  subnet_id       = module.app1_subnet_sets["app1_vm"].subnets[each.value.az].id
+  security_groups = [module.app1_vpc.security_group_ids["app1_vm"]]
+  tags            = merge({ Name = "${var.name_prefix}nic-${each.key}" }, var.global_tags)
 }
 
-locals {
-  # Just use a single virtual machine in a single AZ as a test box.
-  app1_az = "${var.region}a"
+resource "aws_instance" "app1_vm" {
+  for_each = var.app1_vms
+
+  ami           = data.aws_ami.this.id
+  instance_type = "t2.micro"
+  tags          = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  key_name      = var.ssh_key_name
+
+  network_interface {
+    device_index         = 0
+    network_interface_id = aws_network_interface.app1_nic[each.key].id
+  }
 }
 
-resource "aws_eip" "lb" {
-  vpc = true
-}
 
-### Inbound Load Balancer ###
+### Inbound Internal Load Balancer ###
 
-# It is not for balancing the load per se, but rather as a route separation tool (as it introduces extra route tables).
 module "app1_lb" {
-  source = "terraform-aws-modules/alb/aws"
-  # The name "alb" is a bit misleading as the module can deploy either ALB or NLB.
-  # It means it can create a load balancer of type "application" (ALB) or "network" (NLB).
-  version = "~> 6.5"
+  source = "../../modules/nlb"
 
-  name               = "${var.name_prefix}app1-lb"
-  load_balancer_type = "network"
-  vpc_id             = module.app1_subnet_sets["app1_lb"].vpc_id
-  subnet_mapping = [
-    {
-      allocation_id = aws_eip.lb.id
-      subnet_id     = module.app1_subnet_sets["app1_lb"].subnets[local.app1_az].id
+  lb_name     = "${var.name_prefix}app1-lb"
+  internal_lb = true
+  subnets     = { for k, v in module.app1_subnet_sets["app1_lb"].subnets : k => { id = v.id } }
+  vpc_id      = module.app1_subnet_sets["app1_lb"].vpc_id
+
+  balance_rules = {
+    "SSH-traffic" = {
+      protocol    = "TCP"
+      port        = "22"
+      target_type = "instance"
+      stickiness  = true
+      targets     = { for k, v in var.app1_vms : k => aws_instance.app1_vm[k].id }
     }
-  ]
-
-  http_tcp_listeners = [
-    {
-      port               = 22
-      protocol           = "TCP"
-      target_group_index = 0
-    },
-    {
-      port               = 80
-      protocol           = "TCP"
-      target_group_index = 1
-    },
-    {
-      port               = 443
-      protocol           = "TCP"
-      target_group_index = 2
-    },
-  ]
-
-  target_groups = [
-    {
-      name                 = "app1-tcp-22"
-      backend_protocol     = "TCP"
-      backend_port         = 22
-      target_type          = "instance"
-      deregistration_delay = 10
-      targets = {
-        my_ec2 = {
-          target_id = try(module.app1_ec2.id[0], null)
-          port      = 22
-        }
-      }
-    },
-    {
-      name                 = "app1-tcp-80"
-      backend_protocol     = "TCP"
-      backend_port         = 80
-      target_type          = "instance"
-      deregistration_delay = 10
-      targets = {
-        my_ec2 = {
-          target_id = try(module.app1_ec2.id[0], null)
-          port      = 80
-        }
-      }
-    },
-    {
-      name                 = "app1-tcp-443"
-      backend_protocol     = "TCP"
-      backend_port         = 443
-      target_type          = "instance"
-      deregistration_delay = 10
-      targets = {
-        my_ec2 = {
-          target_id = try(module.app1_ec2.id[0], null)
-          port      = 443
-        }
-      }
-    },
-  ]
+    "HTTP-traffic" = {
+      protocol    = "TCP"
+      port        = "80"
+      target_type = "instance"
+      stickiness  = false
+      targets     = { for k, v in var.app1_vms : k => aws_instance.app1_vm[k].id }
+    }
+    "HTTPS-traffic" = {
+      protocol    = "TCP"
+      port        = "443"
+      target_type = "instance"
+      stickiness  = false
+      targets     = { for k, v in var.app1_vms : k => aws_instance.app1_vm[k].id }
+    }
+  }
 
   tags = var.global_tags
-
-  depends_on = [
-    # Workaround for error: VPC vpc-0123 has no internet gateway.
-    module.app1_vpc
-  ]
 }

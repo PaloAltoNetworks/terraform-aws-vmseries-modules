@@ -164,6 +164,21 @@ variable "app1_vpc_cidr" {
 variable "app1_vpc_subnets" {}
 variable "app1_vpc_security_groups" {}
 
+variable "app1_vms" {
+  description = <<-EOF
+  Definition of an exemplary Application VMs. They are based on the latest version of Bitnami's NGINX image.
+  The structure of this map is similar to the one defining VMSeries, only one property is supported though: the Availability Zone the VM should be placed in.
+  EXAMPLE:
+  ```
+  app_vms = {
+    "appvm01" = { az = "us-east-1b" }
+    "appvm02" = { az = "us-east-1a" }
+  }
+  ```
+  EOF
+  type        = map(any)
+}
+
 variable "security_gwlb_service_name" {
   description = <<-EOF
   Optional Service Name of the pre-existing GWLB which should receive traffic from `app1_gwlb_endpoint_set_name`.

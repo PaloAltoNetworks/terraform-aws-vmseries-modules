@@ -193,3 +193,8 @@ app1_vpc_security_groups = {
     }
   }
 }
+
+app1_vms = {
+  "app1_vm01" = { az = "us-east-1a" }
+  "app1_vm02" = { az = "us-east-1b" }
+}
