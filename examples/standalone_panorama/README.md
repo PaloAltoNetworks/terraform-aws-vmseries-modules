@@ -1,7 +1,7 @@
-<!-- BEGIN_TF_DOCS -->
-
 ## Info
 Initial Panorama setup takes a few minutes to complete.
+
+<!-- BEGIN_TF_DOCS -->
 
 ## Requirements
 
