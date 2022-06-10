@@ -10,5 +10,6 @@ output "transit_gateway" {
 }
 
 output "route_tables" {
-  value = local.transit_gateway_route_tables
+  description = "Transit Gateway's route tables."
+  value       = local.transit_gateway_route_tables
 }
