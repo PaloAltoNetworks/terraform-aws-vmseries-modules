@@ -6,6 +6,7 @@ variable "name" {
   description = "Name tag for the Transit Gateway and associated resources."
   type        = string
 }
+
 variable "id" {
   description = "ID of an existing Transit Gateway. Used in conjunction with `create = false`. When set, takes precedence over `var.name`."
   default     = null
