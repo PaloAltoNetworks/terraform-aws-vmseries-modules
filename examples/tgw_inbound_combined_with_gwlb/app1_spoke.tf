@@ -96,7 +96,7 @@ resource "aws_network_interface" "app1_nic" {
 
   subnet_id       = module.app1_subnet_sets["app1_vm"].subnets[each.value.az].id
   security_groups = [module.app1_vpc.security_group_ids["app1_vm"]]
-  tags            = merge({ Name = "${var.name_prefix}nic-${each.key}" }, var.global_tags)
+  tags            = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
 }
 
 resource "aws_instance" "app1_vm" {
