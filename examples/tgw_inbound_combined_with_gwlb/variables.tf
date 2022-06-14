@@ -166,16 +166,10 @@ variable "app1_vpc_security_groups" {}
 
 variable "app1_vms" {
   description = <<-EOF
-  Definition of an exemplary Application VMs. They are based on the latest version of Bitnami's NGINX image.
-  The structure of this map is similar to the one defining VMSeries, only one property is supported though: the Availability Zone the VM should be placed in.
-  EXAMPLE:
-  ```
-  app_vms = {
-    "appvm01" = { az = "us-east-1b" }
-    "appvm02" = { az = "us-east-1a" }
-  }
-  ```
-  EOF
+  Definition of an example "app1" application VMs. They are based on the latest version of Bitnami's NGINX image.
+  The structure of this map is similar to the one defining VM-Series, only one property is supported though: the Availability Zone the VM should be placed in.
+  Example:
+  
   type        = map(any)
 }
 
