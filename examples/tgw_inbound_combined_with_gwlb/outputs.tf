@@ -13,6 +13,9 @@ output "vmseries_public_ips" {
 ##### App1 VPC #####
 
 output "app1_inspected_dns_name" {
-  description = "FQDN of "app1" Internal Load Balancer. Can be used in VM-Series configuration to balance traffic between the application instances."
+  description = <<-EOF
+  FQDN of "app1" Internal Load Balancer.
+  Can be used in VM-Series configuration to balance traffic between the application instances.
+  EOF
   value       = module.app1_lb.lb_fqdn
 }

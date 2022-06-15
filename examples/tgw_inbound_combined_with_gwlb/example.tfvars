@@ -141,9 +141,8 @@ vmseries_common = {
   }
 }
 # EC2 SSH Key
-create_ssh_key      = true
-ssh_key_name        = "vmseries_key"
-ssh_public_key_path = "~/.ssh/id_rsa.pub"
+create_ssh_key = false
+# ssh_key_name        = "-->your AWS key pair name goes here<--"
 
 
 ### App1 VPC

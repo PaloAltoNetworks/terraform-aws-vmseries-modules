@@ -91,26 +91,16 @@ data "aws_ami" "this" {
   owners = ["979382823631"] # bitnami = 979382823631
 }
 
-resource "aws_network_interface" "app1_nic" {
-  for_each = var.app1_vms
-
-  subnet_id       = module.app1_subnet_sets["app1_vm"].subnets[each.value.az].id
-  security_groups = [module.app1_vpc.security_group_ids["app1_vm"]]
-  tags            = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-}
-
 resource "aws_instance" "app1_vm" {
   for_each = var.app1_vms
 
-  ami           = data.aws_ami.this.id
-  instance_type = "t2.micro"
-  tags          = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-  key_name      = var.ssh_key_name
+  ami                    = data.aws_ami.this.id
+  instance_type          = var.app1_vm_type
+  key_name               = var.ssh_key_name
+  subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[each.value.az].id
+  vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
 
-  network_interface {
-    device_index         = 0
-    network_interface_id = aws_network_interface.app1_nic[each.key].id
-  }
 }
 
 
