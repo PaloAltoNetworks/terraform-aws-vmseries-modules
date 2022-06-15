@@ -27,9 +27,16 @@ resource "aws_ec2_transit_gateway" "this" {
 data "aws_ec2_transit_gateway" "this" {
   count = var.create == false ? 1 : 0
 
-  filter {
-    name   = "tag:Name"
-    values = [var.name]
+  # ID of an existing TGW. By default set to `null` hence can be referenced directly.
+  id = var.id
+  # Filtering existing TGWs by name, only in case no ID was provided.
+  dynamic "filter" {
+    for_each = var.id == null ? [1] : []
+    content {
+      name   = "tag:Name"
+      values = [var.name]
+
+    }
   }
 }
 
