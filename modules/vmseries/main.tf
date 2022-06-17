@@ -73,6 +73,14 @@ resource "aws_instance" "this" {
   instance_initiated_shutdown_behavior = "stop"
   monitoring                           = false
 
+  dynamic "metadata_options" {
+    for_each = var.enable_imdsv2 ? [1] : []
+    content {
+      http_endpoint = "enabled"
+      http_tokens   = "required"
+    }
+  }
+
   user_data = base64encode(var.bootstrap_options)
 
   root_block_device {

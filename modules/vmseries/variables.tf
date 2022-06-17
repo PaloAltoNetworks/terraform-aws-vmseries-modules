@@ -128,3 +128,14 @@ variable "tags" {
   default     = {}
   type        = map(any)
 }
+
+variable "enable_imdsv2" {
+  description = <<-EOF
+  Whether to enable IMDSv2 on the EC2 instance.
+  VM-Series version 10.2.0 or higher is required to install VM-Series Plugin 3.0.0. 
+  This release of the plugin introduces enhanced Instance Metadata Service (IMDSv2) for securing instances AWS.
+  https://docs.paloaltonetworks.com/plugins/vm-series-and-panorama-plugins-release-notes/vm-series-plugin/vm-series-plugin-30/vm-series-plugin-300#id126d0957-95d7-4b29-9147-fff20027986e
+  EOF
+  default     = false
+  type        = string
+}
