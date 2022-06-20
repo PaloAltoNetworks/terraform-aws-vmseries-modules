@@ -110,7 +110,7 @@ locals {
 
   # A map of target group attachments.
   listener_tg_attachments = {
-    for v in local.listener_tg_attachments_list : v.listener_tg_name => {
+    for v in local.listener_tg_attachments_list : "${v.listener_tg_name}-${v.host}" => {
       ip               = v.ip
       port             = v.port
       listener_tg_name = v.listener_tg_name
