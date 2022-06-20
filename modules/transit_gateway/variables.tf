@@ -1,9 +1,18 @@
 variable "create" {
-  default = true
+  description = "Trigger module mode between creating a new TGW or retrieving an existing one."
+  default     = true
+  type        = bool
 }
 
 variable "name" {
   description = "Name tag for the Transit Gateway and associated resources."
+  default     = null
+  type        = string
+}
+
+variable "id" {
+  description = "ID of an existing Transit Gateway. Used in conjunction with `create = false`. When set, takes precedence over `var.name`."
+  default     = null
   type        = string
 }
 

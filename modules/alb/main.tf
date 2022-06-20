@@ -2,7 +2,7 @@ locals {
   # The list below is used to de-nest the listener rules properties. 
   # For each application definition you have target group and health check configuration 
   # and one or more listener rules properties.
-  # In each element of this list you will have lister rule properties combined with 
+  # In each element of this list you will have listener rule properties combined with 
   # parent application's target group and health check properties.
   # This flat list is then used to create maps for target group, target group attachment and 
   # listener rules configuration.
@@ -22,9 +22,9 @@ locals {
         h_ch_port                = try(v.health_check_port, "traffic-port")
         h_ch_matcher             = try(v.health_check_matcher, null)
         h_ch_path                = try(v.health_check_path, "/")
-        lb_algorithm             = try(v.round_robin, null) != null ? (v.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
-        priority                 = l_k
+        lb_algorithm             = try(l_v.round_robin, null) != null ? (l_v.round_robin ? "round_robin" : "least_outstanding_requests") : "round_robin"
         host_headers             = try(l_v.host_headers, null)
+        priority                 = l_k
         http_headers             = try(l_v.http_headers, null)
         http_request_method      = try(l_v.http_request_method, null)
         path_pattern             = try(l_v.path_pattern, null)
@@ -36,12 +36,17 @@ locals {
 
   # A map of target groups that will be referenced in listener rules.
   # To minimize a number of target groups we create unique groups
-  # per application and listener rule's port.
+  # per application and listener rule's port, hence the intermediary step of creating `listener_tg_unique`.
   # Example, if a listener for an application has 3 listener rules using
   # the same 8080 port, only one target group will be created.
+  # The condition is that if you specify the same target port in several rules
+  # other target group properties (like protocol, load balancing algorithm, etc) also have to be the same.
+  # If they aren't, terraform will error out while trying to create a unique list.
   # The map below contains also health check properties specific for particular application.
-  listener_tg = {
-    for v in local.rules_flattened : v.tg_key => {
+  listener_tg_unique = distinct([
+    for v in local.rules_flattened : {
+      tg_key                   = v.tg_key
+      app_name                 = v.app_name
       port                     = v.port
       proto                    = v.proto
       proto_v                  = v.proto_v
@@ -54,7 +59,22 @@ locals {
       h_ch_matcher             = v.h_ch_matcher
       h_ch_path                = v.h_ch_path
       lb_algorithm             = v.lb_algorithm
-
+    }
+  ])
+  listener_tg = {
+    for v in local.listener_tg_unique : v.tg_key => {
+      port                     = v.port
+      proto                    = v.proto
+      proto_v                  = v.proto_v
+      h_ch_healthy_threshold   = v.h_ch_healthy_threshold
+      h_ch_unhealthy_threshold = v.h_ch_unhealthy_threshold
+      h_ch_interval            = v.h_ch_interval
+      h_ch_timeout             = v.h_ch_timeout
+      h_ch_protocol            = v.h_ch_protocol
+      h_ch_port                = v.h_ch_port
+      h_ch_matcher             = v.h_ch_matcher
+      h_ch_path                = v.h_ch_path
+      lb_algorithm             = v.lb_algorithm
     }
   }
 
@@ -78,7 +98,7 @@ locals {
   # This will be used to create a map of target groups attachments.
   # One of the properties is the target group reference.
   listener_tg_attachments_list = flatten([
-    for v in local.rules_flattened : [
+    for v in local.listener_tg_unique : [
       for t_k, t_v in var.targets : {
         host             = t_k
         ip               = t_v
@@ -90,7 +110,7 @@ locals {
 
   # A map of target group attachments.
   listener_tg_attachments = {
-    for v in local.listener_tg_attachments_list : "${v.listener_tg_name}-${v.host}" => {
+    for v in local.listener_tg_attachments_list : v.listener_tg_name => {
       ip               = v.ip
       port             = v.port
       listener_tg_name = v.listener_tg_name
@@ -100,6 +120,12 @@ locals {
 
 # ## Access Logs Bucket ##
 # For Application Load Balancers where access logs are stored in S3 Bucket.
+data "aws_s3_bucket" "this" {
+  count = var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = var.access_logs_s3_bucket_name
+}
+
 resource "aws_s3_bucket" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
@@ -107,7 +133,7 @@ resource "aws_s3_bucket" "this" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_acl" "example_bucket_acl" {
+resource "aws_s3_bucket_acl" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
   bucket = aws_s3_bucket.this[0].id
@@ -136,12 +162,6 @@ resource "aws_s3_bucket_policy" "this" {
 
   bucket = aws_s3_bucket.this[0].id
   policy = data.aws_iam_policy_document.this[0].json
-}
-
-data "aws_s3_bucket" "this" {
-  count = var.access_logs_byob && var.configure_access_logs ? 1 : 0
-
-  bucket = var.access_logs_s3_bucket_name
 }
 # ######################## #
 
@@ -176,7 +196,6 @@ resource "aws_lb" "this" {
     aws_s3_bucket_policy.this[0]
   ]
 }
-
 # ######################## #
 
 # ## Target Group Configuration ##
@@ -234,7 +253,7 @@ resource "aws_lb_listener" "this" {
     }
   }
 
-  tags = var.tags
+  tags = merge({ name : each.key }, var.tags)
 }
 
 resource "aws_lb_listener_rule" "this" {
@@ -323,3 +342,4 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 }
+# ######################## #
