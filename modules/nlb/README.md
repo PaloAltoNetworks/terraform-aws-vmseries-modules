@@ -4,48 +4,7 @@ A Terraform module for deploying a Network Load Balancer in AWS cloud. This can 
 
 ## Usage
 
-Example usage as a public Load Balancer:
-
-* The code below is designed to be used with [`vmseries`](../vmseries/README.md), [`vpc`](../vpc/README.md) and [`subnet_set`](../subnet_set/README.md) modules. Check these modules for information on outputs used in this code.
-* Firewalls' public facing interfaces are placed in a subnet set called *untrust*.
-* Health check port is set to `80` because it uses the HTTP Management Service (restricted on the firewall to Load Balancer's private IP only). Do not use SSH Management Service for health checks - [please follow this document for details](https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA14u000000oM4KCAU&lang=en_US%E2%80%A9).
-
-```
-module "public_nlb" {
-  source = "../../modules/nlb"
-
-  lb_name                 = "public-nlb"
-  create_dedicated_eips   = true
-  subnets                 = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
-  vpc_id                  = module.security_vpc.id
-  balance_rules = {
-    "HTTP-traffic" = {
-      protocol          = "TCP"
-      port              = "80"
-      health_check_port = "80"
-      threshold         = 2
-      interval          = 10
-      target_type       = "ip"
-      target_port       = 8080
-      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      stickiness        = true
-    }
-    "HTTPS-traffic" = {
-      protocol          = "TCP"
-      port              = "443"
-      health_check_port = "80"
-      threshold         = 2
-      interval          = 10
-      target_port       = 8443
-      target_type       = "ip"
-      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      stickiness        = true
-    }
-  }
-
-  tags = var.global_tags
-}
-```
+For example usage please refer to the [tgw_inbound_with_alb_nlb](../../examples/tgw_inbound_with_alb_nlb/README.md) example.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
