@@ -34,6 +34,7 @@ security_vpc_security_groups = {
       }
     }
   }
+  
   netowork_load_balancer = {
     name = "nlb"
     rules = {
