@@ -4,17 +4,18 @@ variable "region" {
   default     = "us-east-1"
   type        = string
 }
+
 variable "prefix" {
   description = "A prefix to add to all AWS object names."
   default     = "pantf-"
   type        = string
 }
+
 variable "global_tags" {
   description = "Tags to add to all AWS objects."
   default     = {}
   type        = map(string)
 }
-
 
 # SECURITY VPC CONFIGURATION
 variable "security_vpc_name" {
@@ -22,11 +23,13 @@ variable "security_vpc_name" {
   default     = "security-vpc-example"
   type        = string
 }
+
 variable "security_vpc_cidr" {
   description = "Address range for the security VPC."
   default     = "10.100.0.0/16"
   type        = string
 }
+
 variable "security_vpc_subnets" {
   description = <<-EOF
   Definition of all subnets in the security VPC.
@@ -47,6 +50,7 @@ variable "security_vpc_subnets" {
   EOF
   type        = map(any)
 }
+
 variable "security_vpc_security_groups" {
   description = <<-EOF
   A map containing a definition of all security groups for the Security VPC.
@@ -75,25 +79,26 @@ variable "security_vpc_security_groups" {
   type        = any
 }
 
-
 # VMSERIES CONFIGURATION
 variable "vmseries" {
   description = "Definition of VMSeries VMs. Please refer to [VMSeries module](../../modules/vmseries/README.md) for details"
   type        = any
 }
+
 variable "vmseries_version" {
   description = "Version of the VMSeries firewall. Please verify if the version you require is available in your region of choice."
   type        = string
 }
+
 variable "ssh_key_name" {
   description = "A name of an existing AWS Key Pair object holding you SSH public key in AWS region of choice."
   type        = string
 }
+
 variable "bootstrap_options" {
   description = "A string representing bootstrap options. For details refer to [Palo Alto documentation](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/bootstrap-the-vm-series-firewall-in-aws)."
   type        = string
 }
-
 
 # LOAD BALANCERS IN FRONT OF THE FIREWALLS CONFIGURATION
 variable "network_lb_name" {
@@ -101,6 +106,7 @@ variable "network_lb_name" {
   default     = "public-nlb"
   type        = string
 }
+
 variable "network_lb_rules" {
   description = <<-EOF
   A map of rules for the public Network Load Balancer. See [modules documentation](../../modules/nlb/README.md) for details.
@@ -111,16 +117,17 @@ variable "network_lb_rules" {
   EOF
   type        = any
 }
+
 variable "application_lb_name" {
   description = "Name of the public Application Load Balancer placed in front of the Firewalls' public interfaces."
   default     = "public-alb"
   type        = string
 }
+
 variable "application_lb_rules" {
   description = "A map of rules for the Application Load Balancer. See [modules documentation](../../modules/alb/README.md) for details."
   type        = any
 }
-
 
 # APPLICATION VPC CONFIGURATION
 variable "app_vpc_name" {
@@ -128,20 +135,22 @@ variable "app_vpc_name" {
   default     = "app-vpc-example"
   type        = string
 }
+
 variable "app_vpc_cidr" {
   description = "Address range for the application VPC."
   default     = "10.200.0.0/16"
   type        = string
 }
+
 variable "app_vpc_subnets" {
   description = "A map containing configuration of all Application VPC subnets. For details refer to `security_vpc_subnets` description."
   type        = map(any)
 }
+
 variable "app_vpc_security_groups" {
   description = "Definition of Security Groups used in Application VPC. For details and example see `security_vpc_security_groups` details."
   type        = any
 }
-
 
 # APPLICATION INFRASTRUCTURE CONFIGURATION
 variable "app_vms" {
@@ -160,11 +169,13 @@ variable "app_vms" {
   EOF
   type        = map(any)
 }
+
 variable "app_lb_name" {
   description = "Name of the internal Network Load Balancer placed in front of the application VMs."
   default     = "app-lb"
   type        = string
 }
+
 variable "app_lb_rules" {
   description = <<-EOF
   A set of rules for the Network Load Balancer placed in front of the Application VMs. See [modules documentation](../../modules/nlb/README.md) for details.
@@ -174,13 +185,13 @@ variable "app_lb_rules" {
   type        = any
 }
 
-
 # TRANSIT GATEWAY CONFIGURATION
 variable "transit_gateway_name" {
   description = "The name of the created Transit Gateway."
   default     = "tgw"
   type        = string
 }
+
 variable "transit_gateway_asn" {
   description = <<-EOF
   Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.
@@ -189,6 +200,7 @@ variable "transit_gateway_asn" {
   default     = "65200"
   type        = number
 }
+
 variable "transit_gateway_route_tables" {
   description = <<-EOF
   Complex input with the Route Tables of the Transit Gateway. Example:
@@ -215,11 +227,13 @@ variable "transit_gateway_route_tables" {
   With `create = false` the pre-existing RT named `name` is used.
   EOF
 }
+
 variable "security_vpc_tgw_attachment_name" {
   description = "A name of a TGW attachment in the security VPC."
   default     = "security-tgw-attachment"
   type        = string
 }
+
 variable "app_vpc_tgw_attachment_name" {
   description = "A name of a TGW attachment in the application VPC."
   default     = "app-tgw-attachment"

@@ -4,7 +4,6 @@ global_tags = {
   Application = "Palo Alto Networks VM-Series NGFW"
 }
 
-
 # SECURITY VPC CONFIGURATION
 security_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
@@ -34,7 +33,6 @@ security_vpc_security_groups = {
       }
     }
   }
-  
   netowork_load_balancer = {
     name = "nlb"
     rules = {
@@ -50,7 +48,6 @@ security_vpc_security_groups = {
       }
     }
   }
-  
   vmseries_mgmt = {
     name = "vmseries_mgmt"
     rules = {
@@ -71,7 +68,6 @@ security_vpc_security_groups = {
       }
     }
   }
-  
   vmseries_trust = {
     name = "vmseries_trust"
     rules = {
@@ -114,16 +110,15 @@ security_vpc_security_groups = {
   }
 }
 
-
 # VMSERIES CONFIGURATION
 vmseries = {
   vmseries01 = { az = "us-east-1a" }
   vmseries02 = { az = "us-east-1b" }
 }
-vmseries_version = "10.2.1"
-# ssh_key_name      = "public ssh key"
-bootstrap_options = "type=dhcp-client"
 
+vmseries_version = "10.2.1"
+# ssh_key_name        = "-->your AWS key pair name goes here<--"
+bootstrap_options = "type=dhcp-client"
 
 # CONFIGURATION OF LOAD BALANCERS IN FRONT OF THE FIREWALLS
 network_lb_rules = {
@@ -136,6 +131,7 @@ network_lb_rules = {
     stickiness        = true
   }
 }
+
 application_lb_rules = {
   "main-welcome-page" = {
     protocol              = "HTTP"
@@ -153,7 +149,6 @@ application_lb_rules = {
   }
 }
 
-
 # APPLICATION VPC CONFIGURATION
 app_vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
@@ -162,6 +157,7 @@ app_vpc_subnets = {
   "10.200.2.0/24" = { az = "us-east-1b", set = "appl" }
   "10.200.3.0/24" = { az = "us-east-1b", set = "tgw" }
 }
+
 app_vpc_security_groups = {
   app_example = {
     name = "app-example"
@@ -185,12 +181,12 @@ app_vpc_security_groups = {
   }
 }
 
-
 # APPLICATION INFRASTRUCTURE CONFIGURATION
 app_vms = {
   "appvm01" = { az = "us-east-1b" }
   "appvm02" = { az = "us-east-1a" }
 }
+
 app_lb_rules = {
   "ssh-traffic" = {
     protocol   = "TCP"
@@ -207,7 +203,6 @@ app_lb_rules = {
     stickiness = true
   }
 }
-
 
 # TRANSIT GATEWAY CONFIGURATION
 transit_gateway_route_tables = {

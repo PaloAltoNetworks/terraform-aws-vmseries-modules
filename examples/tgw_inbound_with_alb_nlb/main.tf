@@ -86,7 +86,6 @@ module "security_vpc_routes" {
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
-# ## ## #
 
 # ## FIREWALL INFRASTRUCTURE ## #
 # Create the firewalls and two Load Balancers in front of their's public network interfaces.
@@ -143,16 +142,12 @@ module "public_nlb" {
 module "public_alb" {
   source = "../../modules/alb"
 
-  lb_name = "${var.prefix}${var.application_lb_name}"
-
+  lb_name         = "${var.prefix}${var.application_lb_name}"
   subnets         = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
   vpc_id          = module.security_vpc.id
   security_groups = [module.security_vpc.security_group_ids["application_load_balancer"]]
-
-  rules = var.application_lb_rules
-
-  targets = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+  rules           = var.application_lb_rules
+  targets         = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
 
   tags = var.global_tags
 }
-# ## ## #

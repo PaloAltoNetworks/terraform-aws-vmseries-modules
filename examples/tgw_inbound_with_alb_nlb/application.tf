@@ -92,7 +92,6 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   destination_cidr_block = "0.0.0.0/0"
   blackhole              = false
 }
-# ## ## #
 
 # ## APPLICATION INFRASTRUCTURE ## #
 # Create two Bitnami NGINX servers behind an Internal Network Load Balancer.
@@ -130,4 +129,3 @@ module "app_nlb" {
 
   tags = var.global_tags
 }
-# ## ## #

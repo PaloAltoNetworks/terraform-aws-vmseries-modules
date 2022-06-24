@@ -14,6 +14,5 @@ output "lb_fqdns" {
 
 output "app_vm_ips" {
   description = "A map private IP addresses assigned to Application VMs."
-  value = { for k, v in aws_instance.app_vm : k => v.private_ip
-  }
+  value       = { for k, v in aws_instance.app_vm : k => v.private_ip }
 }
