@@ -71,6 +71,7 @@ security_vpc_security_groups = {
       }
     }
   }
+  
   vmseries_trust = {
     name = "vmseries_trust"
     rules = {
