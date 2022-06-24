@@ -17,6 +17,7 @@ security_vpc_subnets = {
   "10.100.12.0/24" = { az = "us-east-1b", set = "untrust" }
   "10.100.13.0/24" = { az = "us-east-1b", set = "tgw" }
 }
+
 security_vpc_security_groups = {
   application_load_balancer = {
     name = "alb"
