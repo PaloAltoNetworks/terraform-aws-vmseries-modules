@@ -50,6 +50,7 @@ security_vpc_security_groups = {
       }
     }
   }
+  
   vmseries_mgmt = {
     name = "vmseries_mgmt"
     rules = {
