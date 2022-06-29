@@ -128,3 +128,12 @@ variable "tags" {
   default     = {}
   type        = map(any)
 }
+
+variable "enable_imdsv2" {
+  description = <<-EOF
+  Whether to enable IMDSv2 on the EC2 instance.
+  Support for this feature has been added in VM-Series Plugin [3.0.0](https://docs.paloaltonetworks.com/plugins/vm-series-and-panorama-plugins-release-notes/vm-series-plugin/vm-series-plugin-30/vm-series-plugin-300#id126d0957-95d7-4b29-9147-fff20027986e), which in turn requires VM-Series version 10.2.0 at minimum.
+  EOF
+  default     = false
+  type        = string
+}
