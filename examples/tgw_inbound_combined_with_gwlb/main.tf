@@ -1,7 +1,7 @@
 module "security_vpc" {
   source = "../../modules/vpc"
 
-  name                    = var.security_vpc_name
+  name                    = "${var.name_prefix}${var.security_vpc_name}"
   cidr_block              = var.security_vpc_cidr
   security_groups         = var.security_vpc_security_groups
   create_internet_gateway = true
@@ -38,7 +38,7 @@ module "natgw_set" {
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
-  name         = var.transit_gateway_name
+  name         = "${var.name_prefix}${var.transit_gateway_name}"
   asn          = var.transit_gateway_asn
   route_tables = var.transit_gateway_route_tables
 }
@@ -46,7 +46,7 @@ module "transit_gateway" {
 module "security_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  name                        = var.security_vpc_tgw_attachment_name
+  name                        = "${var.name_prefix}${var.security_vpc_tgw_attachment_name}"
   vpc_id                      = module.security_subnet_sets["tgw_attach"].vpc_id
   subnets                     = module.security_subnet_sets["tgw_attach"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["from_security_vpc"]
@@ -69,7 +69,7 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
 module "security_gwlb" {
   source = "../../modules/gwlb"
 
-  name    = var.gwlb_name
+  name    = "${var.name_prefix}${var.gwlb_name}"
   vpc_id  = module.security_subnet_sets["gwlb"].vpc_id
   subnets = module.security_subnet_sets["gwlb"].subnets
 
@@ -79,7 +79,7 @@ module "security_gwlb" {
 module "gwlbe_eastwest" {
   source = "../../modules/gwlb_endpoint_set"
 
-  name              = var.gwlb_endpoint_set_eastwest_name
+  name              = "${var.name_prefix}${var.gwlb_endpoint_set_eastwest_name}"
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name
   vpc_id            = module.security_subnet_sets["gwlbe_eastwest"].vpc_id
   subnets           = module.security_subnet_sets["gwlbe_eastwest"].subnets
@@ -88,7 +88,7 @@ module "gwlbe_eastwest" {
 module "gwlbe_outbound" {
   source = "../../modules/gwlb_endpoint_set"
 
-  name              = var.gwlb_endpoint_set_outbound_name
+  name              = "${var.name_prefix}${var.gwlb_endpoint_set_outbound_name}"
   gwlb_service_name = module.security_gwlb.endpoint_service.service_name
   vpc_id            = module.security_subnet_sets["gwlbe_outbound"].vpc_id
   subnets           = module.security_subnet_sets["gwlbe_outbound"].subnets
