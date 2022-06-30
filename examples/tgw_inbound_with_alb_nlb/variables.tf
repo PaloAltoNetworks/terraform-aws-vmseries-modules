@@ -5,9 +5,9 @@ variable "region" {
   type        = string
 }
 
-variable "prefix" {
+variable "name_prefix" {
   description = "A prefix to add to all AWS object names."
-  default     = "pantf-"
+  default     = "example-"
   type        = string
 }
 
@@ -20,7 +20,7 @@ variable "global_tags" {
 # SECURITY VPC CONFIGURATION
 variable "security_vpc_name" {
   description = "Name of the VPC used for deploying Firewalls."
-  default     = "security-vpc-example"
+  default     = "security-vpc"
   type        = string
 }
 
@@ -132,7 +132,7 @@ variable "application_lb_rules" {
 # APPLICATION VPC CONFIGURATION
 variable "app_vpc_name" {
   description = "Name of the VPC used for deploying applications."
-  default     = "app-vpc-example"
+  default     = "app-vpc"
   type        = string
 }
 
@@ -170,13 +170,13 @@ variable "app_vms" {
   type        = map(any)
 }
 
-variable "app_lb_name" {
+variable "internal_app_nlb_name" {
   description = "Name of the internal Network Load Balancer placed in front of the application VMs."
-  default     = "app-lb"
+  default     = "int-app-nlb"
   type        = string
 }
 
-variable "app_lb_rules" {
+variable "internal_app_nlb_rules" {
   description = <<-EOF
   A set of rules for the Network Load Balancer placed in front of the Application VMs. See [modules documentation](../../modules/nlb/README.md) for details.
 

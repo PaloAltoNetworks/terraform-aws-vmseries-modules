@@ -4,22 +4,16 @@
 
 An example usage of Palo Alto's Next Generation Firewall Terraform modules used to spin up an environment in AWS Cloud to protect inbound traffic.
 
-This environment is based on the [Palo Alto's AWS Reference Architecture Guide](https://www.paloaltonetworks.com/apps/pan/public/downloadResource?pagePath=/content/pan/en_US/resources/guides/intelligent-architectures-aws-reference-architecture). It is build around two VM-Series NGWFs. The setup consists of 2 Virtual Private Clouds:
+This environment is based on the [Palo Alto's AWS Reference Architecture Guide](https://www.paloaltonetworks.com/resources/guides/intelligent-architectures-aws-reference-architecture). It is built around two VM-Series NGFWs. The setup consists of 2 Virtual Private Clouds:
 
-* Security - used by the Firewalls and related components.
-* Application - hosting an example application (an HTTP server in this case).
+* Security - hosting the Firewalls and related components:
+  * Application and Network Load Balancers in front of
+  * 2 independent Next Generation Firewalls.
+* Application - hosting an example application:
+  * two NGINX servers, SSH enabled, load balanced by
+  * internal Network Load Balancer
 
 Both VPCs are connected using a Transit Gateway.
-
-The example is build from the following components (from inbound traffic perspective):
-
-* AWS Application and Network Load Balancers - to balance traffic between two Firewalls:
-  * Application LB - acts as a reverse proxy. To simplify the example it is setup to only balance HTTP traffic for all requests coming to a domain www.example-page.com.
-  * Network LB - acts as a Layer 4 Load Balancer. It is set up to forward traffic for the SSH port.
-* Palo Alto VM-Series Next Generation Firewalls - set up as 2 independent Firewalls in different Availability Zones.
-* AWS Transit Gateway.
-* internal Network Load Balancer - a Layer 4 Load Balancer used to forward traffic to the application instances.
-* HTTP servers - 2 VMs hosting an HTTP and SSH servers (based on Bitnami's NGINX image).
 
 ## Usage
 
@@ -116,11 +110,9 @@ terraform destroy
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_app_lb_name"></a> [app\_lb\_name](#input\_app\_lb\_name) | Name of the internal Network Load Balancer placed in front of the application VMs. | `string` | `"app-lb"` | no |
-| <a name="input_app_lb_rules"></a> [app\_lb\_rules](#input\_app\_lb\_rules) | A set of rules for the Network Load Balancer placed in front of the Application VMs. See [modules documentation](../../modules/nlb/README.md) for details.<br><br>Just like in case of the `network_lb_rules`, `targets` and `target_type` properties are omitted because they are the same for all rules. In this module's use case the type is `instance` and instance IDs are calculated dynamically. Just like in case of the public Network Load Balancer, rules and targets are *combined* in `locals` section of the `applicaton.tf`. | `any` | n/a | yes |
 | <a name="input_app_vms"></a> [app\_vms](#input\_app\_vms) | Definition of an exemplary Application VMs. They are based on the latest version of Bitnami's NGINX image.<br><br>The structure of this map is similar to the one defining VMSeries, only one property is supported though: the Availability Zone the VM should be placed in.<br><br>EXAMPLE:<pre>app_vms = {<br>  "appvm01" = { az = "us-east-1b" }<br>  "appvm02" = { az = "us-east-1a" }<br>}</pre> | `map(any)` | n/a | yes |
 | <a name="input_app_vpc_cidr"></a> [app\_vpc\_cidr](#input\_app\_vpc\_cidr) | Address range for the application VPC. | `string` | `"10.200.0.0/16"` | no |
-| <a name="input_app_vpc_name"></a> [app\_vpc\_name](#input\_app\_vpc\_name) | Name of the VPC used for deploying applications. | `string` | `"app-vpc-example"` | no |
+| <a name="input_app_vpc_name"></a> [app\_vpc\_name](#input\_app\_vpc\_name) | Name of the VPC used for deploying applications. | `string` | `"app-vpc"` | no |
 | <a name="input_app_vpc_security_groups"></a> [app\_vpc\_security\_groups](#input\_app\_vpc\_security\_groups) | Definition of Security Groups used in Application VPC. For details and example see `security_vpc_security_groups` details. | `any` | n/a | yes |
 | <a name="input_app_vpc_subnets"></a> [app\_vpc\_subnets](#input\_app\_vpc\_subnets) | A map containing configuration of all Application VPC subnets. For details refer to `security_vpc_subnets` description. | `map(any)` | n/a | yes |
 | <a name="input_app_vpc_tgw_attachment_name"></a> [app\_vpc\_tgw\_attachment\_name](#input\_app\_vpc\_tgw\_attachment\_name) | A name of a TGW attachment in the application VPC. | `string` | `"app-tgw-attachment"` | no |
@@ -128,12 +120,14 @@ terraform destroy
 | <a name="input_application_lb_rules"></a> [application\_lb\_rules](#input\_application\_lb\_rules) | A map of rules for the Application Load Balancer. See [modules documentation](../../modules/alb/README.md) for details. | `any` | n/a | yes |
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | A string representing bootstrap options. For details refer to [Palo Alto documentation](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/bootstrap-the-vm-series-firewall-in-aws). | `string` | n/a | yes |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Tags to add to all AWS objects. | `map(string)` | `{}` | no |
+| <a name="input_internal_app_nlb_name"></a> [internal\_app\_nlb\_name](#input\_internal\_app\_nlb\_name) | Name of the internal Network Load Balancer placed in front of the application VMs. | `string` | `"int-app-nlb"` | no |
+| <a name="input_internal_app_nlb_rules"></a> [internal\_app\_nlb\_rules](#input\_internal\_app\_nlb\_rules) | A set of rules for the Network Load Balancer placed in front of the Application VMs. See [modules documentation](../../modules/nlb/README.md) for details.<br><br>Just like in case of the `network_lb_rules`, `targets` and `target_type` properties are omitted because they are the same for all rules. In this module's use case the type is `instance` and instance IDs are calculated dynamically. Just like in case of the public Network Load Balancer, rules and targets are *combined* in `locals` section of the `applicaton.tf`. | `any` | n/a | yes |
+| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | A prefix to add to all AWS object names. | `string` | `"example-"` | no |
 | <a name="input_network_lb_name"></a> [network\_lb\_name](#input\_network\_lb\_name) | Name of the public Network Load Balancer placed in front of the Firewalls' public interfaces. | `string` | `"public-nlb"` | no |
 | <a name="input_network_lb_rules"></a> [network\_lb\_rules](#input\_network\_lb\_rules) | A map of rules for the public Network Load Balancer. See [modules documentation](../../modules/nlb/README.md) for details.<br><br>NOTICE. In this example we skip the `target_type` and `targets` properties, as this is a public Load Balancer in front of Firewall's public interfaces.<br>The target type will be always `ip` and the `targets` - a map of Firewall's public interface private IP addresses. <br>The targets are *combined* with rules in `locals` section in `main.tf`. | `any` | n/a | yes |
-| <a name="input_prefix"></a> [prefix](#input\_prefix) | A prefix to add to all AWS object names. | `string` | `"pantf-"` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region used to deploy the resources. | `string` | `"us-east-1"` | no |
 | <a name="input_security_vpc_cidr"></a> [security\_vpc\_cidr](#input\_security\_vpc\_cidr) | Address range for the security VPC. | `string` | `"10.100.0.0/16"` | no |
-| <a name="input_security_vpc_name"></a> [security\_vpc\_name](#input\_security\_vpc\_name) | Name of the VPC used for deploying Firewalls. | `string` | `"security-vpc-example"` | no |
+| <a name="input_security_vpc_name"></a> [security\_vpc\_name](#input\_security\_vpc\_name) | Name of the VPC used for deploying Firewalls. | `string` | `"security-vpc"` | no |
 | <a name="input_security_vpc_security_groups"></a> [security\_vpc\_security\_groups](#input\_security\_vpc\_security\_groups) | A map containing a definition of all security groups for the Security VPC.<br><br>EXAMPLE:<pre>security_vpc_security_groups = {<br>  untrust = {<br>    name = "untrust-security-group"<br>    rules = {<br>      all_inbound = {<br>        description = "Permit all incoming traffic"<br>        type        = "ingress", from_port = "0", to_port = "0", protocol = "ALL"<br>        cidr_blocks = ["0.0.0.0/0"]<br>      }<br>      fw_traffic = {<br>        description = "Permit all outgoing traffic"<br>        type        = "egress", from_port = "0", to_port = "0", protocol = "ALL"<br>        cidr_blocks = ["0.0.0.0/0"]<br>      }<br>    }<br>  }<br>}</pre> | `any` | n/a | yes |
 | <a name="input_security_vpc_subnets"></a> [security\_vpc\_subnets](#input\_security\_vpc\_subnets) | Definition of all subnets in the security VPC.<br><br>This is a map where key is the subnet's CIDR and value contains a map consisting of the Availability Zone (in which the subnet will be created) and the subnet set name. <br><br>The latter is used to identify a purpose of the subnet, for example: management, trust, tgw, etc. This property is used later on in the code to reference all subnets of the same type/purpose.<br><br>EXAMPLE:<pre>security_vpc_subnets = {<br>  "10.0.0.0/24" = {<br>    az = "us-east-1a"<br>    set = "management"<br>  }<br>}</pre> | `map(any)` | n/a | yes |
 | <a name="input_security_vpc_tgw_attachment_name"></a> [security\_vpc\_tgw\_attachment\_name](#input\_security\_vpc\_tgw\_attachment\_name) | A name of a TGW attachment in the security VPC. | `string` | `"security-tgw-attachment"` | no |

@@ -122,7 +122,7 @@ bootstrap_options = "type=dhcp-client"
 
 # CONFIGURATION OF LOAD BALANCERS IN FRONT OF THE FIREWALLS
 network_lb_rules = {
-  "mqtt-traffic" = {
+  "bcknd-app-ssh" = {
     protocol          = "TCP"
     port              = "22"
     health_check_port = "80"
@@ -187,7 +187,7 @@ app_vms = {
   "appvm02" = { az = "us-east-1a" }
 }
 
-app_lb_rules = {
+internal_app_nlb_rules = {
   "ssh-traffic" = {
     protocol   = "TCP"
     port       = "22"

@@ -38,7 +38,7 @@ locals {
 module "security_vpc" {
   source = "../../modules/vpc"
 
-  name                    = "${var.prefix}${var.security_vpc_name}"
+  name                    = "${var.name_prefix}${var.security_vpc_name}"
   cidr_block              = var.security_vpc_cidr
   security_groups         = var.security_vpc_security_groups
   create_internet_gateway = true
@@ -61,7 +61,7 @@ module "security_subnet_sets" {
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
-  name         = "${var.prefix}${var.transit_gateway_name}"
+  name         = "${var.name_prefix}${var.transit_gateway_name}"
   asn          = var.transit_gateway_asn
   route_tables = var.transit_gateway_route_tables
 }
@@ -69,7 +69,7 @@ module "transit_gateway" {
 module "security_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  name                        = "${var.prefix}${var.security_vpc_tgw_attachment_name}"
+  name                        = "${var.name_prefix}${var.security_vpc_tgw_attachment_name}"
   vpc_id                      = module.security_subnet_sets["tgw"].vpc_id
   subnets                     = module.security_subnet_sets["tgw"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["security_vpc"]
@@ -95,7 +95,7 @@ module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name              = "${var.prefix}${each.key}"
+  name              = "${var.name_prefix}${each.key}"
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
   vmseries_version  = var.vmseries_version
@@ -130,7 +130,7 @@ module "vmseries" {
 module "public_nlb" {
   source = "../../modules/nlb"
 
-  lb_name               = "${var.prefix}${var.network_lb_name}"
+  lb_name               = "${var.name_prefix}${var.network_lb_name}"
   create_dedicated_eips = true
   subnets               = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
   vpc_id                = module.security_vpc.id
@@ -142,7 +142,7 @@ module "public_nlb" {
 module "public_alb" {
   source = "../../modules/alb"
 
-  lb_name         = "${var.prefix}${var.application_lb_name}"
+  lb_name         = "${var.name_prefix}${var.application_lb_name}"
   subnets         = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
   vpc_id          = module.security_vpc.id
   security_groups = [module.security_vpc.security_group_ids["application_load_balancer"]]

@@ -27,8 +27,8 @@ locals {
 
   # Internal Network Load Balancer rules set up. Please look at the explanation in `main.tf`.
   # Since the target are VMs with a single ENI `instance` type can be used.
-  app_lb_rules = {
-    for k, v in var.app_lb_rules : k => merge(v, {
+  internal_app_nlb_rules = {
+    for k, v in var.internal_app_nlb_rules : k => merge(v, {
       targets     = { for k, _ in var.app_vms : k => aws_instance.app_vm[k].id },
       target_type = "instance"
     })
@@ -40,7 +40,7 @@ locals {
 module "app_vpc" {
   source = "../../modules/vpc"
 
-  name                    = "${var.prefix}${var.app_vpc_name}"
+  name                    = "${var.name_prefix}${var.app_vpc_name}"
   cidr_block              = var.app_vpc_cidr
   security_groups         = var.app_vpc_security_groups
   create_internet_gateway = true
@@ -72,7 +72,7 @@ module "app_vpc_routes" {
 module "app_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  name                        = "${var.prefix}${var.app_vpc_tgw_attachment_name}"
+  name                        = "${var.name_prefix}${var.app_vpc_tgw_attachment_name}"
   vpc_id                      = module.app_subnet_sets["tgw"].vpc_id
   subnets                     = module.app_subnet_sets["tgw"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables["spokes_vpc"]
@@ -111,7 +111,7 @@ resource "aws_instance" "app_vm" {
 
   ami           = data.aws_ami.bitnami.id
   instance_type = "t2.micro"
-  tags          = merge({ Name = "${var.prefix}${each.key}" }, var.global_tags)
+  tags          = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   key_name      = var.ssh_key_name
 
   subnet_id              = module.app_subnet_sets["appl"].subnets[each.value.az].id
@@ -121,11 +121,11 @@ resource "aws_instance" "app_vm" {
 module "app_nlb" {
   source = "../../modules/nlb"
 
-  lb_name       = "${var.prefix}${var.app_lb_name}"
+  lb_name       = "${var.name_prefix}${var.internal_app_nlb_name}"
   internal_lb   = true
   subnets       = { for k, v in module.app_subnet_sets["appl"].subnets : k => { id = v.id } }
   vpc_id        = module.app_vpc.id
-  balance_rules = local.app_lb_rules
+  balance_rules = local.internal_app_nlb_rules
 
   tags = var.global_tags
 }
