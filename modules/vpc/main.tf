@@ -29,6 +29,28 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
   cidr_block = each.key
 }
 
+
+############################################################
+# DHCP Options
+############################################################
+
+resource "aws_vpc_dhcp_options" "security_dhcp_opt" {
+  count = var.create_dhcp_options ? 1 : 0
+
+  domain_name         = var.domain_name
+  domain_name_servers = var.domain_name_servers
+  ntp_servers         = var.ntp_servers
+
+  tags = merge(var.global_tags, var.vpc_tags, { Name = var.name })
+}
+
+resource "aws_vpc_dhcp_options_association" "security_dhcp_opt_association" {
+  count = var.create_dhcp_options ? 1 : 0
+
+  vpc_id          = local.vpc.id
+  dhcp_options_id = aws_vpc_dhcp_options.security_dhcp_opt[0].id
+}
+
 ############################################################
 # Internet Gateway
 ############################################################
