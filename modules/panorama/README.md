@@ -2,7 +2,7 @@
 
 A Terraform module for deploying Panorama in AWS cloud.
 
-Panorama deployed on AWS is Bring Your Own License (BYOL), supports all deployment modes (Panorama, Log Collector, and Management Only), and shares the same processes and functionality as the M-Series hardware appliances. For more information on Panorama modes, see [Panorama Models](https://docs.paloaltonetworks.com/panorama/8-1/panorama-admin/panorama-overview/panorama-models.html#id6a2d6388-f727-45aa-ae7e-ef7599379871).
+Panorama deployed on AWS is Bring Your Own License (BYOL), supports all deployment modes (Panorama, Log Collector, and Management Only), and shares the same processes and functionality as the M-Series hardware appliances. For more information on Panorama modes, see [Panorama Models](https://docs.paloaltonetworks.com/panorama/10-2/panorama-admin/panorama-overview/panorama-models).
 
 ## Usage
 

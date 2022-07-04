@@ -58,11 +58,10 @@ module "panorama" {
   availability_zone      = var.panorama_az
   create_public_ip       = var.panorama_create_public_ip
   ebs_volumes            = var.panorama_ebs_volumes
-  name                   = var.panorama_instance_name
+  name                   = var.panorama_deployment_name
   panorama_version       = var.panorama_version
   ssh_key_name           = var.panorama_ssh_key_name
   subnet_id              = module.security_subnet_sets["mgmt"].subnets[var.panorama_az].id
-  name_prefix            = var.name_prefix
   vpc_security_group_ids = [module.security_vpc.security_group_ids["panorama-mgmt"]]
   panorama_iam_role      = var.panorama_create_iam_instance_profile == false ? null : aws_iam_instance_profile.panorama_instance_profile[0].name
 
