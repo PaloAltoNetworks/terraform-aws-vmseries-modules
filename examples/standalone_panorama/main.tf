@@ -1,3 +1,13 @@
+data "aws_ebs_default_kms_key" "current" {
+  count = var.panorama_ebs_encrypted ? 1 : 0
+}
+
+data "aws_kms_alias" "current_arn" {
+  count = var.panorama_ebs_encrypted ? 1 : 0
+
+  name = var.panorama_ebs_kms_key_alias != "" ? "alias/${var.panorama_ebs_kms_key_alias}" : data.aws_ebs_default_kms_key.current[0].key_arn
+}
+
 module "security_vpc" {
   source = "../../modules/vpc"
 
@@ -42,22 +52,23 @@ module "security_vpc_routes" {
   to_cidr         = each.value.to_cidr
 }
 
-
-
 module "panorama" {
   source = "../../modules/panorama"
 
-  availability_zone             = var.panorama_az
-  create_public_ip              = var.panorama_create_public_ip
-  create_read_only_iam_role     = var.panorama_enable_iam_read_only_policy
-  ebs_volumes                   = var.panorama_ebs_volumes
-  name                          = var.panorama_instance_name
-  panorama_version              = var.panorama_version
-  ssh_key_name                  = var.panorama_ssh_key_name
-  subnet_id                     = module.security_subnet_sets["mgmt"].subnets[var.panorama_az].id
-  name_prefix                   = var.name_prefix
-  vpc_security_group_ids        = [module.security_vpc.security_group_ids["panorama-mgmt"]]
-  create_custom_kms_key_for_ebs = var.panorama_create_custom_kms_key
+  availability_zone      = var.panorama_az
+  create_public_ip       = var.panorama_create_public_ip
+  ebs_volumes            = var.panorama_ebs_volumes
+  name                   = var.panorama_instance_name
+  panorama_version       = var.panorama_version
+  ssh_key_name           = var.panorama_ssh_key_name
+  subnet_id              = module.security_subnet_sets["mgmt"].subnets[var.panorama_az].id
+  name_prefix            = var.name_prefix
+  vpc_security_group_ids = [module.security_vpc.security_group_ids["panorama-mgmt"]]
+  panorama_iam_role      = var.panorama_create_iam_instance_profile == false ? null : aws_iam_instance_profile.panorama_instance_profile[0].name
 
   global_tags = var.global_tags
+
+  depends_on = [
+    aws_iam_instance_profile.panorama_instance_profile
+  ]
 }

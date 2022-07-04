@@ -5,15 +5,6 @@ variable "name" {
   default     = "pan-panorama"
 }
 
-variable "name_prefix" {
-  description = <<-EOF
-  Prefix used for create individual environment via same account.
-  It help to organize multiple same origin resources."
-  EOF
-  default     = ""
-  type        = string
-}
-
 variable "global_tags" {
   description = <<-EOF
   A map of tags to assign to the resources.
@@ -129,31 +120,7 @@ variable "ebs_volumes" {
   default     = []
 }
 
-variable "create_read_only_iam_role" {
-  description = "Create read only IAM Role and attach it to Panorama instance."
-  type        = bool
-  default     = false
-}
-
-variable "create_custom_kms_key_for_ebs" {
-  description = "Create custom KMS key to be later used in encrypt EBS."
-  type        = bool
-  default     = false
-}
-
-variable "kms_cmk_spec" {
-  description = <<-EOF
-  Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing
-  algorithms that the key supports.
-  Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, HMAC_256,
-  ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1."
-  EOF
+variable "panorama_iam_role" {
+  description = "IAM Role attached to Panorama instance contained curated IAM Policy."
   type        = string
-  default     = "SYMMETRIC_DEFAULT"
-}
-
-variable "kms_delete_window_in_days" {
-  description = "Number of days KMS key is stay until deleted."
-  type        = number
-  default     = 7
 }
