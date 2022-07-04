@@ -103,8 +103,8 @@ variable "panorama_version" {
   type        = string
 }
 
-variable "panorama_instance_name" {
-  description = "Name of Panorama instance"
+variable "panorama_deployment_name" {
+  description = "Name of Panorama deployment, further use for tagging and name of Panorama instance."
   default     = "panorama"
   type        = string
 }

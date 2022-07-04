@@ -46,12 +46,12 @@ Initial Panorama setup takes a few minutes to complete.
 | <a name="input_panorama_create_iam_instance_profile"></a> [panorama\_create\_iam\_instance\_profile](#input\_panorama\_create\_iam\_instance\_profile) | Enable creation of IAM Instance Profile and attach it to Panorama. | `bool` | `false` | no |
 | <a name="input_panorama_create_iam_role"></a> [panorama\_create\_iam\_role](#input\_panorama\_create\_iam\_role) | Enable creation of IAM Role for IAM Instance Profile. | `bool` | `false` | no |
 | <a name="input_panorama_create_public_ip"></a> [panorama\_create\_public\_ip](#input\_panorama\_create\_public\_ip) | Public access to Panorama. | `bool` | `false` | no |
+| <a name="input_panorama_deployment_name"></a> [panorama\_deployment\_name](#input\_panorama\_deployment\_name) | Name of Panorama deployment, further use for tagging and name of Panorama instance. | `string` | `"panorama"` | no |
 | <a name="input_panorama_ebs_encrypted"></a> [panorama\_ebs\_encrypted](#input\_panorama\_ebs\_encrypted) | Whether to enable EBS encryption on volumes.. | `bool` | `true` | no |
 | <a name="input_panorama_ebs_kms_key_alias"></a> [panorama\_ebs\_kms\_key\_alias](#input\_panorama\_ebs\_kms\_key\_alias) | KMS key alias used for encrypting Panorama EBS. | `string` | `""` | no |
 | <a name="input_panorama_ebs_volumes"></a> [panorama\_ebs\_volumes](#input\_panorama\_ebs\_volumes) | List of Panorama volumes | `list(any)` | `[]` | no |
 | <a name="input_panorama_existing_iam_role_name"></a> [panorama\_existing\_iam\_role\_name](#input\_panorama\_existing\_iam\_role\_name) | If you want to use existing IAM Role as IAM Instance Profile use this variable to provide IAM Role name." | `string` | `""` | no |
 | <a name="input_panorama_iam_policy_name"></a> [panorama\_iam\_policy\_name](#input\_panorama\_iam\_policy\_name) | If you want to use existing IAM Policy in Terraform created IAM Role, provide IAM Role name with this variable." | `string` | `""` | no |
-| <a name="input_panorama_instance_name"></a> [panorama\_instance\_name](#input\_panorama\_instance\_name) | Name of Panorama instance | `string` | `"panorama"` | no |
 | <a name="input_panorama_ssh_key_name"></a> [panorama\_ssh\_key\_name](#input\_panorama\_ssh\_key\_name) | SSH key used to login into Panorama EC2 server. | `string` | n/a | yes |
 | <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama OS Version. | `string` | `"10.2.0"` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region. | `string` | `"us-east-1"` | no |
