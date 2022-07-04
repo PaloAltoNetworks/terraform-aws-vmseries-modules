@@ -42,12 +42,17 @@ vpc_security_groups = {
 
 vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
+## IAM Instance Role
+panorama_iam_policy_name             = "AmazonEC2ReadOnlyAccess"
+panorama_create_iam_instance_profile = true
+panorama_create_iam_role             = true
+#panorama_existing_iam_role_name = "PanoramaROCuratedRole" <-- use this variable to attach existing IAM Role.
+
 ## Panorama
-panorama_ssh_key                     = "panorama"
-panorama_az                          = "us-east-1a"
-panorama_create_public_ip            = true
-panorama_enable_iam_read_only_policy = false
-panorama_create_custom_kms_key       = false
+panorama_az               = "us-east-1a"
+panorama_create_public_ip = true
+panorama_ebs_encrypted    = true
+#panorama_ebs_kms_key_alias = "panoramamainkms" <-- use this variable when you have own KMS key.
 
 panorama_ebs_volumes = [
   {
