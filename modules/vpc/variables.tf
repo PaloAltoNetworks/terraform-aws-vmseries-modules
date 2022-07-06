@@ -65,23 +65,23 @@ variable "enable_dns_hostnames" { default = null }
 variable "instance_tenancy" { default = null }
 variable "assign_generated_ipv6_cidr_block" { default = null }
 variable "create_dhcp_options" {
-  default     = false
   description = "Should be true if you want to specify a DHCP options set with a custom domain name, DNS servers, NTP servers."
+  default     = false
   type        = bool
 }
 variable "domain_name" {
-  default     = ""
   description = "Specifies DNS name for DHCP options set. 'create_dhcp_options' needs to be enabled."
+  default     = ""
   type        = string
 }
 variable "domain_name_servers" {
-  default     = []
   description = "Specify a list of DNS server addresses for DHCP options set, default to AWS provided"
+  default     = []
   type        = list(string)
 }
 variable "ntp_servers" {
-  default     = []
   description = "Specify a list of NTP server addresses for DHCP options set, default to AWS provided"
+  default     = []
   type        = list(string)
 }
 variable "create_vpn_gateway" { default = false }
