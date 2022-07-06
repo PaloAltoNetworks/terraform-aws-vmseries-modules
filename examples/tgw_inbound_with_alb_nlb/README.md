@@ -15,6 +15,12 @@ This environment is based on the [Palo Alto's AWS Reference Architecture Guide](
 
 Both VPCs are connected using a Transit Gateway.
 
+**NOTICE**
+Currently all public Load Balancer targets are set up as IP addresses. Keep in mind that if you would like to preserve the source IP for traffic balanced by the Network Load Balancer you would need to:
+
+* use instance IDs instead of IP addresses as targets for NLB
+* do a management interface swap: add `mgmt-interface-swap = "enable"` to bootstrap options.
+
 ## Usage
 
 Create a `terraform.tfvars` file and copy the content of `example.tfvars` into it. There are options that have to be modified:
