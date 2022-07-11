@@ -6,7 +6,7 @@ variable "region" {
 
 variable "name_prefix" {
   description = "A prefix to add to all AWS object names."
-  default     = "example-"
+  default     = ""
   type        = string
 }
 
