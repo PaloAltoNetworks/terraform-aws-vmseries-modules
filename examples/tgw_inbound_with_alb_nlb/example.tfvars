@@ -1,4 +1,5 @@
 # COMMON VARIABLES
+region = "us-east-1"
 global_tags = {
   ManagedBy   = "Terraform"
   Application = "Palo Alto Networks VM-Series NGFW"

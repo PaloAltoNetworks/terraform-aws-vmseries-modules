@@ -1,7 +1,6 @@
 # COMMON VARIABLES
 variable "region" {
   description = "AWS region used to deploy the resources."
-  default     = "us-east-1"
   type        = string
 }
 
