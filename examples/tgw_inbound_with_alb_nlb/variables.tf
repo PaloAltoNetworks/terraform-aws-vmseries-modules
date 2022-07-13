@@ -1,13 +1,12 @@
 # COMMON VARIABLES
 variable "region" {
   description = "AWS region used to deploy the resources."
-  default     = "us-east-1"
   type        = string
 }
 
 variable "name_prefix" {
   description = "A prefix to add to all AWS object names."
-  default     = "example-"
+  default     = ""
   type        = string
 }
 
