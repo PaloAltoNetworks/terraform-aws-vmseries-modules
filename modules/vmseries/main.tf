@@ -15,8 +15,16 @@ data "aws_ami" "this" {
   }
 }
 
-# The default EBS encryption KMS key in the current region.
-data "aws_ebs_default_kms_key" "current" {}
+# Use the default KMS key in the current region for EBS encryption
+data "aws_ebs_default_kms_key" "current" {
+  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
+}
+
+# Provide an alias for the default KMS key
+data "aws_kms_alias" "current_arn" {
+  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
+  name  = data.aws_ebs_default_kms_key.current[0].key_arn
+}
 
 # Network Interfaces
 resource "aws_network_interface" "this" {
@@ -56,7 +64,7 @@ resource "aws_eip_association" "this" {
 # Create PA VM-series instances
 resource "aws_instance" "this" {
 
-  ami                                  = coalesce(var.vmseries_ami_id, data.aws_ami.this[0].id)
+  ami                                  = coalesce(var.vmseries_ami_id, try(data.aws_ami.this[0].id, null))
   iam_instance_profile                 = var.iam_instance_profile
   instance_type                        = var.instance_type
   key_name                             = var.ssh_key_name
@@ -65,12 +73,20 @@ resource "aws_instance" "this" {
   instance_initiated_shutdown_behavior = "stop"
   monitoring                           = false
 
+  dynamic "metadata_options" {
+    for_each = var.enable_imdsv2 ? [1] : []
+    content {
+      http_endpoint = "enabled"
+      http_tokens   = "required"
+    }
+  }
+
   user_data = base64encode(var.bootstrap_options)
 
   root_block_device {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
-    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_ebs_default_kms_key.current.key_arn
+    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_kms_alias.current_arn[0].target_key_arn
     tags                  = merge(var.tags, { Name = var.name })
   }
 

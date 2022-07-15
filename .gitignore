@@ -21,6 +21,7 @@
 .terrascan
 # Terraform dot files
 .terraform
+.terraform.lock.hcl
 .terraformrc
 **/.terraform/*
 .terraform.d
@@ -47,3 +48,4 @@ terraform.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
 
+.terraform.lock.hcl
