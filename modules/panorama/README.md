@@ -59,5 +59,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_mgmt_ip_private_address"></a> [mgmt\_ip\_private\_address](#output\_mgmt\_ip\_private\_address) | Panorama private IP address. |
-| <a name="output_mgmt_ip_public_address"></a> [mgmt\_ip\_public\_address](#output\_mgmt\_ip\_public\_address) | Panorama management IP address. If `create_public_ip` was `true`, it will receive IP address otherwise it show message with no public IP info. |
+| <a name="output_mgmt_ip_public_address"></a> [mgmt\_ip\_public\_address](#output\_mgmt\_ip\_public\_address) | Panorama management IP address. If `create_public_ip` is set to `true`, it will output the public IP address otherwise it will show the 'no public IP assigned to Panorama' message. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
