@@ -4,6 +4,6 @@ output "mgmt_ip_private_address" {
 }
 
 output "mgmt_ip_public_address" {
-  description = "Panorama management IP address. If `create_public_ip` was `true`, it will receive IP address otherwise it show message with no public IP info."
-  value       = try(aws_eip.this[0].public_ip, "no public IP in Panorama.")
+  description = "Panorama management IP address. If `create_public_ip` is set to `true`, it will output the public IP address otherwise it will show the 'no public IP assigned to Panorama' message."
+  value       = try(aws_eip.this[0].public_ip, "no public IP assigned to Panorama.")
 }
