@@ -19,6 +19,8 @@
 # .ssh dir may contain private keys
 .ssh
 .terrascan
+*.pem
+.pem
 # Terraform dot files
 .terraform
 .terraform.lock.hcl
@@ -29,7 +31,6 @@
 *.tfstate.*
 .terragrunt-cache
 .vscode
-.idea
 .idea
 
 # Palo auth codes
@@ -47,5 +48,3 @@ terraform.tfvars
 terraform.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
-
-.terraform.lock.hcl

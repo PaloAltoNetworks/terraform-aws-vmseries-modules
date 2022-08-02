@@ -27,6 +27,7 @@ resource "aws_instance" "this" {
   instance_initiated_shutdown_behavior = "stop"
   ebs_optimized                        = true
   monitoring                           = false
+  iam_instance_profile                 = var.panorama_iam_role
 
   root_block_device {
     delete_on_termination = true
@@ -45,16 +46,13 @@ resource "aws_eip" "this" {
   tags = merge(var.global_tags, { Name = var.name })
 }
 
-# Get the default EBS encryption KMS key in the current region.
-data "aws_ebs_default_kms_key" "current" {}
-
 resource "aws_ebs_volume" "this" {
   for_each = { for k, v in var.ebs_volumes : k => v }
 
   availability_zone = var.availability_zone
   size              = try(each.value.ebs_size, "2000")
   encrypted         = try(each.value.ebs_encrypted, false)
-  kms_key_id        = try(each.value.ebs_encrypted == false ? null : each.value.kms_key_id != null ? each.value.kms_key_id : data.aws_ebs_default_kms_key.current.key_arn, null)
+  kms_key_id        = try(each.value.kms_key_id, null)
 
   tags = merge(var.global_tags, { Name = try(each.value.name, var.name) })
 }
