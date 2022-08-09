@@ -61,7 +61,7 @@ module "vmseries" {
   name              = each.key
   tags              = var.global_tags
   ssh_key_name      = var.ssh_key_name
-  bootstrap_options = var.bootstrap_options
+  bootstrap_options = local.bootstrap_options
   vmseries_version  = var.vmseries_version
 
   interfaces = {
@@ -128,6 +128,13 @@ locals {
       }
     ],
   )
+
+  outbound = [for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.outbound_subinterface)]
+
+  bootstrap_options = join(";", compact(concat(
+    [var.bootstrap_options],
+    [for _, v in local.outbound : "${v}"]
+  )))
 }
 
 # Security VPC Routes
