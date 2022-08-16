@@ -30,8 +30,8 @@ variable "panorama_version" {
   --output json --query "Images[].Description" \| grep -o 'Panorama-AWS-.*' \| tr -d '",'
   ```
   EOF
-  default     = "10.0.6"
   type        = string
+  default     = "10.1.5"
 }
 
 variable "instance_type" {
@@ -116,6 +116,11 @@ variable "ebs_volumes" {
   ]
   ```
   EOF
+  type        = list(any)
   default     = []
 }
 
+variable "panorama_iam_role" {
+  description = "IAM Role attached to Panorama instance contained curated IAM Policy."
+  type        = string
+}
