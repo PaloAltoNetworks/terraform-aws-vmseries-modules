@@ -73,14 +73,14 @@ variables and associated values.
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~>3.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.3.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~>3.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.3.2 |
 
 ## Modules
 
