@@ -80,11 +80,12 @@ gwlb_name                       = "example-security-gwlb"
 gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
 
 ### NAT gateway
-nat_gateway_name = "example-natgw"
-
+nat_gateway_names = {
+  "us-east-1a" = "example-natgwa"
+  "us-east-1b" = "example-natgwb"
+}
 # VM-Series
-vmseries_version = "10.1.3"
-create_ssh_key   = false
+vmseries_version = "10.2.2"
 ssh_key_name     = "example-ssh-key"
 firewalls = {
   vmseries01 = { az = "us-east-1a" }

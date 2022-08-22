@@ -140,6 +140,8 @@ vmseries_common = {
     mgmt-interface-swap = "enable"
   }
 }
+vmseries_version = "10.2.2"
+
 # EC2 SSH Key
 create_ssh_key = false
 # ssh_key_name        = "-->your AWS key pair name goes here<--"
@@ -152,7 +154,6 @@ app1_vpc_name = "app1-spoke-vpc"
 app1_vpc_cidr = "10.104.0.0/16"
 
 # Pull back info from existing GWLB in security VPC.
-existing_gwlb_name          = "security-gwlb"
 app1_gwlb_endpoint_set_name = "app1-gwlb-endpoint"
 
 app1_vpc_subnets = {
@@ -197,3 +198,4 @@ app1_vms = {
   "app1_vm01" = { az = "us-east-1a" }
   "app1_vm02" = { az = "us-east-1b" }
 }
+

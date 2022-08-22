@@ -35,7 +35,18 @@ variable "eips" {
 }
 
 variable "nat_gateway_names" {
-  description = "A map, where each key is an Availability Zone name, for example \"us-east-1b\". Each value in the map is a custom name of a NAT Gateway in that Availability Zone. The name is kept in an AWS standard Name tag."
+  description = <<EOF
+A map, where each key is an Availability Zone name, for example \"us-east-1b\". Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
+The name is kept in an AWS standard Name tag."
+  Example:
+  ```
+  nat_gateway_names = {
+    "us-east-1a" = "example-natgwa"
+    "us-east-1b" = "example-natgwb"
+  }
+  ```
+
+  EOF
   default     = {}
   type        = map(string)
 }

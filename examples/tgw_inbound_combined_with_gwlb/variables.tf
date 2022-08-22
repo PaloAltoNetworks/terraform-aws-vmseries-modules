@@ -1,44 +1,5 @@
 ### AWS Provider Authentication and Attributes
 variable "region" {}
-variable "aws_access_key" {
-  description = "See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details."
-  default     = null
-  type        = string
-}
-
-variable "aws_secret_key" {
-  description = "See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details."
-  default     = null
-  type        = string
-}
-
-variable "aws_shared_credentials_file" {
-  description = "Example: \"/Users/tf_user/.aws/creds\". See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details."
-  default     = null
-  type        = string
-}
-
-variable "aws_profile" {
-  description = "Which profile name to use from within the `aws_shared_credentials_file`. Example: \"myprofile\". See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details."
-  default     = null
-  type        = string
-}
-
-variable "aws_assume_role" {
-  description = <<-EOF
-  Example:
-
-  ```
-  aws_assume_role = {
-    role_arn     = "arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
-    session_name = "SESSION_NAME"
-    external_id  = "EXTERNAL_ID"
-  }
-  ```
-  EOF
-  default     = null
-  type        = map(string)
-}
 
 ### General
 variable "name" {}
@@ -48,6 +9,7 @@ variable "global_tags" {}
 ### VM-Series
 variable "vmseries" {}
 variable "vmseries_common" {}
+variable "vmseries_version" {}
 
 variable "ssh_key_name" {}
 

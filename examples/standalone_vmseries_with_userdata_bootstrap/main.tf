@@ -28,6 +28,7 @@ module "vmseries" {
   name              = var.name
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
+  vmseries_version  = var.vmseries_version
   interfaces = {
     mgmt = {
       device_index       = 0

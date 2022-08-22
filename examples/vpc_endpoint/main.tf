@@ -2,7 +2,7 @@ module "vpc" {
   source = "../../modules/vpc"
 
   name                    = var.security_vpc_name
-  cidr_block              = "10.100.0.0/16"
+  cidr_block              = var.security_vpc_cidr
   create_internet_gateway = false
   global_tags             = var.global_tags
   security_groups = {
