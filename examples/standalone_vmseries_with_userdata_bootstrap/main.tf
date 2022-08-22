@@ -30,12 +30,12 @@ module "vmseries" {
   bootstrap_options = var.bootstrap_options
   vmseries_version  = var.vmseries_version
   interfaces = {
-    mgmt = {
-      device_index       = 0
-      security_group_ids = [module.security_vpc.security_group_ids["vmseries_mgmt"]]
-      source_dest_check  = true
-      subnet_id          = module.security_subnet_sets["mgmt"].subnets[each.value.az].id
-      create_public_ip   = true
+    for k, v in each.value.interfaces : k => {
+      device_index       = v.device_index
+      security_group_ids = try([module.security_vpc.security_group_ids[v.security_group]], [])
+      source_dest_check  = v.source_dest_check
+      subnet_id          = module.security_subnet_sets[v.subnet].subnets[each.value.az].id
+      create_public_ip   = v.create_public_ip
     }
   }
 

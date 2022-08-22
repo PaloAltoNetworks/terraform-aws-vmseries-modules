@@ -44,7 +44,18 @@ security_vpc_security_groups = {
 ssh_key_name     = "example-ssh-key"
 vmseries_version = "10.2.2"
 vmseries = {
-  vmseries01 = { az = "us-east-1a" }
+  vmseries01 = {
+    az = "us-east-1a"
+    interfaces = {
+      mgmt = {
+        device_index      = 0
+        security_group    = "vmseries_mgmt"
+        source_dest_check = true
+        subnet            = "mgmt"
+        create_public_ip  = true
+      }
+    }
+  }
 }
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"
