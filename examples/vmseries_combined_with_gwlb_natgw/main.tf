@@ -129,12 +129,9 @@ locals {
     ],
   )
 
-  outbound = [for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.outbound_subinterface)]
-
-  bootstrap_options = join(";", compact(concat(
-    [var.bootstrap_options],
-    [for _, v in local.outbound : "${v}"]
-  )))
+  outbound          = join(",", compact(concat([for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.outbound_subinterface)])))
+  bootstrap         = [for k, v in var.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${format("%s,%s", v, local.outbound)}"]
+  bootstrap_options = join(";", compact(concat(local.bootstrap)))
 }
 
 # Security VPC Routes
