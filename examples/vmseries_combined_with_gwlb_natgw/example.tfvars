@@ -91,7 +91,13 @@ firewalls = {
   vmseries02 = { az = "us-east-1b" }
 }
 
-bootstrap_options = "mgmt-interface-swap=enable;plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client"
+bootstrap_options = {
+  mgmt-interface-swap = "enable"
+  plugin-op-commands  = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
+  type                = "dhcp-client"
+}
+
+outbound_subinterface = "ethernet1/1.20" # Dedicated subinterface for VMSeries bootstraping
 
 # Security VPC routes ###
 security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
