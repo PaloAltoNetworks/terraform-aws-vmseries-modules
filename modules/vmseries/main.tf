@@ -81,7 +81,7 @@ resource "aws_instance" "this" {
     }
   }
 
-  user_data = base64encode(var.bootstrap_options)
+  user_data_base64 = base64encode(var.bootstrap_options)
 
   root_block_device {
     delete_on_termination = true
