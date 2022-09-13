@@ -6,6 +6,10 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 
 For example usage, please refer to the [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) directory.
 
+## VMSeries Lifecycle policy
+
+The changes in user data bootstrap entries will not affect the existing VM-Series EC2 instances. The recommended method to replace existing VM is to use terraform taint.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

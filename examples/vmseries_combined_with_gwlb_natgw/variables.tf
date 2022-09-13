@@ -14,3 +14,4 @@ variable "nat_gateway_names" {}
 variable "firewalls" {}
 variable "bootstrap_options" {}
 variable "vmseries_version" {}
+variable "outbound_subinterface" {}
