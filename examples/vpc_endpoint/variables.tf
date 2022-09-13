@@ -9,3 +9,7 @@ variable "global_tags" {
 variable "security_vpc_name" {
   type = string
 }
+
+variable "security_vpc_cidr" {
+  type = string
+}

@@ -8,8 +8,8 @@ module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name = "${var.name_prefix}${each.key}"
-
+  name             = "${var.name_prefix}${each.key}"
+  vmseries_version = var.vmseries_version
   interfaces = {
     data1 = {
       device_index       = 0
@@ -35,12 +35,4 @@ module "vmseries" {
   iam_instance_profile = module.bootstrap.instance_profile_name
   ssh_key_name         = var.ssh_key_name
   tags                 = var.global_tags
-}
-
-resource "aws_key_pair" "this" {
-  count = var.create_ssh_key ? 1 : 0
-
-  key_name   = var.ssh_key_name
-  public_key = file(var.ssh_public_key_file)
-  tags       = var.global_tags
 }

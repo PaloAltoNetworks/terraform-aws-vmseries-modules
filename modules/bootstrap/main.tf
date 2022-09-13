@@ -17,12 +17,18 @@ resource "aws_s3_bucket" "this" {
   count = var.create_bucket == true ? 1 : 0
 
   bucket        = local.bucket_name
-  acl           = "private"
   force_destroy = var.force_destroy
   tags          = var.global_tags
 }
 
-resource "aws_s3_bucket_object" "bootstrap_dirs" {
+resource "aws_s3_bucket_acl" "this" {
+  count = var.create_bucket == true ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
+  acl    = "private"
+}
+
+resource "aws_s3_object" "bootstrap_dirs" {
   for_each = toset(var.bootstrap_directories)
 
   bucket  = local.aws_s3_bucket.id
@@ -30,7 +36,7 @@ resource "aws_s3_bucket_object" "bootstrap_dirs" {
   content = "/dev/null"
 }
 
-resource "aws_s3_bucket_object" "init_cfg" {
+resource "aws_s3_object" "init_cfg" {
   count = contains(fileset(local.source_root_directory, "**"), "config/init-cfg.txt") ? 0 : 1
 
   bucket = local.aws_s3_bucket.id
@@ -55,7 +61,7 @@ locals {
   source_root_directory = coalesce(var.source_root_directory, "${path.root}/files")
 }
 
-resource "aws_s3_bucket_object" "bootstrap_files" {
+resource "aws_s3_object" "bootstrap_files" {
   for_each = fileset(local.source_root_directory, "**")
 
   bucket = local.aws_s3_bucket.id

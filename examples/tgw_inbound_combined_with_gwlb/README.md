@@ -48,14 +48,14 @@ terraform destroy
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 3.74 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | = 3.74 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
 ## Modules
 
@@ -83,10 +83,9 @@ terraform destroy
 
 | Name | Type |
 |------|------|
-| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/ec2_transit_gateway_route) | resource |
-| [aws_instance.app1_vm](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/instance) | resource |
-| [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/resources/key_pair) | resource |
-| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/3.74/docs/data-sources/ami) | data source |
+| [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_route) | resource |
+| [aws_instance.app1_vm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 
 ## Inputs
 
@@ -100,11 +99,6 @@ terraform destroy
 | <a name="input_app1_vpc_name"></a> [app1\_vpc\_name](#input\_app1\_vpc\_name) | The name tag of the created App1 VPC. | `string` | n/a | yes |
 | <a name="input_app1_vpc_security_groups"></a> [app1\_vpc\_security\_groups](#input\_app1\_vpc\_security\_groups) | n/a | `any` | n/a | yes |
 | <a name="input_app1_vpc_subnets"></a> [app1\_vpc\_subnets](#input\_app1\_vpc\_subnets) | n/a | `any` | n/a | yes |
-| <a name="input_aws_access_key"></a> [aws\_access\_key](#input\_aws\_access\_key) | See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
-| <a name="input_aws_assume_role"></a> [aws\_assume\_role](#input\_aws\_assume\_role) | Example:<pre>aws_assume_role = {<br>  role_arn     = "arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"<br>  session_name = "SESSION_NAME"<br>  external_id  = "EXTERNAL_ID"<br>}</pre> | `map(string)` | `null` | no |
-| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | Which profile name to use from within the `aws_shared_credentials_file`. Example: "myprofile". See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
-| <a name="input_aws_secret_key"></a> [aws\_secret\_key](#input\_aws\_secret\_key) | See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
-| <a name="input_aws_shared_credentials_file"></a> [aws\_shared\_credentials\_file](#input\_aws\_shared\_credentials\_file) | Example: "/Users/tf\_user/.aws/creds". See the [`aws` provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#static-credentials) for details. | `string` | `null` | no |
 | <a name="input_create_ssh_key"></a> [create\_ssh\_key](#input\_create\_ssh\_key) | n/a | `bool` | `false` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | n/a | `any` | n/a | yes |
 | <a name="input_gwlb_endpoint_set_eastwest_name"></a> [gwlb\_endpoint\_set\_eastwest\_name](#input\_gwlb\_endpoint\_set\_eastwest\_name) | n/a | `any` | n/a | yes |
@@ -131,6 +125,7 @@ terraform destroy
 | <a name="input_transit_gateway_route_tables"></a> [transit\_gateway\_route\_tables](#input\_transit\_gateway\_route\_tables) | Complex input with the Route Tables of the Transit Gateway. Example:<pre>{<br>  "from_security_vpc" = {<br>    create = true<br>    name   = "myrt1"<br>  }<br>  "from_spoke_vpc" = {<br>    create = true<br>    name   = "myrt2"<br>  }<br>}</pre>Two keys are required:<br><br>- from\_security\_vpc describes which route table routes the traffic coming from the Security VPC,<br>- from\_spoke\_vpc describes which route table routes the traffic coming from the Spoke (App1) VPC.<br><br>Each of these entries can specify `create = true` which creates a new RT with a `name`.<br>With `create = false` the pre-existing RT named `name` is used. | `any` | n/a | yes |
 | <a name="input_vmseries"></a> [vmseries](#input\_vmseries) | ## VM-Series | `any` | n/a | yes |
 | <a name="input_vmseries_common"></a> [vmseries\_common](#input\_vmseries\_common) | n/a | `any` | n/a | yes |
+| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | n/a | `any` | n/a | yes |
 
 ## Outputs
 

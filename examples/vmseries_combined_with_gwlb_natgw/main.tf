@@ -28,7 +28,8 @@ module "natgw_set" {
   # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
   source = "../../modules/nat_gateway_set"
 
-  subnets = module.security_subnet_sets["natgw"].subnets
+  nat_gateway_names = var.nat_gateway_names
+  subnets           = module.security_subnet_sets["natgw"].subnets
 }
 
 # Gateway Load Balancer
