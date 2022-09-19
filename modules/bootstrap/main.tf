@@ -5,6 +5,8 @@ resource "random_id" "bucket_id" {
 locals {
   bucket_name   = coalesce(var.bucket_name, "${var.prefix}${random_id.bucket_id.hex}")
   aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
+  iam_role_name = coalesce(var.iam_role_name, "${var.prefix}${random_id.bucket_id.hex}")
+  aws_iam_role  = var.create_iam_role_policy ? aws_iam_role.this[0] : data.aws_iam_role.this[0]
 }
 
 data "aws_s3_bucket" "this" {
@@ -69,8 +71,16 @@ resource "aws_s3_object" "bootstrap_files" {
   source = "${local.source_root_directory}/${each.value}"
 }
 
+data "aws_iam_role" "this" {
+  count = var.create_iam_role_policy == false ? 1 : 0
+
+  name = local.iam_role_name
+}
+
 resource "aws_iam_role" "this" {
-  name = "${var.prefix}${random_id.bucket_id.hex}"
+  count = var.create_iam_role_policy == true ? 1 : 0
+
+  name = local.iam_role_name
 
   tags               = var.global_tags
   assume_role_policy = <<EOF
@@ -90,8 +100,9 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  name   = "${var.prefix}${random_id.bucket_id.hex}"
-  role   = aws_iam_role.this.id
+  count  = var.create_iam_role_policy == true ? 1 : 0
+  name   = local.iam_role_name
+  role   = local.aws_iam_role.id
   policy = <<EOF
 {
   "Version" : "2012-10-17",
@@ -113,6 +124,6 @@ EOF
 
 resource "aws_iam_instance_profile" "this" {
   name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
-  role = aws_iam_role.this.name
+  role = local.iam_role_name
   path = "/"
 }

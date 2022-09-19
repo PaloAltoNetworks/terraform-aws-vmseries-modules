@@ -16,6 +16,24 @@ variable "iam_instance_profile_name" {
   type        = string
 }
 
+variable "create_iam_role_policy" {
+  description = "If true, a new IAM role with policy will be created. When false, name of existing IAM role and policy to use has to be provided in `iam_role_name` and `iam_policy_name` variable."
+  default     = true
+  type        = bool
+}
+
+variable "iam_role_name" {
+  description = "Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value)."
+  default     = ""
+  type        = string
+}
+
+variable "iam_policy_name" {
+  description = "Name of a IAM policy to reuse or create (depending on `create_iam_role_policy` value)."
+  default     = ""
+  type        = string
+}
+
 variable "force_destroy" {
   description = "Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects."
   default     = true
