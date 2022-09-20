@@ -123,8 +123,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
-  count = var.create_iam_role_policy == true ? 1 : 0
-  name  = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
-  role  = local.iam_role_name
-  path  = "/"
+  name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
+  role = local.iam_role_name
+  path = "/"
 }

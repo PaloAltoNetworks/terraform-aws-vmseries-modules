@@ -4,6 +4,7 @@ module "bootstrap" {
   global_tags            = var.global_tags
   create_iam_role_policy = var.create_iam_role_policy
   iam_role_name          = var.iam_role_name
+  source_root_directory  = var.source_root_directory
 }
 
 module "security_vpc" {
@@ -33,12 +34,7 @@ module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name         = "${var.name_prefix}vmseries"
-  ssh_key_name = var.ssh_key_name
-  bootstrap_options = join(";", compact(concat(
-    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
-    [for k, v in var.bootstrap_options : "${k}=${v}"],
-  )))
+  name             = "${var.name_prefix}vmseries"
   vmseries_version = var.vmseries_version
   interfaces = {
     for k, v in each.value.interfaces : k => {
@@ -50,7 +46,15 @@ module "vmseries" {
     }
   }
 
-  tags = var.global_tags
+  bootstrap_options = join(";", compact(concat(
+    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
+    [for k, v in var.bootstrap_options : "${k}=${v}"],
+  )))
+  # bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=sbvms01"
+
+  iam_instance_profile = module.bootstrap.instance_profile_name
+  ssh_key_name         = var.ssh_key_name
+  tags                 = var.global_tags
 }
 
 locals {

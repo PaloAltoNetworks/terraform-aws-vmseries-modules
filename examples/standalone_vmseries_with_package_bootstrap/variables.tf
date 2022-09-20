@@ -12,3 +12,4 @@ variable "bootstrap_options" {}
 variable "vmseries_version" {}
 variable "ssh_key_name" {}
 variable "security_vpc_routes_outbound_destin_cidrs" {}
+variable "source_root_directory" {}
