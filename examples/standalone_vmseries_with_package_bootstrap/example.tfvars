@@ -8,4 +8,4 @@ global_tags = {
 }
 
 create_iam_role_policy = true
-iam_role_name          = "" #  if create_iam_role_policy==true, then please put IAM role name
+iam_role_name          = "" #  if create_iam_role_policy==false, then please put IAM role name
