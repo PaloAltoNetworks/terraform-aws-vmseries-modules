@@ -19,6 +19,6 @@ output "bucket_regional_domain_name" {
 }
 
 output "instance_profile_name" {
-  value       = aws_iam_instance_profile.this.name
+  value       = length(aws_iam_instance_profile.this) > 0 ? aws_iam_instance_profile.this[0].name : null
   description = "Name of created IAM instance profile."
 }

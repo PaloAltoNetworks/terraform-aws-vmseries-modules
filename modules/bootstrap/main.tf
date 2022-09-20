@@ -72,7 +72,7 @@ resource "aws_s3_object" "bootstrap_files" {
 }
 
 data "aws_iam_role" "this" {
-  count = var.create_iam_role_policy == false ? 1 : 0
+  count = var.create_iam_role_policy == false && length(var.iam_role_name) > 0 ? 1 : 0
 
   name = local.iam_role_name
 }
@@ -123,6 +123,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
+  count  = var.create_iam_role_policy == true ? 1 : 0
   name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
   role = local.iam_role_name
   path = "/"

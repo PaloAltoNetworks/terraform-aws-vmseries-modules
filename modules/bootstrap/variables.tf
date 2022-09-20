@@ -28,12 +28,6 @@ variable "iam_role_name" {
   type        = string
 }
 
-variable "iam_policy_name" {
-  description = "Name of a IAM policy to reuse or create (depending on `create_iam_role_policy` value)."
-  default     = ""
-  type        = string
-}
-
 variable "force_destroy" {
   description = "Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects."
   default     = true
