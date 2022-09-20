@@ -1,6 +1,6 @@
 # General
 region      = "us-east-1"
-name_prefix = "example-" # please change before running Terraform apply
+name_prefix = "example-" # TODO: please change before running Terraform apply
 global_tags = {
   ManagedBy   = "Terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
@@ -66,4 +66,4 @@ security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
 # IAM
 create_iam_role_policy = true
-iam_role_name          = "" # if create_iam_role_policy==false, then please put IAM role name
+iam_role_name          = "" # TODO: if create_iam_role_policy==false, then please put IAM role name
