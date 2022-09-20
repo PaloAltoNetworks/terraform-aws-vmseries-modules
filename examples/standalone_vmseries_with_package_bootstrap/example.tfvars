@@ -7,3 +7,6 @@ global_tags = {
   Owner       = "PS Team"
   Creator     = "sczech"
 }
+
+create_iam_role_policy = false
+iam_role_name          = "sczech-bootstrap-role-test"
