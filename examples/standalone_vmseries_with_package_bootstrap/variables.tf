@@ -3,3 +3,12 @@ variable "global_tags" {}
 variable "name_prefix" {}
 variable "create_iam_role_policy" {}
 variable "iam_role_name" {}
+variable "security_vpc_name" {}
+variable "security_vpc_cidr" {}
+variable "security_vpc_security_groups" {}
+variable "security_vpc_subnets" {}
+variable "vmseries" {}
+variable "bootstrap_options" {}
+variable "vmseries_version" {}
+variable "ssh_key_name" {}
+variable "security_vpc_routes_outbound_destin_cidrs" {}
