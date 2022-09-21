@@ -57,13 +57,19 @@ vmseries = {
     }
   }
 }
+
+# Bootstrap options
 bootstrap_options = {
-  mgmt-interface-swap = "enable"
+  type             = "dhcp-client",
+  aws-gwlb-inspect = "enable"
 }
 
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
-# IAM
-create_iam_role_policy = true
-iam_role_name          = "" # TODO: if create_iam_role_policy==false, then please put IAM role name
+# IAM roles and S3 buckets for VM series bootstrap
+create_iam_role_policy = true # change to false if you want to reuse existing IAM role
+iam_role_name          = ""   # if create_iam_role_policy==false, then please put IAM role name
+create_bucket          = true # change to false, if you want to reuse existing bucket
+bucket_name            = ""   # specify bucket name, if you don't want to use random name
+source_root_directory  = ""   # specify folder with configuration files for bootstrap, if you need it
