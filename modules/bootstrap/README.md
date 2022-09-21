@@ -135,6 +135,8 @@ No modules.
 | <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | AWS identifier of the bucket. |
 | <a name="output_bucket_name"></a> [bucket\_name](#output\_bucket\_name) | Name of the bucket. |
 | <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | Regional domain name of the bucket. |
+| <a name="output_iam_role_arn"></a> [iam\_role\_arn](#output\_iam\_role\_arn) | ARN of created or used IAM role |
+| <a name="output_iam_role_name"></a> [iam\_role\_name](#output\_iam\_role\_name) | Name of created or used IAM role |
 | <a name="output_instance_profile_name"></a> [instance\_profile\_name](#output\_instance\_profile\_name) | Name of created IAM instance profile. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
