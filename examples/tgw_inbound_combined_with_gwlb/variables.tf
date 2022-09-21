@@ -164,3 +164,9 @@ variable "app1_gwlb_endpoint_set_name" {
   description = "The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer."
   type        = string
 }
+
+variable "create_bucket" {}
+variable "bucket_name" {}
+variable "create_iam_role_policy" {}
+variable "iam_role_name" {}
+variable "source_root_directory" {}
