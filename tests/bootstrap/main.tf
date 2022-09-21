@@ -12,6 +12,34 @@ variable "switchme" {
 variable "create_iam_role_policy" {
   description = "If true, a new IAM role with policy will be created. When false, name of existing IAM role and policy to use has to be provided in `iam_role_name` and `iam_policy_name` variable."
   default     = true
+  type        = string
+}
+
+variable "iam_role_name" {
+  description = "Name of a IAM role to reuse."
+  default     = ""
+  type        = string
+}
+
+resource "aws_iam_role" "simulate_existing_role_for_test" {
+  count = length(var.iam_role_name) > 0 ? 1 : 0
+
+  name = var.iam_role_name
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+      "Service": "ec2.amazonaws.com"
+    },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
 }
 
 module "bootstrap" {
@@ -19,6 +47,10 @@ module "bootstrap" {
   prefix                 = "a"
   global_tags            = var.switchme ? {} : { switchme = var.switchme }
   create_iam_role_policy = var.create_iam_role_policy
+  iam_role_name          = try(var.iam_role_name, "")
+  depends_on = [
+    aws_iam_role.simulate_existing_role_for_test
+  ]
 }
 
 output "bucket_name_correct" {
