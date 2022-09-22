@@ -10,13 +10,13 @@ variable "switchme" {
 }
 
 variable "create_iam_role_policy" {
-  description = "If true, a new IAM role with policy will be created. When false, name of existing IAM role and policy to use has to be provided in `iam_role_name` and `iam_policy_name` variable."
+  description = "If true, a new IAM role with policy will be created. When false, name of existing IAM role to use has to be provided in `iam_role_name` variable."
   default     = true
   type        = string
 }
 
 variable "iam_role_name" {
-  description = "Name of a IAM role to reuse."
+  description = "Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value)."
   default     = ""
   type        = string
 }

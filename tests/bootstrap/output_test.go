@@ -42,7 +42,6 @@ func TestErrorWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(
 	// given
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
-		// VarFiles:     []string{"../../examples/standalone_vmseries_with_package_bootstrap/example.tfvars"},
 		Vars: map[string]interface{}{
 			"switchme":               false,
 			"create_iam_role_policy": false,
@@ -71,7 +70,6 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	fmt.Printf("Creating role for tests %s\n", iam_role_name_created_for_tests)
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
-		// VarFiles:     []string{"../../examples/standalone_vmseries_with_package_bootstrap/example.tfvars"},
 		Vars: map[string]interface{}{
 			"switchme":               false,
 			"create_iam_role_policy": false,
