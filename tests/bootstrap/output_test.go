@@ -16,7 +16,6 @@ func TestOutputWhileCreatingIamRoleForBootstrapModule(t *testing.T) {
 	// given
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
-		// VarFiles:     []string{"../../examples/standalone_vmseries_with_package_bootstrap/example.tfvars"},
 		Vars: map[string]interface{}{
 			"switchme": false,
 		},
@@ -28,14 +27,14 @@ func TestOutputWhileCreatingIamRoleForBootstrapModule(t *testing.T) {
 
 	// when
 	terraform.InitAndApply(t, terraformOptions)
-	iam_role_name := terraform.Output(t, terraformOptions, "iam_role_name")
-	iam_role_arn := terraform.Output(t, terraformOptions, "iam_role_arn")
+	iamRoleName := terraform.Output(t, terraformOptions, "iam_role_name")
+	iamRoleArn := terraform.Output(t, terraformOptions, "iam_role_arn")
 
 	// then
-	assert.NotEmpty(t, iam_role_name)
-	assert.NotEmpty(t, iam_role_arn)
-	assert.True(t, strings.HasPrefix(iam_role_name, "a"))
-	assert.True(t, strings.HasPrefix(iam_role_arn, "arn:aws:iam::"))
+	assert.NotEmpty(t, iamRoleName)
+	assert.NotEmpty(t, iamRoleArn)
+	assert.True(t, strings.HasPrefix(iamRoleName, "a"))
+	assert.True(t, strings.HasPrefix(iamRoleArn, "arn:aws:iam::"))
 }
 
 func TestErrorWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(t *testing.T) {
@@ -83,12 +82,12 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 
 	// when
 	terraform.InitAndApply(t, terraformOptions)
-	iam_role_name := terraform.Output(t, terraformOptions, "iam_role_name")
-	iam_role_arn := terraform.Output(t, terraformOptions, "iam_role_arn")
+	iamRoleName := terraform.Output(t, terraformOptions, "iam_role_name")
+	iamRoleArn := terraform.Output(t, terraformOptions, "iam_role_arn")
 
 	// then
-	assert.NotEmpty(t, iam_role_name)
-	assert.NotEmpty(t, iam_role_arn)
-	assert.Equal(t, iam_role_name, iam_role_name_created_for_tests)
-	assert.True(t, strings.HasPrefix(iam_role_arn, "arn:aws:iam::"))
+	assert.NotEmpty(t, iamRoleName)
+	assert.NotEmpty(t, iamRoleArn)
+	assert.Equal(t, iamRoleName, iam_role_name_created_for_tests)
+	assert.True(t, strings.HasPrefix(iamRoleArn, "arn:aws:iam::"))
 }
