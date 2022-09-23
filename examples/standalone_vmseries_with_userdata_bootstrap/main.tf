@@ -29,8 +29,7 @@ module "vmseries" {
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
   ebs_kms_key_alias = var.ebs_kms_key_alias
-
-  vmseries_version = var.vmseries_version
+  vmseries_version  = var.vmseries_version
   interfaces = {
     for k, v in each.value.interfaces : k => {
       device_index       = v.device_index
