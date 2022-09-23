@@ -60,5 +60,7 @@ vmseries = {
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"
 
+ebs_kms_key_alias = "alias/example-key-alias"
+
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]

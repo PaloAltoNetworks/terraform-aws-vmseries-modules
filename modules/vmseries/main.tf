@@ -15,15 +15,15 @@ data "aws_ami" "this" {
   }
 }
 
-# Use the default KMS key in the current region for EBS encryption
+# Retrieve the default KMS key in the current region for EBS encryption
 data "aws_ebs_default_kms_key" "current" {
-  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
+  count = var.ebs_encrypted ? 1 : 0
 }
 
-# Provide an alias for the default KMS key
+# Retrieve an alias for the KMS key for EBS encryption
 data "aws_kms_alias" "current_arn" {
-  count = var.ebs_encrypted && var.ebs_kms_key_id == null ? 1 : 0
-  name  = data.aws_ebs_default_kms_key.current[0].key_arn
+  count = var.ebs_encrypted ? 1 : 0
+  name  = coalesce(var.ebs_kms_key_alias, data.aws_ebs_default_kms_key.current[0].key_arn)
 }
 
 # Network Interfaces
@@ -86,7 +86,7 @@ resource "aws_instance" "this" {
   root_block_device {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
-    kms_key_id            = var.ebs_encrypted == false ? null : var.ebs_kms_key_id != null ? var.ebs_kms_key_id : data.aws_kms_alias.current_arn[0].target_key_arn
+    kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
     tags                  = merge(var.tags, { Name = var.name })
   }
 
