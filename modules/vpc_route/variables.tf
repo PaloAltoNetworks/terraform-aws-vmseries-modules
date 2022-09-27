@@ -16,22 +16,8 @@ variable "route_table_ids" {
 
 variable "next_hop_set" {
   description = <<-EOF
-  The Next Hop Set object, such as an output `module.nat_gateway_set.next_hop_set`, which contains 3 attributes:
-  - `type`
-  - `id`
-  - `ids`
-
-  For `type` attribute there are possible below values:
-  - "transit_gateway"
-  - "internet_gateway"
-  - "vpc_peer"
-  - "egress_only_gateway"
-  - "local_gateway"
-  - "nat_gateway"
-  - "interface"
-  - "vpc_endpoint"
-
-  The set of single-zone next hops (type "nat_gateway", "interface" and "vpc_endpoint") should be specified as the `ids` map, in which case each value is a next hop id and each key should be present among the keys of the input `route_table_ids`. To avoid unintended cross-zone routing, these keys should be equal. Example:
+  The Next Hop Set object, such as an output `module.nat_gateway_set.next_hop_set`. The set of single-zone next hops should be specified as the `ids` map, in which case
+  each value is a next hop id and each key should be present among the keys of the input `route_table_ids`. To avoid unintended cross-zone routing, these keys should be equal. Example:
   ```
   next_hop_set = {
     type = "nat_gateway"
@@ -43,7 +29,7 @@ variable "next_hop_set" {
   }
   ```
 
-  For a non-AZ-aware next hop (type "transit_gateway", "internet_gateway", "vpc_peer", "egress_only_gateway" and "local_gateway"), the `ids` map should be empty. All the route tables receive the same `id` of the next hop. Example:
+  For a non-AZ-aware next hop, such as an internet gateway, the `ids` map should be empty. All the route tables receive the same `id` of the next hop. Example:
   ```
   next_hop_set = {
     type = "internet_gateway"
@@ -57,25 +43,6 @@ variable "next_hop_set" {
     id   = string
     ids  = map(string)
   })
-  validation {
-    condition = (
-      length(var.next_hop_set.ids) == 0 && (var.next_hop_set.type == "transit_gateway" || var.next_hop_set.type == "internet_gateway" || var.next_hop_set.type == "vpc_peer" || var.next_hop_set.type == "egress_only_gateway" || var.next_hop_set.type == "local_gateway")
-      || var.next_hop_set.id == null && (var.next_hop_set.type == "nat_gateway" || var.next_hop_set.type == "interface" || var.next_hop_set.type == "vpc_endpoint")
-    )
-    error_message = <<-EOT
-    Map of ids should be empty for next hop types:
-    - "transit_gateway",
-    - "internet_gateway",
-    - "vpc_peer",
-    - "egress_only_gateway"
-    - "local_gateway"
-
-    Attribute id should be empty for next hop types:
-    - "nat_gateway"
-    - "interface"
-    - "vpc_endpoint"
-    EOT
-  }
 }
 
 variable "to_cidr" {
