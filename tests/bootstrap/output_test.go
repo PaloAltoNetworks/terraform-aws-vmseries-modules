@@ -65,14 +65,14 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
 	number := random.Intn(100)
-	iam_role_name_created_for_tests := fmt.Sprintf("terratest-integration-test-%d", number)
-	fmt.Printf("Creating role for tests %s\n", iam_role_name_created_for_tests)
+	iamRoleNameCreatedForTests := fmt.Sprintf("terratest-integration-test-%d", number)
+	fmt.Printf("Creating role for tests %s\n", iamRoleNameCreatedForTests)
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		Vars: map[string]interface{}{
 			"switchme":               false,
 			"create_iam_role_policy": false,
-			"iam_role_name":          iam_role_name_created_for_tests,
+			"iam_role_name":          iamRoleNameCreatedForTests,
 		},
 		Logger:  logger.Discard,
 		Lock:    true,
@@ -88,6 +88,6 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	// then
 	assert.NotEmpty(t, iamRoleName)
 	assert.NotEmpty(t, iamRoleArn)
-	assert.Equal(t, iamRoleName, iam_role_name_created_for_tests)
+	assert.Equal(t, iamRoleName, iamRoleNameCreatedForTests)
 	assert.True(t, strings.HasPrefix(iamRoleArn, "arn:aws:iam::"))
 }
