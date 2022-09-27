@@ -123,6 +123,7 @@ variable "ebs_kms_key_alias" {
   If this is set to `null` the default master key that protects EBS volumes will be used
   EOF
   type        = string
+  default     = null
 }
 
 variable "panorama_iam_role" {
