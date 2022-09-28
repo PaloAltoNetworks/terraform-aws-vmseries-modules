@@ -45,16 +45,20 @@ resource "aws_s3_object" "init_cfg" {
   key    = "config/init-cfg.txt"
   content = templatefile("${path.module}/init-cfg.txt.tmpl",
     {
-      "hostname"           = var.hostname,
-      "panorama-server"    = var.panorama-server,
-      "panorama-server2"   = var.panorama-server2,
-      "tplname"            = var.tplname,
-      "dgname"             = var.dgname,
-      "dns-primary"        = var.dns-primary,
-      "dns-secondary"      = var.dns-secondary,
-      "vm-auth-key"        = var.vm-auth-key,
-      "op-command-modes"   = var.op-command-modes,
-      "plugin-op-commands" = var.plugin-op-commands
+      "hostname"                    = var.hostname,
+      "panorama-server"             = var.panorama-server,
+      "panorama-server2"            = var.panorama-server2,
+      "tplname"                     = var.tplname,
+      "dgname"                      = var.dgname,
+      "dns-primary"                 = var.dns-primary,
+      "dns-secondary"               = var.dns-secondary,
+      "vm-auth-key"                 = var.vm-auth-key,
+      "op-command-modes"            = var.op-command-modes,
+      "plugin-op-commands"          = var.plugin-op-commands,
+      "dhcp-send-hostname"          = var.dhcp_send_hostname,
+      "dhcp-send-client-id"         = var.dhcp_send_client_id,
+      "dhcp-accept-server-hostname" = var.dhcp_accept_server_hostname,
+      "dhcp-accept-server-domain"   = var.dhcp_accept_server_domain
     }
   )
 }

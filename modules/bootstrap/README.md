@@ -111,6 +111,10 @@ No modules.
 | <a name="input_create_bucket"></a> [create\_bucket](#input\_create\_bucket) | If true, a new bucket will be created. When false, name of existing bucket to use has to be provided in `bucket_name` variable. | `bool` | `true` | no |
 | <a name="input_create_iam_role_policy"></a> [create\_iam\_role\_policy](#input\_create\_iam\_role\_policy) | If true, a new IAM role with policy will be created. When false, name of existing IAM role to use has to be provided in `iam_role_name` variable. | `bool` | `true` | no |
 | <a name="input_dgname"></a> [dgname](#input\_dgname) | The Panorama device group name. | `string` | `""` | no |
+| <a name="input_dhcp_accept_server_domain"></a> [dhcp\_accept\_server\_domain](#input\_dhcp\_accept\_server\_domain) | The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server. | `string` | `"yes"` | no |
+| <a name="input_dhcp_accept_server_hostname"></a> [dhcp\_accept\_server\_hostname](#input\_dhcp\_accept\_server\_hostname) | The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server. | `string` | `"yes"` | no |
+| <a name="input_dhcp_send_client_id"></a> [dhcp\_send\_client\_id](#input\_dhcp\_send\_client\_id) | The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server. | `string` | `"yes"` | no |
+| <a name="input_dhcp_send_hostname"></a> [dhcp\_send\_hostname](#input\_dhcp\_send\_hostname) | The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server. | `string` | `"yes"` | no |
 | <a name="input_dns-primary"></a> [dns-primary](#input\_dns-primary) | The IP address of the primary DNS server. | `string` | `""` | no |
 | <a name="input_dns-secondary"></a> [dns-secondary](#input\_dns-secondary) | The IP address of the secondary DNS server. | `string` | `""` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects. | `bool` | `true` | no |

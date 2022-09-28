@@ -21,6 +21,30 @@ variable "iam_role_name" {
   type        = string
 }
 
+variable "dhcp_send_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server."
+  default     = "yes"
+  type        = string
+}
+
+variable "dhcp_send_client_id" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server."
+  default     = "yes"
+  type        = string
+}
+
+variable "dhcp_accept_server_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server."
+  default     = "yes"
+  type        = string
+}
+
+variable "dhcp_accept_server_domain" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server."
+  default     = "yes"
+  type        = string
+}
+
 resource "aws_iam_role" "simulate_existing_role_for_test" {
   count = length(var.iam_role_name) > 0 ? 1 : 0
 
@@ -43,11 +67,15 @@ EOF
 }
 
 module "bootstrap" {
-  source                 = "../../modules/bootstrap"
-  prefix                 = "a"
-  global_tags            = var.switchme ? {} : { switchme = var.switchme }
-  create_iam_role_policy = var.create_iam_role_policy
-  iam_role_name          = try(var.iam_role_name, "")
+  source                      = "../../modules/bootstrap"
+  prefix                      = "a"
+  global_tags                 = var.switchme ? {} : { switchme = var.switchme }
+  create_iam_role_policy      = var.create_iam_role_policy
+  iam_role_name               = try(var.iam_role_name, "")
+  dhcp_send_hostname          = var.dhcp_send_hostname
+  dhcp_send_client_id         = var.dhcp_send_client_id
+  dhcp_accept_server_hostname = var.dhcp_accept_server_hostname
+  dhcp_accept_server_domain   = var.dhcp_accept_server_domain
   depends_on = [
     aws_iam_role.simulate_existing_role_for_test
   ]

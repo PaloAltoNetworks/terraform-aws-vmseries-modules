@@ -91,3 +91,29 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	assert.Equal(t, iamRoleName, iamRoleNameCreatedForTests)
 	assert.True(t, strings.HasPrefix(iamRoleArn, "arn:aws:iam::"))
 }
+
+func TestErrorWhileProvidingInvalidDhcpSettingsForBootstrapModule(t *testing.T) {
+	// given
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: ".",
+		Vars: map[string]interface{}{
+			"switchme":                    false,
+			"dhcp_send_hostname":          "invalid",
+			"dhcp_send_client_id":         "invalid",
+			"dhcp_accept_server_hostname": "invalid",
+			"dhcp_accept_server_domain":   "invalid",
+		},
+		Logger:  logger.Discard,
+		Lock:    true,
+		Upgrade: true,
+	})
+
+	// when
+	if _, err := terraform.InitAndPlanE(t, terraformOptions); err != nil {
+		// then
+		assert.Error(t, err)
+	} else {
+		// then
+		t.Error("Expecting errors with DHCP settings")
+	}
+}

@@ -113,6 +113,46 @@ variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # T
   type        = string
 }
 
+variable "dhcp_send_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_send_hostname)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_hostname."
+  }
+}
+
+variable "dhcp_send_client_id" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_send_client_id)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_client_id."
+  }
+}
+
+variable "dhcp_accept_server_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_accept_server_hostname)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_hostname."
+  }
+}
+
+variable "dhcp_accept_server_domain" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_accept_server_domain)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_domain."
+  }
+}
+
 variable "create_bucket" {
   description = "If true, a new bucket will be created. When false, name of existing bucket to use has to be provided in `bucket_name` variable."
   default     = true
