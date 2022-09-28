@@ -59,10 +59,16 @@ variable "next_hop_set" {
   })
   validation {
     condition = (
-      length(var.next_hop_set.ids) == 0 && (var.next_hop_set.type == "transit_gateway" || var.next_hop_set.type == "internet_gateway" || var.next_hop_set.type == "vpc_peer" || var.next_hop_set.type == "egress_only_gateway" || var.next_hop_set.type == "local_gateway")
-      || var.next_hop_set.id == null && (var.next_hop_set.type == "nat_gateway" || var.next_hop_set.type == "interface" || var.next_hop_set.type == "vpc_endpoint")
+      length(var.next_hop_set.ids) == 0 && contains(["transit_gateway", "internet_gateway", "vpc_peer", "egress_only_gateway", "local_gateway"], var.next_hop_set.type)
+      || var.next_hop_set.id == null && contains(["nat_gateway", "interface", "vpc_endpoint"], var.next_hop_set.type)
     )
-    error_message = "Map of ids should be empty for next hop types: \"transit_gateway\", \"internet_gateway\", \"vpc_peer\", \"egress_only_gateway\", \"local_gateway\". Attribute id should be empty for next hop types: \"nat_gateway\", \"interface\", \"vpc_endpoint\"."
+    error_message = "Map of ids should be empty for next hop types: \"transit_gateway\", \"internet_gateway\", \"vpc_peer\", \"egress_only_gateway\", \"local_gateway\". Attribute id should be null for next hop types: \"nat_gateway\", \"interface\", \"vpc_endpoint\"."
+  }
+  validation {
+    condition = (
+      contains(["transit_gateway", "internet_gateway", "vpc_peer", "egress_only_gateway", "local_gateway", "nat_gateway", "interface", "vpc_endpoint"], var.next_hop_set.type)
+    )
+    error_message = "Allowed next hop types: \"transit_gateway\", \"internet_gateway\", \"vpc_peer\", \"egress_only_gateway\", \"local_gateway\", \"nat_gateway\", \"interface\", \"vpc_endpoint\"."
   }
 }
 
