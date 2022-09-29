@@ -104,7 +104,8 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  count  = var.create_iam_role_policy == true ? 1 : 0
+  count  = var.create_iam_role_policy ? 1 : 0
+  
   name   = local.iam_role_name
   role   = local.aws_iam_role.id
   policy = <<EOF
