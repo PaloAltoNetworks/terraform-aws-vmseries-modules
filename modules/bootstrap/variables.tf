@@ -24,7 +24,7 @@ variable "create_iam_role_policy" {
 
 variable "iam_role_name" {
   description = "Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value)."
-  default     = ""
+  default     = null
   type        = string
 }
 

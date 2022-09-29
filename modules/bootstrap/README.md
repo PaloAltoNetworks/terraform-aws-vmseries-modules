@@ -121,7 +121,7 @@ No modules.
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of arbitrary tags to apply to all resources. | `map(any)` | `{}` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | The hostname of the VM-series instance. | `string` | `""` | no |
 | <a name="input_iam_instance_profile_name"></a> [iam\_instance\_profile\_name](#input\_iam\_instance\_profile\_name) | Name of the instance profile to create. If empty, name will be auto-generated. | `string` | `""` | no |
-| <a name="input_iam_role_name"></a> [iam\_role\_name](#input\_iam\_role\_name) | Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value). | `string` | `""` | no |
+| <a name="input_iam_role_name"></a> [iam\_role\_name](#input\_iam\_role\_name) | Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value). | `string` | `null` | no |
 | <a name="input_op-command-modes"></a> [op-command-modes](#input\_op-command-modes) | Set jumbo-frame and/or mgmt-interface-swap. | `string` | `""` | no |
 | <a name="input_panorama-server"></a> [panorama-server](#input\_panorama-server) | The FQDN or IP address of the primary Panorama server. | `string` | `""` | no |
 | <a name="input_panorama-server2"></a> [panorama-server2](#input\_panorama-server2) | The FQDN or IP address of the secondary Panorama server. | `string` | `""` | no |

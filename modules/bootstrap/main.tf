@@ -76,7 +76,7 @@ resource "aws_s3_object" "bootstrap_files" {
 }
 
 data "aws_iam_role" "this" {
-  count = var.create_iam_role_policy == false && length(var.iam_role_name) > 0 ? 1 : 0
+  count = var.create_iam_role_policy == false && var.iam_role_name != null ? 1 : 0
 
   name = local.iam_role_name
 }
