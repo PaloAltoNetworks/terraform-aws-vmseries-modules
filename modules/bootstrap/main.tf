@@ -1,11 +1,12 @@
-resource "random_id" "bucket_id" {
+resource "random_id" "sufix" {
   byte_length = 8
 }
 
 locals {
-  bucket_name   = coalesce(var.bucket_name, "${var.prefix}${random_id.bucket_id.hex}")
+  random_name   = "${var.prefix}${random_id.sufix.hex}"
+  bucket_name   = coalesce(var.bucket_name, local.random_name)
   aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
-  iam_role_name = coalesce(var.iam_role_name, "${var.prefix}${random_id.bucket_id.hex}")
+  iam_role_name = coalesce(var.iam_role_name, local.random_name)
   aws_iam_role  = var.create_iam_role_policy ? aws_iam_role.this[0] : data.aws_iam_role.this[0]
 }
 
@@ -78,7 +79,7 @@ resource "aws_s3_object" "bootstrap_files" {
 data "aws_iam_role" "this" {
   count = var.create_iam_role_policy == false && var.iam_role_name != null ? 1 : 0
 
-  name = local.iam_role_name
+  name = var.iam_role_name
 }
 
 resource "aws_iam_role" "this" {
@@ -104,8 +105,8 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  count  = var.create_iam_role_policy ? 1 : 0
-  
+  count = var.create_iam_role_policy ? 1 : 0
+
   name   = local.iam_role_name
   role   = local.aws_iam_role.id
   policy = <<EOF
@@ -128,7 +129,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
+  name = coalesce(var.iam_instance_profile_name, local.random_name)
   role = local.iam_role_name
   path = "/"
 }
