@@ -82,7 +82,7 @@ data "aws_iam_role" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  count = var.create_iam_role_policy == true ? 1 : 0
+  count = var.create_iam_role_policy ? 1 : 0
 
   name = local.iam_role_name
 
