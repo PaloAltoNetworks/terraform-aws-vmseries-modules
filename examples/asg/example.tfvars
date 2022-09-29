@@ -98,6 +98,6 @@ bootstrap_options = {
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
 
-asg_desired_cap = 4
+asg_desired_cap = 1
 asg_min_size    = 1
 asg_max_size    = 2

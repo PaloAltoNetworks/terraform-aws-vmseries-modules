@@ -112,7 +112,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param interface: Interface dict data
         :return: none
         """
-        self.logger.info(f"Mock creation interface with options: {instance_id}, {interface}")
         interface_id = self.create_network_interface(instance_id, interface['subnet'], interface['sg'])
         if interface_id:
             attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'] + 1)
@@ -163,6 +162,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 self.delete_interface(interface_id)
                 self.logger.error(f"Error attaching network interface {interface_id}: {e.response['Error']['Code']}"
                                   f"Deleting interface.")
+        else:
+            self.logger.error(f"Missing values for either instance_id or interface_id!")
 
     def modify_network_interface(self, interface_id: str, attachment_id: str, source_dest_check: bool = True):
         """
