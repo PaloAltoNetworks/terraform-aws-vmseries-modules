@@ -130,6 +130,6 @@ EOF
 
 resource "aws_iam_instance_profile" "this" {
   name = coalesce(var.iam_instance_profile_name, local.random_name)
-  role = local.iam_role_name
+  role = local.aws_iam_role.name
   path = "/"
 }
