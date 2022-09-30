@@ -13,6 +13,8 @@ data "aws_ami" "this" {
     name   = "product-code"
     values = [var.vmseries_product_code]
   }
+
+  name_regex = "^PA-VM-AWS-${var.vmseries_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 }
 
 # Use the default KMS key in the current region for EBS encryption
