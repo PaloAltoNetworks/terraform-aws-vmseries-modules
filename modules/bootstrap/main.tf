@@ -1,10 +1,13 @@
-resource "random_id" "bucket_id" {
+resource "random_id" "sufix" {
   byte_length = 8
 }
 
 locals {
-  bucket_name   = coalesce(var.bucket_name, "${var.prefix}${random_id.bucket_id.hex}")
+  random_name   = "${var.prefix}${random_id.sufix.hex}"
+  bucket_name   = coalesce(var.bucket_name, local.random_name)
   aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
+  iam_role_name = coalesce(var.iam_role_name, local.random_name)
+  aws_iam_role  = var.create_iam_role_policy ? aws_iam_role.this[0] : data.aws_iam_role.this[0]
 }
 
 data "aws_s3_bucket" "this" {
@@ -43,16 +46,20 @@ resource "aws_s3_object" "init_cfg" {
   key    = "config/init-cfg.txt"
   content = templatefile("${path.module}/init-cfg.txt.tmpl",
     {
-      "hostname"           = var.hostname,
-      "panorama-server"    = var.panorama-server,
-      "panorama-server2"   = var.panorama-server2,
-      "tplname"            = var.tplname,
-      "dgname"             = var.dgname,
-      "dns-primary"        = var.dns-primary,
-      "dns-secondary"      = var.dns-secondary,
-      "vm-auth-key"        = var.vm-auth-key,
-      "op-command-modes"   = var.op-command-modes,
-      "plugin-op-commands" = var.plugin-op-commands
+      "hostname"                    = var.hostname,
+      "panorama-server"             = var.panorama-server,
+      "panorama-server2"            = var.panorama-server2,
+      "tplname"                     = var.tplname,
+      "dgname"                      = var.dgname,
+      "dns-primary"                 = var.dns-primary,
+      "dns-secondary"               = var.dns-secondary,
+      "vm-auth-key"                 = var.vm-auth-key,
+      "op-command-modes"            = var.op-command-modes,
+      "plugin-op-commands"          = var.plugin-op-commands,
+      "dhcp-send-hostname"          = var.dhcp_send_hostname,
+      "dhcp-send-client-id"         = var.dhcp_send_client_id,
+      "dhcp-accept-server-hostname" = var.dhcp_accept_server_hostname,
+      "dhcp-accept-server-domain"   = var.dhcp_accept_server_domain
     }
   )
 }
@@ -69,8 +76,16 @@ resource "aws_s3_object" "bootstrap_files" {
   source = "${local.source_root_directory}/${each.value}"
 }
 
+data "aws_iam_role" "this" {
+  count = var.create_iam_role_policy == false && var.iam_role_name != null ? 1 : 0
+
+  name = var.iam_role_name
+}
+
 resource "aws_iam_role" "this" {
-  name = "${var.prefix}${random_id.bucket_id.hex}"
+  count = var.create_iam_role_policy ? 1 : 0
+
+  name = local.iam_role_name
 
   tags               = var.global_tags
   assume_role_policy = <<EOF
@@ -90,8 +105,10 @@ EOF
 }
 
 resource "aws_iam_role_policy" "bootstrap" {
-  name   = "${var.prefix}${random_id.bucket_id.hex}"
-  role   = aws_iam_role.this.id
+  count = var.create_iam_role_policy ? 1 : 0
+
+  name   = local.iam_role_name
+  role   = local.aws_iam_role.id
   policy = <<EOF
 {
   "Version" : "2012-10-17",
@@ -112,7 +129,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = coalesce(var.iam_instance_profile_name, "${var.prefix}${random_id.bucket_id.hex}")
-  role = aws_iam_role.this.name
+  name = coalesce(var.iam_instance_profile_name, local.random_name)
+  role = local.aws_iam_role.name
   path = "/"
 }
