@@ -7,11 +7,12 @@ data "aws_ami" "this" {
     name   = "name"
     values = ["Panorama-AWS-${var.panorama_version}*"]
   }
-
   filter {
     name   = "product-code"
     values = [var.product_code]
   }
+
+  name_regex = "^Panorama-AWS-${var.panorama_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 }
 
 # Create the Panorama Instance
