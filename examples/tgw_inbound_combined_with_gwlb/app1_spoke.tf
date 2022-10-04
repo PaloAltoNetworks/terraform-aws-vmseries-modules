@@ -109,7 +109,7 @@ resource "aws_instance" "app1_vm" {
 module "app1_lb" {
   source = "../../modules/nlb"
 
-  lb_name     = "${var.name_prefix}app1-lb"
+  name        = "${var.name_prefix}app1-lb"
   internal_lb = true
   subnets     = { for k, v in module.app1_subnet_sets["app1_lb"].subnets : k => { id = v.id } }
   vpc_id      = module.app1_subnet_sets["app1_lb"].vpc_id

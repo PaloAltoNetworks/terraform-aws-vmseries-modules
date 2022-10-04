@@ -130,7 +130,7 @@ module "vmseries" {
 module "public_nlb" {
   source = "../../modules/nlb"
 
-  lb_name               = "${var.name_prefix}${var.network_lb_name}"
+  name                  = "${var.name_prefix}${var.network_lb_name}"
   create_dedicated_eips = true
   subnets               = { for k, v in module.security_subnet_sets["untrust"].subnets : k => { id = v.id } }
   vpc_id                = module.security_vpc.id

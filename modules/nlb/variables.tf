@@ -1,5 +1,5 @@
-variable "lb_name" {
-  description = "Name of the Load Balancer to be created, balancer name must be less or equal to 32 char."
+variable "name" {
+  description = "Name of the Load Balancer to be created, must be less or equal to 32 char."
   type        = string
 }
 
