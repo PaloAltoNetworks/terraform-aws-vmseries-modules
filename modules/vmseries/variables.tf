@@ -55,8 +55,11 @@ variable "ebs_encrypted" {
   type        = bool
 }
 
-variable "ebs_kms_key_id" {
-  description = "The ARN for the KMS key to use for volume encryption."
+variable "ebs_kms_key_alias" {
+  description = <<-EOF
+  The alias for the customer managed KMS key to use for volume encryption. Should be prepended with the word "alias" followed by a forward slash (alias/example-key-alias).
+  If `null` (the default), the default master key that protects EBS volumes will be used.
+  EOF
   default     = null
   type        = string
 }

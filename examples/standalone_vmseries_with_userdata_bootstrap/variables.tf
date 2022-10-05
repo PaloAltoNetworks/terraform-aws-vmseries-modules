@@ -10,3 +10,4 @@ variable "vmseries_version" {}
 variable "ssh_key_name" {}
 variable "security_vpc_routes_outbound_destin_cidrs" {}
 variable "bootstrap_options" {}
+variable "ebs_kms_key_alias" {}
