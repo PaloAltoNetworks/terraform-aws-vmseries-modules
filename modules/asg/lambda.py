@@ -22,17 +22,36 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
     def main(self, asg_event: dict):
         """
-        Main function, used for setting parameters and glue other functions logic.
+        Main function, is used for handle correct Lifecycle action.
 
         :param asg_event: dict data from Lambda handler
         :return: none
         """
-        # Check if we were called by a lifecycle action
-        if not asg_event["detail-type"] == "EC2 Instance-launch Lifecycle Action":
-            raise Exception("Non valid event type!")
-
         instance_id = asg_event["detail"]["EC2InstanceId"]
-        instance_zone, subnet_id = self.inspect_ec2_instance(instance_id)
+        instance_zone, subnet_id, network_interfaces = self.inspect_ec2_instance(instance_id)
+
+        if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
+            self.logger.info("Run launch mode.")
+            self.instance_launch_actions(instance_zone, subnet_id, instance_id)
+        elif event == "EC2 Instance-terminate Lifecycle Action":
+            self.logger.info("Run cleanup mode.")
+            self.instance_terminate_actions(network_interfaces, instance_id)
+        else:
+            raise Exception(f"Event type cannot be handle! {event}")
+
+        # Complete lifecycle action
+        self.complete_lifecycle(asg_event['detail'])
+
+    def instance_launch_actions(self, instance_zone: str, subnet_id: str, instance_id: str):
+        """
+        Main logic here is to set necessary parameters and call
+        functions to create Elastic Network Interfaces (ENI) with correct config and attach it to the instance.
+
+        :param instance_id: EC2 Instance id
+        :param subnet_id: Subnet id
+        :param instance_zone: Availability zone for current instance
+        :return:
+        """
 
         self.logger.info(f"Instance ID: {instance_id}, Instance zone: {instance_zone}")
         self.logger.debug(f"Subnet ID of the first interface: {subnet_id}")
@@ -46,8 +65,36 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             self.logger.info(f"Interface structure: {interface}")
             self.create_and_configure_new_network_interface(instance_id, interface)
 
-        # Complete lifecycle action
-        self.complete_lifecycle(asg_event['detail'])
+    def instance_terminate_actions(self, network_interfaces: list, instance_id: str):
+        """
+        Function used for release EIP from terminated EC2 Instanced.
+        Main logic here is found which ENI has EIP, disassociate EIP from it and release that address.
+
+        :param network_interfaces: Elastic Network Interface (ENI) list
+        :param instance_id: EC2 Instance id
+        :return: none
+        """
+
+        self.logger.info(f"Search for interfaces with EIP on {instance_id}")
+        interface_with_associated_ip = [interface for interface in network_interfaces if interface.get('Association')]
+        if interface_with_associated_ip:
+            for interface in interface_with_associated_ip:
+                eip = interface.get('Association').get('PublicIp')
+                self.logger.info(f"Found interfaces with EIP {eip}")
+                eip_info = self.ec2_client.describe_addresses(PublicIps=[eip])
+                association_id = eip_info.get('Addresses')[0].get('AssociationId')
+                allocation_id = eip_info.get('Addresses')[0].get('AllocationId')
+                try:
+                    self.ec2_client.disassociate_address(AssociationId=association_id)
+                except Exception as e:
+                    raise Exception(f"There was a problem with disassociate EIP for {interface} with error msg: {e}")
+                try:
+                    self.ec2_client.release_address(AllocationId=allocation_id)
+                except Exception as e:
+                    raise Exception(f"There was problem with releasing EIP for {interface} with error msg: {e}")
+                self.logger.info(f"Successfully release {eip}")
+        else:
+            self.logger.info("Not found any interfaces with EIP")
 
     @staticmethod
     def create_interface_settings(instance_zone: str) -> list:
@@ -66,11 +113,13 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 interface[eni]["sg"] = v[0] if 'security_group_ids' in k else interface.get(eni).get('sg')
                 interface[eni]["c_pub_ip"] = v if 'create_public_ip' in k else interface.get(eni).get('c_pub_ip')
                 interface[eni]["s_dest_ch"] = v if 'source_dest_check' in k else interface.get(eni).get('s_dest_ch')
+                interface[eni]["d_device"] = v if 'default_device' in k else interface.get(eni).get('d_device')
                 if 'subnet_id' in k:
                     for az, subnet in v.items():
                         if az == instance_zone:
                             interface[eni]["subnet"] = subnet
-        interfaces = sorted((interface for interface in interface.values()), key=lambda x: x["index"])
+        interfaces = sorted((interface for interface in interface.values() if not interface.get("d_device")),
+                            key=lambda x: x["index"])
         return interfaces
 
     def inspect_ec2_instance(self, instance_id: str) -> tuple:
@@ -82,7 +131,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
 
         instance_info = self.ec2_client.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]
-        return instance_info['Placement']['AvailabilityZone'], instance_info['SubnetId']
+        return instance_info['Placement']['AvailabilityZone'], instance_info['SubnetId'], \
+               instance_info['NetworkInterfaces']
 
     def create_network_interface(self, instance_id: str, subnet_id: str, sg_id: int) -> str:
         """
@@ -224,5 +274,5 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             self.logger.error(f"Error completing life cycle hook for instance: {e.response['Error']['Code']}")
 
 
-def lambda_handler(asg_event, context):
+def lambda_handler(asg_event: dict, context: dict):
     VMSeriesInterfaceScaling(asg_event)

@@ -70,6 +70,7 @@ vmseries_interfaces = {
     source_dest_check = true
   }
   data1 = {
+    default_device = true
     device_index   = 1
     security_group = "vmseries_data"
     subnet = {
