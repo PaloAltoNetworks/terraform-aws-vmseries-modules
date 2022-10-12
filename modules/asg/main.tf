@@ -35,7 +35,7 @@ resource "aws_launch_template" "this" {
 
   network_interfaces {
     device_index    = 0
-    security_groups = [local.data_sg_ids[0]]
+    security_groups = local.data_sg_ids
     subnet_id       = values(local.data_subnet_names[0])[0]
   }
 
