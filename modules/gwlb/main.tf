@@ -16,13 +16,19 @@ resource "aws_lb" "this" {
 # The Service which accepts traffic from Endpoints ("clients") located on any VPCs.
 # One service is possible per one gwlb.
 resource "aws_vpc_endpoint_service" "this" {
-  allowed_principals         = coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"])
   acceptance_required        = false
   gateway_load_balancer_arns = [aws_lb.this.arn]
   tags                       = merge(var.global_tags, { Name = var.name }, var.endpoint_service_tags)
 
   # Workaround for: error waiting for VPC Endpoint (vpce-00777c35bf9ae9c53) to become available: VPC Endpoint is in a failed state
   depends_on = [aws_lb.this]
+}
+
+# Dedicated resource for allowing principals, this allows for adding more principals from outside this module (Onboarding new AWS accounts adhoc)
+resource "aws_vpc_endpoint_service_allowed_principal" "this" {
+  for_each = toset(coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]))
+  vpc_endpoint_service_id = aws_vpc_endpoint_service.this.id
+  principal_arn           = each.key
 }
 
 # The GWLB Listener.
