@@ -26,7 +26,7 @@ resource "aws_vpc_endpoint_service" "this" {
 
 # Dedicated resource for allowing principals, this allows for adding more principals from outside this module (Onboarding new AWS accounts adhoc)
 resource "aws_vpc_endpoint_service_allowed_principal" "this" {
-  for_each = toset(coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]))
+  for_each                = toset(coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]))
   vpc_endpoint_service_id = aws_vpc_endpoint_service.this.id
   principal_arn           = each.key
 }
