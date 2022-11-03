@@ -33,14 +33,14 @@ module "subnet_sets" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
 ## Modules
 
@@ -61,14 +61,14 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cidrs"></a> [cidrs](#input\_cidrs) | n/a | `any` | n/a | yes |
-| <a name="input_create_shared_route_table"></a> [create\_shared\_route\_table](#input\_create\_shared\_route\_table) | n/a | `bool` | `false` | no |
-| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | n/a | `map` | `{}` | no |
+| <a name="input_cidrs"></a> [cidrs](#input\_cidrs) | Map describing configuration of subnets and route tables to create and/or use in the set.<br>Keys are CIDR blocks, values can consist of following items:<br>- `create_subnet`           - (Optional\|bool) When `true` (default), subnet is created, otherwise existing one is used.<br>- `create_route_table`      - (Optional\|bool) When `true`  a dedicated route table is created, unless existing subnet is used.<br>- `associate_route_table`   - (Optional\|bool) Unless set to `false`, route table is associated with the subnet.<br>- `existing_route_table_id` - (Optional\|string) Id of an existing route table to associate with the subnet.<br>- `name`                    - (Optional\|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.<br>- `route_table_name`        - (Optional\|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.<br>- `local_tags`              - (Optional\|map) Map of tags to assign to created resources. | `map(any)` | n/a | yes |
+| <a name="input_create_shared_route_table"></a> [create\_shared\_route\_table](#input\_create\_shared\_route\_table) | Boolean flag whether to create a shared route tables. | `bool` | `false` | no |
+| <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_has_secondary_cidrs"></a> [has\_secondary\_cidrs](#input\_has\_secondary\_cidrs) | The input that depends on the secondary CIDR ranges of the VPC `vpc_id`. The actual value (true or false) is ignored, the input is used only to delay subnet creation until the secondary CIDR ranges are processed by Terraform. | `bool` | `true` | no |
-| <a name="input_map_public_ip_on_launch"></a> [map\_public\_ip\_on\_launch](#input\_map\_public\_ip\_on\_launch) | n/a | `any` | `null` | no |
-| <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
+| <a name="input_map_public_ip_on_launch"></a> [map\_public\_ip\_on\_launch](#input\_map\_public\_ip\_on\_launch) | See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet#map_public_ip_on_launch). | `bool` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | Subnet set name, used to construct default subnet names. | `string` | `null` | no |
 | <a name="input_propagating_vgws"></a> [propagating\_vgws](#input\_propagating\_vgws) | See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table). | `list(string)` | `[]` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | n/a | `any` | n/a | yes |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | Id of the VPC to create resource in. | `string` | n/a | yes |
 
 ## Outputs
 

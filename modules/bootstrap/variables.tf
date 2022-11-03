@@ -16,6 +16,18 @@ variable "iam_instance_profile_name" {
   type        = string
 }
 
+variable "create_iam_role_policy" {
+  description = "If true, a new IAM role with policy will be created. When false, name of existing IAM role to use has to be provided in `iam_role_name` variable."
+  default     = true
+  type        = bool
+}
+
+variable "iam_role_name" {
+  description = "Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value)."
+  default     = null
+  type        = string
+}
+
 variable "force_destroy" {
   description = "Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects."
   default     = true
@@ -99,6 +111,46 @@ variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # T
   description = "Set plugin-op-commands."
   default     = ""
   type        = string
+}
+
+variable "dhcp_send_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_send_hostname)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_hostname."
+  }
+}
+
+variable "dhcp_send_client_id" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_send_client_id)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_client_id."
+  }
+}
+
+variable "dhcp_accept_server_hostname" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_accept_server_hostname)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_hostname."
+  }
+}
+
+variable "dhcp_accept_server_domain" {
+  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server."
+  default     = "yes"
+  type        = string
+  validation {
+    condition     = contains(["yes", "no"], var.dhcp_accept_server_domain)
+    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_domain."
+  }
 }
 
 variable "create_bucket" {

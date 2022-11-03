@@ -40,8 +40,8 @@ terraform destroy
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.74 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
 ## Providers
 
@@ -65,6 +65,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | n/a | `any` | n/a | yes |
+| <a name="input_ebs_kms_key_alias"></a> [ebs\_kms\_key\_alias](#input\_ebs\_kms\_key\_alias) | n/a | `any` | n/a | yes |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | n/a | `any` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `any` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | n/a | `any` | n/a | yes |

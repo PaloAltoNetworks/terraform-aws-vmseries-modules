@@ -31,11 +31,11 @@ locals {
 resource "aws_eip" "this" {
   for_each = local.public_lb_with_eip ? var.subnets : {}
 
-  tags = merge({ Name = "${var.lb_name}-eip-${each.key}" }, var.tags)
+  tags = merge({ Name = "${var.name}-${each.key}" }, var.tags)
 }
 
 resource "aws_lb" "this" {
-  name                             = var.lb_name
+  name                             = var.name
   internal                         = var.internal_lb
   load_balancer_type               = "network"
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
@@ -65,7 +65,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.balance_rules
 
-  name        = "${var.lb_name}-tg-${each.key}"
+  name        = "${var.name}-${each.key}"
   vpc_id      = var.vpc_id
   port        = try(each.value.target_port, each.value.port)
   protocol    = each.value.protocol

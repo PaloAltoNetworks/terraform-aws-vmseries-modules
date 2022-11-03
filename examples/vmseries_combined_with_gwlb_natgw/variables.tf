@@ -9,9 +9,9 @@ variable "security_vpc_routes_outbound_source_cidrs" {}
 variable "security_vpc_routes_outbound_destin_cidrs" {}
 variable "gwlb_endpoint_set_outbound_name" {}
 variable "security_vpc_subnets" {}
-variable "create_ssh_key" {}
 variable "ssh_key_name" {}
-variable "nat_gateway_name" {}
+variable "nat_gateway_names" {}
 variable "firewalls" {}
 variable "bootstrap_options" {}
 variable "vmseries_version" {}
+variable "outbound_subinterface" {}

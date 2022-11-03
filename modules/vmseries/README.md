@@ -6,19 +6,23 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 
 For example usage, please refer to the [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) directory.
 
+## VMSeries Lifecycle policy
+
+The changes in user data bootstrap entries will not affect the existing VM-Series EC2 instances. The recommended method to replace existing VM is to use terraform taint.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.74 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.74 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
 ## Modules
 
@@ -43,7 +47,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.<br>If empty (the default), bootstrap process is not triggered at all.<br>For more information on available methods, please refer to VM-Series documentation for specific version.<br>For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html). | `string` | `""` | no |
 | <a name="input_ebs_encrypted"></a> [ebs\_encrypted](#input\_ebs\_encrypted) | Whether to enable EBS encryption on volumes. | `bool` | `true` | no |
-| <a name="input_ebs_kms_key_id"></a> [ebs\_kms\_key\_id](#input\_ebs\_kms\_key\_id) | The ARN for the KMS key to use for volume encryption. | `string` | `null` | no |
+| <a name="input_ebs_kms_key_alias"></a> [ebs\_kms\_key\_alias](#input\_ebs\_kms\_key\_alias) | The alias for the customer managed KMS key to use for volume encryption. Should be prepended with the word "alias" followed by a forward slash (alias/example-key-alias).<br>If `null` (the default), the default master key that protects EBS volumes will be used. | `string` | `null` | no |
 | <a name="input_enable_imdsv2"></a> [enable\_imdsv2](#input\_enable\_imdsv2) | Whether to enable IMDSv2 on the EC2 instance.<br>Support for this feature has been added in VM-Series Plugin [3.0.0](https://docs.paloaltonetworks.com/plugins/vm-series-and-panorama-plugins-release-notes/vm-series-plugin/vm-series-plugin-30/vm-series-plugin-300#id126d0957-95d7-4b29-9147-fff20027986e), which in turn requires VM-Series version 10.2.0 at minimum. | `string` | `false` | no |
 | <a name="input_iam_instance_profile"></a> [iam\_instance\_profile](#input\_iam\_instance\_profile) | IAM instance profile. | `string` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type. | `string` | `"m5.xlarge"` | no |
@@ -53,7 +57,7 @@ No modules.
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of additional tags to apply to all resources. | `map(any)` | `{}` | no |
 | <a name="input_vmseries_ami_id"></a> [vmseries\_ami\_id](#input\_vmseries\_ami\_id) | Specific AMI ID to use for VM-Series instance.<br>If `null` (the default), `vmseries_version` and `vmseries_product_code` vars are used to determine a public image to use. | `string` | `null` | no |
 | <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL. <br>To check the available license type models and their codes, please refer to the<br>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
-| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall version to deploy.<br>To list all available VM-Series versions, run the command provided below. <br>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort</pre> | `string` | `"10.0.8-h8"` | no |
+| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall version to deploy.<br>To list all available VM-Series versions, run the command provided below. <br>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort</pre> | `string` | `"10.2.0"` | no |
 
 ## Outputs
 

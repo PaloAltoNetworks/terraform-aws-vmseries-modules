@@ -29,6 +29,28 @@ resource "aws_vpc_ipv4_cidr_block_association" "this" {
   cidr_block = each.key
 }
 
+
+############################################################
+# DHCP Options
+############################################################
+
+resource "aws_vpc_dhcp_options" "this" {
+  count = var.create_dhcp_options ? 1 : 0
+
+  domain_name         = var.domain_name
+  domain_name_servers = var.domain_name_servers
+  ntp_servers         = var.ntp_servers
+
+  tags = merge(var.global_tags, var.vpc_tags, { Name = var.name })
+}
+
+resource "aws_vpc_dhcp_options_association" "this" {
+  count = var.create_dhcp_options ? 1 : 0
+
+  vpc_id          = local.vpc.id
+  dhcp_options_id = aws_vpc_dhcp_options.this[0].id
+}
+
 ############################################################
 # Internet Gateway
 ############################################################
@@ -81,19 +103,18 @@ resource "aws_vpn_gateway" "this" {
 }
 
 #### Dedicated RT for Ingress Routing - Traffic from VGW to us #### 
+resource "aws_route_table" "from_vgw" {
+  count = var.create_vpn_gateway ? 1 : 0
+
+  vpc_id = local.vpc.id
+  tags   = merge(var.global_tags, { Name = "${var.name}-vgw" })
+}
 
 resource "aws_route_table_association" "from_vgw" {
   count = var.create_vpn_gateway ? 1 : 0
 
   gateway_id     = aws_vpn_gateway.this[0].id
   route_table_id = aws_route_table.from_vgw[0].id
-}
-
-resource "aws_route_table" "from_vgw" {
-  count = var.create_vpn_gateway ? 1 : 0
-
-  vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = "${var.name}-vgw" })
 }
 
 ############################################################

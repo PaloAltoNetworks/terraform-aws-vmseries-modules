@@ -42,7 +42,7 @@ security_vpc_security_groups = {
 
 # VM-Series
 ssh_key_name     = "example-ssh-key"
-vmseries_version = "10.1.3"
+vmseries_version = "10.2.2"
 vmseries = {
   vmseries01 = {
     az = "us-east-1a"
@@ -59,6 +59,8 @@ vmseries = {
 }
 
 bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"
+
+ebs_kms_key_alias = "alias/example-key-alias"
 
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]

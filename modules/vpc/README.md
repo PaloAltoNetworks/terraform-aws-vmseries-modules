@@ -28,14 +28,14 @@ module "vpc" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.10 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0, < 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.10 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
 ## Modules
 
@@ -52,6 +52,8 @@ No modules.
 | [aws_route_table_association.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
 | [aws_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [aws_vpc_dhcp_options.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options) | resource |
+| [aws_vpc_dhcp_options_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options_association) | resource |
 | [aws_vpc_ipv4_cidr_block_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association) | resource |
 | [aws_vpn_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
 | [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/internet_gateway) | data source |
@@ -61,21 +63,25 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | n/a | `any` | `null` | no |
-| <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | n/a | `any` | `null` | no |
-| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | n/a | `bool` | `false` | no |
-| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | n/a | `bool` | `true` | no |
-| <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | n/a | `bool` | `false` | no |
-| <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | n/a | `any` | `null` | no |
-| <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | n/a | `any` | `null` | no |
+| <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | A boolean flag to assign AWS-provided /56 IPv6 CIDR block. [Defaults false](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#assign_generated_ipv6_cidr_block) | `bool` | `null` | no |
+| <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | CIDR block to assign to a new VPC. | `string` | `null` | no |
+| <a name="input_create_dhcp_options"></a> [create\_dhcp\_options](#input\_create\_dhcp\_options) | Should be true if you want to specify a DHCP options set with a custom domain name, DNS servers, NTP servers. | `bool` | `false` | no |
+| <a name="input_create_internet_gateway"></a> [create\_internet\_gateway](#input\_create\_internet\_gateway) | Set to `true` to create IG and attach it to the VPC. | `bool` | `false` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | When set to `true` inputs are used to create a VPC, otherwise - to get data about an existing one (based on the `name` value). | `bool` | `true` | no |
+| <a name="input_create_vpn_gateway"></a> [create\_vpn\_gateway](#input\_create\_vpn\_gateway) | When set to true, create VPN gateway and a dedicated route table. | `bool` | `false` | no |
+| <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Specifies DNS name for DHCP options set. 'create\_dhcp\_options' needs to be enabled. | `string` | `""` | no |
+| <a name="input_domain_name_servers"></a> [domain\_name\_servers](#input\_domain\_name\_servers) | Specify a list of DNS server addresses for DHCP options set, default to AWS provided | `list(string)` | `[]` | no |
+| <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | A boolean flag to enable/disable DNS hostnames in the VPC. [Defaults false](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#enable_dns_hostnames). | `bool` | `null` | no |
+| <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | A boolean flag to enable/disable DNS support in the VPC. [Defaults true](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#enable_dns_support). | `bool` | `null` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
-| <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | n/a | `any` | `null` | no |
-| <a name="input_name"></a> [name](#input\_name) | n/a | `any` | `null` | no |
-| <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | n/a | `list` | `[]` | no |
+| <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | VPC level [instance tenancy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#instance_tenancy). | `string` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the VPC to create or use. | `string` | n/a | yes |
+| <a name="input_ntp_servers"></a> [ntp\_servers](#input\_ntp\_servers) | Specify a list of NTP server addresses for DHCP options set, default to AWS provided | `list(string)` | `[]` | no |
+| <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | Secondary CIDR block to assign to a new VPC. | `list(string)` | `[]` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.<br>  The key of each entry acts as the Security Group name.<br>  List of available attributes of each Security Group entry:<br>  - `rules`: A list of objects representing a Security Group rule. The key of each entry acts as the name of the rule and<br>      needs to be unique across all rules in the Security Group.<br>      List of attributes available to define a Security Group rule:<br>      - `description`: Security Group description.<br>      - `type`: Specifies if rule will be evaluated on ingress (inbound) or egress (outbound) traffic.<br>      - `cidr_blocks`: List of CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress<br>      Determines the traffic that can leave your instance, and where it can go.<br><br><br>  Example:<pre>security_groups = {<br>    vmseries-mgmt = {<br>      name = "vmseries-mgmt"<br>      rules = {<br>        all-outbound = {<br>          description = "Permit All traffic outbound"<br>          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"<br>          cidr_blocks = ["0.0.0.0/0"]<br>        }<br>        https-inbound-private = {<br>          description = "Permit HTTPS for VM-Series Management"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["10.0.0.0/8"]<br>        }<br>        https-inbound-eip = {<br>          description = "Permit HTTPS for VM-Series Management from known public IPs"<br>          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>          cidr_blocks = ["100.100.100.100/32"]<br>        }<br>        ssh-inbound-eip = {<br>          description = "Permit SSH for VM-Series Management from known public IPs"<br>          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"<br>          cidr_blocks = ["100.100.100.100/32"]<br>        }<br>      }<br>    }<br>  }</pre> | `any` | `{}` | no |
-| <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | n/a | `bool` | `false` | no |
-| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | n/a | `map` | `{}` | no |
-| <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | n/a | `any` | `null` | no |
+| <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | If an existing VPC is provided and has IG attached, set to `true` to reuse it. | `bool` | `false` | no |
+| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | Optional map of arbitrary tags to apply to VPC resource. | `map` | `{}` | no |
+| <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | ASN for the Amazon side of the gateway. | `string` | `null` | no |
 
 ## Outputs
 

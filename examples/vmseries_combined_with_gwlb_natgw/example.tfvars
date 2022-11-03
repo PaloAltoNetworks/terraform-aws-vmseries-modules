@@ -80,18 +80,25 @@ gwlb_name                       = "example-security-gwlb"
 gwlb_endpoint_set_outbound_name = "outbound-gwlb-endpoint"
 
 ### NAT gateway
-nat_gateway_name = "example-natgw"
-
+nat_gateway_names = {
+  "us-east-1a" = "example-natgwa"
+  "us-east-1b" = "example-natgwb"
+}
 # VM-Series
-vmseries_version = "10.1.3"
-create_ssh_key   = false
+vmseries_version = "10.2.2"
 ssh_key_name     = "example-ssh-key"
 firewalls = {
   vmseries01 = { az = "us-east-1a" }
   vmseries02 = { az = "us-east-1b" }
 }
 
-bootstrap_options = "mgmt-interface-swap=enable;plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client"
+bootstrap_options = {
+  mgmt-interface-swap = "enable"
+  plugin-op-commands  = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
+  type                = "dhcp-client"
+}
+
+outbound_subinterface = "ethernet1/1.20" # Dedicated subinterface for VMSeries bootstraping
 
 # Security VPC routes ###
 security_vpc_routes_outbound_source_cidrs = [ # outbound traffic return after inspection
