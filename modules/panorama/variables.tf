@@ -85,9 +85,7 @@ variable "ebs_volumes" {
   - `force_detach`      (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
   - `skip_destroy`      (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
   This is useful when destroying an instance attached to third-party volumes.
-  - `kms_key_id`        (Optional) The ARN for the KMS encryption key. When specifying `kms_key_id`, the `ebs_encrypted` variable needs to be set to true.
-  If the `kms_key_id` is not provided but the `ebs_encrypted` is set to `true`, the default EBS encryption KMS key in the current region will be used.
-  
+
   Note: Terraform must be running with credentials which have the `GenerateDataKeyWithoutPlaintext` permission on the specified KMS key 
   as required by the [EBS KMS CMK volume provisioning process](https://docs.aws.amazon.com/kms/latest/developerguide/services-ebs.html#ebs-cmk) to prevent a volume from being created and almost immediately deleted.
   If null, the default EBS encryption KMS key in the current region is used.
@@ -100,7 +98,6 @@ variable "ebs_volumes" {
       ebs_device_name   = "/dev/sdb"
       ebs_size          = "2000"
       ebs_encrypted     = true
-      kms_key_id        = "arn:aws:kms:us-east-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
     },
     {
       name              = "ebs-2"
@@ -118,6 +115,15 @@ variable "ebs_volumes" {
   EOF
   type        = list(any)
   default     = []
+}
+
+variable "ebs_kms_key_alias" {
+  description = <<-EOF
+  The alias for the customer managed KMS key to use for volume encryption.
+  If this is set to `null` the default master key that protects EBS volumes will be used
+  EOF
+  type        = string
+  default     = null
 }
 
 variable "panorama_iam_role" {
