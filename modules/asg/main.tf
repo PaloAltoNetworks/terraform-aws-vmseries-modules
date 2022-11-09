@@ -18,7 +18,7 @@ data "aws_ami" "this" {
 locals {
   data_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
   data_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
-  devices_config    = {
+  devices_config = {
     mgmt_swap = try(var.bootstrap_options.mgmt-interface-swap, "false")
   }
 }
