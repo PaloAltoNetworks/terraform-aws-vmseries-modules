@@ -105,6 +105,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :return: list of dict with interface settings
         """
         settings = loads(getenv('lambda_config'))
+        devices_config = loads(getenv('device_config'))
+        default_device_index = 1 if devices_config.get("mgmt_swap") == "enable" else 0
         interface = {}
         for eni, sett in settings.items():
             for k, v in sett.items():
@@ -113,12 +115,11 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 interface[eni]["sg"] = v[0] if 'security_group_ids' in k else interface.get(eni).get('sg')
                 interface[eni]["c_pub_ip"] = v if 'create_public_ip' in k else interface.get(eni).get('c_pub_ip')
                 interface[eni]["s_dest_ch"] = v if 'source_dest_check' in k else interface.get(eni).get('s_dest_ch')
-                interface[eni]["d_device"] = v if 'default_device' in k else interface.get(eni).get('d_device')
                 if 'subnet_id' in k:
                     for az, subnet in v.items():
                         if az == instance_zone:
                             interface[eni]["subnet"] = subnet
-        interfaces = sorted((interface for interface in interface.values() if not interface.get("d_device")),
+        interfaces = sorted((interface for interface in interface.values() if not interface.get('index') == default_device_index),
                             key=lambda x: x["index"])
         return interfaces
 

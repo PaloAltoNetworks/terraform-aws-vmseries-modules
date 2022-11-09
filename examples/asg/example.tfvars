@@ -2,8 +2,8 @@ vpc_cidr = "10.104.0.0/16"
 vpc_name = "example-vpc"
 
 region       = "us-east-1"
-name_prefix  = "example-asg-"
-ssh_key_name = "example_key"
+name_prefix  = "pimielow-t-asg-"
+ssh_key_name = "pimielow_key"
 
 global_tags = {
   ManagedBy   = "Terraform"
@@ -70,7 +70,6 @@ vmseries_interfaces = {
     source_dest_check = true
   }
   data1 = {
-    default_device = true
     device_index   = 1
     security_group = "vmseries_data"
     subnet = {

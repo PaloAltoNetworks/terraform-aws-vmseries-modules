@@ -58,7 +58,6 @@ variable "interfaces" {
   If "mgmt-interface-swap" bootstrap option is enabled, ensure dataplane interface `device_index` is set to 0 and the firewall management interface `device_index` is set to 1.
   Available options:
   - `device_index`       = (Required|int) Determines order in which interfaces are attached to the instance. Interface with `0` is attached at boot time.
-  - `default_device`     = (Required|bool) Determines which interface will be used on creation of the instance.
   - `subnet_id`          = (Required|string) Subnet ID to create the ENI in.
   - `name`               = (Optional|string) Name tag for the ENI. Defaults to instance name suffixed by map's key.
   - `description`        = (Optional|string) A descriptive name for the ENI.
@@ -79,7 +78,6 @@ variable "interfaces" {
       create_public_ip   = true
       source_dest_check  = true
       security_group_ids = ["sg-123456"]
-      default_device     = true
     },
     public = {
       device_index     = 1

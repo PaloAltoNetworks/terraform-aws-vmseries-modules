@@ -16,8 +16,11 @@ data "aws_ami" "this" {
 }
 
 locals {
-  data_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 1])
-  data_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 1])
+  data_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
+  data_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
+  devices_config    = {
+    mgmt_swap = try(var.bootstrap_options.mgmt-interface-swap, "false")
+  }
 }
 
 # Create launch template with a single interface
@@ -176,6 +179,7 @@ resource "aws_lambda_function" "this" {
   environment {
     variables = {
       lambda_config = jsonencode(var.interfaces)
+      device_config = jsonencode(local.devices_config)
     }
   }
   tags = var.global_tags
