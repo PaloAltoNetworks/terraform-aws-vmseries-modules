@@ -69,7 +69,6 @@ module "vm_series_asg" {
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = { for z, c in v.subnet : c => module.security_subnet_sets[z].subnets[c].id }
       create_public_ip   = try(v.create_public_ip, false)
-      default_device     = try(v.default_device, false)
     }
   }
 }
