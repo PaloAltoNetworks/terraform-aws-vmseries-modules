@@ -90,9 +90,9 @@ vmseries_interfaces = {
 }
 vmseries_version = "10.2.2"
 bootstrap_options = {
-  type                = "dhcp-client"
-  panorama-server     = "1.2.3.4"
-  panorama-server-2   = "3.4.5.6"
+  type              = "dhcp-client"
+  panorama-server   = "1.2.3.4"
+  panorama-server-2 = "3.4.5.6"
 }
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]

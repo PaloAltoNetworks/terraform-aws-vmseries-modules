@@ -18,7 +18,7 @@ data "aws_ami" "this" {
 locals {
   default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
-  default_eni_public_ip = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
+  default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
 }
 
 # Create launch template with a single interface
@@ -35,9 +35,9 @@ resource "aws_launch_template" "this" {
   ))))
 
   network_interfaces {
-    device_index    = 0
-    security_groups = [local.default_eni_sg_ids[0]]
-    subnet_id       = values(local.default_eni_subnet_names[0])[0]
+    device_index                = 0
+    security_groups             = [local.default_eni_sg_ids[0]]
+    subnet_id                   = values(local.default_eni_subnet_names[0])[0]
     associate_public_ip_address = try(local.default_eni_public_ip[0])
   }
 
