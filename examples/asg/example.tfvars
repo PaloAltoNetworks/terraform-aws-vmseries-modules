@@ -2,8 +2,8 @@ vpc_cidr = "10.104.0.0/16"
 vpc_name = "example-vpc"
 
 region       = "us-east-1"
-name_prefix  = "example-asg-"
-ssh_key_name = "example_key"
+name_prefix  = "pimielow-t-asg-"
+ssh_key_name = "pimielow_key"
 
 global_tags = {
   ManagedBy   = "Terraform"
@@ -93,7 +93,6 @@ bootstrap_options = {
   type                = "dhcp-client"
   panorama-server     = "1.2.3.4"
   panorama-server-2   = "3.4.5.6"
-  mgmt-interface-swap = "enable"
 }
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]

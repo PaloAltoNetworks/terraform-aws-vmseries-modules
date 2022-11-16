@@ -16,11 +16,9 @@ data "aws_ami" "this" {
 }
 
 locals {
-  data_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
-  data_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
-  devices_config = {
-    mgmt_swap = try(var.bootstrap_options.mgmt-interface-swap, "false")
-  }
+  default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
+  default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
+  default_eni_public_ip = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
 }
 
 # Create launch template with a single interface
@@ -38,8 +36,9 @@ resource "aws_launch_template" "this" {
 
   network_interfaces {
     device_index    = 0
-    security_groups = local.data_sg_ids
-    subnet_id       = values(local.data_subnet_names[0])[0]
+    security_groups = [local.default_eni_sg_ids[0]]
+    subnet_id       = values(local.default_eni_subnet_names[0])[0]
+    associate_public_ip_address = try(local.default_eni_public_ip[0])
   }
 
   block_device_mappings {
@@ -61,7 +60,7 @@ resource "aws_launch_template" "this" {
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
 resource "aws_autoscaling_group" "this" {
   name                = "${var.name_prefix}${var.asg_name}"
-  vpc_zone_identifier = distinct([for k, v in local.data_subnet_names[0] : v])
+  vpc_zone_identifier = distinct([for k, v in local.default_eni_subnet_names[0] : v])
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
@@ -179,7 +178,6 @@ resource "aws_lambda_function" "this" {
   environment {
     variables = {
       lambda_config = jsonencode(var.interfaces)
-      device_config = jsonencode(local.devices_config)
     }
   }
   tags = var.global_tags

@@ -10,7 +10,7 @@ class ConfigureLogger:
     def __init__(self, *args, **kwargs):
         self.logger = getLogger(self.__class__.__name__)
         basicConfig(format='%(asctime)s %(message)s')
-        self.logger.setLevel(DEBUG if getenv("logger_level") else INFO)
+        self.logger.setLevel(INFO if getenv("logger_level") else DEBUG)
 
 
 class VMSeriesInterfaceScaling(ConfigureLogger):
@@ -29,7 +29,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
         instance_id = asg_event["detail"]["EC2InstanceId"]
         instance_zone, subnet_id, network_interfaces = self.inspect_ec2_instance(instance_id)
-
         if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
             self.logger.info("Run launch mode.")
             self.instance_launch_actions(instance_zone, subnet_id, instance_id)
@@ -105,8 +104,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :return: list of dict with interface settings
         """
         settings = loads(getenv('lambda_config'))
-        devices_config = loads(getenv('device_config'))
-        default_device_index = 1 if devices_config.get("mgmt_swap") == "enable" else 0
         interface = {}
         for eni, sett in settings.items():
             for k, v in sett.items():
@@ -119,8 +116,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                     for az, subnet in v.items():
                         if az == instance_zone:
                             interface[eni]["subnet"] = subnet
-        interfaces = sorted((interface for interface in interface.values() if not interface.get('index') == default_device_index),
-                            key=lambda x: x["index"])
+        interfaces = sorted((interface for interface in interface.values()), key=lambda x: x["index"])
         return interfaces
 
     def inspect_ec2_instance(self, instance_id: str) -> tuple:
@@ -165,8 +161,9 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
         interface_id = self.create_network_interface(instance_id, interface['subnet'], interface['sg'])
         if interface_id:
-            attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'] + 1)
-            self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
+            if interface['index'] != 0:
+                attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'] + 1)
+                self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
             if interface['c_pub_ip']:
                 self.add_public_ip_to_eni(interface_id)
 
