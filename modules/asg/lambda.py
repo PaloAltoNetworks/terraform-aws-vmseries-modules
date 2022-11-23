@@ -59,7 +59,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         interfaces = self.create_interface_settings(instance_zone)
         for interface in interfaces:
             self.logger.info(
-                f"Found new interface to create: id={interface['index'] + 1}, subnet={interface['subnet']}, "
+                f"Found new interface to create: id={interface['index']}, subnet={interface['subnet']}, "
                 f"security_group={interface['sg']}")
             self.logger.info(f"Interface structure: {interface}")
             self.create_and_configure_new_network_interface(instance_id, interface)
@@ -162,7 +162,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         interface_id = self.create_network_interface(instance_id, interface['subnet'], interface['sg'])
         if interface_id:
             if interface['index'] != 0:
-                attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'] + 1)
+                attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'])
                 self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
             if interface['c_pub_ip']:
                 self.add_public_ip_to_eni(interface_id)
