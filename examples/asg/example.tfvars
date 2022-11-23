@@ -3,7 +3,7 @@ vpc_name = "example-vpc"
 
 region       = "us-east-1"
 name_prefix  = "example-asg-"
-ssh_key_name = "example_key"
+ssh_key_name = "example-key"
 
 global_tags = {
   ManagedBy   = "Terraform"
@@ -59,23 +59,23 @@ vpc_subnets = {
 }
 
 vmseries_interfaces = {
-  mgmt = {
+  data1 = {
     device_index   = 0
+    security_group = "vmseries_data"
+    subnet = {
+      "data1_a" = "us-east-1a",
+      "data1_b" = "us-east-1b"
+    }
+    source_dest_check = true
+  }
+  mgmt = {
+    device_index   = 1
     security_group = "vmseries_mgmt"
     subnet = {
       "mgmt_a" = "us-east-1a",
       "mgmt_b" = "us-east-1b"
     }
     create_public_ip  = true
-    source_dest_check = true
-  }
-  data1 = {
-    device_index   = 1
-    security_group = "vmseries_data"
-    subnet = {
-      "data1_a" = "us-east-1a",
-      "data1_b" = "us-east-1b"
-    }
     source_dest_check = true
   }
   data2 = {
@@ -90,9 +90,10 @@ vmseries_interfaces = {
 }
 vmseries_version = "10.2.2"
 bootstrap_options = {
-  type              = "dhcp-client"
-  panorama-server   = "1.2.3.4"
-  panorama-server-2 = "3.4.5.6"
+  type                = "dhcp-client"
+  panorama-server     = "1.2.3.4"
+  panorama-server-2   = "3.4.5.6"
+  mgmt-interface-swap = "enable"
 }
 # Routes
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
