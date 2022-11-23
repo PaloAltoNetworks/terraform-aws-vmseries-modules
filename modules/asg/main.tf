@@ -1,4 +1,4 @@
-#### PA VM AMI ID Lookup based on license type, region, version ####
+# PA VM AMI ID Lookup based on license type, region, version
 data "aws_ami" "this" {
   count = var.vmseries_ami_id != null ? 0 : 1
 
@@ -78,23 +78,26 @@ resource "aws_autoscaling_group" "this" {
     id      = aws_launch_template.this.id
     version = "$Latest"
   }
-}
 
-# Add lifecycle hook to autoscaling group
-resource "aws_autoscaling_lifecycle_hook" "instance_launch" {
-  name                   = "${var.name_prefix}asg_at_launch_hook"
-  autoscaling_group_name = aws_autoscaling_group.this.name
-  default_result         = "CONTINUE"
-  heartbeat_timeout      = var.lifecycle_hook_timeout
-  lifecycle_transition   = "autoscaling:EC2_INSTANCE_LAUNCHING"
-}
+  initial_lifecycle_hook {
+    name                 = "${var.name_prefix}asg-launch-hook"
+    default_result       = "CONTINUE"
+    heartbeat_timeout    = var.lifecycle_hook_timeout
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  }
 
-resource "aws_autoscaling_lifecycle_hook" "instance_terminate" {
-  name                   = "${var.name_prefix}asg_at_terminate_hook"
-  autoscaling_group_name = aws_autoscaling_group.this.name
-  default_result         = "CONTINUE"
-  heartbeat_timeout      = var.lifecycle_hook_timeout
-  lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
+  initial_lifecycle_hook {
+    name                 = "${var.name_prefix}asg-terminate-hook"
+    default_result       = "CONTINUE"
+    heartbeat_timeout    = var.lifecycle_hook_timeout
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+  }
+
+  depends_on = [
+    aws_cloudwatch_event_target.instance_launch_event,
+    aws_cloudwatch_event_target.instance_terminate_event
+  ]
+
 }
 
 # IAM role that will be used for Lambda function
@@ -177,7 +180,7 @@ resource "aws_lambda_function" "this" {
   timeout          = var.lambda_timeout
   environment {
     variables = {
-      lambda_config = jsonencode(var.interfaces)
+      lambda_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
     }
   }
   tags = var.global_tags
@@ -205,7 +208,7 @@ resource "aws_cloudwatch_event_rule" "instance_launch_event_rule" {
   ],
   "detail": {
     "AutoScalingGroupName": [
-      "${aws_autoscaling_group.this.name}"
+      "${var.name_prefix}${var.asg_name}"
     ]
   }
 }
@@ -225,7 +228,7 @@ resource "aws_cloudwatch_event_rule" "instance_terminate_event_rule" {
   ],
   "detail": {
     "AutoScalingGroupName": [
-      "${aws_autoscaling_group.this.name}"
+      "${var.name_prefix}${var.asg_name}"
     ]
   }
 }
