@@ -95,10 +95,10 @@ resource "aws_autoscaling_group" "this" {
     lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
   }
 
-    depends_on = [
-      aws_cloudwatch_event_target.instance_launch_event,
-      aws_cloudwatch_event_target.instance_terminate_event
-    ]
+  depends_on = [
+    aws_cloudwatch_event_target.instance_launch_event,
+    aws_cloudwatch_event_target.instance_terminate_event
+  ]
 
 }
 
