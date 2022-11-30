@@ -27,7 +27,7 @@ locals {
 resource "aws_launch_template" "this" {
   name          = "${var.name_prefix}template"
   ebs_optimized = true
-  image_id      = coalesce(var.vmseries_ami_id, data.aws_ami.this[0].id)
+  image_id      = coalesce(var.vmseries_ami_id, try(data.aws_ami.this[0].id, null))
   instance_type = var.instance_type
   key_name      = var.ssh_key_name
   tags          = var.global_tags
