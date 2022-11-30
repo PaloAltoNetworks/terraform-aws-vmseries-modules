@@ -78,7 +78,7 @@ variable "to_cidr" {
 }
 
 variable "cidr_type" {
-  description = "Type of `to_cidr`, either \"ipv4\" or \"ipv6\"."
+  description = "Type of `to_cidr`, \"ipv4\", \"ipv6\" or \"mpl\"."
   default     = "ipv4"
   type        = string
 }
