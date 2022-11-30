@@ -1,13 +1,13 @@
-# Palo Alto Networks ASG Module Example for AWS Cloud
+# VM-Series Auto Scaling Example for AWS Cloud
 
-A Terraform module example for deploying a autoscaling group with VM-Series in AWS Cloud.
+A Terraform example for deploying VM-Series firewalls in an autoscaling group on AWS.
 
-This example can be used to familarize oneself with both VM-series and Terraform - it creates an autoscaling group with instances of virtualized firewalls in a Security VPC with multiple interfaces which was created by Lambda function.
+This example can be used to familarize oneself with both VM-series auto scaling and Terraform - it creates an autoscaling group with instances of virtualized firewalls in a Security VPC with multiple interfaces created by a Lambda function.
 
 **NOTE:**
-The firewall will take several minutes to boot up during the initial setup.
-It is necessary and important to set mgmt-interface-swap since the default interface is created through the launch template.
-In this scenario we create the management interface via lambda and pass mgmt-interface-swap enable to use that interface in bootstrap.
+The firewalls will take several minutes to boot up.
+If you are load balancing traffic to the auto scaling group from a GWLB it is required to swap the management interface of the firewalls during the bootstrap process. 
+In this example, we pass `mgmt-interface-swap` option as user_data into the instance.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
