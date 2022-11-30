@@ -1,4 +1,4 @@
-#### PA VM AMI ID Lookup based on license type, region, version ####
+# PA VM AMI ID Lookup based on license type, region, version
 data "aws_ami" "this" {
   count = var.vmseries_ami_id != null ? 0 : 1
 
@@ -18,7 +18,9 @@ data "aws_ami" "this" {
 }
 
 locals {
-  data_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
+  default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
+  default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
+  default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
 }
 
 # Create launch template with a single interface
@@ -35,8 +37,18 @@ resource "aws_launch_template" "this" {
   ))))
 
   network_interfaces {
-    device_index    = 0
-    security_groups = var.interfaces[keys(var.interfaces)[0]].security_group_ids
+    device_index                = 0
+    security_groups             = [local.default_eni_sg_ids[0]]
+    subnet_id                   = values(local.default_eni_subnet_names[0])[0]
+    associate_public_ip_address = try(local.default_eni_public_ip[0])
+  }
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      delete_on_termination = true
+    }
   }
 
   tag_specifications {
@@ -50,7 +62,7 @@ resource "aws_launch_template" "this" {
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
 resource "aws_autoscaling_group" "this" {
   name                = "${var.name_prefix}${var.asg_name}"
-  vpc_zone_identifier = distinct([for k, v in local.data_subnet_names[0] : v])
+  vpc_zone_identifier = distinct([for k, v in local.default_eni_subnet_names[0] : v])
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
@@ -68,15 +80,26 @@ resource "aws_autoscaling_group" "this" {
     id      = aws_launch_template.this.id
     version = "$Latest"
   }
-}
 
-# Add lifecycle hook to autoscaling group
-resource "aws_autoscaling_lifecycle_hook" "this" {
-  name                   = "${var.name_prefix}asg_at_launch_hook"
-  autoscaling_group_name = aws_autoscaling_group.this.name
-  default_result         = "CONTINUE"
-  heartbeat_timeout      = var.lifecycle_hook_timeout
-  lifecycle_transition   = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  initial_lifecycle_hook {
+    name                 = "${var.name_prefix}asg-launch-hook"
+    default_result       = "CONTINUE"
+    heartbeat_timeout    = var.lifecycle_hook_timeout
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  }
+
+  initial_lifecycle_hook {
+    name                 = "${var.name_prefix}asg-terminate-hook"
+    default_result       = "CONTINUE"
+    heartbeat_timeout    = var.lifecycle_hook_timeout
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+  }
+
+  depends_on = [
+    aws_cloudwatch_event_target.instance_launch_event,
+    aws_cloudwatch_event_target.instance_terminate_event
+  ]
+
 }
 
 # IAM role that will be used for Lambda function
@@ -120,14 +143,17 @@ resource "aws_iam_role_policy" "this" {
             "Action": [
                 "ec2:AllocateAddress",
                 "ec2:AssociateAddress",
-                "ec2:CreateNetworkInterface",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DetachNetworkInterface",
-                "ec2:DeleteNetworkInterface",
-                "ec2:ModifyNetworkInterfaceAttribute",
-                "ec2:DescribeSubnets",
                 "ec2:AttachNetworkInterface",
+                "ec2:CreateNetworkInterface",
+                "ec2:DescribeAddresses",
                 "ec2:DescribeInstances",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeSubnets",
+                "ec2:DeleteNetworkInterface",
+                "ec2:DetachNetworkInterface",
+                "ec2:DisassociateAddress",
+                "ec2:ModifyNetworkInterfaceAttribute",
+                "ec2:ReleaseAddress",
                 "autoscaling:CompleteLifecycleAction",
                 "autoscaling:DescribeAutoScalingGroups"
             ],
@@ -148,7 +174,7 @@ data "archive_file" "this" {
 
 resource "aws_lambda_function" "this" {
   filename         = data.archive_file.this.output_path
-  function_name    = "${var.name_prefix}add_eni"
+  function_name    = "${var.name_prefix}asg_actions"
   role             = aws_iam_role.this.arn
   handler          = "lambda.lambda_handler"
   source_code_hash = data.archive_file.this.output_base64sha256
@@ -156,7 +182,7 @@ resource "aws_lambda_function" "this" {
   timeout          = var.lambda_timeout
   environment {
     variables = {
-      lambda_config = jsonencode(var.interfaces)
+      lambda_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
     }
   }
   tags = var.global_tags
@@ -171,8 +197,8 @@ resource "aws_lambda_permission" "this" {
   statement_id_prefix = var.name_prefix
 }
 
-resource "aws_cloudwatch_event_rule" "this" {
-  name          = "${var.name_prefix}add_eni"
+resource "aws_cloudwatch_event_rule" "instance_launch_event_rule" {
+  name          = "${var.name_prefix}asg_launch"
   tags          = var.global_tags
   event_pattern = <<EOF
 {
@@ -184,15 +210,41 @@ resource "aws_cloudwatch_event_rule" "this" {
   ],
   "detail": {
     "AutoScalingGroupName": [
-      "${aws_autoscaling_group.this.name}"
+      "${var.name_prefix}${var.asg_name}"
     ]
   }
 }
 EOF
 }
 
-resource "aws_cloudwatch_event_target" "this" {
-  rule      = aws_cloudwatch_event_rule.this.name
-  target_id = "${var.name_prefix}add_eni"
+resource "aws_cloudwatch_event_rule" "instance_terminate_event_rule" {
+  name          = "${var.name_prefix}asg_terminate"
+  tags          = var.global_tags
+  event_pattern = <<EOF
+{
+  "source": [
+    "aws.autoscaling"
+  ],
+  "detail-type": [
+    "EC2 Instance-terminate Lifecycle Action"
+  ],
+  "detail": {
+    "AutoScalingGroupName": [
+      "${var.name_prefix}${var.asg_name}"
+    ]
+  }
+}
+EOF
+}
+
+resource "aws_cloudwatch_event_target" "instance_launch_event" {
+  rule      = aws_cloudwatch_event_rule.instance_launch_event_rule.name
+  target_id = "${var.name_prefix}asg_launch"
+  arn       = aws_lambda_function.this.arn
+}
+
+resource "aws_cloudwatch_event_target" "instance_terminate_event" {
+  rule      = aws_cloudwatch_event_rule.instance_terminate_event_rule.name
+  target_id = "${var.name_prefix}asg_terminate"
   arn       = aws_lambda_function.this.arn
 }
