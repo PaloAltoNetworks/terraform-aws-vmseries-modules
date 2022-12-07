@@ -104,11 +104,21 @@ locals {
         to_cidr      = cidr
       }
     ],
-    [for cidr in concat(var.security_vpc_routes_eastwest_cidrs, var.security_vpc_mgmt_routes_to_tgw) :
+    [
       {
         subnet_key   = "mgmt"
         next_hop_set = module.security_transit_gateway_attachment.next_hop_set
-        to_cidr      = cidr
+        cidr_type    = "mpl"
+        managed_prefix_list = {
+          name        = "${var.name_prefix}mgmt"
+          max_entries = 10
+          entries = {
+            for cidr in concat(var.security_vpc_routes_eastwest_cidrs, var.security_vpc_mgmt_routes_to_tgw) : cidr => {
+              cidr        = cidr
+              description = "CIDR in managed prefix list for MGMT"
+            }
+          }
+        }
       }
     ],
     [for cidr in var.security_vpc_routes_eastwest_cidrs :
@@ -165,10 +175,12 @@ locals {
 }
 
 module "security_vpc_routes" {
-  for_each = { for route in local.security_vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+  for_each = { for route in local.security_vpc_routes : "${route.subnet_key}_${try(route.to_cidr, route.managed_prefix_list.name)}" => route }
   source   = "../../modules/vpc_route"
 
-  route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
+  route_table_ids     = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
+  to_cidr             = try(each.value.to_cidr, null)
+  cidr_type           = try(each.value.cidr_type, "ipv4")
+  managed_prefix_list = try(each.value.managed_prefix_list, null)
+  next_hop_set        = each.value.next_hop_set
 }
