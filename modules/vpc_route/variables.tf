@@ -77,8 +77,8 @@ variable "to_cidr" {
   type        = string
 }
 
-variable "cidr_type" {
-  description = "Type of `to_cidr`, \"ipv4\", \"ipv6\" or \"mpl\"."
+variable "destination_type" {
+  description = "Type of destination: \"ipv4\", \"ipv6\" or \"mpl\"."
   default     = "ipv4"
   type        = string
 }
@@ -87,17 +87,4 @@ variable "managed_prefix_list_id" {
   description = "ID of managed prefix list, which is going to be set as destination in route"
   default     = null
   type        = string
-}
-
-variable "managed_prefix_list" {
-  description = "Managed prefix list, which needs to be created and set as a destination in route"
-  default     = null
-  type = object({
-    name        = string
-    max_entries = number
-    entries = map(object({
-      cidr        = string
-      description = string
-    }))
-  })
 }
