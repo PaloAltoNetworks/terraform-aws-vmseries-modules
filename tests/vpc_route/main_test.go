@@ -17,7 +17,7 @@ func TestOutputWhileCreatingManagedPrefixListForVpcRouteModule(t *testing.T) {
 		Upgrade:      true,
 	})
 	expectedManagedPrefixListEntries := []string{"10.241.0.0/16", "10.242.0.0/16", "10.251.0.0/16", "10.252.0.0/16"}
-	// defer terraform.Destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 	// when
 	terraform.InitAndApply(t, terraformOptions)
