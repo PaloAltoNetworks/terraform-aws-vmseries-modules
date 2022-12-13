@@ -84,13 +84,13 @@ variable "cidr_type" {
 }
 
 variable "managed_prefix_list_id" {
-  description = "ID of managed prefix list, which is going to best as destination in route"
+  description = "ID of managed prefix list, which is going to be set as destination in route"
   default     = null
   type        = string
 }
 
 variable "managed_prefix_list" {
-  description = "Managed prefix list, which needs to created and set as a destination in route"
+  description = "Managed prefix list, which needs to be created and set as a destination in route"
   default     = null
   type = object({
     name        = string
