@@ -16,7 +16,7 @@ func TestOutputWhileCreatingManagedPrefixListForVpcRouteModule(t *testing.T) {
 		Lock:         true,
 		Upgrade:      true,
 	})
-	// defer terraform.Destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 	// when
 	terraform.InitAndApply(t, terraformOptions)
