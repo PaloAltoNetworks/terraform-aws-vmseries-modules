@@ -56,6 +56,10 @@ variable "security_vpc_app_routes_to_igw" {
 
 locals {
   security_vpc_routes = concat(
+    ### For testing purposes always next hop is IGW to limit time and costs of creating
+    ### different types of next hops like TGW or GWLB endpoints.
+    ### The purpose of the test is to check creating managed prefix list, not
+    ### veryfing different types of next hop.
     [for cidr in var.security_vpc_mgmt_routes_to_igw :
       {
         subnet_key   = "mgmt"
