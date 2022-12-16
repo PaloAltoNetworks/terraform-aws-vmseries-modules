@@ -8,7 +8,9 @@ go get -u github.com/gruntwork-io/terratest/modules/opa
 go get -u github.com/gruntwork-io/terratest/modules/terraform
 ```
 
-To execute all tests for every type of Terraform version, execute script:
+Script testing code with different Terraform version is using [tfenv](https://github.com/tfutils/tfenv), which needs to be installed before running tests.
+
+In order to execute all tests for every type of Terraform version, type command:
 
 ```
 ./run_tests_multiple_tf_version.sh
