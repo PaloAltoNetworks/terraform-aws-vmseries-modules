@@ -1,17 +1,27 @@
 module "bootstrap" {
-  source      = "../../modules/bootstrap"
-  prefix      = var.name_prefix
-  global_tags = var.global_tags
+  source             = "../../modules/bootstrap"
+  prefix             = var.name_prefix
+  global_tags        = var.global_tags
+  op-command-modes   = var.vmseries_common.s3_bucket_init_cfg_op_command_modes
+  plugin-op-commands = local.plugin_op_commands_with_endpoints_mapping
 }
 
 locals {
-  subinterface_gwlb_endpoint_eastwest = join(",", compact(concat([for k, v in module.gwlbe_eastwest.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_eastwest)])))
-  subinterface_gwlb_endpoint_outbound = join(",", compact(concat([for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_outbound)])))
-  subinterface_gwlb_endpoint_inbound  = join(",", compact(concat([for k, v in module.app1_gwlbe_inbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_inbound)])))
+  subinterface_gwlb_endpoint_eastwest = join(",", compact(concat([
+    for k, v in module.gwlbe_eastwest.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_eastwest)
+  ])))
+  subinterface_gwlb_endpoint_outbound = join(",", compact(concat([
+    for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_outbound)
+  ])))
+  subinterface_gwlb_endpoint_inbound = join(",", compact(concat([
+    for k, v in module.app1_gwlbe_inbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_inbound)
+  ])))
   bootstrap_options_with_endpoints_mapping = [
     for k, v in var.vmseries_common.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${format("%s,%s,%s,%s", v,
     local.subinterface_gwlb_endpoint_eastwest, local.subinterface_gwlb_endpoint_outbound, local.subinterface_gwlb_endpoint_inbound)}"
   ]
+  plugin_op_commands_with_endpoints_mapping = format("%s,%s,%s,%s", var.vmseries_common.s3_bucket_init_cfg_plugin_op_commands,
+  local.subinterface_gwlb_endpoint_eastwest, local.subinterface_gwlb_endpoint_outbound, local.subinterface_gwlb_endpoint_inbound)
 }
 
 module "vmseries" {
@@ -38,7 +48,10 @@ module "vmseries" {
   }
 
   bootstrap_options = join(";", compact(concat(
-    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
+    ### first option - use init-cfg.txt created from template and stored in S3 bucket
+    # ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
+
+    ### second option - add generated bootstrap settings directly to VM-Series in user data
     local.bootstrap_options_with_endpoints_mapping,
   )))
 

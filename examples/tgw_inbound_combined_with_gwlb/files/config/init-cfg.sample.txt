@@ -5,6 +5,7 @@ panorama-server-2=10.255.64.4
 tplname=my-panorama-stack
 dgname=my-panorama-device-group
 hostname=gwlbftw
+plugin-op-commands=aws-gwlb-inspect:enable
 dhcp-send-hostname=yes
 dhcp-send-client-id=yes
 dhcp-accept-server-hostname=yes
