@@ -4,6 +4,16 @@ module "bootstrap" {
   global_tags = var.global_tags
 }
 
+locals {
+  subinterface_gwlb_endpoint_eastwest = join(",", compact(concat([for k, v in module.gwlbe_eastwest.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_eastwest)])))
+  subinterface_gwlb_endpoint_outbound = join(",", compact(concat([for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_outbound)])))
+  subinterface_gwlb_endpoint_inbound  = join(",", compact(concat([for k, v in module.app1_gwlbe_inbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterface_inbound)])))
+  bootstrap_options_with_endpoints_mapping = [
+    for k, v in var.vmseries_common.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${format("%s,%s,%s,%s", v,
+    local.subinterface_gwlb_endpoint_eastwest, local.subinterface_gwlb_endpoint_outbound, local.subinterface_gwlb_endpoint_inbound)}"
+  ]
+}
+
 module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
@@ -29,7 +39,7 @@ module "vmseries" {
 
   bootstrap_options = join(";", compact(concat(
     ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
-    [for k, v in var.vmseries_common.bootstrap_options : "${k}=${v}"],
+    local.bootstrap_options_with_endpoints_mapping,
   )))
 
   iam_instance_profile = module.bootstrap.instance_profile_name
