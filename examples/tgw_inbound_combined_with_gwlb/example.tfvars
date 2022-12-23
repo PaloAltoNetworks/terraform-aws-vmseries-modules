@@ -140,11 +140,11 @@ vmseries_common = {
     mgmt-interface-swap = "enable"
     plugin-op-commands  = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
   }
-  s3_bucket_init_cfg_op_command_modes   = "mgmt-interface-swap"
-  s3_bucket_init_cfg_plugin_op_commands = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
-  subinterface_inbound                  = "ethernet1/1.10"
-  subinterface_outbound                 = "ethernet1/1.20"
-  subinterface_eastwest                 = "ethernet1/1.30"
+  subinterfaces = {
+    inbound  = "ethernet1/1.10"
+    outbound = "ethernet1/1.20"
+    eastwest = "ethernet1/1.30"
+  }
 }
 vmseries_version = "10.2.2"
 
