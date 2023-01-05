@@ -29,13 +29,13 @@ func DeployInfraCheckOutputs(t *testing.T, terraformOptions *terraform.Options, 
 		})
 	}
 
-	// Always destroy infrastructure, even if any assert expression fail
+	// Always destroy infrastructure, even if any assert expression fails
 	destroyFunc := func() {
 		terraform.Destroy(t, terraformOptions)
 	}
 	defer destroyFunc()
 
-	// Terraform initalization and apply
+	// Terraform initalization and apply with auto-approve
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Verify outputs and compare to expected results
@@ -45,7 +45,7 @@ func DeployInfraCheckOutputs(t *testing.T, terraformOptions *terraform.Options, 
 }
 
 // Function is comparing every provided output in expressions lists
-// and checks value
+// and checks value using expression defined in the list
 func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) {
 	for _, assertExpression := range assertList {
 		switch assertExpression.Operation {
