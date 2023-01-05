@@ -138,6 +138,12 @@ vmseries = {
 vmseries_common = {
   bootstrap_options = {
     mgmt-interface-swap = "enable"
+    plugin-op-commands  = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
+  }
+  subinterfaces = {
+    inbound  = "ethernet1/1.10"
+    outbound = "ethernet1/1.20"
+    eastwest = "ethernet1/1.30"
   }
 }
 vmseries_version = "10.2.2"

@@ -1,7 +1,25 @@
 module "bootstrap" {
-  source      = "../../modules/bootstrap"
-  prefix      = var.name_prefix
-  global_tags = var.global_tags
+  source             = "../../modules/bootstrap"
+  prefix             = var.name_prefix
+  global_tags        = var.global_tags
+  plugin-op-commands = local.plugin_op_commands_with_endpoints_mapping
+}
+
+locals {
+  subinterface_gwlb_endpoint_eastwest = join(",", compact(concat([
+    for k, v in module.gwlbe_eastwest.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterfaces.eastwest)
+  ])))
+  subinterface_gwlb_endpoint_outbound = join(",", compact(concat([
+    for k, v in module.gwlbe_outbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterfaces.outbound)
+  ])))
+  subinterface_gwlb_endpoint_inbound = join(",", compact(concat([
+    for k, v in module.app1_gwlbe_inbound.endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, var.vmseries_common.subinterfaces.inbound)
+  ])))
+  plugin_op_commands_with_endpoints_mapping = format("%s,%s,%s,%s", var.vmseries_common.bootstrap_options["plugin-op-commands"],
+  local.subinterface_gwlb_endpoint_eastwest, local.subinterface_gwlb_endpoint_outbound, local.subinterface_gwlb_endpoint_inbound)
+  bootstrap_options_with_endpoints_mapping = [
+    for k, v in var.vmseries_common.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping}"
+  ]
 }
 
 module "vmseries" {
@@ -28,8 +46,12 @@ module "vmseries" {
   }
 
   bootstrap_options = join(";", compact(concat(
+    ### first option - use init-cfg.txt created from template and stored in S3 bucket
     ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap.bucket_name}"],
     [for k, v in var.vmseries_common.bootstrap_options : "${k}=${v}"],
+
+    ### second option - add generated bootstrap settings directly to VM-Series in user data
+    # local.bootstrap_options_with_endpoints_mapping,
   )))
 
   iam_instance_profile = module.bootstrap.instance_profile_name
