@@ -1,59 +1,3 @@
-variable "region" {
-  description = "AWS region to use for the created resources."
-  default     = "us-east-1"
-  type        = string
-}
-
-variable "name_prefix" {
-  description = "Prefix used in resources created for tests"
-  default     = "test_vpc_route_"
-  type        = string
-}
-
-variable "security_vpc_cidr" {
-  description = "CIDR for VPC"
-  default     = "10.100.0.0/16"
-  type        = string
-}
-
-variable "security_vpc_subnets" {
-  description = "Map of subnets in VPC"
-  default = {
-    "10.100.0.0/24" = { az = "us-east-1a", set = "mgmt" }
-  }
-}
-
-variable "security_vpc_security_groups" {
-  description = "Map of security groups"
-  default = {
-    vmseries_mgmt = {
-      name = "vmseries_mgmt"
-      rules = {
-        all_outbound = {
-          description = "Permit ALL outbound"
-          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-          cidr_blocks = ["0.0.0.0/0"]
-        }
-        ssh = {
-          description = "Permit SSH inbound"
-          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-          cidr_blocks = ["0.0.0.0/0"]
-        }
-      }
-    }
-  }
-}
-
-variable "security_vpc_mgmt_routes_to_igw" {
-  description = "Simple list of CIDR for routes used for management"
-  default     = ["10.251.0.0/16", "10.252.0.0/16"]
-}
-
-variable "security_vpc_app_routes_to_igw" {
-  description = "Simple list of CIDR for routes used for access application"
-  default     = ["10.241.0.0/16", "10.242.0.0/16"]
-}
-
 locals {
   security_vpc_routes = concat(
     ### For testing purposes always next hop is IGW to limit time and costs of creating
@@ -138,12 +82,4 @@ module "security_vpc_routes" {
   destination_type       = try(each.value.destination_type, "ipv4")
   managed_prefix_list_id = try(each.value.managed_prefix_list_id, null)
   next_hop_set           = each.value.next_hop_set
-}
-
-output "routes_cidr" {
-  value = compact(flatten([for k, v in module.security_vpc_routes : [for i in v.route_details : i.cidr]]))
-}
-
-output "routes_mpl" {
-  value = compact(flatten([for k, v in module.security_vpc_routes : [for i in v.route_details : i.mpl]]))
 }
