@@ -58,7 +58,7 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 		case "ListLengthEqual":
 			outputValue := terraform.OutputList(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue))
-		// other case needs to be added, if approach will be accepted
+		// other case needs to be added while working on tests for modules
 		// ... TODO ...
 		default:
 			logger.Logf(t, "Unknown operation used in assert expressions list")
