@@ -21,6 +21,9 @@ variable "security_vpc_subnets" {
   default = {
     "10.100.0.0/24" = { az = "us-east-1a", set = "mgmt" }
     "10.100.1.0/24" = { az = "us-east-1a", set = "tgw_attach" }
+    "10.100.2.0/24" = { az = "us-east-1a", set = "natgw" }
+    "10.100.3.0/24" = { az = "us-east-1a", set = "gwlb" }
+    "10.100.4.0/24" = { az = "us-east-1a", set = "gwlbe_inbound" }
   }
 }
 
@@ -60,6 +63,16 @@ variable "security_vpc_app_routes_to_tgw" {
   default     = ["10.231.0.0/16", "10.232.0.0/16"]
 }
 
+variable "security_vpc_app_routes_to_natgw" {
+  description = "Simple list of CIDR for routes used for access application via NAT gateway"
+  default     = ["10.221.0.0/16"]
+}
+
+variable "security_vpc_app_routes_to_gwlb" {
+  description = "Simple list of CIDR for routes used for access application via NAT gateway"
+  default     = ["10.211.0.0/16"]
+}
+
 variable "transit_gateway_name" {
   default = "tgw"
 }
@@ -83,4 +96,11 @@ variable "transit_gateway_route_tables" {
 
 variable "security_vpc_tgw_attachment_name" {
   default = "tgw"
+}
+
+variable "gwlb_name" {
+  default = "security-gwlb"
+}
+variable "gwlb_endpoint_set_inbound_name" {
+  default = "inbound-gwlb-endpoint"
 }

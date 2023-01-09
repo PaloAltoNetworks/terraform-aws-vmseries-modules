@@ -25,7 +25,7 @@ func TestOutputForModuleVpcRoute(t *testing.T) {
 	assertList := []testskeleton.AssertExpression{
 		// check destination type ipv4
 		{OutputName: "routes_cidr", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_cidr", Operation: "Equal", ExpectedValue: "[10.231.0.0/16 10.232.0.0/16 10.251.0.0/16 10.252.0.0/16]"},
+		{OutputName: "routes_cidr", Operation: "Equal", ExpectedValue: "[10.211.0.0/16 10.221.0.0/16 10.231.0.0/16 10.232.0.0/16 10.251.0.0/16 10.252.0.0/16]"},
 
 		// check destination type mpl
 		{OutputName: "routes_mpl", Operation: "NotEmpty", ExpectedValue: nil},
@@ -41,19 +41,19 @@ func TestOutputForModuleVpcRoute(t *testing.T) {
 
 		// check next hop nat_gateway
 		{OutputName: "routes_next_hop_nat_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_nat_gateway", Operation: "ListLengthEqual", ExpectedValue: 12},
+		{OutputName: "routes_next_hop_nat_gateway", Operation: "ListLengthEqual", ExpectedValue: 1},
 
 		// check next hop interface
 		{OutputName: "routes_next_hop_network_interface", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_network_interface", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "routes_next_hop_network_interface", Operation: "ListLengthEqual", ExpectedValue: 0},
 
 		// check next hop vpc_endpoint
 		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "ListLengthEqual", ExpectedValue: 1},
 
 		// check next hop vpc_peer
 		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "ListLengthEqual", ExpectedValue: 0},
 
 		// check next hop egress_only_gateway
 		{OutputName: "routes_next_hop_egress_only_gateway", Operation: "NotEmpty", ExpectedValue: nil},

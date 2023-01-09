@@ -52,6 +52,9 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 		case "NotEmpty":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.NotEmpty(t, outputValue)
+		case "Empty":
+			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
+			assert.Empty(t, outputValue)
 		case "Equal":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, outputValue)
