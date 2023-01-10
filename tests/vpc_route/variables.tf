@@ -1,106 +1,86 @@
 variable "region" {
   description = "AWS region to use for the created resources."
-  default     = "us-east-1"
   type        = string
 }
 
 variable "name_prefix" {
   description = "Prefix used in resources created for tests"
-  default     = "test_vpc_route_"
   type        = string
 }
 
 variable "security_vpc_cidr" {
   description = "CIDR for VPC"
-  default     = "10.100.0.0/16"
   type        = string
 }
 
 variable "security_vpc_subnets" {
   description = "Map of subnets in VPC"
-  default = {
-    "10.100.0.0/24" = { az = "us-east-1a", set = "mgmt" }
-    "10.100.1.0/24" = { az = "us-east-1a", set = "tgw_attach" }
-    "10.100.2.0/24" = { az = "us-east-1a", set = "natgw" }
-    "10.100.3.0/24" = { az = "us-east-1a", set = "gwlb" }
-    "10.100.4.0/24" = { az = "us-east-1a", set = "gwlbe_inbound" }
-  }
 }
 
 variable "security_vpc_security_groups" {
   description = "Map of security groups"
-  default = {
-    vmseries_mgmt = {
-      name = "vmseries_mgmt"
-      rules = {
-        all_outbound = {
-          description = "Permit ALL outbound"
-          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-          cidr_blocks = ["0.0.0.0/0"]
-        }
-        ssh = {
-          description = "Permit SSH inbound"
-          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-          cidr_blocks = ["0.0.0.0/0"]
-        }
-      }
-    }
-  }
 }
 
 variable "security_vpc_mgmt_routes_to_igw" {
   description = "Simple list of CIDR for routes used for management"
-  default     = ["10.251.0.0/16", "10.252.0.0/16"]
 }
 
 variable "security_vpc_app_routes_to_igw" {
   description = "Simple list of CIDR for routes used for access application via IGW"
-  default     = ["10.241.0.0/16", "10.242.0.0/16"]
 }
 
 variable "security_vpc_app_routes_to_tgw" {
   description = "Simple list of CIDR for routes used for access application via TGW"
-  default     = ["10.231.0.0/16", "10.232.0.0/16"]
 }
 
 variable "security_vpc_app_routes_to_natgw" {
   description = "Simple list of CIDR for routes used for access application via NAT gateway"
-  default     = ["10.221.0.0/16"]
 }
 
 variable "security_vpc_app_routes_to_gwlb" {
   description = "Simple list of CIDR for routes used for access application via NAT gateway"
-  default     = ["10.211.0.0/16"]
+}
+
+variable "transit_gateway_create" {
+  description = "True if create transit gateway with attachment, false in other case"
+  type        = bool
 }
 
 variable "transit_gateway_name" {
-  default = "tgw"
+  description = "Transit gateway name"
+  type        = string
 }
 
 variable "transit_gateway_asn" {
-  default = "65200"
+  description = "Transit gateway ASN"
+  type        = string
 }
 
 variable "transit_gateway_route_tables" {
-  default = {
-    "from_security_vpc" = {
-      create = true
-      name   = "from_security"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "from_spokes"
-    }
-  }
+  description = "Transit gateway route tables"
 }
 
 variable "security_vpc_tgw_attachment_name" {
-  default = "tgw"
+  description = "Transit gateway VPC attachment name"
+  type        = string
+}
+
+variable "nat_gateway_create" {
+  description = "True if create NAT gateway, false in other case"
+  type        = bool
+}
+
+variable "gwlb_create" {
+  description = "True if create GWLB, false in other case"
+  type        = bool
 }
 
 variable "gwlb_name" {
-  default = "security-gwlb"
+  description = "Gatewate Load Balancer name"
+  type        = string
 }
+
 variable "gwlb_endpoint_set_inbound_name" {
-  default = "inbound-gwlb-endpoint"
+  description = "Gatewate Load Balancer endpoint name"
+  type        = string
 }

@@ -19,23 +19,23 @@ locals {
     [for cidr in var.security_vpc_app_routes_to_tgw :
       {
         subnet_key   = "mgmt"
-        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
+        next_hop_set = module.security_transit_gateway_attachment[0].next_hop_set
         to_cidr      = cidr
-      }
+      } if var.transit_gateway_create
     ],
     [for cidr in var.security_vpc_app_routes_to_natgw :
       {
         subnet_key   = "mgmt"
-        next_hop_set = module.natgw_set.next_hop_set
+        next_hop_set = module.natgw_set[0].next_hop_set
         to_cidr      = cidr
-      }
+      } if var.nat_gateway_create
     ],
     [for cidr in var.security_vpc_app_routes_to_gwlb :
       {
         subnet_key   = "mgmt"
-        next_hop_set = module.security_gwlb_endpoint_set.next_hop_set
+        next_hop_set = module.security_gwlb_endpoint_set[0].next_hop_set
         to_cidr      = cidr
-      }
+      } if var.gwlb_create
     ],
   )
 
@@ -117,6 +117,7 @@ resource "aws_ec2_managed_prefix_list" "this" {
 # Transit gateway and its attachments. TGW is used in one othe the configured VPC routes as next hop
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
+  count  = var.transit_gateway_create ? 1 : 0
 
   name         = "${var.name_prefix}${random_string.random_sufix.id}_${var.transit_gateway_name}"
   asn          = var.transit_gateway_asn
@@ -125,13 +126,14 @@ module "transit_gateway" {
 
 module "security_transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
+  count  = var.transit_gateway_create ? 1 : 0
 
   name                        = "${var.name_prefix}${random_string.random_sufix.id}_${var.security_vpc_tgw_attachment_name}"
   vpc_id                      = module.security_subnet_sets["tgw_attach"].vpc_id
   subnets                     = module.security_subnet_sets["tgw_attach"].subnets
-  transit_gateway_route_table = module.transit_gateway.route_tables["from_security_vpc"]
+  transit_gateway_route_table = module.transit_gateway[0].route_tables["from_security_vpc"]
   propagate_routes_to = {
-    to1 = module.transit_gateway.route_tables["from_spoke_vpc"].id
+    to1 = module.transit_gateway[0].route_tables["from_spoke_vpc"].id
   }
 }
 
@@ -139,6 +141,7 @@ module "security_transit_gateway_attachment" {
 module "natgw_set" {
   # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
   source = "../../modules/nat_gateway_set"
+  count  = var.nat_gateway_create ? 1 : 0
 
   nat_gateway_names = local.nat_gateway_names
   subnets           = module.security_subnet_sets["natgw"].subnets
@@ -147,6 +150,7 @@ module "natgw_set" {
 # GWLB and endpoint used in one othe the configured VPC routes as next hop
 module "security_gwlb" {
   source = "../../modules/gwlb"
+  count  = var.gwlb_create ? 1 : 0
 
   name    = "${random_string.random_sufix.id}-${var.gwlb_name}"
   vpc_id  = module.security_subnet_sets["gwlb"].vpc_id
@@ -157,9 +161,10 @@ module "security_gwlb" {
 
 module "security_gwlb_endpoint_set" {
   source = "../../modules/gwlb_endpoint_set"
+  count  = var.gwlb_create ? 1 : 0
 
   name              = "${var.name_prefix}${random_string.random_sufix.id}_${var.gwlb_endpoint_set_inbound_name}"
-  gwlb_service_name = module.security_gwlb.endpoint_service.service_name
+  gwlb_service_name = module.security_gwlb[0].endpoint_service.service_name
   vpc_id            = module.security_subnet_sets["gwlbe_inbound"].vpc_id
   subnets           = module.security_subnet_sets["gwlbe_inbound"].subnets
 }
