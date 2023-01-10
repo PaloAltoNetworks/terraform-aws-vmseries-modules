@@ -27,29 +27,9 @@ security_vpc_security_groups = {
   }
 }
 
-security_vpc_mgmt_routes_to_igw  = ["10.251.0.0/16", "10.252.0.0/16"]
-security_vpc_app_routes_to_igw   = ["10.241.0.0/16", "10.242.0.0/16"]
-security_vpc_app_routes_to_tgw   = ["10.231.0.0/16", "10.232.0.0/16"]
-security_vpc_app_routes_to_natgw = ["10.221.0.0/16"]
-security_vpc_app_routes_to_gwlb  = ["10.211.0.0/16"]
+security_vpc_mgmt_routes_to_igw = ["10.251.0.0/16", "10.252.0.0/16"]
+security_vpc_app_routes_to_igw  = ["10.241.0.0/16", "10.242.0.0/16"]
 
 transit_gateway_create = false
-transit_gateway_name   = "tgw"
-transit_gateway_asn    = "65200"
-transit_gateway_route_tables = {
-  "from_security_vpc" = {
-    create = true
-    name   = "from_security"
-  }
-  "from_spoke_vpc" = {
-    create = true
-    name   = "from_spokes"
-  }
-}
-security_vpc_tgw_attachment_name = "tgw"
-
-nat_gateway_create = false
-
-gwlb_create                    = false
-gwlb_name                      = "security-gwlb"
-gwlb_endpoint_set_inbound_name = "inbound-gwlb-endpoint"
+nat_gateway_create     = false
+gwlb_create            = false

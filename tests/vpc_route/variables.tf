@@ -31,14 +31,17 @@ variable "security_vpc_app_routes_to_igw" {
 
 variable "security_vpc_app_routes_to_tgw" {
   description = "Simple list of CIDR for routes used for access application via TGW"
+  default     = []
 }
 
 variable "security_vpc_app_routes_to_natgw" {
   description = "Simple list of CIDR for routes used for access application via NAT gateway"
+  default     = []
 }
 
 variable "security_vpc_app_routes_to_gwlb" {
   description = "Simple list of CIDR for routes used for access application via NAT gateway"
+  default     = []
 }
 
 variable "transit_gateway_create" {
@@ -48,20 +51,24 @@ variable "transit_gateway_create" {
 
 variable "transit_gateway_name" {
   description = "Transit gateway name"
+  default     = null
   type        = string
 }
 
 variable "transit_gateway_asn" {
   description = "Transit gateway ASN"
+  default     = null
   type        = string
 }
 
 variable "transit_gateway_route_tables" {
   description = "Transit gateway route tables"
+  default     = null
 }
 
 variable "security_vpc_tgw_attachment_name" {
   description = "Transit gateway VPC attachment name"
+  default     = null
   type        = string
 }
 
@@ -77,10 +84,12 @@ variable "gwlb_create" {
 
 variable "gwlb_name" {
   description = "Gatewate Load Balancer name"
+  default     = null
   type        = string
 }
 
 variable "gwlb_endpoint_set_inbound_name" {
   description = "Gatewate Load Balancer endpoint name"
+  default     = null
   type        = string
 }
