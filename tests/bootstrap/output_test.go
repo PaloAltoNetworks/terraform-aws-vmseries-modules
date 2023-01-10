@@ -16,12 +16,10 @@ func TestOutputWhileCreatingIamRoleForBootstrapModule(t *testing.T) {
 	// given
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
-		Vars: map[string]interface{}{
-			"switchme": false,
-		},
-		Logger:  logger.Discard,
-		Lock:    true,
-		Upgrade: true,
+		Vars:         map[string]interface{}{},
+		Logger:       logger.Discard,
+		Lock:         true,
+		Upgrade:      true,
 	})
 	defer terraform.Destroy(t, terraformOptions)
 
@@ -42,7 +40,6 @@ func TestErrorWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		Vars: map[string]interface{}{
-			"switchme":               false,
 			"create_iam_role_policy": false,
 		},
 		Logger:  logger.Discard,
@@ -70,7 +67,6 @@ func TestOutputWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		Vars: map[string]interface{}{
-			"switchme":               false,
 			"create_iam_role_policy": false,
 			"iam_role_name":          iamRoleNameCreatedForTests,
 		},
@@ -97,7 +93,6 @@ func TestErrorWhileProvidingInvalidDhcpSettingsForBootstrapModule(t *testing.T) 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		Vars: map[string]interface{}{
-			"switchme":                    false,
 			"dhcp_send_hostname":          "invalid",
 			"dhcp_send_client_id":         "invalid",
 			"dhcp_accept_server_hostname": "invalid",
