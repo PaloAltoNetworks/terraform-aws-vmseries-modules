@@ -66,7 +66,54 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue), assertExpression.Message)
 		case "StartsWith":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
-			assert.True(t, strings.HasPrefix(outputValue, fmt.Sprintf("%v", assertExpression.ExpectedValue)), assertExpression.Message)
+			assert.True(t, strings.HasPrefix(outputValue,
+				fmt.Sprintf("%v", assertExpression.ExpectedValue)),
+				assertExpression.Message)
+		// other case needs to be added while working on tests for modules
+		// ... TODO ...
+		default:
+			logger.Logf(t, "Unknown operation used in assert expressions list")
+			t.Fail()
+		}
+	}
+}
+
+// Functions is response for planning deployment,
+// verify errors expressions (no changes are deployed)
+func PlanInfraCheckErrors(t *testing.T, terraformOptions *terraform.Options,
+	assertList []AssertExpression, noErrorsMessage string) *terraform.Options {
+	// If no Terraform options were provided, use default one
+	if terraformOptions == nil {
+		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+			TerraformDir: ".",
+			Logger:       logger.Default,
+			Lock:         true,
+			Upgrade:      true,
+		})
+	}
+
+	// Terraform initalization and plan
+	if _, err := terraform.InitAndPlanE(t, terraformOptions); err != nil {
+		// Verify errors and compare to expected results
+		assert.Error(t, err)
+		AssertErrors(t, err, assertList)
+	} else {
+		// Fail test, because error was expected
+		t.Error(noErrorsMessage)
+	}
+
+	return terraformOptions
+}
+
+// Function is comparing every provided error in expressions lists
+// and checks value using expression defined in the list
+func AssertErrors(t *testing.T, err error, assertList []AssertExpression) {
+	for _, assertExpression := range assertList {
+		switch assertExpression.Operation {
+		case "ErrorContains":
+			assert.ErrorContains(t, err,
+				fmt.Sprintf("%v", assertExpression.ExpectedValue),
+				assertExpression.Message)
 		// other case needs to be added while working on tests for modules
 		// ... TODO ...
 		default:
