@@ -1,6 +1,8 @@
 package testskeleton
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/logger"
@@ -14,6 +16,7 @@ type AssertExpression struct {
 	OutputName    string
 	Operation     string
 	ExpectedValue interface{}
+	Message       string
 }
 
 // Function is responsible for deploy infrastructure,
@@ -51,16 +54,19 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 		switch assertExpression.Operation {
 		case "NotEmpty":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
-			assert.NotEmpty(t, outputValue)
+			assert.NotEmpty(t, outputValue, assertExpression.Message)
 		case "Empty":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
-			assert.Empty(t, outputValue)
+			assert.Empty(t, outputValue, assertExpression.Message)
 		case "Equal":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
-			assert.Equal(t, assertExpression.ExpectedValue, outputValue)
+			assert.Equal(t, assertExpression.ExpectedValue, outputValue, assertExpression.Message)
 		case "ListLengthEqual":
 			outputValue := terraform.OutputList(t, terraformOptions, assertExpression.OutputName)
-			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue))
+			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue), assertExpression.Message)
+		case "StartsWith":
+			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
+			assert.True(t, strings.HasPrefix(outputValue, fmt.Sprintf("%v", assertExpression.ExpectedValue)), assertExpression.Message)
 		// other case needs to be added while working on tests for modules
 		// ... TODO ...
 		default:
