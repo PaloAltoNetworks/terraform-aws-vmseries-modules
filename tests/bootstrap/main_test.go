@@ -25,40 +25,61 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		// check role name
-		{OutputName: "iam_role_name", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "iam_role_name", Operation: "StartsWith", ExpectedValue: "a", Message: "Role name should start from a"},
+		{
+			OutputName:    "iam_role_name",
+			Operation:     "NotEmpty",
+			ExpectedValue: nil,
+		},
+		{
+			OutputName:    "iam_role_name",
+			Operation:     "StartsWith",
+			ExpectedValue: "a",
+			Message:       "Role name should start from a",
+		},
 
 		// check role ARN
-		{OutputName: "iam_role_arn", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "iam_role_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:iam::", Message: "Role ARN should start from arn:aws:iam::"},
+		{
+			OutputName:    "iam_role_arn",
+			Operation:     "NotEmpty",
+			ExpectedValue: nil,
+		},
+		{
+			OutputName:    "iam_role_arn",
+			Operation:     "StartsWith",
+			ExpectedValue: "arn:aws:iam::",
+			Message:       "Role ARN should start from arn:aws:iam::",
+		},
 	}
 
 	// deploy test infrastructure and verify outputs
 	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
 }
 
-// func TestErrorForModuleBootstrapWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(t *testing.T) {
-// 	// given
-// 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-// 		TerraformDir: ".",
-// 		Vars: map[string]interface{}{
-// 			"switchme":               false,
-// 			"create_iam_role_policy": false,
-// 		},
-// 		Logger:  logger.Discard,
-// 		Lock:    true,
-// 		Upgrade: true,
-// 	})
+func TestErrorForModuleBootstrapWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(t *testing.T) {
+	// define options for Terraform
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: ".",
+		Vars: map[string]interface{}{
+			"create_iam_role_policy": false,
+		},
+		Logger:               logger.Discard,
+		Lock:                 true,
+		Upgrade:              true,
+		SetVarsAfterVarFiles: true,
+	})
 
-// 	// when
-// 	if _, err := terraform.InitAndPlanE(t, terraformOptions); err != nil {
-// 		// then
-// 		assert.Error(t, err)
-// 	} else {
-// 		// then
-// 		t.Error("Expecting error: data.aws_iam_role.this is empty tuple")
-// 	}
-// }
+	// prepare list of items to check
+	assertList := []testskeleton.AssertExpression{
+		{
+			Operation:     "ErrorContains",
+			ExpectedValue: "minimum field size of 1, GetRoleInput.RoleName",
+			Message:       "Minimum size of IAM role name should be 1",
+		},
+	}
+
+	// deploy test infrastructure and verify outputs
+	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "Expecting error with invalid IAM role")
+}
 
 func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *testing.T) {
 	// define options for Terraform
@@ -83,40 +104,57 @@ func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		// check role name
-		{OutputName: "iam_role_name", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "iam_role_name", Operation: "Equal", ExpectedValue: iamRoleNameCreatedForTests, Message: "Role name is different from expected one"},
+		{
+			OutputName:    "iam_role_name",
+			Operation:     "NotEmpty",
+			ExpectedValue: nil,
+		},
+		{
+			OutputName:    "iam_role_name",
+			Operation:     "Equal",
+			ExpectedValue: iamRoleNameCreatedForTests,
+			Message:       "Role name is different from expected one",
+		},
 
 		// check role ARN
 		{OutputName: "iam_role_arn", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "iam_role_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:iam::", Message: "Role ARN should start from arn:aws:iam::"},
+		{
+			OutputName:    "iam_role_arn",
+			Operation:     "StartsWith",
+			ExpectedValue: "arn:aws:iam::",
+			Message:       "Role ARN should start from arn:aws:iam::",
+		},
 	}
 
 	// deploy test infrastructure and verify outputs
 	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
 }
 
-// func TestErrorForModuleBootstrapWhileProvidingInvalidDhcpSettingsForBootstrapModule(t *testing.T) {
-// 	// given
-// 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-// 		TerraformDir: ".",
-// 		Vars: map[string]interface{}{
-// 			"switchme":                    false,
-// 			"dhcp_send_hostname":          "invalid",
-// 			"dhcp_send_client_id":         "invalid",
-// 			"dhcp_accept_server_hostname": "invalid",
-// 			"dhcp_accept_server_domain":   "invalid",
-// 		},
-// 		Logger:  logger.Discard,
-// 		Lock:    true,
-// 		Upgrade: true,
-// 	})
+func TestErrorForModuleBootstrapWhileProvidingInvalidDhcpSettingsForBootstrapModule(t *testing.T) {
+	// define options for Terraform
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: ".",
+		Vars: map[string]interface{}{
+			"dhcp_send_hostname":          "invalid",
+			"dhcp_send_client_id":         "invalid",
+			"dhcp_accept_server_hostname": "invalid",
+			"dhcp_accept_server_domain":   "invalid",
+		},
+		Logger:               logger.Discard,
+		Lock:                 true,
+		Upgrade:              true,
+		SetVarsAfterVarFiles: true,
+	})
 
-// 	// when
-// 	if _, err := terraform.InitAndPlanE(t, terraformOptions); err != nil {
-// 		// then
-// 		assert.Error(t, err)
-// 	} else {
-// 		// then
-// 		t.Error("Expecting errors with DHCP settings")
-// 	}
-// }
+	// prepare list of items to check
+	assertList := []testskeleton.AssertExpression{
+		{
+			Operation:     "ErrorContains",
+			ExpectedValue: "The DHCP server determines a value of yes or no for variable",
+			Message:       "The DHCP option's value should be yes or no",
+		},
+	}
+
+	// deploy test infrastructure and verify outputs
+	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "Expecting errors with DHCP settings")
+}
