@@ -27,11 +27,12 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		// // check Panorama URL
+		// check Panorama URL
 		{
 			OutputName: "panorama_url",
 			Operation:  "NotEmpty",
 		},
+		// check access to login page in web UI for Panorama
 		{
 			Operation: "CheckFunction",
 			Check:     CheckHttpGetWebUiLoginPage,
@@ -86,7 +87,7 @@ func TestOutputForModulePanoramaWithMinimumVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		// // check Panorama URL
+		// check Panorama URL
 		{
 			OutputName: "panorama_url",
 			Operation:  "NotEmpty",
