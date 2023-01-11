@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Sometimes there is a need to execute custom function to check something,
+// so then in assert expression we need to provide function, which results is compared to true
+type CheckFunction func(t *testing.T, terraformOptions *terraform.Options) bool
+
 // Structure used to assert each output value
 // by comparing it to expected value using defined operation.
 type AssertExpression struct {
@@ -17,6 +21,7 @@ type AssertExpression struct {
 	Operation     string
 	ExpectedValue interface{}
 	Message       string
+	Check         CheckFunction
 }
 
 // Function is responsible for deploy infrastructure,
@@ -69,6 +74,8 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 			assert.True(t, strings.HasPrefix(outputValue,
 				fmt.Sprintf("%v", assertExpression.ExpectedValue)),
 				assertExpression.Message)
+		case "CheckFunction":
+			assert.True(t, assertExpression.Check(t, terraformOptions), assertExpression.Message)
 		// other case needs to be added while working on tests for modules
 		// ... TODO ...
 		default:
