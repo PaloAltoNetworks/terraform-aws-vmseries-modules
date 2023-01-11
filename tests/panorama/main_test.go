@@ -17,7 +17,7 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_full.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_vpc_route_",
+			"name_prefix": "terratest_module_panorama_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
@@ -76,7 +76,7 @@ func TestOutputForModulePanoramaWithMinimumVariables(t *testing.T) {
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_minimum.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_vpc_route_",
+			"name_prefix": "terratest_module_panorama_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,

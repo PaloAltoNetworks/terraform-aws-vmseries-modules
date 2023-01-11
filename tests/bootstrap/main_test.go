@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"fmt"
 	"math/rand"
+	"net/http"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir:         ".",
 		Vars:                 map[string]interface{}{},
-		Logger:               logger.Discard,
+		Logger:               logger.Default,
 		Lock:                 true,
 		Upgrade:              true,
 		SetVarsAfterVarFiles: true,
@@ -26,9 +27,8 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 	assertList := []testskeleton.AssertExpression{
 		// check role name
 		{
-			OutputName:    "iam_role_name",
-			Operation:     "NotEmpty",
-			ExpectedValue: nil,
+			OutputName: "iam_role_name",
+			Operation:  "NotEmpty",
 		},
 		{
 			OutputName:    "iam_role_name",
@@ -39,9 +39,8 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 
 		// check role ARN
 		{
-			OutputName:    "iam_role_arn",
-			Operation:     "NotEmpty",
-			ExpectedValue: nil,
+			OutputName: "iam_role_arn",
+			Operation:  "NotEmpty",
 		},
 		{
 			OutputName:    "iam_role_arn",
@@ -49,10 +48,30 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 			ExpectedValue: "arn:aws:iam::",
 			Message:       "Role ARN should start from arn:aws:iam::",
 		},
+
+		// check access to S3 bucket with bootstrap files
+		{
+			Operation: "CheckFunction",
+			Check:     CheckHttpGetS3BucketBootstrapFile,
+			Message:   "HTTP response code > 401 expected while accessing S3 bucket with bootstrap files",
+		},
 	}
 
 	// deploy test infrastructure and verify outputs
 	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+}
+
+// CheckBucketHttpGet checks whether the Bucket's HTTP response code is greater than 401 (expected forbidden access)
+// It requires Internet connectivity to AWS S3.
+// CheckHttpGetS3BucketBootstrapFile is compatible with the specification testskeleton.CheckFunction.
+func CheckHttpGetS3BucketBootstrapFile(t *testing.T, terraformOptions *terraform.Options) bool {
+	resp, err := http.Get("https://" + terraform.Output(t, terraformOptions, "bucket_domain_name"))
+	if err != nil {
+		t.Errorf("Error S3 HTTP GET: %v\n", err)
+		return false
+	}
+	t.Logf("S3 HTTP GET status code: %v", resp.StatusCode)
+	return resp.StatusCode > 401
 }
 
 func TestErrorForModuleBootstrapWhileNotCreatingIamRoleAndNotPassingIamRoleNameForBootstrapModule(t *testing.T) {
@@ -95,7 +114,7 @@ func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *
 			"create_iam_role_policy": false,
 			"iam_role_name":          iamRoleNameCreatedForTests,
 		},
-		Logger:               logger.Discard,
+		Logger:               logger.Default,
 		Lock:                 true,
 		Upgrade:              true,
 		SetVarsAfterVarFiles: true,
@@ -105,9 +124,8 @@ func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *
 	assertList := []testskeleton.AssertExpression{
 		// check role name
 		{
-			OutputName:    "iam_role_name",
-			Operation:     "NotEmpty",
-			ExpectedValue: nil,
+			OutputName: "iam_role_name",
+			Operation:  "NotEmpty",
 		},
 		{
 			OutputName:    "iam_role_name",
