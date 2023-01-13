@@ -22,5 +22,5 @@ variable "transit_gateway_asn" {
 
 variable "transit_gateway_route_tables" {
   description = "Transit gateway route tables"
-  default     = { }
+  default     = {}
 }
