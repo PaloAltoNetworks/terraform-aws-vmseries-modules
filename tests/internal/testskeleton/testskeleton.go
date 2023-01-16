@@ -66,6 +66,11 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 		case "Equal":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, outputValue, assertExpression.Message)
+		case "NotFound":
+			_, err := terraform.OutputE(t, terraformOptions, assertExpression.OutputName)
+			assert.ErrorContains(t, err,
+				fmt.Sprintf("Output \"%v\" not found", assertExpression.OutputName),
+				assertExpression.Message)
 		case "ListLengthEqual":
 			outputValue := terraform.OutputList(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue), assertExpression.Message)
