@@ -3,21 +3,25 @@ package vpc_plan
 import (
 	"testing"
 
+	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/testskeleton"
+	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestVPCPlan(t *testing.T) {
-	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
-	// terraform testing.
+func TestNoErrorInPlanForModuleVpc(t *testing.T) {
+	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		// The path to where our Terraform code is located
-		TerraformDir: ".",
+		TerraformDir:         ".",
+		Vars:                 map[string]interface{}{},
+		Logger:               logger.Default,
+		Lock:                 true,
+		Upgrade:              true,
+		SetVarsAfterVarFiles: true,
 	})
 
-	// Schedule `terraform destroy` at the end of the test, to clean up the created resources.
-	defer terraform.Destroy(t, terraformOptions)
+	// prepare list of items to check
+	assertList := []testskeleton.AssertExpression{}
 
-	// This will run `terraform init` and `terraform plan` and fail the test if there are any errors.
-	// This specific test is not intended to execute `terraform apply` at all.
-	terraform.InitAndPlan(t, terraformOptions)
+	// deploy test infrastructure and verify outputs
+	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "No errors are expected")
 }

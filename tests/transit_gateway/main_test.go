@@ -1,4 +1,4 @@
-package bootstrap
+package transit_gateway
 
 import (
 	"testing"

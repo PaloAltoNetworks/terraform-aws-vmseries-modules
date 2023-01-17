@@ -1,4 +1,4 @@
-package bootstrap
+package transit_gateway_peering
 
 import (
 	"testing"
