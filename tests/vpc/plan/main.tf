@@ -48,7 +48,7 @@ locals {
 ### The code under test. ###
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true
@@ -74,7 +74,7 @@ module "vpc" {
 # Below replace each "true" with "false", one by one. It should detect unwanted dependencies.
 
 module "vpc_novgw" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true
@@ -96,7 +96,7 @@ module "vpc_novgw" {
 }
 
 module "vpc_noigw" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true
@@ -119,7 +119,7 @@ module "vpc_noigw" {
 }
 
 module "vpc_useigw" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true
@@ -142,7 +142,7 @@ module "vpc_useigw" {
 }
 
 module "novpc" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = false # the change
@@ -164,7 +164,7 @@ module "novpc" {
 # For the known values that are lists or maps, check if they can be empty, one by one.
 
 module "vpc_nosg" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true
@@ -186,7 +186,7 @@ module "vpc_nosg" {
 }
 
 module "vpc_noseccidr" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   # Inputs that cannot handle unknown values.
   create_vpc              = true

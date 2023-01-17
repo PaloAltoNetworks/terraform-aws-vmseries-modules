@@ -1,4 +1,4 @@
-package bootstrap
+package vpc_route
 
 import (
 	"testing"

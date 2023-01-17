@@ -82,6 +82,11 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 		case "Equal":
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, outputValue, assertExpression.Message)
+		case "NotFound":
+			_, err := terraform.OutputE(t, terraformOptions, assertExpression.OutputName)
+			assert.ErrorContains(t, err,
+				fmt.Sprintf("Output \"%v\" not found", assertExpression.OutputName),
+				assertExpression.Message)
 		case "ListLengthEqual":
 			outputValue := terraform.OutputList(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue), assertExpression.Message)
@@ -127,26 +132,11 @@ func PlanInfraCheckErrors(t *testing.T, terraformOptions *terraform.Options,
 		assert.Error(t, err)
 		AssertErrors(t, err, assertList)
 	} else {
-		// Fail test, because error was expected
-		t.Error(noErrorsMessage)
+		// Fail test, if errors were expected
+		if len(assertList) > 0 {
+			t.Error(noErrorsMessage)
+		}
 	}
-
-	return terraformOptions
-}
-
-func InitAndApplyOnlyWithoutDelete(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
-	// If no Terraform options were provided, use default one
-	if terraformOptions == nil {
-		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-			TerraformDir: ".",
-			Logger:       logger.Default,
-			Lock:         true,
-			Upgrade:      true,
-		})
-	}
-
-	// Terraform initalization and apply with auto-approve
-	terraform.InitAndApply(t, terraformOptions)
 
 	return terraformOptions
 }
@@ -168,4 +158,21 @@ func AssertErrors(t *testing.T, err error, assertList []AssertExpression) {
 			t.Fail()
 		}
 	}
+}
+
+func InitAndApplyOnlyWithoutDelete(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
+	// If no Terraform options were provided, use default one
+	if terraformOptions == nil {
+		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+			TerraformDir: ".",
+			Logger:       logger.Default,
+			Lock:         true,
+			Upgrade:      true,
+		})
+	}
+
+	// Terraform initalization and apply with auto-approve
+	terraform.InitAndApply(t, terraformOptions)
+
+	return terraformOptions
 }

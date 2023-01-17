@@ -1,12 +1,13 @@
 package main
 
 import (
+	"log"
+	"testing"
+
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/helpers"
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"log"
-	"testing"
 )
 
 func TestALBOutputAndConectivitiyWithFullTFVars(t *testing.T) {
@@ -51,7 +52,7 @@ func TestALBOutputAndConectivitiyWithFullTFVars(t *testing.T) {
 		// check communication with app
 		{
 			Operation:   "CheckFunctionWithValue",
-			Check:       helpers.CheckHttpGetWebUiLoginPage,
+			Check:       helpers.CheckHttpGetWebApp,
 			TestedValue: "http://" + albName + "/",
 		},
 	}
