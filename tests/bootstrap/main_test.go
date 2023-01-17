@@ -51,9 +51,10 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 
 		// check access to S3 bucket with bootstrap files
 		{
-			Operation: "CheckFunction",
-			Check:     CheckHttpGetS3BucketBootstrapFile,
-			Message:   "HTTP response code > 401 expected while accessing S3 bucket with bootstrap files",
+			Operation:  "CheckFunctionWithOutput",
+			Check:      CheckHttpGetS3BucketBootstrapFile,
+			OutputName: "bucket_domain_name",
+			Message:    "HTTP response code > 401 expected while accessing S3 bucket with bootstrap files",
 		},
 	}
 
@@ -64,8 +65,8 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 // CheckBucketHttpGet checks whether the Bucket's HTTP response code is greater than 401 (expected forbidden access)
 // It requires Internet connectivity to AWS S3.
 // CheckHttpGetS3BucketBootstrapFile is compatible with the specification testskeleton.CheckFunction.
-func CheckHttpGetS3BucketBootstrapFile(t *testing.T, terraformOptions *terraform.Options) bool {
-	resp, err := http.Get("https://" + terraform.Output(t, terraformOptions, "bucket_domain_name"))
+func CheckHttpGetS3BucketBootstrapFile(t *testing.T, outputValue string) bool {
+	resp, err := http.Get("https://" + outputValue)
 	if err != nil {
 		t.Errorf("Error S3 HTTP GET: %v\n", err)
 		return false
