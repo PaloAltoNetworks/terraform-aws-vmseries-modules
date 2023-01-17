@@ -20,7 +20,7 @@ module "security_subnet_sets" {
   name                = each.key
   vpc_id              = module.security_vpc.id
   has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
-  cidrs               = {for k, v in var.security_vpc_subnets : k => v if v.set == each.key}
+  cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
 }
 
 locals {
@@ -48,12 +48,12 @@ module "security_vpc_routes" {
 module "public_alb" {
   source = "../../modules/alb"
 
-  lb_name         = replace("${var.name_prefix}${var.application_lb_name}", "_","-")
-  subnets         = {for k, v in module.security_subnet_sets["app_vm"].subnets : k => { id = v.id }}
+  lb_name         = replace("${var.name_prefix}${var.application_lb_name}", "_", "-")
+  subnets         = { for k, v in module.security_subnet_sets["app_vm"].subnets : k => { id = v.id } }
   vpc_id          = module.security_vpc.id
   security_groups = [module.security_vpc.security_group_ids["app_vm"]]
   rules           = var.application_lb_rules
-  targets         = {for k, v in var.app_vms : k => aws_instance.app_vm[k].private_ip}
+  targets         = { for k, v in var.app_vms : k => aws_instance.app_vm[k].private_ip }
 
   tags = var.global_tags
 }

@@ -169,12 +169,12 @@ resource "aws_s3_bucket_policy" "this" {
 
 resource "aws_security_group_rule" "alb_att" {
 
-  from_port         = 0
-  protocol          = "all"
+  from_port                = 0
+  protocol                 = "all"
   source_security_group_id = var.security_groups[0]
-  security_group_id = var.security_groups[0]
-  to_port           = 0
-  type              = "ingress"
+  security_group_id        = var.security_groups[0]
+  to_port                  = 0
+  type                     = "ingress"
 }
 
 # ## Application Load Balancer ##

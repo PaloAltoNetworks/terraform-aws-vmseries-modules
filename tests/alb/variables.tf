@@ -25,7 +25,7 @@ variable "security_vpc_security_groups" {
 
 variable "application_lb_rules" {
   description = "A map of rules for the Application Load Balancer. See [modules documentation](../../modules/alb/README.md) for details."
-  default = {}
+  default     = {}
   type        = any
 }
 
@@ -52,7 +52,7 @@ variable "app_vms" {
   }
   ```
   EOF
-  default = {}
+  default     = {}
   type        = map(any)
 }
 

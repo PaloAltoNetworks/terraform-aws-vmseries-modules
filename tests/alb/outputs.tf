@@ -3,5 +3,5 @@ output "alb_name" {
 }
 
 output "vms_public_ips" {
-  value = [ for k, v in var.app_vms : aws_instance.app_vm[k].public_ip ]
+  value = [for k, v in var.app_vms : aws_instance.app_vm[k].public_ip]
 }
