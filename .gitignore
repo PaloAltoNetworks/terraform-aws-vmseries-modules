@@ -32,7 +32,7 @@
 .terragrunt-cache
 .vscode
 .idea
-
+**/test_report.html
 # Palo auth codes
 authcodes
 # Crash log files

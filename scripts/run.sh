@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # run.sh - Run the usual pre-commit checks.
 
