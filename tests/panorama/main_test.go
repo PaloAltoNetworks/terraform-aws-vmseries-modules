@@ -1,14 +1,11 @@
 package bootstrap
 
 import (
-	"crypto/tls"
-	"net/http"
-	"testing"
-	"time"
-
+	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/helpers"
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"testing"
 )
 
 func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
@@ -34,41 +31,15 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 		},
 		// check access to login page in web UI for Panorama
 		{
-			Operation: "CheckFunction",
-			Check:     CheckHttpGetWebUiLoginPage,
-			Message:   "After bootstrapping, which takes few minutes, web UI for Panorama should be accessible",
+			Operation:  "CheckFunctionWithOutput",
+			Check:      helpers.CheckHttpGetWebUiLoginPage,
+			OutputName: "panorama_url",
+			Message:    "After bootstrapping, which takes few minutes, web UI for Panorama should be accessible",
 		},
 	}
 
 	// deploy test infrastructure and verify outputs
 	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
-}
-
-func CheckHttpGetWebUiLoginPage(t *testing.T, terraformOptions *terraform.Options) bool {
-	// Do not verify insecure connection
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	// Define how many retries and how often to do in order to check if Panorama web UI is healthy
-	sleepBetweenRetry := 15 * time.Second
-	numberOfRetries := 60
-	panoramaHealthy := false
-	panoramaUrl := terraform.Output(t, terraformOptions, "panorama_url")
-
-	// Check in the loop if Panorama web UI is healthy
-	for i := 1; i <= numberOfRetries && !panoramaHealthy; i++ {
-		// HTTP GET for login page
-		time.Sleep(sleepBetweenRetry)
-		resp, err := http.Get(panoramaUrl + "/php/login.php")
-
-		// Display errors, if there were any, or HTTPS status code, if no errors
-		if err != nil {
-			t.Logf("Waiting for Panorama (%d/%d)... error HTTP GET: %v\n", i, numberOfRetries, err)
-		} else {
-			t.Logf("Panorama Web UI HTTP GET status code: %v", resp.StatusCode)
-			panoramaHealthy = resp.StatusCode == 200
-		}
-	}
-	return panoramaHealthy
 }
 
 func TestOutputForModulePanoramaWithMinimumVariables(t *testing.T) {

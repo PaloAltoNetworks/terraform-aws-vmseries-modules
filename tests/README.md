@@ -12,10 +12,16 @@ go get -u github.com/gruntwork-io/terratest
 4. Execute test for module using commands e.g for ``bootstrap`` module:
 ```bash
 cd tests/bootstrap
-go test -v -timeout 90m -count=1
+go test -v -timeout 30m -count=1
 ```
 
+Run all test:
+
+```bash
+go test -timeout 130m ./... -json | go-test-report
+```
 Comments:
 * Do not however run `go test -v .` or similar. Specifying a package (that extra dot) enables caching, which is incompatible with Terraform.
+* We use go-test-report to create html reports for tests, check https://github.com/vakenbolt/go-test-report for more information
 * Cloud resources are destroyed automatically after the test, no cleanup is normally required.
 * VScode users should keep `Go: Test On Save` at the default false value, and not set to true. This option is spelled `go.testOnSave` in settings.json.

@@ -1,6 +1,6 @@
 output "panorama_url" {
   description = "Panorama instance URL."
-  value       = "https://${module.panorama.mgmt_ip_public_address}"
+  value       = "https://${module.panorama.mgmt_ip_public_address}/php/login.php"
 }
 
 output "panorama_private_ip" {
