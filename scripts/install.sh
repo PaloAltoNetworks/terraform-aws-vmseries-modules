@@ -38,4 +38,3 @@ echo "Also, the newest release: $(curl -s https://api.github.com/repos/tfsec/tfs
 echo "Also, the newest release: $(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")"
 
 python3 -m pip install -r requirements.txt
-
