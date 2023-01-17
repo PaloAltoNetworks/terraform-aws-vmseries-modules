@@ -1,11 +1,12 @@
 package bootstrap
 
 import (
+	"testing"
+
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/helpers"
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"testing"
 )
 
 func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
@@ -32,7 +33,7 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 		// check access to login page in web UI for Panorama
 		{
 			Operation:  "CheckFunctionWithOutput",
-			Check:      helpers.CheckHttpGetWebUiLoginPage,
+			Check:      helpers.CheckHttpGetWebApp,
 			OutputName: "panorama_url",
 			Message:    "After bootstrapping, which takes few minutes, web UI for Panorama should be accessible",
 		},
