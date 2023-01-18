@@ -47,13 +47,21 @@ resource "aws_eip" "this" {
   tags = merge(var.global_tags, { Name = var.name })
 }
 
+# Retrieve KMS key for EBS encryption - key_id can be in 4 formats: key ID, key ARN, alias name or alias ARN.
+# In order to not force replacement of aws_ebs_volume, because in Terraform state kms_key_id is stored
+# in key ID format, we are retreving KMS key. Attribute arn from data source is always key ARN required in aws_ebs_volume.
+data "aws_kms_key" "current_arn" {
+  count = var.ebs_kms_key_alias != null ? 1 : 0
+  key_id = var.ebs_kms_key_alias
+}
+
 resource "aws_ebs_volume" "this" {
   for_each = { for k, v in var.ebs_volumes : k => v }
 
   availability_zone = var.availability_zone
   size              = try(each.value.ebs_size, "2000")
   encrypted         = try(each.value.ebs_encrypted, false)
-  kms_key_id        = try(var.ebs_kms_key_alias, null)
+  kms_key_id        = try(data.aws_kms_key.current_arn[0].arn, null)
 
   tags = merge(var.global_tags, { Name = try(each.value.name, var.name) })
 }
