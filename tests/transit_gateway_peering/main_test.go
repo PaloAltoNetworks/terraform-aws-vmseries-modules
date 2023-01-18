@@ -43,8 +43,8 @@ func TestOutputForModuleTransitGatewayPeeringFullVariables(t *testing.T) {
 		{OutputName: "route_destination_from_local_security_to_remote_region", Operation: "Equal", ExpectedValue: "10.244.0.0/16"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestOutputForModuleTransitGatewayPeeringMinimumVariables(t *testing.T) {
@@ -82,6 +82,6 @@ func TestOutputForModuleTransitGatewayPeeringMinimumVariables(t *testing.T) {
 		{OutputName: "route_destination_from_local_security_to_remote_region", Operation: "Equal", ExpectedValue: "10.244.0.0/16"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }

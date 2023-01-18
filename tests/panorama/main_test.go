@@ -39,8 +39,8 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 		},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestOutputForModulePanoramaWithMinimumVariables(t *testing.T) {

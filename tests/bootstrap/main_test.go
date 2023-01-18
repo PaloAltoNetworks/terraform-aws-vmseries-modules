@@ -58,8 +58,8 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 		},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and verify no changes are required after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 // CheckBucketHttpGet checks whether the Bucket's HTTP response code is greater than 401 (expected forbidden access)
@@ -97,7 +97,7 @@ func TestErrorForModuleBootstrapWhileNotCreatingIamRoleAndNotPassingIamRoleNameF
 		},
 	}
 
-	// deploy test infrastructure and verify outputs
+	// plan only infrastructure to check if there are errors
 	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "Expecting error with invalid IAM role")
 }
 
@@ -145,8 +145,8 @@ func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *
 		},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and verify no changes are required after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestErrorForModuleBootstrapWhileProvidingInvalidDhcpSettingsForBootstrapModule(t *testing.T) {
@@ -174,6 +174,6 @@ func TestErrorForModuleBootstrapWhileProvidingInvalidDhcpSettingsForBootstrapMod
 		},
 	}
 
-	// deploy test infrastructure and verify outputs
+	// plan only infrastructure to check if there are errors
 	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "Expecting errors with DHCP settings")
 }

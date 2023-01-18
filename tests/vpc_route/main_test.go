@@ -65,8 +65,8 @@ func TestOutputForModuleVpcRouteWithTgwNatgwGwlb(t *testing.T) {
 		{OutputName: "routes_next_hop_local_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestOutputForModuleVpcRouteWithoutTgwNatgwGwlb(t *testing.T) {
@@ -126,6 +126,6 @@ func TestOutputForModuleVpcRouteWithoutTgwNatgwGwlb(t *testing.T) {
 		{OutputName: "routes_next_hop_local_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
