@@ -51,7 +51,7 @@ resource "aws_eip" "this" {
 # In order to not force replacement of aws_ebs_volume, because in Terraform state kms_key_id is stored
 # in key ID format, we are retreving KMS key. Attribute arn from data source is always key ARN required in aws_ebs_volume.
 data "aws_kms_key" "current_arn" {
-  count = var.ebs_kms_key_alias != null ? 1 : 0
+  count  = var.ebs_kms_key_alias != null ? 1 : 0
   key_id = var.ebs_kms_key_alias
 }
 
