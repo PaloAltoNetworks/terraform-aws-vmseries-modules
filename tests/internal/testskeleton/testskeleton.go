@@ -2,6 +2,7 @@ package testskeleton
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -25,9 +26,27 @@ type AssertExpression struct {
 	TestedValue   string
 }
 
-// Function is responsible for deploy infrastructure,
+// Function is responsible for deployment of the infrastructure,
 // verify assert expressions and destroy infrastructure
 func DeployInfraCheckOutputs(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) *terraform.Options {
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, false, true)
+}
+
+// Function is responsible for deployment of the infrastructure, verify assert expressions,
+// verify if there are no changes in plan after deployment and destroy infrastructure
+func DeployInfraCheckOutputsVerifyChanges(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) *terraform.Options {
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, true)
+}
+
+// Function is responsible only for deployment of the infrastructure,
+// no verification of assert expressions and no destroyment of the infrastructure
+func DeployInfraNoCheckOutputsNoDestroy(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, nil, false, false)
+}
+
+// Generic deployment function used in wrapper functions above
+func GenericDeployInfraAndVerifyAssertChanges(t *testing.T, terraformOptions *terraform.Options,
+	assertList []AssertExpression, checkNoChanges bool, destroyInfraAtEnd bool) *terraform.Options {
 	// If no Terraform options were provided, use default one
 	if terraformOptions == nil {
 		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -38,32 +57,29 @@ func DeployInfraCheckOutputs(t *testing.T, terraformOptions *terraform.Options, 
 		})
 	}
 
-	// Always destroy infrastructure, even if any assert expression fails
-	destroyFunc := func() {
-		terraform.Destroy(t, terraformOptions)
+	// Destroy infrastructure, even if any assert expression fails
+	if destroyInfraAtEnd {
+		destroyFunc := func() {
+			terraform.Destroy(t, terraformOptions)
+		}
+		defer destroyFunc()
 	}
-	defer destroyFunc()
 
 	// Terraform initalization and apply with auto-approve
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Verify outputs and compare to expected results
-	AssertOutputs(t, terraformOptions, assertList)
-
-	return terraformOptions
-}
-
-func PlanInfraCheckOnly(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
-	if terraformOptions == nil {
-		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-			TerraformDir: ".",
-			Logger:       logger.Default,
-			Lock:         true,
-			Upgrade:      true,
-		})
+	if assertList != nil && len(assertList) > 0 {
+		AssertOutputs(t, terraformOptions, assertList)
 	}
 
-	terraform.InitAndPlan(t, terraformOptions)
+	// Check if there are no changes planed after deployment (if checkNoChanges is true)
+	if checkNoChanges {
+		output := terraform.InitAndPlan(t, terraformOptions)
+		noInfraChangeExpectedMessage := "No changes in infrastructure are expected after deployment"
+		assert.Regexp(t, regexp.MustCompile(".*No changes.*Your infrastructure matches the configuration.*"), output, noInfraChangeExpectedMessage)
+		assert.NotRegexp(t, regexp.MustCompile(".*Plan:.*to add,.*to change,.*to destroy.*"), output, noInfraChangeExpectedMessage)
+	}
 
 	return terraformOptions
 }
@@ -158,21 +174,4 @@ func AssertErrors(t *testing.T, err error, assertList []AssertExpression) {
 			t.Fail()
 		}
 	}
-}
-
-func InitAndApplyOnlyWithoutDelete(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
-	// If no Terraform options were provided, use default one
-	if terraformOptions == nil {
-		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-			TerraformDir: ".",
-			Logger:       logger.Default,
-			Lock:         true,
-			Upgrade:      true,
-		})
-	}
-
-	// Terraform initalization and apply with auto-approve
-	terraform.InitAndApply(t, terraformOptions)
-
-	return terraformOptions
 }

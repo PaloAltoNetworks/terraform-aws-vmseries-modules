@@ -37,13 +37,15 @@ func TestOutputForModuleTransitGatewayFullVariables(t *testing.T) {
 		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 2},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestOutputForModuleTransitGatewayMinimumVariables(t *testing.T) {
+	// variables used in Terraform options and assertions
 	tgwName := "tgw-"
 	regionName := "us-east-1"
+
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
@@ -70,6 +72,6 @@ func TestOutputForModuleTransitGatewayMinimumVariables(t *testing.T) {
 		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 0},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }

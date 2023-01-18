@@ -38,8 +38,8 @@ func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
 		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: "NotEmpty", ExpectedValue: "tgw-", Message: "TGW ID should starts from tgw-"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
 func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
@@ -71,6 +71,6 @@ func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
 		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: "NotFound"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }

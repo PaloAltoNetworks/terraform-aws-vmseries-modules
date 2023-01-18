@@ -32,7 +32,7 @@ func TestALBOutputAndConectivitiyWithFullTFVars(t *testing.T) {
 		terraform.Destroy(t, terraformOptions)
 	}
 	defer destroyFunc()
-	terraformOptions = testskeleton.InitAndApplyOnlyWithoutDelete(t, terraformOptions)
+	terraformOptions = testskeleton.DeployInfraNoCheckOutputsNoDestroy(t, terraformOptions)
 
 	albName := terraform.Output(t, terraformOptions, "alb_name")
 	log.Printf("Alb_name = %s", albName)

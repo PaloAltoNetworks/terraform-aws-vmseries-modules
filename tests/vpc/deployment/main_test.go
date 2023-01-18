@@ -38,6 +38,6 @@ func TestOutputForModuleVpc(t *testing.T) {
 		{OutputName: "is_vpc_read_name_correct", Operation: "Equal", ExpectedValue: "true"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }

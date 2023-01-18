@@ -8,13 +8,13 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
+func TestOutputForModuleTransitGatewayPeeringFullVariables(t *testing.T) {
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_full.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_tgw_attach_",
+			"name_prefix": "terratest_module_tgw_peer_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
@@ -43,17 +43,17 @@ func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
 		{OutputName: "route_destination_from_local_security_to_remote_region", Operation: "Equal", ExpectedValue: "10.244.0.0/16"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
 
-func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
+func TestOutputForModuleTransitGatewayPeeringMinimumVariables(t *testing.T) {
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_minimum.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_tgw_attach_",
+			"name_prefix": "terratest_module_tgw_peer_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
@@ -82,6 +82,6 @@ func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
 		{OutputName: "route_destination_from_local_security_to_remote_region", Operation: "Equal", ExpectedValue: "10.244.0.0/16"},
 	}
 
-	// deploy test infrastructure and verify outputs
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }
