@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.25"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 3.3.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.4.3"
@@ -18,8 +14,4 @@ terraform {
 
 provider "aws" {
   region = var.region
-}
-
-variable "region" {
-  default = "us-east-1"
 }

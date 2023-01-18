@@ -42,8 +42,10 @@ func TestOutputForModuleTransitGatewayFullVariables(t *testing.T) {
 }
 
 func TestOutputForModuleTransitGatewayMinimumVariables(t *testing.T) {
+	// variables used in Terraform options and assertions
 	tgwName := "tgw-"
 	regionName := "us-east-1"
+
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
