@@ -8,13 +8,13 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
+func TestOutputForModuleTransitGatewayPeeringFullVariables(t *testing.T) {
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_full.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_tgw_attach_",
+			"name_prefix": "terratest_module_tgw_peer_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
@@ -47,13 +47,13 @@ func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
 	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
 }
 
-func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
+func TestOutputForModuleTransitGatewayPeeringMinimumVariables(t *testing.T) {
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
 		VarFiles:     []string{"terraform_minimum.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix": "terratest_module_tgw_attach_",
+			"name_prefix": "terratest_module_tgw_peer_",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
