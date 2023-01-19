@@ -2,12 +2,12 @@ package testskeleton
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,10 +75,11 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T, terraformOptions *te
 
 	// Check if there are no changes planed after deployment (if checkNoChanges is true)
 	if checkNoChanges {
-		output := terraform.InitAndPlan(t, terraformOptions)
-		noInfraChangeExpectedMessage := "No changes in infrastructure are expected after deployment"
-		assert.Regexp(t, regexp.MustCompile(".*No changes.*Your infrastructure matches the configuration.*"), output, noInfraChangeExpectedMessage)
-		assert.NotRegexp(t, regexp.MustCompile(".*Plan:.*to add,.*to change,.*to destroy.*"), output, noInfraChangeExpectedMessage)
+		terraformOptions.PlanFilePath = "test.plan"
+		planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+		for _, v := range planStructure.ResourceChangesMap {
+			checkResourceChange(t, v)
+		}
 	}
 
 	return terraformOptions
@@ -126,6 +127,32 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 			t.Fail()
 		}
 	}
+}
+
+// Function is checking if in ResourceChangesMap from PlanStruct
+// there are planned any resources to be added, deleted or changed
+func checkResourceChange(t *testing.T, v *tfjson.ResourceChange) {
+	var hasUpdate struct {
+		updated    bool
+		updateType string
+	}
+
+	for _, action := range v.Change.Actions {
+		if action == tfjson.ActionDelete {
+			hasUpdate.updated = true
+			hasUpdate.updateType = "deleted"
+		}
+		if action == tfjson.ActionCreate {
+			hasUpdate.updated = true
+			hasUpdate.updateType = "created"
+		}
+		if action == tfjson.ActionUpdate {
+			hasUpdate.updated = true
+			hasUpdate.updateType = "updated"
+		}
+	}
+
+	assert.False(t, hasUpdate.updated, "Resource %v is about to be %s, but it shouldn't", v.Address, hasUpdate.updateType)
 }
 
 // Functions is response for planning deployment,
