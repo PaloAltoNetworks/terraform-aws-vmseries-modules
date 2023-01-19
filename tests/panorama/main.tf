@@ -69,7 +69,7 @@ module "panorama" {
   create_public_ip       = var.panorama_create_public_ip
   ebs_volumes            = var.panorama_ebs_volumes
   name                   = "${var.name_prefix}${random_string.random_sufix.id}"
-  ebs_kms_key_alias      = try(data.aws_kms_alias.current_arn[0].arn, null)
+  ebs_kms_key_alias      = try(data.aws_kms_alias.current_arn[0].target_key_arn, null)
   panorama_version       = var.panorama_version
   ssh_key_name           = aws_key_pair.generated_key.key_name
   subnet_id              = module.security_subnet_sets["mgmt"].subnets[var.panorama_az].id
