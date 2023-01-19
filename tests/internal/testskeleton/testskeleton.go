@@ -147,7 +147,7 @@ func checkResourceChange(t *testing.T, v *tfjson.ResourceChange) {
 	}
 
 	assert.False(t, hasDelete, "Resource %v is about to be deleted, but it shouldn't", v.Address)
-	assert.False(t, hasCreate, "Resource %v is about to be create, but it shouldn't", v.Address)
+	assert.False(t, hasCreate, "Resource %v is about to be created, but it shouldn't", v.Address)
 	assert.False(t, hasUpdate, "Resource %v is about to be updated, but it shouldn't", v.Address)
 }
 
