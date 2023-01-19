@@ -132,23 +132,27 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 // Function is checking if in ResourceChangesMap from PlanStruct
 // there are planned any resources to be added, deleted or changed
 func checkResourceChange(t *testing.T, v *tfjson.ResourceChange) {
-	hasDelete, hasCreate, hasUpdate := false, false, false
+	var hasUpdate struct {
+		updated    bool
+		updateType string
+	}
 
 	for _, action := range v.Change.Actions {
 		if action == tfjson.ActionDelete {
-			hasDelete = true
+			hasUpdate.updated = true
+			hasUpdate.updateType = "deleted"
 		}
 		if action == tfjson.ActionCreate {
-			hasCreate = true
+			hasUpdate.updated = true
+			hasUpdate.updateType = "created"
 		}
 		if action == tfjson.ActionUpdate {
-			hasUpdate = true
+			hasUpdate.updated = true
+			hasUpdate.updateType = "updated"
 		}
 	}
 
-	assert.False(t, hasDelete, "Resource %v is about to be deleted, but it shouldn't", v.Address)
-	assert.False(t, hasCreate, "Resource %v is about to be created, but it shouldn't", v.Address)
-	assert.False(t, hasUpdate, "Resource %v is about to be updated, but it shouldn't", v.Address)
+	assert.False(t, hasUpdate.updated, "Resource %v is about to be %s, but it shouldn't", v.Address, hasUpdate.updateType)
 }
 
 // Functions is response for planning deployment,
