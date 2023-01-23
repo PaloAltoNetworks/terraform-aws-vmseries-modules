@@ -89,7 +89,6 @@ resource "aws_instance" "this" {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
     kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
-    tags                  = merge(var.tags, { Name = var.name })
   }
 
   # Attach primary interface to the instance
@@ -102,7 +101,8 @@ resource "aws_instance" "this" {
     }
   }
 
-  tags = merge(var.tags, { Name = var.name })
+  tags        = merge(var.tags, { Name = var.name })
+  volume_tags = merge(var.tags, { Name = var.name })
 
   lifecycle {
     ignore_changes = [
