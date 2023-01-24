@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"crypto/tls"
+	"net"
 	"net/http"
 	"testing"
 	"time"
@@ -36,4 +37,10 @@ func CheckHttpGetWebApp(t *testing.T, outputValue string) bool {
 		}
 	}
 	return urlHealthy
+}
+
+func CheckTcpPortOpened(t *testing.T, outputValue string) bool {
+	// verify if port is opened (defined with address in outputValue)
+	_, err := net.DialTimeout("tcp", outputValue, 5*time.Second)
+	return err == nil
 }

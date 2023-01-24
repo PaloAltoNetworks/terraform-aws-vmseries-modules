@@ -37,6 +37,13 @@ func TestOutputForModuleVmseriesWithMinimumVariables(t *testing.T) {
 			OutputName: "vmseries_url",
 			Message:    "After bootstrapping, which takes few minutes, web UI for VM-Series should be accessible",
 		},
+		// check access via SSH to VM-Series
+		{
+			Operation:  "CheckFunctionWithOutput",
+			Check:      helpers.CheckTcpPortOpened,
+			OutputName: "vmseries_ssh",
+			Message:    "After bootstrapping, which takes few minutes, SSH for VM-Series should be accessible",
+		},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
