@@ -165,6 +165,18 @@ resource "aws_s3_bucket_policy" "this" {
 }
 # ######################## #
 
+## Add communication to ALB with ephemeral port
+
+resource "aws_security_group_rule" "alb_att" {
+
+  from_port                = 0
+  protocol                 = "all"
+  source_security_group_id = var.security_groups[0]
+  security_group_id        = var.security_groups[0]
+  to_port                  = 0
+  type                     = "ingress"
+}
+
 # ## Application Load Balancer ##
 resource "aws_lb" "this" {
   name                             = var.lb_name
