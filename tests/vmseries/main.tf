@@ -44,7 +44,7 @@ module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name              = "${var.name_prefix}${random_string.random_sufix.id}"
+  name              = "${var.name_prefix}${random_string.random_sufix.id}${var.name_sufix}"
   ssh_key_name      = aws_key_pair.generated_key.key_name
   bootstrap_options = var.bootstrap_options
   vmseries_version  = var.vmseries_version

@@ -7,6 +7,7 @@ import (
 	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tests/internal/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	tfjson "github.com/hashicorp/terraform-json"
 )
 
 func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
@@ -51,8 +52,30 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 		},
 	}
 
+	// prepare additional changes deployed after
+	additionalChangesAfterDeployment := testskeleton.AdditionalChangesAfterDeployment{
+		AdditionalVarsValues: map[string]interface{}{
+			"name_sufix": "_terratest",
+		},
+		FileNameWithTfCode: "resources.tf.temp",
+		ChangedResources: []testskeleton.ChangedResource{
+			{
+				Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"mgmt\"]",
+				Action: tfjson.ActionUpdate,
+			},
+			{
+				Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+				Action: tfjson.ActionUpdate,
+			},
+			{
+				Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+				Action: tfjson.ActionUpdate,
+			},
+		},
+	}
+
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+	testskeleton.DeployInfraCheckOutputsVerifyChangesDeployChanges(t, terraformOptions, assertList, &additionalChangesAfterDeployment)
 }
 
 func TestOutputForModuleVmseriesWithMinimumVariables(t *testing.T) {

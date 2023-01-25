@@ -12,6 +12,12 @@ variable "name_prefix" {
   type        = string
 }
 
+variable "name_sufix" {
+  description = "Sufix use for creating unique names."
+  default     = ""
+  type        = string
+}
+
 variable "global_tags" {
   description = <<-EOF
   A map of tags to assign to the resources.
