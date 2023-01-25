@@ -20,22 +20,22 @@ func TestOutputForModuleVpc(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "vpc_cidr_block_correct", Operation: "NotEmpty"},
-		{OutputName: "vpc_cidr_block_correct", Operation: "Equal", ExpectedValue: "10.0.0.0/16"},
+		{OutputName: "vpc_cidr_block_correct", Operation: testskeleton.NotEmpty},
+		{OutputName: "vpc_cidr_block_correct", Operation: testskeleton.Equal, ExpectedValue: "10.0.0.0/16"},
 
-		{OutputName: "vpc_read_cidr_block_correct", Operation: "NotEmpty"},
-		{OutputName: "vpc_read_cidr_block_correct", Operation: "Equal", ExpectedValue: "10.0.0.0/16"},
+		{OutputName: "vpc_read_cidr_block_correct", Operation: testskeleton.NotEmpty},
+		{OutputName: "vpc_read_cidr_block_correct", Operation: testskeleton.Equal, ExpectedValue: "10.0.0.0/16"},
 
-		{OutputName: "vpc_read_igw_create_cidr_block_correct", Operation: "NotEmpty"},
-		{OutputName: "vpc_read_igw_create_cidr_block_correct", Operation: "Equal", ExpectedValue: "10.0.0.0/16"},
+		{OutputName: "vpc_read_igw_create_cidr_block_correct", Operation: testskeleton.NotEmpty},
+		{OutputName: "vpc_read_igw_create_cidr_block_correct", Operation: testskeleton.Equal, ExpectedValue: "10.0.0.0/16"},
 
-		{OutputName: "vpc_read_igw_read_cidr_block_correct", Operation: "NotEmpty"},
-		{OutputName: "vpc_read_igw_read_cidr_block_correct", Operation: "Equal", ExpectedValue: "10.0.0.0/16"},
+		{OutputName: "vpc_read_igw_read_cidr_block_correct", Operation: testskeleton.NotEmpty},
+		{OutputName: "vpc_read_igw_read_cidr_block_correct", Operation: testskeleton.Equal, ExpectedValue: "10.0.0.0/16"},
 
-		{OutputName: "is_vpc_name_correct", Operation: "Equal", ExpectedValue: "true"},
-		{OutputName: "is_vpc_read_igw_create_name_correct", Operation: "Equal", ExpectedValue: "true"},
-		{OutputName: "is_vpc_read_igw_read_name_correct", Operation: "Equal", ExpectedValue: "true"},
-		{OutputName: "is_vpc_read_name_correct", Operation: "Equal", ExpectedValue: "true"},
+		{OutputName: "is_vpc_name_correct", Operation: testskeleton.Equal, ExpectedValue: "true"},
+		{OutputName: "is_vpc_read_igw_create_name_correct", Operation: testskeleton.Equal, ExpectedValue: "true"},
+		{OutputName: "is_vpc_read_igw_read_name_correct", Operation: testskeleton.Equal, ExpectedValue: "true"},
+		{OutputName: "is_vpc_read_name_correct", Operation: testskeleton.Equal, ExpectedValue: "true"},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment

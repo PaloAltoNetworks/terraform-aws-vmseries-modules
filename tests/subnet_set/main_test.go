@@ -15,17 +15,17 @@ func TestOutputForModuleSubnetSet(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "availability_zones", Operation: "NotEmpty"},
-		{OutputName: "availability_zones", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "availability_zones", Operation: testskeleton.NotEmpty},
+		{OutputName: "availability_zones", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 
-		{OutputName: "route_tables", Operation: "NotEmpty"},
-		{OutputName: "route_tables", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "route_tables", Operation: testskeleton.NotEmpty},
+		{OutputName: "route_tables", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 
-		{OutputName: "subnet_names", Operation: "NotEmpty"},
-		{OutputName: "subnet_names", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "subnet_names", Operation: testskeleton.NotEmpty},
+		{OutputName: "subnet_names", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 
-		{OutputName: "subnets_cidrs", Operation: "NotEmpty"},
-		{OutputName: "subnets_cidrs", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "subnets_cidrs", Operation: testskeleton.NotEmpty},
+		{OutputName: "subnets_cidrs", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment

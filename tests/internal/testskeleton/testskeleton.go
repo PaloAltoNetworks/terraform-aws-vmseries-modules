@@ -19,12 +19,28 @@ type CheckFunction func(t *testing.T, outputValue string) bool
 // by comparing it to expected value using defined operation.
 type AssertExpression struct {
 	OutputName    string
-	Operation     string
+	Operation     AssertOperation
 	ExpectedValue interface{}
 	Message       string
 	Check         CheckFunction
 	TestedValue   string
 }
+
+// Enum for operations in assert expressions
+type AssertOperation int64
+
+const (
+	NotEmpty AssertOperation = iota
+	Empty
+	Equal
+	NotFound
+	ListLengthEqual
+	StartsWith
+	CheckFunctionWithOutput
+	CheckFunctionWithValue
+	EqualToValue
+	ErrorContains
+)
 
 // Function is responsible for deployment of the infrastructure,
 // verify assert expressions and destroy infrastructure
@@ -90,34 +106,34 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T, terraformOptions *te
 func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) {
 	for _, assertExpression := range assertList {
 		switch assertExpression.Operation {
-		case "NotEmpty":
+		case NotEmpty:
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.NotEmpty(t, outputValue, assertExpression.Message)
-		case "Empty":
+		case Empty:
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.Empty(t, outputValue, assertExpression.Message)
-		case "Equal":
+		case Equal:
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, outputValue, assertExpression.Message)
-		case "NotFound":
+		case NotFound:
 			_, err := terraform.OutputE(t, terraformOptions, assertExpression.OutputName)
 			assert.ErrorContains(t, err,
 				fmt.Sprintf("Output \"%v\" not found", assertExpression.OutputName),
 				assertExpression.Message)
-		case "ListLengthEqual":
+		case ListLengthEqual:
 			outputValue := terraform.OutputList(t, terraformOptions, assertExpression.OutputName)
 			assert.Equal(t, assertExpression.ExpectedValue, len(outputValue), assertExpression.Message)
-		case "StartsWith":
+		case StartsWith:
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.True(t, strings.HasPrefix(outputValue,
 				fmt.Sprintf("%v", assertExpression.ExpectedValue)),
 				assertExpression.Message)
-		case "CheckFunctionWithOutput":
+		case CheckFunctionWithOutput:
 			outputValue := terraform.Output(t, terraformOptions, assertExpression.OutputName)
 			assert.True(t, assertExpression.Check(t, outputValue), assertExpression.Message)
-		case "CheckFunctionWithValue":
+		case CheckFunctionWithValue:
 			assert.True(t, assertExpression.Check(t, assertExpression.TestedValue), assertExpression.Message)
-		case "EqualToValue":
+		case EqualToValue:
 			assert.Equal(t, assertExpression.TestedValue, assertExpression.ExpectedValue)
 		// other case needs to be added while working on tests for modules
 		// ... TODO ...
@@ -189,7 +205,7 @@ func PlanInfraCheckErrors(t *testing.T, terraformOptions *terraform.Options,
 func AssertErrors(t *testing.T, err error, assertList []AssertExpression) {
 	for _, assertExpression := range assertList {
 		switch assertExpression.Operation {
-		case "ErrorContains":
+		case ErrorContains:
 			assert.ErrorContains(t, err,
 				fmt.Sprintf("%v", assertExpression.ExpectedValue),
 				assertExpression.Message)

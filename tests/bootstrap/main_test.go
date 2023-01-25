@@ -28,11 +28,11 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 		// check role name
 		{
 			OutputName: "iam_role_name",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		{
 			OutputName:    "iam_role_name",
-			Operation:     "StartsWith",
+			Operation:     testskeleton.StartsWith,
 			ExpectedValue: "a",
 			Message:       "Role name should start from a",
 		},
@@ -40,18 +40,18 @@ func TestOutputForModuleBootstrapWhileCreatingIamRoleForBootstrapModule(t *testi
 		// check role ARN
 		{
 			OutputName: "iam_role_arn",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		{
 			OutputName:    "iam_role_arn",
-			Operation:     "StartsWith",
+			Operation:     testskeleton.StartsWith,
 			ExpectedValue: "arn:aws:iam::",
 			Message:       "Role ARN should start from arn:aws:iam::",
 		},
 
 		// check access to S3 bucket with bootstrap files
 		{
-			Operation:  "CheckFunctionWithOutput",
+			Operation:  testskeleton.CheckFunctionWithOutput,
 			Check:      CheckHttpGetS3BucketBootstrapFile,
 			OutputName: "bucket_domain_name",
 			Message:    "HTTP response code > 401 expected while accessing S3 bucket with bootstrap files",
@@ -91,7 +91,7 @@ func TestErrorForModuleBootstrapWhileNotCreatingIamRoleAndNotPassingIamRoleNameF
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		{
-			Operation:     "ErrorContains",
+			Operation:     testskeleton.ErrorContains,
 			ExpectedValue: "minimum field size of 1, GetRoleInput.RoleName",
 			Message:       "Minimum size of IAM role name should be 1",
 		},
@@ -126,20 +126,20 @@ func TestOutputForModuleBootstrapWhileUsingExistingIamRoleForBootstrapModule(t *
 		// check role name
 		{
 			OutputName: "iam_role_name",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		{
 			OutputName:    "iam_role_name",
-			Operation:     "Equal",
+			Operation:     testskeleton.Equal,
 			ExpectedValue: iamRoleNameCreatedForTests,
 			Message:       "Role name is different from expected one",
 		},
 
 		// check role ARN
-		{OutputName: "iam_role_arn", Operation: "NotEmpty", ExpectedValue: nil},
+		{OutputName: "iam_role_arn", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
 		{
 			OutputName:    "iam_role_arn",
-			Operation:     "StartsWith",
+			Operation:     testskeleton.StartsWith,
 			ExpectedValue: "arn:aws:iam::",
 			Message:       "Role ARN should start from arn:aws:iam::",
 		},
@@ -168,7 +168,7 @@ func TestErrorForModuleBootstrapWhileProvidingInvalidDhcpSettingsForBootstrapMod
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		{
-			Operation:     "ErrorContains",
+			Operation:     testskeleton.ErrorContains,
 			ExpectedValue: "The DHCP server determines a value of yes or no for variable",
 			Message:       "The DHCP option's value should be yes or no",
 		},

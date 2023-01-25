@@ -24,18 +24,18 @@ func TestOutputForModuleTransitGatewayAttachmentFullVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "tgw_id", Operation: "NotEmpty"},
-		{OutputName: "tgw_id", Operation: "StartsWith", ExpectedValue: "tgw-", Message: "TGW ID should starts from tgw-"},
+		{OutputName: "tgw_id", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_id", Operation: testskeleton.StartsWith, ExpectedValue: "tgw-", Message: "TGW ID should starts from tgw-"},
 
-		{OutputName: "tgw_arn", Operation: "NotEmpty"},
-		{OutputName: "tgw_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:ec2:us-east-1", Message: "TGW ARN should starts from arn:aws:ec2:us-east-1"},
+		{OutputName: "tgw_arn", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_arn", Operation: testskeleton.StartsWith, ExpectedValue: "arn:aws:ec2:us-east-1", Message: "TGW ARN should starts from arn:aws:ec2:us-east-1"},
 
-		{OutputName: "tgw_route_tables", Operation: "NotEmpty"},
-		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 
-		{OutputName: "tgw_attachment_next_hop_set", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: "NotEmpty", ExpectedValue: "tgw-", Message: "TGW ID should starts from tgw-"},
+		{OutputName: "tgw_attachment_next_hop_set", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: testskeleton.NotEmpty, ExpectedValue: "tgw-", Message: "TGW ID should starts from tgw-"},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
@@ -58,17 +58,17 @@ func TestOutputForModuleTransitGatewayAttachmentMinimumVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "tgw_id", Operation: "NotEmpty"},
-		{OutputName: "tgw_id", Operation: "StartsWith", ExpectedValue: "tgw-", Message: "TGW ARN should starts from tgw-"},
+		{OutputName: "tgw_id", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_id", Operation: testskeleton.StartsWith, ExpectedValue: "tgw-", Message: "TGW ARN should starts from tgw-"},
 
-		{OutputName: "tgw_arn", Operation: "NotEmpty"},
-		{OutputName: "tgw_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:ec2:us-east-1", Message: "TGW ID should starts from arn:aws:ec2:us-east-1"},
+		{OutputName: "tgw_arn", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_arn", Operation: testskeleton.StartsWith, ExpectedValue: "arn:aws:ec2:us-east-1", Message: "TGW ID should starts from arn:aws:ec2:us-east-1"},
 
-		{OutputName: "tgw_route_tables", Operation: "NotEmpty"},
-		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
-		{OutputName: "tgw_attachment_next_hop_set", Operation: "NotFound"},
-		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: "NotFound"},
+		{OutputName: "tgw_attachment_next_hop_set", Operation: testskeleton.NotFound},
+		{OutputName: "tgw_attachment_next_hop_set_tgw_id", Operation: testskeleton.NotFound},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
