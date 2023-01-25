@@ -28,23 +28,23 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 		// check VM-Series URL
 		{
 			OutputName: "vmseries_url",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		// check VM-Series SSH
 		{
 			OutputName: "vmseries_ssh",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		// check access to login page in web UI for VM-Series
 		{
-			Operation:  "CheckFunctionWithOutput",
+			Operation:  testskeleton.CheckFunctionWithOutput,
 			Check:      helpers.CheckHttpGetWebApp,
 			OutputName: "vmseries_url",
 			Message:    "After bootstrapping, which takes few minutes, web UI for VM-Series should be accessible",
 		},
 		// check access via SSH to VM-Series
 		{
-			Operation:  "CheckFunctionWithOutput",
+			Operation:  testskeleton.CheckFunctionWithOutput,
 			Check:      helpers.CheckTcpPortOpened,
 			OutputName: "vmseries_ssh",
 			Message:    "After bootstrapping, which takes few minutes, SSH for VM-Series should be accessible",
@@ -72,7 +72,7 @@ func TestOutputForModuleVmseriesWithMinimumVariables(t *testing.T) {
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		{
-			Operation:     "ErrorContains",
+			Operation:     testskeleton.ErrorContains,
 			ExpectedValue: "No value for required variable",
 			Message:       "3 variables are required: vmseries, vmseries_version, bootstrap_options",
 		},
