@@ -39,23 +39,3 @@ security_vpc_security_groups = {
 }
 
 security_vpc_routes_outbound_destin_cidrs = ["0.0.0.0/0"]
-
-### VM-Series
-
-vmseries_version = "10.2.2"
-vmseries = {
-  vmseries01 = {
-    az = "us-east-1a"
-    interfaces = {
-      mgmt = {
-        device_index      = 0
-        security_group    = "vmseries_mgmt"
-        source_dest_check = true
-        subnet            = "mgmt"
-        create_public_ip  = true
-      }
-    }
-  }
-}
-
-bootstrap_options = "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client;hostname=vms01"

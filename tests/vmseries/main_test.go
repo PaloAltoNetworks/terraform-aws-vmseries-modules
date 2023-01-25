@@ -30,6 +30,11 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 			OutputName: "vmseries_url",
 			Operation:  "NotEmpty",
 		},
+		// check VM-Series SSH
+		{
+			OutputName: "vmseries_ssh",
+			Operation:  "NotEmpty",
+		},
 		// check access to login page in web UI for VM-Series
 		{
 			Operation:  "CheckFunctionWithOutput",
@@ -66,27 +71,13 @@ func TestOutputForModuleVmseriesWithMinimumVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		// check VM-Series URL
 		{
-			OutputName: "vmseries_url",
-			Operation:  "NotEmpty",
-		},
-		// check access to login page in web UI for VM-Series
-		{
-			Operation:  "CheckFunctionWithOutput",
-			Check:      helpers.CheckHttpGetWebApp,
-			OutputName: "vmseries_url",
-			Message:    "After bootstrapping, which takes few minutes, web UI for VM-Series should be accessible",
-		},
-		// check access via SSH to VM-Series
-		{
-			Operation:  "CheckFunctionWithOutput",
-			Check:      helpers.CheckTcpPortOpened,
-			OutputName: "vmseries_ssh",
-			Message:    "After bootstrapping, which takes few minutes, SSH for VM-Series should be accessible",
+			Operation:     "ErrorContains",
+			ExpectedValue: "No value for required variable",
+			Message:       "3 variables are required: vmseries, vmseries_version, bootstrap_options",
 		},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "VM-Series plan deployment should fail without VM-Series configuration")
 }
