@@ -28,11 +28,11 @@ func TestOutputForModulePanoramaWithFullVariables(t *testing.T) {
 		// check Panorama URL
 		{
 			OutputName: "panorama_url",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		// check access to login page in web UI for Panorama
 		{
-			Operation:  "CheckFunctionWithOutput",
+			Operation:  testskeleton.CheckFunctionWithOutput,
 			Check:      helpers.CheckHttpGetWebApp,
 			OutputName: "panorama_url",
 			Message:    "After bootstrapping, which takes few minutes, web UI for Panorama should be accessible",
@@ -62,7 +62,7 @@ func TestOutputForModulePanoramaWithMinimumVariables(t *testing.T) {
 		// check Panorama URL
 		{
 			OutputName: "panorama_url",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 	}
 

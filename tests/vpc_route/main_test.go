@@ -25,44 +25,44 @@ func TestOutputForModuleVpcRouteWithTgwNatgwGwlb(t *testing.T) {
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		// check destination type ipv4
-		{OutputName: "routes_cidr", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_cidr", Operation: "Equal", ExpectedValue: "[10.211.0.0/16 10.221.0.0/16 10.231.0.0/16 10.232.0.0/16 10.251.0.0/16 10.252.0.0/16]"},
+		{OutputName: "routes_cidr", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_cidr", Operation: testskeleton.Equal, ExpectedValue: "[10.211.0.0/16 10.221.0.0/16 10.231.0.0/16 10.232.0.0/16 10.251.0.0/16 10.252.0.0/16]"},
 
 		// check destination type mpl
-		{OutputName: "routes_mpl", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_mpl", Operation: "ListLengthEqual", ExpectedValue: 1},
+		{OutputName: "routes_mpl", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_mpl", Operation: testskeleton.ListLengthEqual, ExpectedValue: 1},
 
 		// check next hop transit_gateway
-		{OutputName: "routes_next_hop_transit_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_transit_gateway", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "routes_next_hop_transit_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_transit_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 
 		// check next hop internet_gateway
-		{OutputName: "routes_next_hop_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_gateway", Operation: "ListLengthEqual", ExpectedValue: 3},
+		{OutputName: "routes_next_hop_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 3},
 
 		// check next hop nat_gateway
-		{OutputName: "routes_next_hop_nat_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_nat_gateway", Operation: "ListLengthEqual", ExpectedValue: 1},
+		{OutputName: "routes_next_hop_nat_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_nat_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 1},
 
 		// check next hop interface
-		{OutputName: "routes_next_hop_network_interface", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_network_interface", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_network_interface", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_network_interface", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop vpc_endpoint
-		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "ListLengthEqual", ExpectedValue: 1},
+		{OutputName: "routes_next_hop_vpc_endpoint", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_vpc_endpoint", Operation: testskeleton.ListLengthEqual, ExpectedValue: 1},
 
 		// check next hop vpc_peer
-		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop egress_only_gateway
-		{OutputName: "routes_next_hop_egress_only_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_egress_only_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_egress_only_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_egress_only_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop local_gateway
-		{OutputName: "routes_next_hop_local_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_local_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_local_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_local_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
@@ -86,44 +86,44 @@ func TestOutputForModuleVpcRouteWithoutTgwNatgwGwlb(t *testing.T) {
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
 		// check destination type ipv4
-		{OutputName: "routes_cidr", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_cidr", Operation: "Equal", ExpectedValue: "[10.251.0.0/16 10.252.0.0/16]"},
+		{OutputName: "routes_cidr", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_cidr", Operation: testskeleton.Equal, ExpectedValue: "[10.251.0.0/16 10.252.0.0/16]"},
 
 		// check destination type mpl
-		{OutputName: "routes_mpl", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_mpl", Operation: "ListLengthEqual", ExpectedValue: 1},
+		{OutputName: "routes_mpl", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_mpl", Operation: testskeleton.ListLengthEqual, ExpectedValue: 1},
 
 		// check next hop transit_gateway
-		{OutputName: "routes_next_hop_transit_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_transit_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_transit_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_transit_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop internet_gateway
-		{OutputName: "routes_next_hop_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_gateway", Operation: "ListLengthEqual", ExpectedValue: 3},
+		{OutputName: "routes_next_hop_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 3},
 
 		// check next hop nat_gateway
-		{OutputName: "routes_next_hop_nat_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_nat_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_nat_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_nat_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop interface
-		{OutputName: "routes_next_hop_network_interface", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_network_interface", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_network_interface", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_network_interface", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop vpc_endpoint
-		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_endpoint", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_vpc_endpoint", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_vpc_endpoint", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop vpc_peer
-		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_vpc_peering_connection", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop egress_only_gateway
-		{OutputName: "routes_next_hop_egress_only_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_egress_only_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_egress_only_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_egress_only_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 
 		// check next hop local_gateway
-		{OutputName: "routes_next_hop_local_gateway", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "routes_next_hop_local_gateway", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "routes_next_hop_local_gateway", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "routes_next_hop_local_gateway", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment

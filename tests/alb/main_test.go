@@ -41,17 +41,17 @@ func TestALBOutputAndConectivitiyWithFullTFVars(t *testing.T) {
 		// check if the ALB is created with correct FQDN
 		{
 			OutputName: "alb_name",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		// check if the ALB is created with correct FQDN
 		{
 			OutputName:    "alb_name",
-			Operation:     "StartsWith",
+			Operation:     testskeleton.StartsWith,
 			ExpectedValue: namePrefix,
 		},
 		// check communication with app
 		{
-			Operation:   "CheckFunctionWithValue",
+			Operation:   testskeleton.CheckFunctionWithValue,
 			Check:       helpers.CheckHttpGetWebApp,
 			TestedValue: "http://" + albName + "/",
 		},
@@ -80,12 +80,12 @@ func TestALBOutputWithMinimumTFVars(t *testing.T) {
 		// check if the ALB is created with correct FQDN
 		{
 			OutputName: "alb_name",
-			Operation:  "NotEmpty",
+			Operation:  testskeleton.NotEmpty,
 		},
 		// check if the ALB is created with correct FQDN
 		{
 			OutputName:    "alb_name",
-			Operation:     "StartsWith",
+			Operation:     testskeleton.StartsWith,
 			ExpectedValue: namePrefix,
 		},
 	}

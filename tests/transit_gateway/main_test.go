@@ -27,14 +27,14 @@ func TestOutputForModuleTransitGatewayFullVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "tgw_id", Operation: "NotEmpty"},
-		{OutputName: "tgw_id", Operation: "StartsWith", ExpectedValue: tgwName, Message: "TGW ARN should starts from " + tgwName},
+		{OutputName: "tgw_id", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_id", Operation: testskeleton.StartsWith, ExpectedValue: tgwName, Message: "TGW ARN should starts from " + tgwName},
 
-		{OutputName: "tgw_arn", Operation: "NotEmpty"},
-		{OutputName: "tgw_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:ec2:" + regionName, Message: "TGW ID should starts from arn:aws:ec2:" + regionName},
+		{OutputName: "tgw_arn", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_arn", Operation: testskeleton.StartsWith, ExpectedValue: "arn:aws:ec2:" + regionName, Message: "TGW ID should starts from arn:aws:ec2:" + regionName},
 
-		{OutputName: "tgw_route_tables", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 2},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.ListLengthEqual, ExpectedValue: 2},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
@@ -62,14 +62,14 @@ func TestOutputForModuleTransitGatewayMinimumVariables(t *testing.T) {
 
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{
-		{OutputName: "tgw_id", Operation: "NotEmpty"},
-		{OutputName: "tgw_id", Operation: "StartsWith", ExpectedValue: tgwName, Message: "TGW ARN should starts from " + tgwName},
+		{OutputName: "tgw_id", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_id", Operation: testskeleton.StartsWith, ExpectedValue: tgwName, Message: "TGW ARN should starts from " + tgwName},
 
-		{OutputName: "tgw_arn", Operation: "NotEmpty"},
-		{OutputName: "tgw_arn", Operation: "StartsWith", ExpectedValue: "arn:aws:ec2:" + regionName, Message: "TGW ID should starts from arn:aws:ec2:" + regionName},
+		{OutputName: "tgw_arn", Operation: testskeleton.NotEmpty},
+		{OutputName: "tgw_arn", Operation: testskeleton.StartsWith, ExpectedValue: "arn:aws:ec2:" + regionName, Message: "TGW ID should starts from arn:aws:ec2:" + regionName},
 
-		{OutputName: "tgw_route_tables", Operation: "NotEmpty", ExpectedValue: nil},
-		{OutputName: "tgw_route_tables", Operation: "ListLengthEqual", ExpectedValue: 0},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.NotEmpty, ExpectedValue: nil},
+		{OutputName: "tgw_route_tables", Operation: testskeleton.ListLengthEqual, ExpectedValue: 0},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
