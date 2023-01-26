@@ -71,6 +71,10 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
 				Action: tfjson.ActionUpdate,
 			},
+			{
+				Name:   "module.panorama_vpc_routes[\"mgmt_10.80.10.0/24\"].aws_route.this[\"us-east-1a\"]",
+				Action: tfjson.ActionCreate,
+			},
 		},
 	}
 

@@ -2,6 +2,7 @@ package testskeleton
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -43,7 +44,8 @@ const (
 	ErrorContains
 )
 
-// ... TODO: comments
+// Structure used to verify if there are changes in resources after adding additional
+// Terraform code or after changing values of some variables
 type ChangedResource struct {
 	Name   string
 	Action tfjson.Action
@@ -70,7 +72,7 @@ func DeployInfraCheckOutputsVerifyChanges(t *testing.T, terraformOptions *terraf
 // verify if there are no changes in plan after deployment and destroy infrastructure
 func DeployInfraCheckOutputsVerifyChangesDeployChanges(t *testing.T, terraformOptions *terraform.Options,
 	assertList []AssertExpression, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) *terraform.Options {
-	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, additionalChangesAfterDeployment, false)
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, additionalChangesAfterDeployment, true)
 }
 
 // Function is responsible only for deployment of the infrastructure,
@@ -80,11 +82,12 @@ func DeployInfraNoCheckOutputsNoDestroy(t *testing.T, terraformOptions *terrafor
 }
 
 // Generic deployment function used in wrapper functions above
-// - terraformOptions - ... TODO: comments
-// - assertList -
-// - checkNoChanges -
-// - additionalChangesAfterDeployment -
-// - destroyInfraAtEnd -
+//   - terraformOptions - Terraform options required to execute tests in Terratest
+//   - assertList - list of assert expression
+//   - checkNoChanges - if true, after deployment check if there are no changes planed
+//   - additionalChangesAfterDeployment - if not empty, then it contains list of additional variables values and resources in external file
+//     to plan and deploy in order to verify if all expected changes are being provisioned, nothing more or less
+//   - destroyInfraAtEnd - if true, destroy infrastructure at the end of test
 func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 	terraformOptions *terraform.Options,
 	assertList []AssertExpression,
@@ -126,21 +129,10 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 		}
 	}
 
-	// ... TODO: comments
+	// If there is passed structure with additional changes deployed after,
+	// then verify if changes in infrastructure are the same as expected
 	if additionalChangesAfterDeployment != nil {
-		// ... TODO: comments
-		maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
-
-		// ... TODO: add logic to rename file, plan/deploy infra and check resources
-		// ...
-		// ...
-
-		// ... TODO: comments
-		terraformOptions.PlanFilePath = "test.plan"
-		planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
-		for _, v := range planStructure.ResourceChangesMap {
-			checkResourceChange(t, v, additionalChangesAfterDeployment.ChangedResources)
-		}
+		planAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
 	}
 
 	return terraformOptions
@@ -191,7 +183,9 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 // Function is checking if in ResourceChangesMap from PlanStruct
 // there are planned any resources to be added, deleted or changed
 func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResources []ChangedResource) {
-	// ... TODO: comments
+	// Simple structure used to story 2 information:
+	// - updated - if anything is going to change
+	// - updateType - what kind of change is going to be done (create, delete, update)
 	var hasUpdate struct {
 		updated    bool
 		updateType tfjson.Action
@@ -204,21 +198,48 @@ func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResource
 		}
 	}
 
-	// ... TODO: comments
+	// If we are not expecting any change in resource, check if nothing was planned to change
 	if changedResources == nil {
 		assert.False(t, hasUpdate.updated, "Resource %v is about to be %sd, but it shouldn't", v.Address, hasUpdate.updateType)
 	} else {
-		// ... TODO: comments
+		// If we are expecting changes, check if all expected changes are planned to happen
 		asExpected := false
 		for _, changedResource := range changedResources {
 			if changedResource.Name == v.Address && changedResource.Action == hasUpdate.updateType {
 				asExpected = true
 			}
 		}
+		// Moreover check if any unexpected change is planned to happen
 		if asExpected == false && len(v.Change.Actions) == 1 && v.Change.Actions[0] == tfjson.ActionNoop {
 			asExpected = true
 		}
 		assert.True(t, asExpected, "Resource %v is about to be %vd, but it shouldn't", v.Address, hasUpdate.updateType)
+	}
+}
+
+// Function is doing Terraform plan after initial deployment and providing changes in variables values and resources
+func planAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
+	// Merge original variables values with additional ones
+	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
+
+	// Rename provided file by adding .tf extension in order to add additional resources defined in file
+	renameFileFunc := func(orgFileName string, newFileName string) {
+		err := os.Rename(orgFileName, newFileName)
+		if err != nil {
+			t.Logf("Error while preparing additional file with code to deploy: %v", err)
+		}
+	}
+	additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
+	renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
+
+	// Always restore original file name
+	defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+
+	// Prepare plan and check changes by comparing them to expected one
+	terraformOptions.PlanFilePath = "test.plan"
+	planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+	for _, v := range planStructure.ResourceChangesMap {
+		checkResourceChange(t, v, additionalChangesAfterDeployment.ChangedResources)
 	}
 }
 
