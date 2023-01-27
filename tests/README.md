@@ -39,7 +39,9 @@ graph TB
     do_modify_infrastructure{Modify infrastructure?}
     modify_infrastructure(Plan infrastructure with changed resources)
     verify_changes(Verify planned changes)
+    terraform_apply_changes(Deploy infrastructure with changed resources)
     verify_assert_expression(Verify assert expressions)
+    terraform_destroy(Destroy infrastructure)
     test_fail((Tests failed))
     test_pass((Tests passed))
 
@@ -48,13 +50,17 @@ graph TB
     terraform_plan_after_deploy -- code is idempotent --> do_modify_infrastructure
     verify_assert_expression -- all asserts passed --> do_terraform_plan_after_deploy
     do_modify_infrastructure -- yes --> modify_infrastructure --> verify_changes
+    verify_changes -- only expected changes --> terraform_apply_changes
     terraform_apply -. error in deployment .-> test_fail
     terraform_plan_after_deploy -. code is not idempotent .-> test_fail
     verify_assert_expression -. one of the asserts failed .-> test_fail
     verify_changes -. unexpected changes .-> test_fail
+    terraform_apply_changes -. error in deployment .-> test_fail
     do_terraform_plan_after_deploy -- no --> test_pass
     do_modify_infrastructure -- no --> test_pass
-    verify_changes -- only expected changes --> test_pass
+    terraform_apply_changes -- infrastructure is deployed --> test_pass
+    test_fail -..-> terraform_destroy
+    test_pass ----> terraform_destroy
 
     classDef green fill:#33aa33,stroke:#333,stroke-width:2px;
     classDef red fill:#aa3333,stroke:#333,stroke-width:2px;

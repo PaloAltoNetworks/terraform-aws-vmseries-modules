@@ -132,7 +132,7 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 	// If there is passed structure with additional changes deployed after,
 	// then verify if changes in infrastructure are the same as expected
 	if additionalChangesAfterDeployment != nil {
-		planAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
+		planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
 	}
 
 	return terraformOptions
@@ -218,7 +218,7 @@ func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResource
 }
 
 // Function is doing Terraform plan after initial deployment and providing changes in variables values and resources
-func planAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
+func planAndDeployAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
 	// Merge original variables values with additional ones
 	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
 
@@ -240,6 +240,11 @@ func planAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraf
 	planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 	for _, v := range planStructure.ResourceChangesMap {
 		checkResourceChange(t, v, additionalChangesAfterDeployment.ChangedResources)
+	}
+
+	// Deploy changes, if all asserts passed after plan
+	if !t.Failed() {
+		terraform.Apply(t, terraformOptions)
 	}
 }
 

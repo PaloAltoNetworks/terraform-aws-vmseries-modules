@@ -101,7 +101,11 @@ resource "aws_instance" "this" {
     }
   }
 
-  tags        = merge(var.tags, { Name = var.name })
+  tags = merge(var.tags, { Name = var.name })
+
+  # If volume_tags are not defined, then module is NOT idempotent. If after deployment terraform plan is executed,
+  # then update in-place is planned for resource "aws_instance" "this" with below change:
+  # + volume_tags = {}
   volume_tags = merge(var.tags, { Name = var.name })
 
   lifecycle {
