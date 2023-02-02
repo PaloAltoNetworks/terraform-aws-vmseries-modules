@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # install.sh - prepare the dependencies for the run.sh
 # 

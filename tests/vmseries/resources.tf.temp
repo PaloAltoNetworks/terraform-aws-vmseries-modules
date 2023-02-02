@@ -1,0 +1,20 @@
+locals {
+  panorama_vpc_routes = concat(
+    [
+      {
+        subnet_key   = "mgmt"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = "10.80.10.0/24"
+      }
+    ],
+  )
+}
+
+module "panorama_vpc_routes" {
+  for_each = { for route in local.panorama_vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+  source   = "../../modules/vpc_route"
+
+  next_hop_set    = each.value.next_hop_set
+  route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
+  to_cidr         = each.value.to_cidr
+}
