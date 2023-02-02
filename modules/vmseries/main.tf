@@ -89,7 +89,6 @@ resource "aws_instance" "this" {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
     kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
-    tags                  = merge(var.tags, { Name = var.name })
   }
 
   # Attach primary interface to the instance
@@ -103,6 +102,11 @@ resource "aws_instance" "this" {
   }
 
   tags = merge(var.tags, { Name = var.name })
+
+  # If volume_tags are not defined, then module is NOT idempotent. If after deployment terraform plan is executed,
+  # then update in-place is planned for resource "aws_instance" "this" with below change:
+  # + volume_tags = {}
+  volume_tags = merge(var.tags, { Name = var.name })
 
   lifecycle {
     ignore_changes = [

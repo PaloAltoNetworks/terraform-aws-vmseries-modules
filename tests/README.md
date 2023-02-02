@@ -1,5 +1,7 @@
 # Quick start
 
+## How to execute tests
+
 Testing Terraform modules:
 1. Install required binaries:
     * Terraform at the specific version that you'd like to test: https://developer.hashicorp.com/terraform
@@ -25,3 +27,43 @@ Comments:
 * We use go-test-report to create html reports for tests, check https://github.com/vakenbolt/go-test-report for more information
 * Cloud resources are destroyed automatically after the test, no cleanup is normally required.
 * VScode users should keep `Go: Test On Save` at the default false value, and not set to true. This option is spelled `go.testOnSave` in settings.json.
+
+## Test skeleton overview
+
+```mermaid
+graph TB
+    terraform_options(Init Terraform with provided options)
+    terraform_apply(Deploy infrastructure)
+    do_terraform_plan_after_deploy{Execute Terraform Plan?}
+    terraform_plan_after_deploy(Verify if no changes are planned after deployment)
+    do_modify_infrastructure{Modify infrastructure?}
+    modify_infrastructure(Plan infrastructure with changed resources)
+    verify_changes(Verify planned changes)
+    terraform_apply_changes(Deploy infrastructure with changed resources)
+    verify_assert_expression(Verify assert expressions)
+    terraform_destroy(Destroy infrastructure)
+    test_fail((Tests failed))
+    test_pass((Tests passed))
+
+    terraform_options --> terraform_apply -- infrastructure is deployed --> verify_assert_expression
+    do_terraform_plan_after_deploy -- yes --> terraform_plan_after_deploy
+    terraform_plan_after_deploy -- code is idempotent --> do_modify_infrastructure
+    verify_assert_expression -- all asserts passed --> do_terraform_plan_after_deploy
+    do_modify_infrastructure -- yes --> modify_infrastructure --> verify_changes
+    verify_changes -- only expected changes --> terraform_apply_changes
+    terraform_apply -. error in deployment .-> test_fail
+    terraform_plan_after_deploy -. code is not idempotent .-> test_fail
+    verify_assert_expression -. one of the asserts failed .-> test_fail
+    verify_changes -. unexpected changes .-> test_fail
+    terraform_apply_changes -. error in deployment .-> test_fail
+    do_terraform_plan_after_deploy -- no --> test_pass
+    do_modify_infrastructure -- no --> test_pass
+    terraform_apply_changes -- infrastructure is deployed --> test_pass
+    test_fail -..-> terraform_destroy
+    test_pass ----> terraform_destroy
+
+    classDef green fill:#33aa33,stroke:#333,stroke-width:2px;
+    classDef red fill:#aa3333,stroke:#333,stroke-width:2px;
+    class test_pass green
+    class test_fail red
+```

@@ -2,6 +2,7 @@ package testskeleton
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/maps"
 )
 
 // Sometimes there is a need to execute custom function to check something,
@@ -42,27 +44,56 @@ const (
 	ErrorContains
 )
 
+// Structure used to verify if there are changes in resources after adding additional
+// Terraform code or after changing values of some variables
+type ChangedResource struct {
+	Name   string
+	Action tfjson.Action
+}
+type AdditionalChangesAfterDeployment struct {
+	AdditionalVarsValues map[string]interface{}
+	FileNameWithTfCode   string
+	ChangedResources     []ChangedResource
+}
+
 // Function is responsible for deployment of the infrastructure,
 // verify assert expressions and destroy infrastructure
 func DeployInfraCheckOutputs(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) *terraform.Options {
-	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, false, true)
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, false, nil, true)
 }
 
 // Function is responsible for deployment of the infrastructure, verify assert expressions,
 // verify if there are no changes in plan after deployment and destroy infrastructure
 func DeployInfraCheckOutputsVerifyChanges(t *testing.T, terraformOptions *terraform.Options, assertList []AssertExpression) *terraform.Options {
-	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, true)
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, nil, true)
+}
+
+// Function is responsible for deployment of the infrastructure, verify assert expressions,
+// verify if there are no changes in plan after deployment and destroy infrastructure
+func DeployInfraCheckOutputsVerifyChangesDeployChanges(t *testing.T, terraformOptions *terraform.Options,
+	assertList []AssertExpression, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) *terraform.Options {
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, additionalChangesAfterDeployment, true)
 }
 
 // Function is responsible only for deployment of the infrastructure,
 // no verification of assert expressions and no destroyment of the infrastructure
 func DeployInfraNoCheckOutputsNoDestroy(t *testing.T, terraformOptions *terraform.Options) *terraform.Options {
-	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, nil, false, false)
+	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, nil, false, nil, false)
 }
 
 // Generic deployment function used in wrapper functions above
-func GenericDeployInfraAndVerifyAssertChanges(t *testing.T, terraformOptions *terraform.Options,
-	assertList []AssertExpression, checkNoChanges bool, destroyInfraAtEnd bool) *terraform.Options {
+//   - terraformOptions - Terraform options required to execute tests in Terratest
+//   - assertList - list of assert expression
+//   - checkNoChanges - if true, after deployment check if there are no changes planed
+//   - additionalChangesAfterDeployment - if not empty, then it contains list of additional variables values and resources in external file
+//     to plan and deploy in order to verify if all expected changes are being provisioned, nothing more or less
+//   - destroyInfraAtEnd - if true, destroy infrastructure at the end of test
+func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
+	terraformOptions *terraform.Options,
+	assertList []AssertExpression,
+	checkNoChanges bool,
+	additionalChangesAfterDeployment *AdditionalChangesAfterDeployment,
+	destroyInfraAtEnd bool) *terraform.Options {
 	// If no Terraform options were provided, use default one
 	if terraformOptions == nil {
 		terraformOptions = terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -94,8 +125,14 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T, terraformOptions *te
 		terraformOptions.PlanFilePath = "test.plan"
 		planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
 		for _, v := range planStructure.ResourceChangesMap {
-			checkResourceChange(t, v)
+			checkResourceChange(t, v, nil)
 		}
+	}
+
+	// If there is passed structure with additional changes deployed after,
+	// then verify if changes in infrastructure are the same as expected
+	if additionalChangesAfterDeployment != nil {
+		planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
 	}
 
 	return terraformOptions
@@ -135,8 +172,6 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 			assert.True(t, assertExpression.Check(t, assertExpression.TestedValue), assertExpression.Message)
 		case EqualToValue:
 			assert.Equal(t, assertExpression.TestedValue, assertExpression.ExpectedValue)
-		// other case needs to be added while working on tests for modules
-		// ... TODO ...
 		default:
 			tLogger := logger.Logger{}
 			tLogger.Logf(t, "Unknown operation used in assert expressions list")
@@ -147,28 +182,70 @@ func AssertOutputs(t *testing.T, terraformOptions *terraform.Options, assertList
 
 // Function is checking if in ResourceChangesMap from PlanStruct
 // there are planned any resources to be added, deleted or changed
-func checkResourceChange(t *testing.T, v *tfjson.ResourceChange) {
+func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResources []ChangedResource) {
+	// Simple structure used to story 2 information:
+	// - updated - if anything is going to change
+	// - updateType - what kind of change is going to be done (create, delete, update)
 	var hasUpdate struct {
 		updated    bool
-		updateType string
+		updateType tfjson.Action
 	}
 
 	for _, action := range v.Change.Actions {
-		if action == tfjson.ActionDelete {
+		if action == tfjson.ActionDelete || action == tfjson.ActionCreate || action == tfjson.ActionUpdate {
 			hasUpdate.updated = true
-			hasUpdate.updateType = "deleted"
-		}
-		if action == tfjson.ActionCreate {
-			hasUpdate.updated = true
-			hasUpdate.updateType = "created"
-		}
-		if action == tfjson.ActionUpdate {
-			hasUpdate.updated = true
-			hasUpdate.updateType = "updated"
+			hasUpdate.updateType = action
 		}
 	}
 
-	assert.False(t, hasUpdate.updated, "Resource %v is about to be %s, but it shouldn't", v.Address, hasUpdate.updateType)
+	// If we are not expecting any change in resource, check if nothing was planned to change
+	if changedResources == nil {
+		assert.False(t, hasUpdate.updated, "Resource %v is about to be %sd, but it shouldn't", v.Address, hasUpdate.updateType)
+	} else {
+		// If we are expecting changes, check if all expected changes are planned to happen
+		asExpected := false
+		for _, changedResource := range changedResources {
+			if changedResource.Name == v.Address && changedResource.Action == hasUpdate.updateType {
+				asExpected = true
+			}
+		}
+		// Moreover check if any unexpected change is planned to happen
+		if asExpected == false && len(v.Change.Actions) == 1 && v.Change.Actions[0] == tfjson.ActionNoop {
+			asExpected = true
+		}
+		assert.True(t, asExpected, "Resource %v is about to be %vd, but it shouldn't", v.Address, hasUpdate.updateType)
+	}
+}
+
+// Function is doing Terraform plan after initial deployment and providing changes in variables values and resources
+func planAndDeployAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
+	// Merge original variables values with additional ones
+	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
+
+	// Rename provided file by adding .tf extension in order to add additional resources defined in file
+	renameFileFunc := func(orgFileName string, newFileName string) {
+		err := os.Rename(orgFileName, newFileName)
+		if err != nil {
+			t.Logf("Error while preparing additional file with code to deploy: %v", err)
+		}
+	}
+	additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
+	renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
+
+	// Always restore original file name
+	defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+
+	// Prepare plan and check changes by comparing them to expected one
+	terraformOptions.PlanFilePath = "test.plan"
+	planStructure := terraform.InitAndPlanAndShowWithStruct(t, terraformOptions)
+	for _, v := range planStructure.ResourceChangesMap {
+		checkResourceChange(t, v, additionalChangesAfterDeployment.ChangedResources)
+	}
+
+	// Deploy changes, if all asserts passed after plan
+	if !t.Failed() {
+		terraform.Apply(t, terraformOptions)
+	}
 }
 
 // Functions is response for planning deployment,
@@ -209,8 +286,6 @@ func AssertErrors(t *testing.T, err error, assertList []AssertExpression) {
 			assert.ErrorContains(t, err,
 				fmt.Sprintf("%v", assertExpression.ExpectedValue),
 				assertExpression.Message)
-		// other case needs to be added while working on tests for modules
-		// ... TODO ...
 		default:
 			tLogger := logger.Logger{}
 			tLogger.Logf(t, "Unknown operation used in assert expressions list")
