@@ -8,6 +8,11 @@ variable "fw_license_type" {
   default     = "byol"
 }
 
+variable "target_group_arns" {
+  description = "target group arn to associate asg with wlb"
+  default     = null
+  type        = string
+}
 variable "vmseries_product_code" {
   description = <<-EOF
   Product code corresponding to a chosen VM-Series license type model - by default - BYOL.
@@ -101,7 +106,7 @@ variable "interfaces" {
 variable "lifecycle_hook_timeout" {
   description = "How long should we wait for lambda to finish"
   type        = number
-  default     = 300
+  default     = 3000
 }
 
 variable "desired_capacity" {
@@ -130,5 +135,5 @@ variable "global_tags" {
 variable "lambda_timeout" {
   description = "Amount of time Lambda Function has to run in seconds."
   type        = number
-  default     = 10
+  default     = 100
 }

@@ -61,12 +61,13 @@ resource "aws_launch_template" "this" {
 
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
 resource "aws_autoscaling_group" "this" {
+
   name                = "${var.name_prefix}${var.asg_name}"
   vpc_zone_identifier = distinct([for k, v in local.default_eni_subnet_names[0] : v])
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
-
+  target_group_arns   = var.target_group_arns
   dynamic "tag" {
     for_each = var.global_tags
     content {
