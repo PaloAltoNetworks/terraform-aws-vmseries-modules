@@ -39,6 +39,15 @@ module "security_vpc_routes" {
   next_hop_set    = each.value.next_hop_set
 }
 
+# Optinal S3 bucket for bootstrapping
+module "bootstrap" {
+  count              = var.use_s3_bucket_to_bootstrap ? 1 : 0
+  source             = "../../modules/bootstrap"
+  prefix             = local.bucket_name_prefix
+  global_tags        = var.global_tags
+  plugin-op-commands = var.plugin_op_commands
+}
+
 # VM-Series deployed for tests
 module "vmseries" {
   for_each = var.vmseries
@@ -62,6 +71,7 @@ module "vmseries" {
 }
 
 locals {
+  bucket_name_prefix = replace(var.name_prefix, "_", "-")
   security_vpc_routes = concat(
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
