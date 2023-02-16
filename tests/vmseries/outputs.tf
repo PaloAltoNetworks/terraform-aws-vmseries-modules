@@ -5,10 +5,10 @@ output "public_ips" {
 
 output "vmseries_url" {
   description = "VM-Series instance URL."
-  value       = "https://${module.vmseries["vmseries01"].public_ips["mgmt"]}/php/login.php"
+  value       = contains(keys(module.vmseries["vmseries01"].public_ips), "mgmt") ? "https://${module.vmseries["vmseries01"].public_ips["mgmt"]}/php/login.php" : null
 }
 
 output "vmseries_ssh" {
   description = "VM-Series instance public IP with port to SSH."
-  value       = "${module.vmseries["vmseries01"].public_ips["mgmt"]}:22"
+  value       = contains(keys(module.vmseries["vmseries01"].public_ips), "mgmt") ? "${module.vmseries["vmseries01"].public_ips["mgmt"]}:22" : null
 }

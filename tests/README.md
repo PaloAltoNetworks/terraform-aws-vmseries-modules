@@ -17,6 +17,12 @@ cd tests/bootstrap
 go test -v -timeout 30m -count=1
 ```
 
+Run 1 specific test:
+
+```bash
+go test -v -timeout 30m -count=1 -run TestOutputForModuleVmseriesWithFullVariablesWithS3Bootstrapping
+```
+
 Run all test:
 
 ```bash

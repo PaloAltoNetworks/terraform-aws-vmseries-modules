@@ -222,18 +222,21 @@ func planAndDeployAdditionalChangesAfterDeployment(t *testing.T, terraformOption
 	// Merge original variables values with additional ones
 	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
 
-	// Rename provided file by adding .tf extension in order to add additional resources defined in file
-	renameFileFunc := func(orgFileName string, newFileName string) {
-		err := os.Rename(orgFileName, newFileName)
-		if err != nil {
-			t.Logf("Error while preparing additional file with code to deploy: %v", err)
+	// If in structure AdditionalChangesAfterDeployment filename was provided (it's not empty), then name provided file
+	if additionalChangesAfterDeployment.FileNameWithTfCode != "" {
+		// Rename provided file by adding .tf extension in order to add additional resources defined in file
+		renameFileFunc := func(orgFileName string, newFileName string) {
+			err := os.Rename(orgFileName, newFileName)
+			if err != nil {
+				t.Logf("Error while preparing additional file with code to deploy: %v", err)
+			}
 		}
-	}
-	additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
-	renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
+		additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
+		renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
 
-	// Always restore original file name
-	defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+		// Always restore original file name
+		defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+	}
 
 	// Prepare plan and check changes by comparing them to expected one
 	terraformOptions.PlanFilePath = "test.plan"

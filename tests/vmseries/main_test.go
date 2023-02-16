@@ -152,6 +152,20 @@ func TestOutputForModuleVmseriesWithFullVariablesWithS3Bootstrapping(t *testing.
 		},
 	}
 
+	// prepare additional changes deployed after
+	additionalChangesAfterDeployment := testskeleton.AdditionalChangesAfterDeployment{
+		AdditionalVarsValues: map[string]interface{}{
+			"override_and_disable_mgmt_create_public_ip": true,
+		},
+		FileNameWithTfCode: "",
+		ChangedResources: []testskeleton.ChangedResource{
+			{
+				Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+				Action: tfjson.ActionDelete,
+			},
+		},
+	}
+
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+	testskeleton.DeployInfraCheckOutputsVerifyChangesDeployChanges(t, terraformOptions, assertList, &additionalChangesAfterDeployment)
 }

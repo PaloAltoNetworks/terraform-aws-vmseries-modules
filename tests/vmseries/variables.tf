@@ -81,6 +81,10 @@ variable "security_vpc_security_groups" {
 
 ### VM-Series
 variable "vmseries" {}
+variable "override_and_disable_mgmt_create_public_ip" {
+  default = false
+  type    = bool
+}
 variable "vmseries_version" {}
 variable "bootstrap_options" {}
 variable "plugin_op_commands" {

@@ -63,7 +63,7 @@ module "vmseries" {
       security_group_ids = try([module.security_vpc.security_group_ids[v.security_group]], [])
       source_dest_check  = v.source_dest_check
       subnet_id          = module.security_subnet_sets[v.subnet].subnets[each.value.az].id
-      create_public_ip   = v.create_public_ip
+      create_public_ip   = var.override_and_disable_mgmt_create_public_ip ? false : v.create_public_ip
     }
   }
 
