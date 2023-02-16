@@ -78,6 +78,16 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
+		{
+			AdditionalVarsValues: map[string]interface{}{},
+			FileNameWithTfCode:   "",
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.panorama_vpc_routes[\"mgmt_10.80.10.0/24\"].aws_route.this[\"us-east-1a\"]",
+					Action: tfjson.ActionDelete,
+				},
+			},
+		},
 	}
 
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
