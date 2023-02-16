@@ -54,11 +54,12 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 
 	// prepare additional changes deployed after
 	additionalChangesAfterDeployment := []testskeleton.AdditionalChangesAfterDeployment{
+		// - add route
 		{
 			AdditionalVarsValues: map[string]interface{}{
 				"name_sufix": "_terratest",
 			},
-			FileNameWithTfCode: "resources.tf.temp",
+			FileNameWithTfCode: "panorama_routes.tf.temp",
 			ChangedResources: []testskeleton.ChangedResource{
 				{
 					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"mgmt\"]",
@@ -78,13 +79,92 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
+		// - remove route
 		{
-			AdditionalVarsValues: map[string]interface{}{},
-			FileNameWithTfCode:   "",
+			AdditionalVarsValues: map[string]interface{}{
+				"name_sufix": "",
+			},
 			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+					Action: tfjson.ActionUpdate,
+				},
 				{
 					Name:   "module.panorama_vpc_routes[\"mgmt_10.80.10.0/24\"].aws_route.this[\"us-east-1a\"]",
 					Action: tfjson.ActionDelete,
+				},
+			},
+		},
+		// - remove public IP from mgmt interface
+		{
+			AdditionalVarsValues: map[string]interface{}{
+				"override_and_disable_mgmt_create_public_ip": true,
+			},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+					Action: tfjson.ActionDelete,
+				},
+			},
+		},
+		// - add public IP from mgmt interface
+		{
+			AdditionalVarsValues: map[string]interface{}{
+				"override_and_disable_mgmt_create_public_ip": false,
+			},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+					Action: tfjson.ActionCreate,
+				},
+			},
+		},
+		// add security group rules
+		// remove security group rules
+		// add interfaces to the firewall
+		// remove interfaces to the firewall
+		// change userdata parameters
+		// add tags
+		{
+			UseVarFiles: []string{"terraform_full.tfvars", "global_tags.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+					Action: tfjson.ActionUpdate,
+				},
+			},
+		},
+		// remove tags
+		{
+			UseVarFiles: []string{"terraform_full.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+					Action: tfjson.ActionUpdate,
 				},
 			},
 		},
@@ -121,7 +201,7 @@ func TestOutputForModuleVmseriesWithMinimumVariables(t *testing.T) {
 	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "VM-Series plan deployment should fail without VM-Series configuration")
 }
 
-func TestOutputForModuleVmseriesWithFullVariablesWithS3Bootstrapping(t *testing.T) {
+func TestOutputForModuleVmseriesWithS3BootstrappingAndFullVariables(t *testing.T) {
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: ".",
@@ -164,36 +244,6 @@ func TestOutputForModuleVmseriesWithFullVariablesWithS3Bootstrapping(t *testing.
 		},
 	}
 
-	// prepare additional changes deployed after initial deployment:
-	// - remove public IP from mgmt interface
-	// - add public IP from mgmt interface
-	additionalChangesAfterDeploymentRemoveEip := []testskeleton.AdditionalChangesAfterDeployment{
-		{
-			AdditionalVarsValues: map[string]interface{}{
-				"override_and_disable_mgmt_create_public_ip": true,
-			},
-			FileNameWithTfCode: "",
-			ChangedResources: []testskeleton.ChangedResource{
-				{
-					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
-					Action: tfjson.ActionDelete,
-				},
-			},
-		},
-		{
-			AdditionalVarsValues: map[string]interface{}{
-				"override_and_disable_mgmt_create_public_ip": false,
-			},
-			FileNameWithTfCode: "",
-			ChangedResources: []testskeleton.ChangedResource{
-				{
-					Name:   "module.vmseries[\"vmseries01\"].aws_eip.this[\"mgmt\"]",
-					Action: tfjson.ActionCreate,
-				},
-			},
-		},
-	}
-
 	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputsVerifyChangesDeployChanges(t, terraformOptions, assertList, additionalChangesAfterDeploymentRemoveEip)
+	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
 }

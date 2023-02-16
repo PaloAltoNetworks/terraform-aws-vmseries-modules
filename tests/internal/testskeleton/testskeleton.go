@@ -52,6 +52,7 @@ type ChangedResource struct {
 }
 type AdditionalChangesAfterDeployment struct {
 	AdditionalVarsValues map[string]interface{}
+	UseVarFiles          []string
 	FileNameWithTfCode   string
 	ChangedResources     []ChangedResource
 }
@@ -221,6 +222,11 @@ func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResource
 
 // Function is doing Terraform plan after initial deployment and providing changes in variables values and resources
 func planAndDeployAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
+	// If var files defined, use them
+	if additionalChangesAfterDeployment.UseVarFiles != nil && len(additionalChangesAfterDeployment.UseVarFiles) > 0 {
+		terraformOptions.VarFiles = additionalChangesAfterDeployment.UseVarFiles
+	}
+
 	// Merge original variables values with additional ones
 	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
 
