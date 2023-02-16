@@ -71,7 +71,7 @@ func DeployInfraCheckOutputsVerifyChanges(t *testing.T, terraformOptions *terraf
 // Function is responsible for deployment of the infrastructure, verify assert expressions,
 // verify if there are no changes in plan after deployment and destroy infrastructure
 func DeployInfraCheckOutputsVerifyChangesDeployChanges(t *testing.T, terraformOptions *terraform.Options,
-	assertList []AssertExpression, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) *terraform.Options {
+	assertList []AssertExpression, additionalChangesAfterDeployment []AdditionalChangesAfterDeployment) *terraform.Options {
 	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, additionalChangesAfterDeployment, true)
 }
 
@@ -92,7 +92,7 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 	terraformOptions *terraform.Options,
 	assertList []AssertExpression,
 	checkNoChanges bool,
-	additionalChangesAfterDeployment *AdditionalChangesAfterDeployment,
+	additionalChangesAfterDeployment []AdditionalChangesAfterDeployment,
 	destroyInfraAtEnd bool) *terraform.Options {
 	// If no Terraform options were provided, use default one
 	if terraformOptions == nil {
@@ -131,8 +131,10 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 
 	// If there is passed structure with additional changes deployed after,
 	// then verify if changes in infrastructure are the same as expected
-	if additionalChangesAfterDeployment != nil {
-		planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
+	if additionalChangesAfterDeployment != nil && len(additionalChangesAfterDeployment) > 0 {
+		for _, additionalChangeAfterDeployment := range additionalChangesAfterDeployment {
+			planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, &additionalChangeAfterDeployment)
+		}
 	}
 
 	return terraformOptions
