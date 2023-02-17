@@ -54,7 +54,7 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 
 	// prepare additional changes deployed after
 	additionalChangesAfterDeployment := []testskeleton.AdditionalChangesAfterDeployment{
-		// - add route
+		// check adding new route
 		{
 			AdditionalVarsValues: map[string]interface{}{
 				"name_sufix": "_terratest",
@@ -79,7 +79,7 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
-		// - remove route
+		// check removing route
 		{
 			AdditionalVarsValues: map[string]interface{}{
 				"name_sufix": "",
@@ -103,7 +103,7 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
-		// - remove public IP from mgmt interface
+		// check removing public IP from mgmt interface
 		{
 			AdditionalVarsValues: map[string]interface{}{
 				"override_and_disable_mgmt_create_public_ip": true,
@@ -115,7 +115,7 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
-		// - add public IP from mgmt interface
+		// check adding public IP from mgmt interface
 		{
 			AdditionalVarsValues: map[string]interface{}{
 				"override_and_disable_mgmt_create_public_ip": false,
@@ -128,10 +128,53 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 			},
 		},
 		// add security group rules
+		// TODO: no change is triggered when security groups are overriden
 		// remove security group rules
+		// TODO: no change is triggered when security groups are overriden
 		// add interfaces to the firewall
+		{
+			UseVarFiles: []string{"terraform_full.tfvars", "network_interfaces.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"data1\"]",
+					Action: tfjson.ActionCreate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface_attachment.this[\"mgmt\"]",
+					Action: tfjson.ActionCreate,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+					Action: tfjson.ActionCreate,
+				},
+			},
+		},
 		// remove interfaces to the firewall
-		// change userdata parameters
+		{
+			UseVarFiles: []string{"terraform_full.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface.this[\"data1\"]",
+					Action: tfjson.ActionDelete,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_network_interface_attachment.this[\"mgmt\"]",
+					Action: tfjson.ActionDelete,
+				},
+				{
+					Name:   "module.vmseries[\"vmseries01\"].aws_instance.this",
+					Action: tfjson.ActionCreate,
+				},
+			},
+		},
+		// change userdata parameters - currently by default user_data_replace_on_change is set to false,
+		// so changing user data do not trigger replacing EC2 instancee
+		{
+			AdditionalVarsValues: map[string]interface{}{
+				"bootstrap_options": "plugin-op-commands=aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable;type=dhcp-client",
+			},
+			ChangedResources: []testskeleton.ChangedResource{},
+		},
 		// add tags
 		{
 			UseVarFiles: []string{"terraform_full.tfvars", "global_tags.tfvars"},
