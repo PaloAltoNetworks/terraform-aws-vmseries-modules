@@ -111,6 +111,7 @@ terraform destroy
 | [aws_ec2_transit_gateway_route.from_spokes_to_security](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_route) | resource |
 | [aws_instance.app_vm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_ami.bitnami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_ebs_default_kms_key.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ebs_default_kms_key) | data source |
 
 ## Inputs
 
@@ -125,6 +126,7 @@ terraform destroy
 | <a name="input_application_lb_name"></a> [application\_lb\_name](#input\_application\_lb\_name) | Name of the public Application Load Balancer placed in front of the Firewalls' public interfaces. | `string` | `"public-alb"` | no |
 | <a name="input_application_lb_rules"></a> [application\_lb\_rules](#input\_application\_lb\_rules) | A map of rules for the Application Load Balancer. See [modules documentation](../../modules/alb/README.md) for details. | `any` | n/a | yes |
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | A string representing bootstrap options. For details refer to [Palo Alto documentation](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/bootstrap-the-vm-series-firewall-in-aws). | `string` | n/a | yes |
+| <a name="input_ebs_encrypted"></a> [ebs\_encrypted](#input\_ebs\_encrypted) | Whether to enable EBS encryption on volumes. | `bool` | `true` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Tags to add to all AWS objects. | `map(string)` | `{}` | no |
 | <a name="input_internal_app_nlb_name"></a> [internal\_app\_nlb\_name](#input\_internal\_app\_nlb\_name) | Name of the internal Network Load Balancer placed in front of the application VMs. | `string` | `"int-app-nlb"` | no |
 | <a name="input_internal_app_nlb_rules"></a> [internal\_app\_nlb\_rules](#input\_internal\_app\_nlb\_rules) | A set of rules for the Network Load Balancer placed in front of the Application VMs. See [modules documentation](../../modules/nlb/README.md) for details.<br><br>Just like in case of the `network_lb_rules`, `targets` and `target_type` properties are omitted because they are the same for all rules. In this module's use case the type is `instance` and instance IDs are calculated dynamically. Just like in case of the public Network Load Balancer, rules and targets are *combined* in `locals` section of the `applicaton.tf`. | `any` | n/a | yes |

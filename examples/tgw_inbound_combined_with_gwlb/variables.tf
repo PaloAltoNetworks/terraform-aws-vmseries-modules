@@ -164,3 +164,9 @@ variable "app1_gwlb_endpoint_set_name" {
   description = "The name of the GWLB VPC Endpoint created to inspect traffic inbound from Internet to the App1 load balancer."
   type        = string
 }
+
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on volumes."
+  default     = true
+  type        = bool
+}

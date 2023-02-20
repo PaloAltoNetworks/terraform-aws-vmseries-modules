@@ -91,6 +91,11 @@ data "aws_ami" "this" {
   owners = ["979382823631"] # bitnami = 979382823631
 }
 
+# Retrieve the default KMS key in the current region for EBS encryption
+data "aws_ebs_default_kms_key" "current" {
+  count = var.ebs_encrypted ? 1 : 0
+}
+
 resource "aws_instance" "app1_vm" {
   for_each = var.app1_vms
 
@@ -101,6 +106,11 @@ resource "aws_instance" "app1_vm" {
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   ebs_optimized          = true
+  root_block_device {
+    delete_on_termination = true
+    encrypted             = var.ebs_encrypted
+    kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
+  }
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"

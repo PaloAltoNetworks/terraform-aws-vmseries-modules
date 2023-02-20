@@ -130,3 +130,9 @@ variable "panorama_iam_role" {
   description = "IAM Role attached to Panorama instance contained curated IAM Policy."
   type        = string
 }
+
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on volumes."
+  default     = true
+  type        = bool
+}

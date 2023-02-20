@@ -15,6 +15,11 @@ data "aws_ami" "this" {
   name_regex = "^Panorama-AWS-${var.panorama_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 }
 
+# Retrieve the default KMS key in the current region for EBS encryption
+data "aws_ebs_default_kms_key" "current" {
+  count = var.ebs_encrypted ? 1 : 0
+}
+
 # Create the Panorama Instance
 resource "aws_instance" "this" {
   ami                                  = data.aws_ami.this.id
@@ -32,6 +37,8 @@ resource "aws_instance" "this" {
 
   root_block_device {
     delete_on_termination = true
+    encrypted             = var.ebs_encrypted
+    kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
   }
 
   tags = merge(var.global_tags, { Name = var.name })

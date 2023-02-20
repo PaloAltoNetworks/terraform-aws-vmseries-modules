@@ -61,3 +61,9 @@ variable "app_vm_type" {
   default     = "t2.micro"
   type        = string
 }
+
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on volumes."
+  default     = true
+  type        = bool
+}

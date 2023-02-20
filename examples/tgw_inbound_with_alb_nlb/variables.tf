@@ -238,3 +238,9 @@ variable "app_vpc_tgw_attachment_name" {
   default     = "app-tgw-attachment"
   type        = string
 }
+
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on volumes."
+  default     = true
+  type        = bool
+}
