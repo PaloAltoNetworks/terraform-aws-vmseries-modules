@@ -169,6 +169,7 @@ resource "aws_s3_bucket_policy" "this" {
 
 resource "aws_security_group_rule" "alb_att" {
 
+  description              = "Allow ingress ALB traffic"
   from_port                = 0
   protocol                 = "all"
   source_security_group_id = var.security_groups[0]
