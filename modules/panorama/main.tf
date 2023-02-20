@@ -35,6 +35,10 @@ resource "aws_instance" "this" {
   }
 
   tags = merge(var.global_tags, { Name = var.name })
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 # Create Elastic IP

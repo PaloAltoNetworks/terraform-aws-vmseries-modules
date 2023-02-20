@@ -100,7 +100,10 @@ resource "aws_instance" "app1_vm" {
   subnet_id              = module.app1_subnet_sets["app1_vm"].subnets[each.value.az].id
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 

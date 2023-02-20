@@ -93,6 +93,10 @@ resource "aws_instance" "app_vm" {
   vpc_security_group_ids      = [module.security_vpc.security_group_ids["app_vm"]]
   tags                        = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   associate_public_ip_address = true
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 
 }
 
