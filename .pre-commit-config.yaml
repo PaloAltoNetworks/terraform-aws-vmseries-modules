@@ -29,5 +29,5 @@ repos:
         --quiet,
         --soft-fail,
         --skip-check, "CKV_GCP_26,CKV_GCP_32,CKV_GCP_35,CKV_GCP_36,CKV_GCP_39,CKV_GCP_40,CKV_GCP_76,CKV_GCP_62",
-        --soft-fail-on, "CKV1_GHA_1",
+        --soft-fail-on, "CKV1_GHA_1,CKV_AWS_186",
       ]

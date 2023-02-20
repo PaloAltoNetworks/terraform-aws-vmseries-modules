@@ -184,6 +184,9 @@ resource "aws_lambda_function" "this" {
   source_code_hash = data.archive_file.this.output_base64sha256
   runtime          = "python3.8"
   timeout          = var.lambda_timeout
+  tracing_config {
+    mode = "Active"
+  }
   environment {
     variables = {
       lambda_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })

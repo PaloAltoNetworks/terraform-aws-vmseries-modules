@@ -93,6 +93,9 @@ resource "aws_lambda_function" "rt_failover" {
   runtime     = "python3.8"
   timeout     = "30"
   description = "Used for updating VPC RTs during PAN failover"
+  tracing_config {
+    mode = "Active"
+  }
 
   vpc_config {
     subnet_ids         = [var.subnet_state["${var.prefix_name_tag}-lambda-1a"], var.subnet_state["${var.prefix_name_tag}-lambda-1b"]]
