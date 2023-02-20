@@ -106,6 +106,7 @@ resource "aws_instance" "app1_vm" {
   vpc_security_group_ids = [module.app1_vpc.security_group_ids["app1_vm"]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   ebs_optimized          = true
+  iam_instance_profile   = var.iam_instance_profile
   root_block_device {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted

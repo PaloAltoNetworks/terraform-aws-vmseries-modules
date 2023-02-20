@@ -97,6 +97,7 @@ resource "aws_instance" "app_vm" {
   subnet_id                   = module.security_subnet_sets["app_vm"].subnets[each.value.az].id
   vpc_security_group_ids      = [module.security_vpc.security_group_ids["app_vm"]]
   tags                        = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  iam_instance_profile        = var.iam_instance_profile
   associate_public_ip_address = true
   ebs_optimized               = true
   root_block_device {

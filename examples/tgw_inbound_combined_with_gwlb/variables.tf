@@ -170,3 +170,9 @@ variable "ebs_encrypted" {
   default     = true
   type        = bool
 }
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile."
+  default     = null
+  type        = string
+}
