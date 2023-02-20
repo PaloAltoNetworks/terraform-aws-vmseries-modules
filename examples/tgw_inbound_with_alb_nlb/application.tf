@@ -116,6 +116,7 @@ resource "aws_instance" "app_vm" {
 
   subnet_id              = module.app_subnet_sets["appl"].subnets[each.value.az].id
   vpc_security_group_ids = [module.app_vpc.security_group_ids["app_example"]]
+  ebs_optimized          = true
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"

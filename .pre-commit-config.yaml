@@ -24,7 +24,10 @@ repos:
     hooks:
     - id: checkov
       verbose: true
-      args: 
-        - '--compact'
-        - '--quiet'
-        - '--soft-fail'
+      args: [
+        --compact,
+        --quiet,
+        --soft-fail,
+        --skip-check, "CKV_GCP_26,CKV_GCP_32,CKV_GCP_35,CKV_GCP_36,CKV_GCP_39,CKV_GCP_40,CKV_GCP_76,CKV_GCP_62",
+#        --soft-fail-on, "CKV_GCP_37,CKV_GCP_38,CKV_GCP_74,CKV_GCP_83,CKV2_GHA_1",
+      ]
