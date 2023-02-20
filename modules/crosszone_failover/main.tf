@@ -9,6 +9,9 @@ resource "aws_s3_bucket" "this" {
   acl           = "private"
   force_destroy = true
   tags          = merge(var.tags, { Name = var.lambda_s3_bucket })
+  versioning {
+    enabled = true
+  }
 }
 
 resource "aws_s3_bucket_object" "this" {
