@@ -132,3 +132,9 @@ variable "lambda_timeout" {
   type        = number
   default     = 10
 }
+
+variable "reserved_concurrent_executions" {
+  description = "Amount of reserved concurrent execussions for lambda function."
+  default     = 100
+  type        = number
+}
