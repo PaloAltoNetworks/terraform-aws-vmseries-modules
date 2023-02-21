@@ -127,10 +127,26 @@ func TestOutputForModuleVmseriesWithFullVariables(t *testing.T) {
 				},
 			},
 		},
-		// add security group rules
-		// TODO: no change is triggered when security groups are overriden
 		// remove security group rules
-		// TODO: no change is triggered when security groups are overriden
+		{
+			UseVarFiles: []string{"terraform_full.tfvars", "security_groups.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.security_vpc.aws_security_group.this[\"vmseries_mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+			},
+		},
+		// add security group rules
+		{
+			UseVarFiles: []string{"terraform_full.tfvars"},
+			ChangedResources: []testskeleton.ChangedResource{
+				{
+					Name:   "module.security_vpc.aws_security_group.this[\"vmseries_mgmt\"]",
+					Action: tfjson.ActionUpdate,
+				},
+			},
+		},
 		// add interfaces to the firewall
 		{
 			UseVarFiles: []string{"terraform_full.tfvars", "network_interfaces.tfvars"},
