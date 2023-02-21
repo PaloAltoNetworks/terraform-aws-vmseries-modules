@@ -133,6 +133,9 @@ resource "aws_vpc_endpoint" "api" {
 resource "aws_api_gateway_rest_api" "pan_failover" {
   name        = "${var.prefix_name_tag}-API-GW"
   description = "Used to trigger lambda for PAN cross zone failover"
+  lifecycle {
+    create_before_destroy = true
+  }
 
   endpoint_configuration {
     types            = ["PRIVATE"]
@@ -233,7 +236,9 @@ resource "aws_api_gateway_deployment" "pan_failover" {
 
   rest_api_id = aws_api_gateway_rest_api.pan_failover.id
   stage_name  = "prod"
-
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
