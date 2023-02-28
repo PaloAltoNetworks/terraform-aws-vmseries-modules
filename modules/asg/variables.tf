@@ -132,3 +132,15 @@ variable "lambda_timeout" {
   type        = number
   default     = 10
 }
+
+variable "lambda_subnet_ids" {
+  description = "List of subnet IDs associated with the Lambda function"
+  type        = list(string)
+  default     = []
+}
+
+variable "lambda_security_group_ids" {
+  description = "List of security group IDs associated with the Lambda function"
+  type        = list(string)
+  default     = []
+}

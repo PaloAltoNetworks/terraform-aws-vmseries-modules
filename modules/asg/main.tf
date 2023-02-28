@@ -180,6 +180,10 @@ resource "aws_lambda_function" "this" {
   source_code_hash = data.archive_file.this.output_base64sha256
   runtime          = "python3.8"
   timeout          = var.lambda_timeout
+  vpc_config {
+    subnet_ids         = var.lambda_subnet_ids
+    security_group_ids = var.lambda_security_group_ids
+  }
   environment {
     variables = {
       lambda_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
