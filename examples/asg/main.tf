@@ -39,6 +39,34 @@ locals {
         to_cidr      = cidr
       }
     ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "lambda_a"
+        next_hop_set = module.natgw_set.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "lambda_b"
+        next_hop_set = module.natgw_set.next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "natgw_a"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = cidr
+      }
+    ],
+    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+      {
+        subnet_key   = "natgw_b"
+        next_hop_set = module.security_vpc.igw_as_next_hop_set
+        to_cidr      = cidr
+      }
+    ],
   )
 }
 
@@ -49,6 +77,12 @@ module "security_vpc_routes" {
   route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
+}
+
+module "natgw_set" {
+  source = "../../modules/nat_gateway_set"
+
+  subnets = { for k, v in var.vpc_subnets : v.az => module.security_subnet_sets[v.set].subnets[v.az] if v.set == "natgw_a" || v.set == "natgw_b" }
 }
 
 module "vm_series_asg" {
@@ -71,4 +105,6 @@ module "vm_series_asg" {
       create_public_ip   = try(v.create_public_ip, false)
     }
   }
+  subnet_ids         = [for k, v in var.vpc_subnets : module.security_subnet_sets[v.set].subnets[v.az].id if v.set == "lambda_a" || v.set == "lambda_b"]
+  security_group_ids = [module.security_vpc.security_group_ids["lambda"]]
 }

@@ -133,13 +133,13 @@ variable "lambda_timeout" {
   default     = 10
 }
 
-variable "lambda_subnet_ids" {
+variable "subnet_ids" {
   description = "List of subnet IDs associated with the Lambda function"
   type        = list(string)
   default     = []
 }
 
-variable "lambda_security_group_ids" {
+variable "security_group_ids" {
   description = "List of security group IDs associated with the Lambda function"
   type        = list(string)
   default     = []

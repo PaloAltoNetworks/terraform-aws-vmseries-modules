@@ -46,16 +46,35 @@ vpc_security_groups = {
       }
     }
   }
+  lambda = {
+    name = "lambda"
+    rules = {
+      all_outbound = {
+        description = "Permit All traffic outbound"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      all_inbound = {
+        description = "Permit All traffic inbound"
+        type        = "ingress", from_port = "0", to_port = "0", protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    }
+  }
 }
 
 vpc_subnets = {
   # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
   "10.104.0.0/24"   = { az = "us-east-1a", set = "mgmt_a" }
   "10.104.128.0/24" = { az = "us-east-1b", set = "mgmt_b" }
+  "10.104.1.0/24"   = { az = "us-east-1a", set = "lambda_a" }
+  "10.104.129.0/24" = { az = "us-east-1b", set = "lambda_b" }
   "10.104.2.0/24"   = { az = "us-east-1a", set = "data1_a" }
   "10.104.130.0/24" = { az = "us-east-1b", set = "data1_b" }
   "10.104.3.0/24"   = { az = "us-east-1a", set = "data2_a" }
   "10.104.131.0/24" = { az = "us-east-1b", set = "data2_b" }
+  "10.104.4.0/24"   = { az = "us-east-1a", set = "natgw_a" }
+  "10.104.132.0/24" = { az = "us-east-1b", set = "natgw_b" }
 }
 
 vmseries_interfaces = {
