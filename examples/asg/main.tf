@@ -60,7 +60,7 @@ module "security_vpc_routes" {
 module "natgw_set" {
   source = "../../modules/nat_gateway_set"
 
-  subnets = { for k, v in var.vpc_subnets : v.az => module.security_subnet_sets[v.set].subnets[v.az] if v.set == "natgw" }
+  subnets = module.security_subnet_sets["natgw"].subnets
 }
 
 module "vm_series_asg" {
