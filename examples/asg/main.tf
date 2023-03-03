@@ -26,43 +26,21 @@ locals {
     [
       for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
-        subnet_key   = "mgmt_a"
-        next_hop_set = module.security_vpc.igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [
-      for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "mgmt_b"
+        subnet_key   = "mgmt"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
       }
     ],
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
-        subnet_key   = "lambda_a"
+        subnet_key   = "lambda"
         next_hop_set = module.natgw_set.next_hop_set
         to_cidr      = cidr
       }
     ],
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
-        subnet_key   = "lambda_b"
-        next_hop_set = module.natgw_set.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "natgw_a"
-        next_hop_set = module.security_vpc.igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "natgw_b"
+        subnet_key   = "natgw"
         next_hop_set = module.security_vpc.igw_as_next_hop_set
         to_cidr      = cidr
       }
@@ -82,7 +60,7 @@ module "security_vpc_routes" {
 module "natgw_set" {
   source = "../../modules/nat_gateway_set"
 
-  subnets = { for k, v in var.vpc_subnets : v.az => module.security_subnet_sets[v.set].subnets[v.az] if v.set == "natgw_a" || v.set == "natgw_b" }
+  subnets = { for k, v in var.vpc_subnets : v.az => module.security_subnet_sets[v.set].subnets[v.az] if v.set == "natgw" }
 }
 
 module "vm_series_asg" {
@@ -101,10 +79,10 @@ module "vm_series_asg" {
       device_index       = v.device_index
       security_group_ids = try([module.security_vpc.security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
-      subnet_id          = { for z, c in v.subnet : c => module.security_subnet_sets[z].subnets[c].id }
+      subnet_id          = { for z, c in v.subnet : c => module.security_subnet_sets[k].subnets[c].id }
       create_public_ip   = try(v.create_public_ip, false)
     }
   }
-  subnet_ids         = [for k, v in var.vpc_subnets : module.security_subnet_sets[v.set].subnets[v.az].id if v.set == "lambda_a" || v.set == "lambda_b"]
+  subnet_ids         = [for k, v in var.vpc_subnets : module.security_subnet_sets[v.set].subnets[v.az].id if v.set == "lambda"]
   security_group_ids = [module.security_vpc.security_group_ids["lambda"]]
 }
