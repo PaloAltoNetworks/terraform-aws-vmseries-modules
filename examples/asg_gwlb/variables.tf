@@ -1,18 +1,18 @@
 ### General
 variable "region" {
   description = "AWS region used to deploy whole infrastructure"
-  type = string
+  type        = string
 }
 variable "name_prefix" {
   description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
-  type = string
+  type        = string
 }
 variable "global_tags" {
   description = "Global tags configured for all provisioned resources"
 }
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
-  type = string
+  type        = string
 }
 
 ### VM-Series
@@ -40,7 +40,7 @@ variable "vmseries_common" {
 }
 variable "vmseries_version" {
   description = "PAN-OS version used for VM-Series"
-  type = string
+  type        = string
 }
 variable "vmseries_interfaces" {
   description = <<-EOF
@@ -72,50 +72,50 @@ variable "vmseries_interfaces" {
 
 variable "ebs_kms_id" {
   description = "Alias for AWS KMS used for EBS encryption in VM-Series"
-  type = string
+  type        = string
 }
 
 variable "asg_max_size" {
   description = "Maximum size of the Auto Scaling Group"
-  type = number
+  type        = number
 }
 variable "asg_min_size" {
   description = "Minimum size of the Auto Scaling Group"
-  type = number
+  type        = number
 }
 variable "asg_desired_cap" {
   description = "The number of Amazon EC2 instances that should be running in the group"
-  type = number
+  type        = number
 }
 
 variable "scaling_plan_enabled" {
   description = "True, if automatic dynamic scaling policy should be created"
-  type = bool
+  type        = bool
 }
 variable "scaling_metric_name" {
   description = "Name of the metric used in dynamic scaling policy"
-  type = string
+  type        = string
 }
 variable "scaling_tags" {
   description = "Tags configured for dynamic scaling policy"
 }
 variable "scaling_target_value" {
   description = "Target value for the metric used in dynamic scaling policy"
-  type = number
+  type        = number
 }
 variable "scaling_cloudwatch_namespace" {
   description = "Name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)"
-  type = string
+  type        = string
 }
 
 ### Security VPC
 variable "security_vpc_name" {
   description = "Name of the security VPC"
-  type = string
+  type        = string
 }
 variable "security_vpc_cidr" {
   description = "IPv4 CIDR for the security VPC"
-  type = string
+  type        = string
 }
 variable "security_vpc_subnets" {
   description = <<-EOF
@@ -215,17 +215,17 @@ variable "security_vpc_routes_eastwest_cidrs" {
 #### Security VPC TGW attachments
 variable "security_vpc_tgw_attachment_name" {
   description = "Name of TGW attachment for the security VPC"
-  type = string
+  type        = string
 }
 variable "panorama_transit_gateway_attachment_id" {
   description = "ID of TGW attachment for Panorama"
-  default = null
-  type = string
+  default     = null
+  type        = string
 }
 variable "panorama_vpc_cidr" {
   description = "IPv4 CIDR of the VPC for Panorama"
-  default = null
-  type = string
+  default     = null
+  type        = string
 }
 
 ### Transit gateway
@@ -272,21 +272,21 @@ variable "transit_gateway_route_tables" {
 ### GWLB
 variable "gwlb_name" {
   description = "Name of the GWLB"
-  type = string
+  type        = string
 }
 variable "gwlb_endpoint_set_eastwest_name" {
   description = "Name of the set with GWLB endpoints for east-west traffic"
-  type = string
+  type        = string
 }
 variable "gwlb_endpoint_set_outbound_name" {
   description = "Name of the set with GWLB endpoints for outbound traffic"
-  type = string
+  type        = string
 }
 
 ### NAT GW
 variable "nat_gateway_name" {
   description = "Name of the NAT gateway"
-  type = string
+  type        = string
 }
 
 ### SPOKE VPC APP1
