@@ -3,6 +3,11 @@ variable "vmseries_version" {
   default     = "10.2.2"
 }
 
+variable "region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "fw_license_type" {
   description = "Select License type (byol/payg1/payg2)"
   default     = "byol"
@@ -48,7 +53,7 @@ variable "ssh_key_name" {
 
 variable "bootstrap_options" {
   description = "Bootstrap options to put into userdata"
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
@@ -98,6 +103,11 @@ variable "interfaces" {
   type = map(any)
 }
 
+variable "target_group_arn" {
+  description = "ARN of target group for load balancer"
+  type        = string
+}
+
 variable "lifecycle_hook_timeout" {
   description = "How long should we wait for lambda to finish"
   type        = number
@@ -122,6 +132,12 @@ variable "min_size" {
   default     = 1
 }
 
+variable "suspended_processes" {
+  description = "List of processes to suspend for the Auto Scaling Group. The allowed values are Launch, Terminate, HealthCheck, ReplaceUnhealthy, AZRebalance, AlarmNotification, ScheduledActions, AddToLoadBalancer, InstanceRefresh"
+  type        = list(string)
+  default     = []
+}
+
 variable "global_tags" {
   description = "Map of AWS tags to apply to all the created resources."
   type        = map(any)
@@ -131,4 +147,54 @@ variable "lambda_timeout" {
   description = "Amount of time Lambda Function has to run in seconds."
   type        = number
   default     = 10
+}
+
+variable "subnet_ids" {
+  description = "List of subnet IDs associated with the Lambda function"
+  type        = list(string)
+  default     = []
+}
+
+variable "security_group_ids" {
+  description = "List of security group IDs associated with the Lambda function"
+  type        = list(string)
+  default     = []
+}
+
+variable "vmseries_iam_instance_profile" {
+  type    = string
+  default = ""
+}
+
+variable "ebs_kms_id" {}
+
+variable "scaling_plan_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "scaling_metric_name" {
+  type    = string
+  default = ""
+}
+
+variable "scaling_tags" {
+  type    = map(any)
+  default = {}
+}
+
+variable "scaling_target_value" {
+  type    = number
+  default = 70
+}
+
+variable "scaling_statistic" {
+  description = "Statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum"
+  default     = "Average"
+  type        = string
+}
+
+variable "scaling_cloudwatch_namespace" {
+  type    = string
+  default = "VMseries_dimensions"
 }
