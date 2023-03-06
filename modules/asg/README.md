@@ -52,7 +52,7 @@ No modules.
 | <a name="input_asg_name"></a> [asg\_name](#input\_asg\_name) | Name of the autoscaling group to create | `string` | `"asg"` | no |
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | Bootstrap options to put into userdata | `any` | `{}` | no |
 | <a name="input_desired_capacity"></a> [desired\_capacity](#input\_desired\_capacity) | Number of Amazon EC2 instances that should be running in the group. | `number` | `2` | no |
-| <a name="input_ebs_kms_id"></a> [ebs\_kms\_id](#input\_ebs\_kms\_id) | n/a | `any` | n/a | yes |
+| <a name="input_ebs_kms_id"></a> [ebs\_kms\_id](#input\_ebs\_kms\_id) | Alias for AWS KMS used for EBS encryption in VM-Series | `string` | `"alias/aws/ebs"` | no |
 | <a name="input_fw_license_type"></a> [fw\_license\_type](#input\_fw\_license\_type) | Select License type (byol/payg1/payg2) | `string` | `"byol"` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of AWS tags to apply to all the created resources. | `map(any)` | n/a | yes |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type. | `string` | `"m5.xlarge"` | no |
@@ -63,19 +63,19 @@ No modules.
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | Minimum size of the Auto Scaling Group. | `number` | `1` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | All resource names will be prepended with this string | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | n/a | yes |
-| <a name="input_scaling_cloudwatch_namespace"></a> [scaling\_cloudwatch\_namespace](#input\_scaling\_cloudwatch\_namespace) | n/a | `string` | `"VMseries_dimensions"` | no |
-| <a name="input_scaling_metric_name"></a> [scaling\_metric\_name](#input\_scaling\_metric\_name) | n/a | `string` | `""` | no |
-| <a name="input_scaling_plan_enabled"></a> [scaling\_plan\_enabled](#input\_scaling\_plan\_enabled) | n/a | `bool` | `false` | no |
+| <a name="input_scaling_cloudwatch_namespace"></a> [scaling\_cloudwatch\_namespace](#input\_scaling\_cloudwatch\_namespace) | Name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS) | `string` | `"VMseries_dimensions"` | no |
+| <a name="input_scaling_metric_name"></a> [scaling\_metric\_name](#input\_scaling\_metric\_name) | Name of the metric used in dynamic scaling policy | `string` | `""` | no |
+| <a name="input_scaling_plan_enabled"></a> [scaling\_plan\_enabled](#input\_scaling\_plan\_enabled) | True, if automatic dynamic scaling policy should be created | `bool` | `false` | no |
 | <a name="input_scaling_statistic"></a> [scaling\_statistic](#input\_scaling\_statistic) | Statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum | `string` | `"Average"` | no |
-| <a name="input_scaling_tags"></a> [scaling\_tags](#input\_scaling\_tags) | n/a | `map(any)` | `{}` | no |
-| <a name="input_scaling_target_value"></a> [scaling\_target\_value](#input\_scaling\_target\_value) | n/a | `number` | `70` | no |
+| <a name="input_scaling_tags"></a> [scaling\_tags](#input\_scaling\_tags) | Tags configured for dynamic scaling policy | `map(any)` | `{}` | no |
+| <a name="input_scaling_target_value"></a> [scaling\_target\_value](#input\_scaling\_target\_value) | Target value for the metric used in dynamic scaling policy | `number` | `70` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | List of security group IDs associated with the Lambda function | `list(string)` | `[]` | no |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of AWS keypair to associate with instances | `string` | n/a | yes |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet IDs associated with the Lambda function | `list(string)` | `[]` | no |
 | <a name="input_suspended_processes"></a> [suspended\_processes](#input\_suspended\_processes) | List of processes to suspend for the Auto Scaling Group. The allowed values are Launch, Terminate, HealthCheck, ReplaceUnhealthy, AZRebalance, AlarmNotification, ScheduledActions, AddToLoadBalancer, InstanceRefresh | `list(string)` | `[]` | no |
-| <a name="input_target_group_arn"></a> [target\_group\_arn](#input\_target\_group\_arn) | ARN of target group for load balancer | `string` | n/a | yes |
+| <a name="input_target_group_arn"></a> [target\_group\_arn](#input\_target\_group\_arn) | ARN of target group for load balancer | `string` | `null` | no |
 | <a name="input_vmseries_ami_id"></a> [vmseries\_ami\_id](#input\_vmseries\_ami\_id) | The AMI from which to launch the instance. Takes precedence over fw\_version and fw\_license\_type | `string` | `null` | no |
-| <a name="input_vmseries_iam_instance_profile"></a> [vmseries\_iam\_instance\_profile](#input\_vmseries\_iam\_instance\_profile) | n/a | `string` | `""` | no |
+| <a name="input_vmseries_iam_instance_profile"></a> [vmseries\_iam\_instance\_profile](#input\_vmseries\_iam\_instance\_profile) | IAM instance profile used in launch template | `string` | `""` | no |
 | <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL.<br>To check the available license type models and their codes, please refer to the<br>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
 | <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | Select which FW version to deploy | `string` | `"10.2.2"` | no |
 

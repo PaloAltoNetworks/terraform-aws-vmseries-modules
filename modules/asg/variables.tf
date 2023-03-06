@@ -106,6 +106,7 @@ variable "interfaces" {
 variable "target_group_arn" {
   description = "ARN of target group for load balancer"
   type        = string
+  default     = null
 }
 
 variable "lifecycle_hook_timeout" {
@@ -162,30 +163,39 @@ variable "security_group_ids" {
 }
 
 variable "vmseries_iam_instance_profile" {
-  type    = string
-  default = ""
+  description = "IAM instance profile used in launch template"
+  type        = string
+  default     = ""
 }
 
-variable "ebs_kms_id" {}
+variable "ebs_kms_id" {
+  description = "Alias for AWS KMS used for EBS encryption in VM-Series"
+  type        = string
+  default     = "alias/aws/ebs"
+}
 
 variable "scaling_plan_enabled" {
-  type    = bool
-  default = false
+  description = "True, if automatic dynamic scaling policy should be created"
+  type        = bool
+  default     = false
 }
 
 variable "scaling_metric_name" {
-  type    = string
-  default = ""
+  description = "Name of the metric used in dynamic scaling policy"
+  type        = string
+  default     = ""
 }
 
 variable "scaling_tags" {
-  type    = map(any)
-  default = {}
+  description = "Tags configured for dynamic scaling policy"
+  type        = map(any)
+  default     = {}
 }
 
 variable "scaling_target_value" {
-  type    = number
-  default = 70
+  description = "Target value for the metric used in dynamic scaling policy"
+  type        = number
+  default     = 70
 }
 
 variable "scaling_statistic" {
@@ -195,6 +205,7 @@ variable "scaling_statistic" {
 }
 
 variable "scaling_cloudwatch_namespace" {
-  type    = string
-  default = "VMseries_dimensions"
+  description = "Name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)"
+  type        = string
+  default     = "VMseries_dimensions"
 }
