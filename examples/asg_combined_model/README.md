@@ -1,17 +1,14 @@
 # VM-Series Auto Scaling example with VM-Series in target group for Gateway Load Balancer
 
-A Terraform example for deploying VM-Series firewalls in an autoscaling group on AWS. 
-All VM-Series instances are automatically registed in target group for Gateway Load Balancer. 
+A Terraform example for deploying VM-Series firewalls in an autoscaling group on AWS.
+All VM-Series instances are automatically registered in target group for Gateway Load Balancer.
 While bootstrapping of VM-Series, automatically there are made associations between VM-Series's subinteraces and GWLB endpoints.
 Each VM-Series contains multiple network interfaces created by Lambda function.
 
 ![image](https://user-images.githubusercontent.com/2110772/225296278-7fd49fed-09c8-4be3-80e3-3fe06852e32b.png)
 
-*Architecture for Combined Model*
-
-**NOTE:**
-1. The firewalls will take several minutes to boot up.
-2. In order to automatically configure VM-Series, you need additionaly provision Panorama and configure routing via TGW. In Panorama you need to prepare device group, template and template stack in Panoramam download and install plugin `sw_fw_license` for managing licences, configure bootstrap definition and license manager.
+Code was prepared according to presented above diagram for *combined model*. Please note, that firewalls will take several minutes to boot up.
+Moreover in order to automatically configure VM-Series, you need additionaly provision Panorama and configure routing via TGW. In Panorama you need to prepare device group, template and template stack in Panoramam download and install plugin `sw_fw_license` for managing licences, configure bootstrap definition and license manager.
 
 ## Usage
 
