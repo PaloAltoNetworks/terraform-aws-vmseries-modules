@@ -143,12 +143,12 @@ security_vpc_security_groups = {
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       panorama_ssh = {
         description = "Permit Panorama SSH (Optional)"
@@ -184,13 +184,13 @@ security_vpc_routes_eastwest_cidrs = [
 ]
 security_vpc_mgmt_routes_to_tgw = [
   # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
-  "10.80.0.0/16",
+  "10.255.0.0/16",
 ]
 
 #### Security VPC TGW attachments
 security_vpc_tgw_attachment_name       = "vmseries"
 panorama_transit_gateway_attachment_id = "tgw-attach-0e1203e93780ae9fe" # TODO: update here
-panorama_vpc_cidr                      = "10.80.0.0/24"                 # TODO: update here
+panorama_vpc_cidr                      = "10.255.0.0/24"                # TODO: update here
 
 ### Transit gateway
 transit_gateway_name = "tgw"
@@ -243,17 +243,17 @@ app1_vpc_security_groups = {
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       http = {
         description = "Permit HTTP"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
     }
   }
@@ -293,17 +293,17 @@ app2_vpc_security_groups = {
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       https = {
         description = "Permit HTTPS"
         type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
       http = {
         description = "Permit HTTP"
         type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-        cidr_blocks = ["134.238.135.0/24", "34.99.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+        cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
       }
     }
   }

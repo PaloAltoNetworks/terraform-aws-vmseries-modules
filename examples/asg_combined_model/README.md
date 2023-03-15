@@ -7,10 +7,20 @@ Each VM-Series contains multiple network interfaces created by Lambda function.
 
 ![image](https://user-images.githubusercontent.com/2110772/225296278-7fd49fed-09c8-4be3-80e3-3fe06852e32b.png)
 
+*Architecture for Combined Model*
 
 **NOTE:**
 1. The firewalls will take several minutes to boot up.
 2. In order to automatically configure VM-Series, you need additionaly provision Panorama and configure routing via TGW. In Panorama you need to prepare device group, template and template stack in Panoramam download and install plugin `sw_fw_license` for managing licences, configure bootstrap definition and license manager.
+
+## Usage
+
+1. Copy `example.tfvars` into `terraform.tfvars`
+2. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
+3. Initialize Terraform: `terraform init`
+5. Prepare plan: `terraform plan`
+6. Deploy infrastructure: `terraform apply -auto-approve`
+7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
