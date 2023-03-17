@@ -238,9 +238,10 @@ resource "aws_lb_target_group" "this" {
 resource "aws_lb_target_group_attachment" "this" {
   for_each = local.listener_tg_attachments
 
-  target_group_arn = aws_lb_target_group.this[each.value.listener_tg_name].arn
-  target_id        = each.value.ip
-  port             = each.value.port
+  target_group_arn  = aws_lb_target_group.this[each.value.listener_tg_name].arn
+  target_id         = each.value.ip
+  port              = each.value.porta
+  availability_zone = "all"
 }
 # ######################## #
 
