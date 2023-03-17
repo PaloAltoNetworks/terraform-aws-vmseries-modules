@@ -55,6 +55,7 @@ module "vm_series_asg" {
   source = "../../modules/asg"
 
   ssh_key_name      = var.ssh_key_name
+  region            = var.region
   name_prefix       = var.name_prefix
   global_tags       = var.global_tags
   bootstrap_options = var.bootstrap_options
