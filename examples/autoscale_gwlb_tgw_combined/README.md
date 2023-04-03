@@ -35,12 +35,14 @@ Code was prepared according to presented below diagram for *combined model*.
 * instance launch or
 * instance terminate
 
-In case of creating VM-Series, there are performed below actions:
+In case of creating VM-Series, there are performed below actions, which cannot be achieved in AWS launch template:
 * change setting `source_dest_check` for first network interface (data plane)
 * setup additional network interfaces (with optional possibility to attach EIP)
 
 In case of destroying VM-Series, there is performed below action:
 * clean EIP
+
+Moreover having Lambda function executed while scaling out or in gives more options for extension e.g. delicesning VM-Series just after terminating instance.
 
 ## Autoscaling
 
