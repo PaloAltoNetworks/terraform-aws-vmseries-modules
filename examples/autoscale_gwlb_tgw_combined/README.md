@@ -13,7 +13,7 @@ Code was prepared according to presented below diagram for *combined model*.
 
 ## Prerequisites
 
-1. Deploy Panorama e.g. by using [standalone Panorama example](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/standalone_panorama)
+1. Deploy Panorama e.g. by using [standalone Panorama example](../../examples/standalone_panorama)
 2. Prepare device group, template, template stack in Panorama
 3. Download and install plugin `sw_fw_license` for managing licences
 4. Configure bootstrap definition and license manager
@@ -31,7 +31,7 @@ Code was prepared according to presented below diagram for *combined model*.
 
 ## Lambda function
 
-[Lambda function](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/blob/main/modules/asg/lambda.py) is used to handle correct lifecycle action:
+[Lambda function](../../modules/asg/lambda.py) is used to handle correct lifecycle action:
 * instance launch or
 * instance terminate
 
@@ -57,7 +57,7 @@ In case of destroying VM-Series, there is performed below action:
 - `panSessionThroughputPps`
 - `panSessionUtilization`
 
-Using that metrics there can be configured different [scaling plans](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan). Below there are some examples, which can be used. All examples are based on target tracking configuration in scaling plan. Below code is already embedded into [asg module](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/blob/main/modules/asg/main.tf):
+Using that metrics there can be configured different [scaling plans](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan). Below there are some examples, which can be used. All examples are based on target tracking configuration in scaling plan. Below code is already embedded into [asg module](../../modules/asg/main.tf):
 
 ```
   scaling_instruction {
