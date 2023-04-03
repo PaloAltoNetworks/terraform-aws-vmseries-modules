@@ -5,10 +5,20 @@ All VM-Series instances are automatically registered in target group for Gateway
 While bootstrapping of VM-Series, automatically there are made associations between VM-Series's subinteraces and GWLB endpoints.
 Each VM-Series contains multiple network interfaces created by Lambda function.
 
+## Topology
+
+Code was prepared according to presented below diagram for *combined model*.
+
 ![image](https://user-images.githubusercontent.com/2110772/225296278-7fd49fed-09c8-4be3-80e3-3fe06852e32b.png)
 
-Code was prepared according to presented above diagram for *combined model*. Please note, that firewalls will take several minutes to boot up.
-Moreover in order to automatically configure VM-Series, you need additionaly provision Panorama and configure routing via TGW. In Panorama you need to prepare device group, template and template stack in Panoramam download and install plugin `sw_fw_license` for managing licences, configure bootstrap definition and license manager.
+## Prerequisites
+
+1. Deploy Panorama e.g. by using [standalone Panorama example](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/standalone_panorama)
+2. Prepare device group, template, template stack in Panorama
+3. Download and install plugin `sw_fw_license` for managing licences
+4. Configure bootstrap definition and license manager
+5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
+6. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group
 
 ## Usage
 
@@ -18,6 +28,83 @@ Moreover in order to automatically configure VM-Series, you need additionaly pro
 5. Prepare plan: `terraform plan`
 6. Deploy infrastructure: `terraform apply -auto-approve`
 7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
+
+## Lambda function
+
+[Lambda function](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/blob/main/modules/asg/lambda.py) is used to handle correct lifecycle action:
+* instance launch or
+* instance terminate
+
+In case of creating VM-Series, there are performed below actions:
+* change setting `source_dest_check` for first network interface (data plane)
+* setup additional network interfaces (with optional possibility to attach EIP)
+
+In case of destroying VM-Series, there is performed below action:
+* clean EIP
+
+## Autoscaling
+
+[AWS Auto Scaling](https://aws.amazon.com/autoscaling/) monitors VM-Series and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost. For autoscaling there are 10 metrics available from `vmseries` plugin:
+
+- `DataPlaneCPUUtilizationPct`
+- `DataPlanePacketBufferUtilization`
+- `panGPGatewayUtilizationPct`
+- `panGPGWUtilizationActiveTunnels`
+- `panSessionActive`
+- `panSessionConnectionsPerSecond`
+- `panSessionSslProxyUtilization`
+- `panSessionThroughputKbps`
+- `panSessionThroughputPps`
+- `panSessionUtilization`
+
+Using that metrics there can be configured different [scaling plans](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan). Below there are some examples, which can be used. All examples are based on target tracking configuration in scaling plan. Below code is already embedded into [asg module](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/blob/main/modules/asg/main.tf):
+
+```
+  scaling_instruction {
+    max_capacity       = var.max_size
+    min_capacity       = var.min_size
+    resource_id        = format("autoScalingGroup/%s", aws_autoscaling_group.this.name)
+    scalable_dimension = "autoscaling:autoScalingGroup:DesiredCapacity"
+    service_namespace  = "autoscaling"
+    target_tracking_configuration {
+      customized_scaling_metric_specification {
+        metric_name = var.scaling_metric_name
+        namespace   = var.scaling_cloudwatch_namespace
+        statistic   = var.scaling_statistic
+      }
+      target_value = var.scaling_target_value
+    }
+  }
+```
+
+Below there are examples of scaling configuration:
+
+- based on number of active sessions:
+
+```
+scaling_metric_name          = "panSessionActive"
+scaling_target_value         = 75
+scaling_statistic            = "Average"
+scaling_cloudwatch_namespace = "ericsson-vmseries"
+```
+
+- based on data plane CPU utilization and average value above 75%:
+
+```
+scaling_metric_name          = "DataPlaneCPUUtilizationPct"
+scaling_target_value         = 75
+scaling_statistic            = "Average"
+scaling_cloudwatch_namespace = "ericsson-vmseries"
+```
+
+- based on data plane packet buffer utilization and max value above 80%
+
+```
+scaling_metric_name          = "DataPlanePacketBufferUtilization"
+scaling_target_value         = 80
+scaling_statistic            = "Maximum"
+scaling_cloudwatch_namespace = "ericsson-vmseries"
+```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
