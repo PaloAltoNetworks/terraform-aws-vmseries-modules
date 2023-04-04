@@ -87,7 +87,7 @@ Below there are examples of scaling configuration:
 scaling_metric_name          = "panSessionActive"
 scaling_target_value         = 75
 scaling_statistic            = "Average"
-scaling_cloudwatch_namespace = "ericsson-vmseries"
+scaling_cloudwatch_namespace = "vmseries"
 ```
 
 - based on data plane CPU utilization and average value above 75%:
@@ -96,7 +96,7 @@ scaling_cloudwatch_namespace = "ericsson-vmseries"
 scaling_metric_name          = "DataPlaneCPUUtilizationPct"
 scaling_target_value         = 75
 scaling_statistic            = "Average"
-scaling_cloudwatch_namespace = "ericsson-vmseries"
+scaling_cloudwatch_namespace = "vmseries"
 ```
 
 - based on data plane packet buffer utilization and max value above 80%
@@ -105,7 +105,7 @@ scaling_cloudwatch_namespace = "ericsson-vmseries"
 scaling_metric_name          = "DataPlanePacketBufferUtilization"
 scaling_target_value         = 80
 scaling_statistic            = "Maximum"
-scaling_cloudwatch_namespace = "ericsson-vmseries"
+scaling_cloudwatch_namespace = "vmseries"
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
