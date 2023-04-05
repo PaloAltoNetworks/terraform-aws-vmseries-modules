@@ -149,14 +149,20 @@ locals {
         to_cidr      = cidr
       }
     ],
-
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
-        subnet_key   = "gwlbe_outbound"
+        subnet_key   = "public"
         next_hop_set = module.natgw_set.next_hop_set
         to_cidr      = cidr
       }
     ],
+    # [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
+    #   {
+    #     subnet_key   = "gwlbe_outbound"
+    #     next_hop_set = module.natgw_set.next_hop_set
+    #     to_cidr      = cidr
+    #   }
+    # ],
     [for cidr in var.security_vpc_routes_outbound_source_cidrs :
       {
         subnet_key   = "gwlbe_outbound"
