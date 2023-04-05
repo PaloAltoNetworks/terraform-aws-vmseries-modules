@@ -41,10 +41,11 @@ module "natgw_set" {
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
+  create       = var.transit_gateway_create
+  id           = var.transit_gateway_id
   name         = "${var.name_prefix}${var.transit_gateway_name}"
   asn          = var.transit_gateway_asn
   route_tables = var.transit_gateway_route_tables
-  create       = true
 }
 
 module "security_transit_gateway_attachment" {

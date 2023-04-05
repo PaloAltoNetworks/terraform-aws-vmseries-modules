@@ -229,6 +229,12 @@ variable "panorama_vpc_cidr" {
 }
 
 ### Transit gateway
+variable "transit_gateway_id" {
+  description = "The ID of the existing Transit Gateway."
+  type        = string
+  default     = null
+}
+
 variable "transit_gateway_name" {
   description = "The name tag of the created Transit Gateway."
   type        = string
@@ -267,6 +273,12 @@ variable "transit_gateway_route_tables" {
   Each of these entries can specify `create = true` which creates a new RT with a `name`.
   With `create = false` the pre-existing RT named `name` is used.
   EOF
+}
+
+variable "transit_gateway_create" {
+  description = "False if using existing TGW, true if new TGW needs to be created"
+  type        = bool
+  default     = true
 }
 
 ### GWLB

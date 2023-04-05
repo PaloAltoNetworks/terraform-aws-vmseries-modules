@@ -18,7 +18,7 @@ Code was prepared according to presented below diagram for *combined model*.
 3. Download and install plugin `sw_fw_license` for managing licences
 4. Configure bootstrap definition and license manager
 5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
-6. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group
+6. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
 ## Usage
 
@@ -79,7 +79,7 @@ Using that metrics there can be configured different [scaling plans](https://reg
   }
 ```
 
-Below there are examples of scaling configuration:
+Using metrics from ``vmseries`` plugin we can defined multiple scaling configurations e.g.:
 
 - based on number of active sessions:
 
@@ -211,6 +211,8 @@ scaling_cloudwatch_namespace = "vmseries"
 | <a name="input_security_vpc_tgw_attachment_name"></a> [security\_vpc\_tgw\_attachment\_name](#input\_security\_vpc\_tgw\_attachment\_name) | Name of TGW attachment for the security VPC | `string` | n/a | yes |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes | `string` | n/a | yes |
 | <a name="input_transit_gateway_asn"></a> [transit\_gateway\_asn](#input\_transit\_gateway\_asn) | Private Autonomous System Number (ASN) of the Transit Gateway for the Amazon side of a BGP session.<br>The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs. | `number` | n/a | yes |
+| <a name="input_transit_gateway_create"></a> [transit\_gateway\_create](#input\_transit\_gateway\_create) | False if using existing TGW, true if new TGW needs to be created | `bool` | `true` | no |
+| <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | The ID of the existing Transit Gateway. | `string` | `null` | no |
 | <a name="input_transit_gateway_name"></a> [transit\_gateway\_name](#input\_transit\_gateway\_name) | The name tag of the created Transit Gateway. | `string` | n/a | yes |
 | <a name="input_transit_gateway_route_tables"></a> [transit\_gateway\_route\_tables](#input\_transit\_gateway\_route\_tables) | Complex input with the Route Tables of the Transit Gateway. Example:<pre>{<br>  "from_security_vpc" = {<br>    create = true<br>    name   = "myrt1"<br>  }<br>  "from_spoke_vpc" = {<br>    create = true<br>    name   = "myrt2"<br>  }<br>}</pre>Two keys are required:<br><br>- from\_security\_vpc describes which route table routes the traffic coming from the Security VPC,<br>- from\_spoke\_vpc describes which route table routes the traffic coming from the Spoke (app1, app2) VPC.<br><br>Each of these entries can specify `create = true` which creates a new RT with a `name`.<br>With `create = false` the pre-existing RT named `name` is used. | `any` | n/a | yes |
 | <a name="input_vmseries_common"></a> [vmseries\_common](#input\_vmseries\_common) | Common VM-Seriess like bootstrap options or network subinterfaces used to map with GWLB endpoints e.g.:<br><br>vmseries\_common = {<br>  bootstrap\_options = {<br>    mgmt-interface-swap = "enable"<br>    plugin-op-commands  = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"<br>    panorama-server     = ""<br>    auth-key            = ""<br>    dgname              = "example"<br>    tplname             = "example-stack"<br>  }<br>  subinterfaces = {<br>    inbound1 = "ethernet1/1.11"<br>    inbound2 = "ethernet1/1.12"<br>    outbound = "ethernet1/1.20"<br>    eastwest = "ethernet1/1.30"<br>  }<br>} | `any` | n/a | yes |
