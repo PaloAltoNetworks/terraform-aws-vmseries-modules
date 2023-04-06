@@ -280,6 +280,7 @@ gwlb_endpoints = {
     vpc             = "security_vpc"
     vpc_subnet      = "security_vpc-gwlbe_eastwest"
     act_as_next_hop = false
+    to_vpc_subnets  = null
   }
   security_gwlb_outbound = {
     name            = "outbound-gwlb-endpoint"
@@ -287,6 +288,7 @@ gwlb_endpoints = {
     vpc             = "security_vpc"
     vpc_subnet      = "security_vpc-gwlbe_outbound"
     act_as_next_hop = false
+    to_vpc_subnets  = null
   }
   app1_inbound = {
     name            = "app1-gwlb-endpoint"
@@ -335,6 +337,7 @@ vmseries_asgs = {
           "privatea" = "eu-central-1a",
           "privateb" = "eu-central-1b"
         }
+        create_public_ip  = false
         source_dest_check = false
       }
       mgmt = {
@@ -354,6 +357,7 @@ vmseries_asgs = {
           "publica" = "eu-central-1a",
           "publicb" = "eu-central-1b"
         }
+        create_public_ip  = false
         source_dest_check = false
       }
     }
