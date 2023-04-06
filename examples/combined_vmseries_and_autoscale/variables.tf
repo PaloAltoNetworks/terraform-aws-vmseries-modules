@@ -23,6 +23,7 @@ variable "vpcs" {
   Following properties are available:
   - `name`: VPC name
   - `cidr`: CIDR for VPC
+  - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
   - `subnets`: map of subnets
 
@@ -32,6 +33,22 @@ variable "vpcs" {
     example_vpc = {
       name = "example-spoke-vpc"
       cidr = "10.104.0.0/16"
+      nacls = {
+        trusted_path_monitoring = {
+          name               = "trusted-path-monitoring"
+          rules = {
+            allow_inbound = {
+              rule_number = 300
+              egress      = false
+              protocol    = "-1"
+              rule_action = "allow"
+              cidr_block  = "0.0.0.0/0"
+              from_port   = null
+              to_port     = null
+            }
+          }
+        }
+      }
       security_groups = {
         example_vm = {
           name = "example_vm"
@@ -56,6 +73,18 @@ variable "vpcs" {
   type = map(object({
     name = string
     cidr = string
+    nacls = map(object({
+      name = string
+      rules = map(object({
+        rule_number = number
+        egress      = bool
+        protocol    = string
+        rule_action = string
+        cidr_block  = string
+        from_port   = string
+        to_port     = string
+      }))
+    }))
     security_groups = map(object({
       name = string
       rules = map(object({
@@ -162,7 +191,7 @@ variable "gwlbs" {
   A map defining Gateway Load Balancers.
 
   Following properties are available:
-  - `name`: name of the GWLB 
+  - `name`: name of the GWLB
   - `vpc_subnet`: key of the VPC and subnet connected by '-' character
 
   Example:
@@ -228,7 +257,7 @@ variable "vmseries_asgs" {
   - `panos_version`: PAN-OS version used for VM-Series
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
-  - `interfaces`: configuration of network interfaces for VM-Series used by Lamdba while provisioning new VM-Series in autoscaling group 
+  - `interfaces`: configuration of network interfaces for VM-Series used by Lamdba while provisioning new VM-Series in autoscaling group
   - `subinterfaces`: configuration of network subinterfaces used to map with GWLB endpoints
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
   - `asg_desired_cap`: the number of Amazon EC2 instances that should be running in the group

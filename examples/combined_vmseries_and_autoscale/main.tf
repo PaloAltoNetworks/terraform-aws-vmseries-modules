@@ -7,6 +7,7 @@ module "vpc" {
 
   name                    = "${var.name_prefix}${each.value.name}"
   cidr_block              = each.value.cidr
+  nacls                   = each.value.nacls
   security_groups         = each.value.security_groups
   create_internet_gateway = true
   enable_dns_hostnames    = true
@@ -20,12 +21,12 @@ module "subnet_sets" {
   # gwlb endpoints and any other resources which would be a single point of failure when placed
   # in a single AZ.
   for_each = toset(flatten([for k, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : format("%s-%s", vk, sv.set)]) } : v]))
-  source   = "PaloAltoNetworks/vmseries-modules/aws//modules/subnet_set"
-  version  = "0.4.1"
+  source   = "../../modules/subnet_set"
 
   name                = split("-", each.key)[1]
   vpc_id              = module.vpc[split("-", each.key)[0]].id
   has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
+  nacl_id             = split("-", each.key)[1] == "private" ? lookup(module.vpc[split("-", each.key)[0]].nacl_ids, "trusted_path_monitoring", null) : null
   cidrs               = one([for vk, vv in var.vpcs : { for sk, sv in vv.subnets : sk => sv if endswith(each.key, sv.set) } if startswith(each.key, vk)])
 }
 
@@ -253,8 +254,7 @@ locals {
 
 module "vpc_routes" {
   for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
-  source   = "PaloAltoNetworks/vmseries-modules/aws//modules/vpc_route"
-  version  = "0.4.1"
+  source   = "../../modules/vpc_route"
 
   route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
