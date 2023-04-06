@@ -53,3 +53,9 @@ variable "global_tags" {
   default     = {}
   type        = map(string)
 }
+
+variable "nacl_id" {
+  description = "Association NACL with provided ID with subnet"
+  default     = null
+  type        = string
+}
