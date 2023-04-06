@@ -239,6 +239,7 @@ variable "vmseries_asgs" {
   - `scaling_metric_name`: name of the metric used in dynamic scaling policy
   - `scaling_tags`: tags configured for dynamic scaling policy
   - `scaling_target_value`: target value for the metric used in dynamic scaling policy
+  - `scaling_statistic`: statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum
   - `scaling_cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
 
   Example:
@@ -317,6 +318,7 @@ variable "vmseries_asgs" {
         ManagedBy = "terraform"
       }
       scaling_target_value         = 75
+      scaling_statistic            = "Average"
       scaling_cloudwatch_namespace = "example-vmseries"
     }
   }
@@ -364,6 +366,7 @@ variable "vmseries_asgs" {
     scaling_metric_name          = string
     scaling_tags                 = map(string)
     scaling_target_value         = number
+    scaling_statistic            = string
     scaling_cloudwatch_namespace = string
   }))
 }

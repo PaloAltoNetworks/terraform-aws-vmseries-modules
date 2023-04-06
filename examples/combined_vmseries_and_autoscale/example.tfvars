@@ -383,6 +383,7 @@ vmseries_asgs = {
       ManagedBy = "terraform"
     }
     scaling_target_value         = 75                 # TODO: update here
+    scaling_statistic            = "Average"          # TODO: update here
     scaling_cloudwatch_namespace = "example-vmseries" # TODO: update here
   }
 }
