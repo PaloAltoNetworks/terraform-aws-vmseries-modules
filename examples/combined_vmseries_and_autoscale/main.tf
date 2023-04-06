@@ -102,6 +102,18 @@ module "gwlbe_endpoint" {
   gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
   vpc_id            = module.subnet_sets[each.value.vpc_subnet].vpc_id
   subnets           = module.subnet_sets[each.value.vpc_subnet].subnets
+
+  act_as_next_hop_for = each.value.act_as_next_hop ? {
+    "from-igw-to-lb" = {
+      route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
+      to_subnets     = module.subnet_sets[each.value.to_vpc_subnets].subnets
+    }
+    # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
+    # and AWS allows their destinations to only be:
+    #     - The entire IPv4 or IPv6 CIDR block of your VPC. (Not interesting, as we always want AZ-specific next hops.)
+    #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used here.)
+    # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
+  } : {}
 }
 
 ### SECURITY VPC ROUTES ###

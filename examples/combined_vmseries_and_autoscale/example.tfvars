@@ -275,24 +275,34 @@ gwlbs = {
 }
 gwlb_endpoints = {
   security_gwlb_eastwest = {
-    name       = "eastwest-gwlb-endpoint"
-    gwlb       = "security_gwlb"
-    vpc_subnet = "security_vpc-gwlbe_eastwest"
+    name            = "eastwest-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "security_vpc"
+    vpc_subnet      = "security_vpc-gwlbe_eastwest"
+    act_as_next_hop = false
   }
   security_gwlb_outbound = {
-    name       = "outbound-gwlb-endpoint"
-    gwlb       = "security_gwlb"
-    vpc_subnet = "security_vpc-gwlbe_outbound"
+    name            = "outbound-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "security_vpc"
+    vpc_subnet      = "security_vpc-gwlbe_outbound"
+    act_as_next_hop = false
   }
   app1_inbound = {
-    name       = "app1-gwlb-endpoint"
-    gwlb       = "security_gwlb"
-    vpc_subnet = "app1_vpc-app1_gwlbe"
+    name            = "app1-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "app1_vpc"
+    vpc_subnet      = "app1_vpc-app1_gwlbe"
+    act_as_next_hop = true
+    to_vpc_subnets  = "app1_vpc-app1_lb"
   }
   app2_inbound = {
-    name       = "app2-gwlb-endpoint"
-    gwlb       = "security_gwlb"
-    vpc_subnet = "app2_vpc-app2_gwlbe"
+    name            = "app2-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "app2_vpc"
+    vpc_subnet      = "app2_vpc-app2_gwlbe"
+    act_as_next_hop = true
+    to_vpc_subnets  = "app2_vpc-app2_lb"
   }
 }
 
@@ -301,7 +311,7 @@ vmseries_asgs = {
   main_asg = {
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
-      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: if GWLB overlay routing needed, add: ',aws-gwlb-overlay-routing:enable'
+      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
       panorama-server             = ""                                                                                   # TODO: update here
       auth-key                    = ""                                                                                   # TODO: update here
       dgname                      = ""                                                                                   # TODO: update here
