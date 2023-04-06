@@ -15,6 +15,49 @@ vpcs = {
   security_vpc = {
     name = "security-vpc"
     cidr = "10.100.0.0/16"
+    nacls = {
+      trusted_path_monitoring = {
+        name = "trusted-path-monitoring"
+        rules = {
+          block_outbound_icmp_1 = {
+            rule_number = 110
+            egress      = true
+            protocol    = "icmp"
+            rule_action = "deny"
+            cidr_block  = "10.100.1.0/24"
+            from_port   = null
+            to_port     = null
+          }
+          block_outbound_icmp_2 = {
+            rule_number = 120
+            egress      = true
+            protocol    = "icmp"
+            rule_action = "deny"
+            cidr_block  = "10.100.65.0/24"
+            from_port   = null
+            to_port     = null
+          }
+          allow_other_outbound = {
+            rule_number = 200
+            egress      = true
+            protocol    = "-1"
+            rule_action = "allow"
+            cidr_block  = "0.0.0.0/0"
+            from_port   = null
+            to_port     = null
+          }
+          allow_inbound = {
+            rule_number = 300
+            egress      = false
+            protocol    = "-1"
+            rule_action = "allow"
+            cidr_block  = "0.0.0.0/0"
+            from_port   = null
+            to_port     = null
+          }
+        }
+      }
+    }
     security_groups = {
       lambda = {
         name = "lambda"
@@ -139,8 +182,9 @@ vpcs = {
     }
   }
   app1_vpc = {
-    name = "app1-spoke-vpc"
-    cidr = "10.104.0.0/16"
+    name  = "app1-spoke-vpc"
+    cidr  = "10.104.0.0/16"
+    nacls = {}
     security_groups = {
       app1_vm = {
         name = "app1_vm"
@@ -179,8 +223,9 @@ vpcs = {
     }
   }
   app2_vpc = {
-    name = "app2-spoke-vpc"
-    cidr = "10.105.0.0/16"
+    name  = "app2-spoke-vpc"
+    cidr  = "10.105.0.0/16"
+    nacls = {}
     security_groups = {
       app2_vm = {
         name = "app2_vm"
