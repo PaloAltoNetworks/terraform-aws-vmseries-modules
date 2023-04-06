@@ -1,4 +1,4 @@
-# VM-Series Auto Scaling example with VM-Series in target group for Gateway Load Balancer
+# Combined model example - VM-Series Auto Scaling
 
 A Terraform example for deploying VM-Series firewalls in an autoscaling group on AWS.
 All VM-Series instances are automatically registered in target group for Gateway Load Balancer.
