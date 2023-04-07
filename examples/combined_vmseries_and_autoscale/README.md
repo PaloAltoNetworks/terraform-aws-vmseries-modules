@@ -87,25 +87,25 @@ Using metrics from ``vmseries`` plugin we can defined multiple scaling configura
 - based on number of active sessions:
 
 ```
-scaling_metric_name  = "panSessionActive"
-scaling_target_value = 75
-scaling_statistic    = "Average"
+metric_name  = "panSessionActive"
+target_value = 75
+statistic    = "Average"
 ```
 
 - based on data plane CPU utilization and average value above 75%:
 
 ```
-scaling_metric_name  = "DataPlaneCPUUtilizationPct"
-scaling_target_value = 75
-scaling_statistic    = "Average"
+metric_name  = "DataPlaneCPUUtilizationPct"
+target_value = 75
+statistic    = "Average"
 ```
 
 - based on data plane packet buffer utilization and max value above 80%
 
 ```
-scaling_metric_name  = "DataPlanePacketBufferUtilization"
-scaling_target_value = 80
-scaling_statistic    = "Maximum"
+metric_name  = "DataPlanePacketBufferUtilization"
+target_value = 80
+statistic    = "Maximum"
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
