@@ -9,7 +9,7 @@ Each VM-Series contains multiple network interfaces created by Lambda function.
 
 Code was prepared according to presented below diagram for *combined model*.
 
-![](https://user-images.githubusercontent.com/9674179/229622544-0658b32a-3989-4bef-a770-287ee72fc88f.png)
+![](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
 
 ## Prerequisites
 
