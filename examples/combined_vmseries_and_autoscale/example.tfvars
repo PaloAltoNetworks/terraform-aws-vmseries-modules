@@ -162,24 +162,24 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt" }
-      "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt" }
-      "10.100.1.0/24"  = { az = "eu-central-1a", set = "private" }
-      "10.100.65.0/24" = { az = "eu-central-1b", set = "private" }
-      "10.100.2.0/24"  = { az = "eu-central-1a", set = "public" }
-      "10.100.66.0/24" = { az = "eu-central-1b", set = "public" }
-      "10.100.3.0/24"  = { az = "eu-central-1a", set = "tgw_attach" }
-      "10.100.67.0/24" = { az = "eu-central-1b", set = "tgw_attach" }
-      "10.100.4.0/24"  = { az = "eu-central-1a", set = "gwlbe_outbound" }
-      "10.100.68.0/24" = { az = "eu-central-1b", set = "gwlbe_outbound" }
-      "10.100.5.0/24"  = { az = "eu-central-1a", set = "gwlb" }
-      "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb" }
-      "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest" }
-      "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest" }
-      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw" }
-      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw" }
-      "10.100.12.0/24" = { az = "eu-central-1a", set = "lambda" }
-      "10.100.76.0/24" = { az = "eu-central-1b", set = "lambda" }
+      "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt", nacl = null }
+      "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt", nacl = null }
+      "10.100.1.0/24"  = { az = "eu-central-1a", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.65.0/24" = { az = "eu-central-1b", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.2.0/24"  = { az = "eu-central-1a", set = "public", nacl = null }
+      "10.100.66.0/24" = { az = "eu-central-1b", set = "public", nacl = null }
+      "10.100.3.0/24"  = { az = "eu-central-1a", set = "tgw_attach", nacl = null }
+      "10.100.67.0/24" = { az = "eu-central-1b", set = "tgw_attach", nacl = null }
+      "10.100.4.0/24"  = { az = "eu-central-1a", set = "gwlbe_outbound", nacl = null }
+      "10.100.68.0/24" = { az = "eu-central-1b", set = "gwlbe_outbound", nacl = null }
+      "10.100.5.0/24"  = { az = "eu-central-1a", set = "gwlb", nacl = null }
+      "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null }
+      "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
+      "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
+      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw", nacl = null }
+      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw", nacl = null }
+      "10.100.12.0/24" = { az = "eu-central-1a", set = "lambda", nacl = null }
+      "10.100.76.0/24" = { az = "eu-central-1b", set = "lambda", nacl = null }
     }
   }
   app1_vpc = {
@@ -215,12 +215,12 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.104.0.0/24"   = { az = "eu-central-1a", set = "app1_vm" }
-      "10.104.128.0/24" = { az = "eu-central-1b", set = "app1_vm" }
-      "10.104.2.0/24"   = { az = "eu-central-1a", set = "app1_lb" }
-      "10.104.130.0/24" = { az = "eu-central-1b", set = "app1_lb" }
-      "10.104.3.0/24"   = { az = "eu-central-1a", set = "app1_gwlbe" }
-      "10.104.131.0/24" = { az = "eu-central-1b", set = "app1_gwlbe" }
+      "10.104.0.0/24"   = { az = "eu-central-1a", set = "app1_vm", nacl = null }
+      "10.104.128.0/24" = { az = "eu-central-1b", set = "app1_vm", nacl = null }
+      "10.104.2.0/24"   = { az = "eu-central-1a", set = "app1_lb", nacl = null }
+      "10.104.130.0/24" = { az = "eu-central-1b", set = "app1_lb", nacl = null }
+      "10.104.3.0/24"   = { az = "eu-central-1a", set = "app1_gwlbe", nacl = null }
+      "10.104.131.0/24" = { az = "eu-central-1b", set = "app1_gwlbe", nacl = null }
     }
   }
   app2_vpc = {
@@ -256,12 +256,12 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.105.0.0/24"   = { az = "eu-central-1a", set = "app2_vm" }
-      "10.105.128.0/24" = { az = "eu-central-1b", set = "app2_vm" }
-      "10.105.2.0/24"   = { az = "eu-central-1a", set = "app2_lb" }
-      "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb" }
-      "10.105.3.0/24"   = { az = "eu-central-1a", set = "app2_gwlbe" }
-      "10.105.131.0/24" = { az = "eu-central-1b", set = "app2_gwlbe" }
+      "10.105.0.0/24"   = { az = "eu-central-1a", set = "app2_vm", nacl = null }
+      "10.105.128.0/24" = { az = "eu-central-1b", set = "app2_vm", nacl = null }
+      "10.105.2.0/24"   = { az = "eu-central-1a", set = "app2_lb", nacl = null }
+      "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb", nacl = null }
+      "10.105.3.0/24"   = { az = "eu-central-1a", set = "app2_gwlbe", nacl = null }
+      "10.105.131.0/24" = { az = "eu-central-1b", set = "app2_gwlbe", nacl = null }
     }
   }
 }

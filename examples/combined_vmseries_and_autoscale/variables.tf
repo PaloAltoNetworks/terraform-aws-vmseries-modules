@@ -62,8 +62,8 @@ variable "vpcs" {
         }
       }
       subnets = {
-        "10.104.0.0/24"   = { az = "eu-central-1a", set = "vm" }
-        "10.104.128.0/24" = { az = "eu-central-1b", set = "vm" }
+        "10.104.0.0/24"   = { az = "eu-central-1a", set = "vm", nacl = null }
+        "10.104.128.0/24" = { az = "eu-central-1b", set = "vm", nacl = null }
       }
     }
   }
@@ -97,8 +97,9 @@ variable "vpcs" {
       }))
     }))
     subnets = map(object({
-      az  = string
-      set = string
+      az   = string
+      set  = string
+      nacl = string
     }))
   }))
 }

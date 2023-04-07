@@ -46,8 +46,8 @@ resource "aws_subnet" "this" {
 #### NACL association
 
 resource "aws_network_acl_association" "main" {
-  for_each       = { for k, v in local.input_subnets : k => v if var.nacl_id != null }
-  network_acl_id = var.nacl_id
+  for_each       = var.nacl_associations
+  network_acl_id = each.value
   subnet_id      = local.subnets[each.key].id
 }
 

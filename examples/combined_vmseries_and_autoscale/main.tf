@@ -26,7 +26,7 @@ module "subnet_sets" {
   name                = split("-", each.key)[1]
   vpc_id              = module.vpc[split("-", each.key)[0]].id
   has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
-  nacl_id             = split("-", each.key)[1] == "private" ? lookup(module.vpc[split("-", each.key)[0]].nacl_ids, "trusted_path_monitoring", null) : null
+  nacl_associations   = one([for vk, vv in var.vpcs : { for sk, sv in vv.subnets : sv.az => lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null) if sv.nacl != null && endswith(each.key, sv.set) } if startswith(each.key, vk)])
   cidrs               = one([for vk, vv in var.vpcs : { for sk, sv in vv.subnets : sk => sv if endswith(each.key, sv.set) } if startswith(each.key, vk)])
 }
 
