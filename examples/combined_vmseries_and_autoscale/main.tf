@@ -16,24 +16,37 @@ module "vpc" {
 }
 
 module "subnet_sets" {
-  # The "set" here means we will repeat in each AZ an identical/similar subnet.
-  # The notion of "set" is used a lot here, it extends to nat gateways, routes, routes' next hops,
-  # gwlb endpoints and any other resources which would be a single point of failure when placed
-  # in a single AZ.
-  for_each = toset(flatten([for k, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : format("%s-%s", vk, sv.set)]) } : v]))
+  for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
   source   = "../../modules/subnet_set"
 
   name                = split("-", each.key)[1]
   vpc_id              = module.vpc[split("-", each.key)[0]].id
   has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
-  nacl_associations   = one([for vk, vv in var.vpcs : { for sk, sv in vv.subnets : sv.az => lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null) if sv.nacl != null && endswith(each.key, sv.set) } if startswith(each.key, vk)])
-  cidrs               = one([for vk, vv in var.vpcs : { for sk, sv in vv.subnets : sk => sv if endswith(each.key, sv.set) } if startswith(each.key, vk)])
+  nacl_associations = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          az : sv.az,
+          nacl_id : lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null)
+        } if sv.nacl != null && each.key == "${vk}-${sv.set}"
+    ]]) : i.az => i.nacl_id
+  }
+  cidrs = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          cidr : sk,
+          subnet : sv
+        } if each.key == "${vk}-${sv.set}"
+    ]]) : i.cidr => i.subnet
+  }
 }
 
 ### NATGW ###
 
 module "natgw_set" {
-  # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
   source = "../../modules/nat_gateway_set"
 
   for_each = var.natgws
