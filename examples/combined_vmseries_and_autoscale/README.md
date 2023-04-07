@@ -19,9 +19,10 @@ Code was prepared according to presented below diagram for *combined model*.
 4. Configure bootstrap definition and license manager
 5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
 6. Configure security rules and NAT rules for outbound traffic
-7. Configure network interfaces and subinterfaces, zones and virtual router in template
-8. Configure [static routes with path monitoring](https://docs.paloaltonetworks.com/pan-os/10-1/pan-os-networking-admin/static-routes/configure-path-monitoring-for-a-static-route)
-9. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
+7. Configure interface management profile to enable health checks from GWLB
+8. Configure network interfaces and subinterfaces, zones and virtual router in template
+9. Configure [static routes with path monitoring](https://docs.paloaltonetworks.com/pan-os/10-1/pan-os-networking-admin/static-routes/configure-path-monitoring-for-a-static-route)
+10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
 ## Usage
 

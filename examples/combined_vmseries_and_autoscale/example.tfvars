@@ -274,6 +274,7 @@ tgw = {
   name   = "tgw"
   asn    = "64512"
   route_tables = {
+    # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
     "from_security_vpc" = {
       create = true
       name   = "from_security"
