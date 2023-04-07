@@ -161,7 +161,8 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
+      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
+      # Value of `nacl` must match key of objects stored in `nacls`
       "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt", nacl = null }
       "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt", nacl = null }
       "10.100.1.0/24"  = { az = "eu-central-1a", set = "private", nacl = "trusted_path_monitoring" }
@@ -283,6 +284,8 @@ tgw = {
     }
   }
   attachments = {
+    # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+    # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
     security = {
       name                = "vmseries"
       vpc_subnet          = "security_vpc-tgw_attach"
@@ -306,6 +309,7 @@ tgw = {
 
 ### NAT GATEWAY
 natgws = {
+  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   security_nat_gw = {
     name       = "natgw"
     vpc_subnet = "security_vpc-natgw"
@@ -314,12 +318,16 @@ natgws = {
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
+  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   security_gwlb = {
     name       = "security-gwlb"
     vpc_subnet = "security_vpc-gwlb"
   }
 }
 gwlb_endpoints = {
+  # Value of `gwlb` must match key of objects stored in `gwlbs`
+  # Value of `vpc` must match key of objects stored in `vpcs`
+  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   security_gwlb_eastwest = {
     name            = "eastwest-gwlb-endpoint"
     gwlb            = "security_gwlb"
@@ -357,6 +365,7 @@ gwlb_endpoints = {
 ### VM-SERIES
 vmseries_asgs = {
   main_asg = {
+    # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
       plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
@@ -373,8 +382,13 @@ vmseries_asgs = {
     panos_version = "10.2.3"        # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
-    vpc               = "security_vpc"
-    gwlb              = "security_gwlb"
+    # Value of `vpc` must match key of objects stored in `vpcs`
+    vpc = "security_vpc"
+
+    # Value of `gwlb` must match key of objects stored in `gwlbs`
+    gwlb = "security_gwlb"
+
+    # Value of `lambda_vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
     lambda_vpc_subnet = "security_vpc-lambda"
 
     interfaces = {
@@ -410,6 +424,7 @@ vmseries_asgs = {
       }
     }
 
+    # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
       inbound = {
         app1 = {
