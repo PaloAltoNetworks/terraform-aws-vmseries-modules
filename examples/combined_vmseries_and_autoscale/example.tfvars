@@ -12,6 +12,7 @@ ssh_key_name = "example-frankfurt" # TODO: update here
 
 ### VPC
 vpcs = {
+  # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   security_vpc = {
     name = "security-vpc"
     cidr = "10.100.0.0/16"
