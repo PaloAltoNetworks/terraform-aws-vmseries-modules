@@ -341,20 +341,17 @@ module "app_lb" {
 ### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
 
 locals {
-  subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries_asgs : i => join(",", compact(concat([
-    for k, v in module.gwlbe_endpoint["security_gwlb_eastwest"].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, j.subinterfaces.eastwest)
-  ]))) }
-  subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries_asgs : i => join(",", compact(concat([
-    for k, v in module.gwlbe_endpoint["security_gwlb_outbound"].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, j.subinterfaces.outbound)
-  ]))) }
-  subinterface_gwlb_endpoint_inbound1 = { for i, j in var.vmseries_asgs : i => join(",", compact(concat([
-    for k, v in module.gwlbe_endpoint["app1_inbound"].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, j.subinterfaces.inbound1)
-  ]))) }
-  subinterface_gwlb_endpoint_inbound2 = { for i, j in var.vmseries_asgs : i => join(",", compact(concat([
-    for k, v in module.gwlbe_endpoint["app2_inbound"].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, j.subinterfaces.inbound2)
-  ]))) }
-  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => format("%s,%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
-  local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound1[i], local.subinterface_gwlb_endpoint_inbound2[i]) }
+  subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  subinterface_gwlb_endpoint_inbound = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
+  local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i]) }
   bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => [
     for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
   ] }
@@ -420,9 +417,9 @@ module "vm_series_asg" {
   name_prefix                   = var.name_prefix
   global_tags                   = var.global_tags
   vmseries_version              = each.value.panos_version
-  max_size                      = each.value.asg_max_size
-  min_size                      = each.value.asg_min_size
-  desired_capacity              = each.value.asg_desired_cap
+  max_size                      = each.value.asg.max_size
+  min_size                      = each.value.asg.min_size
+  desired_capacity              = each.value.asg.desired_cap
   vmseries_iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   subnet_ids                    = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.set == "lambda"]
   security_group_ids            = [module.vpc[each.value.vpc].security_group_ids["lambda"]]
@@ -439,9 +436,10 @@ module "vm_series_asg" {
   target_group_arn  = module.gwlb[each.value.gwlb].target_group.arn
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.key])))
 
-  scaling_plan_enabled         = each.value.scaling_plan_enabled
-  scaling_metric_name          = each.value.scaling_metric_name
-  scaling_tags                 = each.value.scaling_tags
-  scaling_target_value         = each.value.scaling_target_value
-  scaling_cloudwatch_namespace = each.value.scaling_cloudwatch_namespace
+  scaling_plan_enabled         = each.value.scaling_plan.enabled
+  scaling_metric_name          = each.value.scaling_plan.metric_name
+  scaling_target_value         = each.value.scaling_plan.target_value
+  scaling_statistic            = each.value.scaling_plan.statistic
+  scaling_cloudwatch_namespace = each.value.scaling_plan.cloudwatch_namespace
+  scaling_tags                 = each.value.scaling_plan.tags
 }

@@ -256,21 +256,20 @@ variable "vmseries_asgs" {
   Following properties are available:
   - `bootstrap_options`: VM-Seriess bootstrap options used to connect to Panorama
   - `panos_version`: PAN-OS version used for VM-Series
+  - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
+  - `lambda_vpc_subnet`: key of the VPC and subnet connected by '-' character, where Lambda is deployed
   - `interfaces`: configuration of network interfaces for VM-Series used by Lamdba while provisioning new VM-Series in autoscaling group
   - `subinterfaces`: configuration of network subinterfaces used to map with GWLB endpoints
-  - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
-  - `asg_desired_cap`: the number of Amazon EC2 instances that should be running in the group
-  - `asg_min_size`: minimum size of the Auto Scaling Group
-  - `asg_max_size`: maximum size of the Auto Scaling Group
-  - `lambda_vpc_subnet`: key of the VPC and subnet connected by '-' character, where Lambda is deployed
-  - `scaling_plan_enabled`: `true` if automatic dynamic scaling policy should be created
-  - `scaling_metric_name`: name of the metric used in dynamic scaling policy
-  - `scaling_tags`: tags configured for dynamic scaling policy
-  - `scaling_target_value`: target value for the metric used in dynamic scaling policy
-  - `scaling_statistic`: statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum
-  - `scaling_cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
+  - `asg`: the number of Amazon EC2 instances that should be running in the group (desired, minimum, maximum)
+  - `scaling_plan`: scaling plan with attributes
+    - `enabled`: `true` if automatic dynamic scaling policy should be created
+    - `metric_name`: name of the metric used in dynamic scaling policy
+    - `target_value`: target value for the metric used in dynamic scaling policy
+    - `statistic`: statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum
+    - `cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
+    - `tags`: tags configured for dynamic scaling policy
 
   Example:
   ```
@@ -278,21 +277,23 @@ variable "vmseries_asgs" {
     main_asg = {
       bootstrap_options = {
         mgmt-interface-swap         = "enable"
-        plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
-        panorama-server             = ""
-        auth-key                    = ""
-        dgname                      = ""
-        tplname                     = ""
-        dhcp-send-hostname          = "yes"
-        dhcp-send-client-id         = "yes"
-        dhcp-accept-server-hostname = "yes"
-        dhcp-accept-server-domain   = "yes"
+        plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
+        panorama-server             = ""                                                                                   # TODO: update here
+        auth-key                    = ""                                                                                   # TODO: update here
+        dgname                      = ""                                                                                   # TODO: update here
+        tplname                     = ""                                                                                   # TODO: update here
+        dhcp-send-hostname          = "yes"                                                                                # TODO: update here
+        dhcp-send-client-id         = "yes"                                                                                # TODO: update here
+        dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
+        dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
       }
 
-      panos_version = "10.2.3"
+      panos_version = "10.2.3"        # TODO: update here
+      ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
-      vpc  = "security_vpc"
-      gwlb = "security_gwlb"
+      vpc               = "security_vpc"
+      gwlb              = "security_gwlb"
+      lambda_vpc_subnet = "security_vpc-lambda"
 
       interfaces = {
         private = {
@@ -328,28 +329,46 @@ variable "vmseries_asgs" {
       }
 
       subinterfaces = {
-        inbound1 = "ethernet1/1.11"
-        inbound2 = "ethernet1/1.12"
-        outbound = "ethernet1/1.20"
-        eastwest = "ethernet1/1.30"
+        inbound = {
+          app1 = {
+            gwlb_endpoint = "app1_inbound"
+            subinterface  = "ethernet1/1.11"
+          }
+          app2 = {
+            gwlb_endpoint = "app2_inbound"
+            subinterface  = "ethernet1/1.12"
+          }
+        }
+        outbound = {
+          only_1_outbound = {
+            gwlb_endpoint = "security_gwlb_outbound"
+            subinterface  = "ethernet1/1.20"
+          }
+        }
+        eastwest = {
+          only_1_eastwest = {
+            gwlb_endpoint = "security_gwlb_eastwest"
+            subinterface  = "ethernet1/1.30"
+          }
+        }
       }
 
-      ebs_kms_id = "alias/aws/ebs"
-
-      asg_desired_cap = 1
-      asg_min_size    = 1
-      asg_max_size    = 2
-
-      lambda_vpc_subnet = "security_vpc-lambda"
-
-      scaling_plan_enabled = true
-      scaling_metric_name  = "panSessionActive"
-      scaling_tags = {
-        ManagedBy = "terraform"
+      asg = {
+        desired_cap = 2
+        min_size    = 2
+        max_size    = 4
       }
-      scaling_target_value         = 75
-      scaling_statistic            = "Average"
-      scaling_cloudwatch_namespace = "example-vmseries"
+
+      scaling_plan = {
+        enabled              = true               # TODO: update here
+        metric_name          = "panSessionActive" # TODO: update here
+        target_value         = 75                 # TODO: update here
+        statistic            = "Average"          # TODO: update here
+        cloudwatch_namespace = "example-vmseries" # TODO: update here
+        tags = {
+          ManagedBy = "terraform"
+        }
+      }
     }
   }
   ```
@@ -370,9 +389,11 @@ variable "vmseries_asgs" {
     })
 
     panos_version = string
+    ebs_kms_id    = string
 
-    vpc  = string
-    gwlb = string
+    vpc               = string
+    gwlb              = string
+    lambda_vpc_subnet = string
 
     interfaces = map(object({
       device_index      = number
@@ -382,22 +403,25 @@ variable "vmseries_asgs" {
       source_dest_check = bool
     }))
 
-    subinterfaces = map(string)
+    subinterfaces = map(map(object({
+      gwlb_endpoint = string
+      subinterface  = string
+    })))
 
-    ebs_kms_id = string
+    asg = object({
+      desired_cap = number
+      min_size    = number
+      max_size    = number
+    })
 
-    asg_desired_cap = number
-    asg_min_size    = number
-    asg_max_size    = number
-
-    lambda_vpc_subnet = string
-
-    scaling_plan_enabled         = bool
-    scaling_metric_name          = string
-    scaling_tags                 = map(string)
-    scaling_target_value         = number
-    scaling_statistic            = string
-    scaling_cloudwatch_namespace = string
+    scaling_plan = object({
+      enabled              = bool
+      metric_name          = string
+      target_value         = number
+      statistic            = string
+      cloudwatch_namespace = string
+      tags                 = map(string)
+    })
   }))
 }
 

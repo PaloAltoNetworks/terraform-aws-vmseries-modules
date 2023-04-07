@@ -370,10 +370,12 @@ vmseries_asgs = {
       dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
     }
 
-    panos_version = "10.2.3" # TODO: update here
+    panos_version = "10.2.3"        # TODO: update here
+    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
-    vpc  = "security_vpc"
-    gwlb = "security_gwlb"
+    vpc               = "security_vpc"
+    gwlb              = "security_gwlb"
+    lambda_vpc_subnet = "security_vpc-lambda"
 
     interfaces = {
       private = {
@@ -409,28 +411,46 @@ vmseries_asgs = {
     }
 
     subinterfaces = {
-      inbound1 = "ethernet1/1.11"
-      inbound2 = "ethernet1/1.12"
-      outbound = "ethernet1/1.20"
-      eastwest = "ethernet1/1.30"
+      inbound = {
+        app1 = {
+          gwlb_endpoint = "app1_inbound"
+          subinterface  = "ethernet1/1.11"
+        }
+        app2 = {
+          gwlb_endpoint = "app2_inbound"
+          subinterface  = "ethernet1/1.12"
+        }
+      }
+      outbound = {
+        only_1_outbound = {
+          gwlb_endpoint = "security_gwlb_outbound"
+          subinterface  = "ethernet1/1.20"
+        }
+      }
+      eastwest = {
+        only_1_eastwest = {
+          gwlb_endpoint = "security_gwlb_eastwest"
+          subinterface  = "ethernet1/1.30"
+        }
+      }
     }
 
-    ebs_kms_id = "alias/aws/ebs"
-
-    asg_desired_cap = 1
-    asg_min_size    = 1
-    asg_max_size    = 2
-
-    lambda_vpc_subnet = "security_vpc-lambda"
-
-    scaling_plan_enabled = true               # TODO: update here
-    scaling_metric_name  = "panSessionActive" # TODO: update here
-    scaling_tags = {
-      ManagedBy = "terraform"
+    asg = {
+      desired_cap = 2
+      min_size    = 2
+      max_size    = 4
     }
-    scaling_target_value         = 75                 # TODO: update here
-    scaling_statistic            = "Average"          # TODO: update here
-    scaling_cloudwatch_namespace = "example-vmseries" # TODO: update here
+
+    scaling_plan = {
+      enabled              = true               # TODO: update here
+      metric_name          = "panSessionActive" # TODO: update here
+      target_value         = 75                 # TODO: update here
+      statistic            = "Average"          # TODO: update here
+      cloudwatch_namespace = "example-vmseries" # TODO: update here
+      tags = {
+        ManagedBy = "terraform"
+      }
+    }
   }
 }
 
