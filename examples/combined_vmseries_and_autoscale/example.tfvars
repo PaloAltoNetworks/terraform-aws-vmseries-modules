@@ -184,8 +184,8 @@ vpcs = {
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
         vpc_subnet    = "security_vpc-mgmt"
         to_cidr       = "0.0.0.0/0"
@@ -196,13 +196,13 @@ vpcs = {
         vpc_subnet    = "security_vpc-mgmt"
         to_cidr       = "10.255.0.0/16"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       mgmt_rfc1918 = {
         vpc_subnet    = "security_vpc-mgmt"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       lambda_default = {
         vpc_subnet    = "security_vpc-lambda"
@@ -214,13 +214,13 @@ vpcs = {
         vpc_subnet    = "security_vpc-lambda"
         to_cidr       = "10.255.0.0/16"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       lambda_rfc1918 = {
         vpc_subnet    = "security_vpc-lambda"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       tgw_rfc1918 = {
         vpc_subnet    = "security_vpc-tgw_attach"
@@ -244,13 +244,13 @@ vpcs = {
         vpc_subnet    = "security_vpc-gwlbe_outbound"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_eastwest_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_eastwest"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       nat_default = {
         vpc_subnet    = "security_vpc-natgw"
@@ -308,13 +308,13 @@ vpcs = {
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc_subnet    = "app1_vpc-app1_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_default = {
         vpc_subnet    = "app1_vpc-app1_gwlbe"
@@ -372,13 +372,13 @@ vpcs = {
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc_subnet    = "app2_vpc-app2_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2"
-        next_hop_type = "transit_gateway"
+        next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_default = {
         vpc_subnet    = "app2_vpc-app2_gwlbe"

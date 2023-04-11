@@ -1,4 +1,4 @@
-### SECURITY VPC ###
+### VPCS ###
 
 module "vpc" {
   source = "../../modules/vpc"
@@ -14,6 +14,8 @@ module "vpc" {
   enable_dns_support      = true
   instance_tenancy        = "default"
 }
+
+### SUBNETS ###
 
 module "subnet_sets" {
   for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
@@ -44,6 +46,37 @@ module "subnet_sets" {
   }
 }
 
+### ROUTES ###
+
+locals {
+  vpc_routes = flatten(concat([
+    for vk, vv in var.vpcs : [
+      for rk, rv in vv.routes : {
+        subnet_key = rv.vpc_subnet
+        to_cidr    = rv.to_cidr
+        next_hop_set = (
+          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
+            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
+              rv.next_hop_type == "transit_gateway_attachment" ? module.transit_gateway_attachment[rv.next_hop_key].next_hop_set : (
+                rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
+              )
+            )
+          )
+        )
+      }
+    ]
+  ]))
+}
+
+module "vpc_routes" {
+  for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+  source   = "../../modules/vpc_route"
+
+  route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
+  to_cidr         = each.value.to_cidr
+  next_hop_set    = each.value.next_hop_set
+}
+
 ### NATGW ###
 
 module "natgw_set" {
@@ -65,6 +98,8 @@ module "transit_gateway" {
   asn          = var.tgw.asn
   route_tables = var.tgw.route_tables
 }
+
+### TGW ATTACHMENTS ###
 
 module "transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
@@ -107,6 +142,8 @@ module "gwlb" {
   subnets = module.subnet_sets[each.value.vpc_subnet].subnets
 }
 
+### GWLB ENDPOINTS ###
+
 module "gwlbe_endpoint" {
   source = "../../modules/gwlb_endpoint_set"
 
@@ -128,37 +165,6 @@ module "gwlbe_endpoint" {
     #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used here.)
     # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
   } : {}
-}
-
-### SECURITY VPC ROUTES ###
-
-locals {
-  vpc_routes = flatten(concat([
-    for vk, vv in var.vpcs : [
-      for rk, rv in vv.routes : {
-        subnet_key = rv.vpc_subnet
-        to_cidr    = rv.to_cidr
-        next_hop_set = (
-          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
-            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
-              rv.next_hop_type == "transit_gateway" ? module.transit_gateway_attachment[rv.next_hop_key].next_hop_set : (
-                rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
-              )
-            )
-          )
-        )
-      }
-    ]
-  ]))
-}
-
-module "vpc_routes" {
-  for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
-  source   = "../../modules/vpc_route"
-
-  route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
 }
 
 ### SPOKE VM INSTANCES ####
@@ -244,7 +250,7 @@ locals {
   ] }
 }
 
-### AUTOSCALING GROUP WITH VM-Series INSTANCES ###
+### IAM ROLES AND POLICIES ###
 
 resource "aws_iam_role" "vm_series_ec2_iam_role" {
   name               = "${var.name_prefix}vmseries"
@@ -293,6 +299,8 @@ resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
   name = "${var.name_prefix}vmseries_instance_profile"
   role = aws_iam_role.vm_series_ec2_iam_role.name
 }
+
+### AUTOSCALING GROUP WITH VM-Series INSTANCES ###
 
 module "vm_series_asg" {
   source = "../../modules/asg"

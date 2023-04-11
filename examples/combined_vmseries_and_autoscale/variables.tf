@@ -31,8 +31,8 @@ variable "vpcs" {
      - `nacl`: key of NACL (can be null)
   - `routes`: map of routes with properties:
      - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-     - `next_hop_key` - must match keys use to create TGW, IGW, GWLBE or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
   Example:
   ```
@@ -77,7 +77,7 @@ variable "vpcs" {
           vpc_subnet    = "app1_vpc-app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
-          next_hop_type = "transit_gateway"
+          next_hop_type = "transit_gateway_attachment"
         }
       }
     }
