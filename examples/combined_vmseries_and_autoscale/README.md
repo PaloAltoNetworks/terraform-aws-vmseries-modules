@@ -36,6 +36,17 @@ Using multiple template stacks, one for each AZ complicates autoscaling and the 
 - Destination IP: Next Hop IP of the subnet of the corresponding AZ.
 
 The AWS NACL applied to the trust subnets blocks the path monitor from pinging default gateways of the trust subnets in the other availability zones. This will cause the firewall to remove all routes that don't apply to the Availability zone it is in.
+
+Below there is shown example of VR configuration with static routes and path monitoring:
+
+| Name | Destination | Next Hop | Metric | Path Monitor Destination IP |
+|--------|--------|--------|--------|--------|
+| app1_az1 | 10.104.0.0/16 | 10.100.1.1 | 11 | 10.100.1.1 |
+| app2_az1 | 10.105.0.0/16 | 10.100.1.1 | 11 | 10.100.1.1 |
+| app1_az2 | 10.104.0.0/16 | 10.100.65.1 | 12 | 10.100.65.1 |
+| app2_az2 | 10.105.0.0/16 | 10.100.65.1 | 12 | 10.100.65.1 |
+| health_az1 | 10.100.0.0/16 | 10.100.1.1 | 11 | 10.100.1.1 |
+| health_az2 | 10.100.0.0/16 | 10.100.65.1 | 12 | 10.100.65.1 |
 </p>
 </details> 
 10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
