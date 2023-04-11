@@ -22,6 +22,22 @@ Code was prepared according to presented below diagram for *combined model*.
 7. Configure interface management profile to enable health checks from GWLB
 8. Configure network interfaces and subinterfaces, zones and virtual router in template
 9. Configure [static routes with path monitoring](https://docs.paloaltonetworks.com/pan-os/10-1/pan-os-networking-admin/static-routes/configure-path-monitoring-for-a-static-route)
+<details><summary>Details</summary>
+<p>
+Using multiple template stacks, one for each AZ complicates autoscaling and the Panorama Licensing plugin configuration. The virtual router (VR) configuration combined with path monitoring outlined below avoids using AZ-specific template stacks and variables.
+
+**Virtual Router Configuration**
+
+1. Create static routes for all internally routed CIDRs
+2. Set the next hop to the default gateway IP of the trust subnet of the corresponding availability zone, which the firewall is connected to.
+3. Set a unique metric value per AZ so that it doesn't overlap with other routes with the same destinations.
+4. Enable Path Monitoring for the route.
+- Source IP: DHCP
+- Destination IP: Next Hop IP of the subnet of the corresponding AZ.
+
+The AWS NACL applied to the trust subnets blocks the path monitor from pinging default gateways of the trust subnets in the other availability zones. This will cause the firewall to remove all routes that don't apply to the Availability zone it is in.
+</p>
+</details> 
 10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
 ## Usage
