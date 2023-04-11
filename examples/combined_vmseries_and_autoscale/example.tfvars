@@ -182,6 +182,89 @@ vpcs = {
       "10.100.12.0/24" = { az = "eu-central-1a", set = "lambda", nacl = null }
       "10.100.76.0/24" = { az = "eu-central-1b", set = "lambda", nacl = null }
     }
+    routes = {
+      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      mgmt_default = {
+        vpc_subnet    = "security_vpc-mgmt"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      mgmt_panorama = {
+        vpc_subnet    = "security_vpc-mgmt"
+        to_cidr       = "10.255.0.0/16"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      mgmt_rfc1918 = {
+        vpc_subnet    = "security_vpc-mgmt"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      lambda_default = {
+        vpc_subnet    = "security_vpc-lambda"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_nat_gw"
+        next_hop_type = "nat_gateway"
+      }
+      lambda_panorama = {
+        vpc_subnet    = "security_vpc-lambda"
+        to_cidr       = "10.255.0.0/16"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      lambda_rfc1918 = {
+        vpc_subnet    = "security_vpc-lambda"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      tgw_rfc1918 = {
+        vpc_subnet    = "security_vpc-tgw_attach"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security_gwlb_eastwest"
+        next_hop_type = "gwlbe_endpoint"
+      }
+      tgw_default = {
+        vpc_subnet    = "security_vpc-tgw_attach"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_gwlb_outbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
+      public_default = {
+        vpc_subnet    = "security_vpc-public"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_nat_gw"
+        next_hop_type = "nat_gateway"
+      }
+      gwlbe_outbound_rfc1918 = {
+        vpc_subnet    = "security_vpc-gwlbe_outbound"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      gwlbe_eastwest_rfc1918 = {
+        vpc_subnet    = "security_vpc-gwlbe_eastwest"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway"
+      }
+      nat_default = {
+        vpc_subnet    = "security_vpc-natgw"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      nat_rfc1918 = {
+        vpc_subnet    = "security_vpc-natgw"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security_gwlb_outbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
+    }
   }
   app1_vpc = {
     name  = "app1-spoke-vpc"
@@ -223,6 +306,29 @@ vpcs = {
       "10.104.3.0/24"   = { az = "eu-central-1a", set = "app1_gwlbe", nacl = null }
       "10.104.131.0/24" = { az = "eu-central-1b", set = "app1_gwlbe", nacl = null }
     }
+    routes = {
+      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_default = {
+        vpc_subnet    = "app1_vpc-app1_vm"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1"
+        next_hop_type = "transit_gateway"
+      }
+      gwlbe_default = {
+        vpc_subnet    = "app1_vpc-app1_gwlbe"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      lb_default = {
+        vpc_subnet    = "app1_vpc-app1_lb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1_inbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
+    }
   }
   app2_vpc = {
     name  = "app2-spoke-vpc"
@@ -263,6 +369,29 @@ vpcs = {
       "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb", nacl = null }
       "10.105.3.0/24"   = { az = "eu-central-1a", set = "app2_gwlbe", nacl = null }
       "10.105.131.0/24" = { az = "eu-central-1b", set = "app2_gwlbe", nacl = null }
+    }
+    routes = {
+      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `next_hop_key` must match keys use to create TGW, IGW, GWLBE or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_default = {
+        vpc_subnet    = "app2_vpc-app2_vm"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2"
+        next_hop_type = "transit_gateway"
+      }
+      gwlbe_default = {
+        vpc_subnet    = "app2_vpc-app2_gwlbe"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      lb_default = {
+        vpc_subnet    = "app2_vpc-app2_lb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2_inbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
     }
   }
 }
@@ -388,9 +517,6 @@ vmseries_asgs = {
 
     # Value of `gwlb` must match key of objects stored in `gwlbs`
     gwlb = "security_gwlb"
-
-    # Value of `lambda_vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-    lambda_vpc_subnet = "security_vpc-lambda"
 
     interfaces = {
       private = {

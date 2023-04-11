@@ -25,7 +25,14 @@ variable "vpcs" {
   - `cidr`: CIDR for VPC
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
-  - `subnets`: map of subnets
+  - `subnets`: map of subnets with properties:
+     - `az`: availability zone
+     - `set`: internal identifier referenced by main.tf
+     - `nacl`: key of NACL (can be null)
+  - `routes`: map of routes with properties:
+     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `next_hop_key` - must match keys use to create TGW, IGW, GWLBE or other resources
+     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
 
   Example:
   ```
@@ -65,6 +72,14 @@ variable "vpcs" {
         "10.104.0.0/24"   = { az = "eu-central-1a", set = "vm", nacl = null }
         "10.104.128.0/24" = { az = "eu-central-1b", set = "vm", nacl = null }
       }
+      routes = {
+        vm_default = {
+          vpc_subnet    = "app1_vpc-app1_vm"
+          to_cidr       = "0.0.0.0/0"
+          next_hop_key  = "app1"
+          next_hop_type = "transit_gateway"
+        }
+      }
     }
   }
   ```
@@ -100,6 +115,12 @@ variable "vpcs" {
       az   = string
       set  = string
       nacl = string
+    }))
+    routes = map(object({
+      vpc_subnet    = string
+      to_cidr       = string
+      next_hop_key  = string
+      next_hop_type = string
     }))
   }))
 }
@@ -259,7 +280,6 @@ variable "vmseries_asgs" {
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
-  - `lambda_vpc_subnet`: key of the VPC and subnet connected by '-' character, where Lambda is deployed
   - `interfaces`: configuration of network interfaces for VM-Series used by Lamdba while provisioning new VM-Series in autoscaling group
   - `subinterfaces`: configuration of network subinterfaces used to map with GWLB endpoints
   - `asg`: the number of Amazon EC2 instances that should be running in the group (desired, minimum, maximum)
@@ -293,7 +313,6 @@ variable "vmseries_asgs" {
 
       vpc               = "security_vpc"
       gwlb              = "security_gwlb"
-      lambda_vpc_subnet = "security_vpc-lambda"
 
       interfaces = {
         private = {
@@ -391,9 +410,8 @@ variable "vmseries_asgs" {
     panos_version = string
     ebs_kms_id    = string
 
-    vpc               = string
-    gwlb              = string
-    lambda_vpc_subnet = string
+    vpc  = string
+    gwlb = string
 
     interfaces = map(object({
       device_index      = number

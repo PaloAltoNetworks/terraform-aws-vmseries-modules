@@ -133,136 +133,23 @@ module "gwlbe_endpoint" {
 ### SECURITY VPC ROUTES ###
 
 locals {
-  security_vpc_routes_outbound_source_cidrs = [
-    # outbound traffic return after inspection
-    "10.0.0.0/8",
-  ]
-  security_vpc_routes_outbound_destin_cidrs = [
-    # outbound traffic incoming for inspection from TGW
-    "0.0.0.0/0",
-  ]
-  security_vpc_routes_eastwest_cidrs = [
-    # eastwest traffic incoming for inspection from TGW
-    "10.0.0.0/8",
-  ]
-  security_vpc_mgmt_routes_to_tgw = [
-    # Panorama via TGW (must not repeat any security_vpc_routes_eastwest_cidrs)
-    "10.255.0.0/16",
-  ]
-
-  vpc_routes = concat(
-    [for cidr in local.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "security_vpc-mgmt"
-        next_hop_set = module.vpc["security_vpc"].igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "security_vpc-lambda"
-        next_hop_set = module.natgw_set["security_nat_gw"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in concat(local.security_vpc_routes_eastwest_cidrs, local.security_vpc_mgmt_routes_to_tgw) :
-      {
-        subnet_key   = "security_vpc-mgmt"
-        next_hop_set = module.transit_gateway_attachment["security"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in concat(local.security_vpc_routes_eastwest_cidrs, local.security_vpc_mgmt_routes_to_tgw) :
-      {
-        subnet_key   = "security_vpc-lambda"
-        next_hop_set = module.transit_gateway_attachment["security"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_eastwest_cidrs :
-      {
-        subnet_key   = "security_vpc-tgw_attach"
-        next_hop_set = module.gwlbe_endpoint["security_gwlb_eastwest"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "security_vpc-tgw_attach"
-        next_hop_set = module.gwlbe_endpoint["security_gwlb_outbound"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "security_vpc-public"
-        next_hop_set = module.natgw_set["security_nat_gw"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_source_cidrs :
-      {
-        subnet_key   = "security_vpc-gwlbe_outbound"
-        next_hop_set = module.transit_gateway_attachment["security"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_eastwest_cidrs :
-      {
-        subnet_key   = "security_vpc-gwlbe_eastwest"
-        next_hop_set = module.transit_gateway_attachment["security"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "security_vpc-natgw"
-        next_hop_set = module.vpc["security_vpc"].igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in local.security_vpc_routes_outbound_source_cidrs :
-      {
-        subnet_key   = "security_vpc-natgw"
-        next_hop_set = module.gwlbe_endpoint["security_gwlb_outbound"].next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [
-      {
-        subnet_key   = "app1_vpc-app1_gwlbe"
-        next_hop_set = module.vpc["app1_vpc"].igw_as_next_hop_set
-        to_cidr      = "0.0.0.0/0"
-      },
-      {
-        subnet_key   = "app1_vpc-app1_vm"
-        next_hop_set = module.transit_gateway_attachment["app1"].next_hop_set
-        to_cidr      = "0.0.0.0/0"
-      },
-      {
-        subnet_key   = "app1_vpc-app1_lb"
-        next_hop_set = module.gwlbe_endpoint["app1_inbound"].next_hop_set
-        to_cidr      = "0.0.0.0/0"
-      }
-    ],
-    [
-      {
-        subnet_key   = "app2_vpc-app2_gwlbe"
-        next_hop_set = module.vpc["app2_vpc"].igw_as_next_hop_set
-        to_cidr      = "0.0.0.0/0"
-      },
-      {
-        subnet_key   = "app2_vpc-app2_vm"
-        next_hop_set = module.transit_gateway_attachment["app2"].next_hop_set
-        to_cidr      = "0.0.0.0/0"
-      },
-      {
-        subnet_key   = "app2_vpc-app2_lb"
-        next_hop_set = module.gwlbe_endpoint["app2_inbound"].next_hop_set
-        to_cidr      = "0.0.0.0/0"
+  vpc_routes = flatten(concat([
+    for vk, vv in var.vpcs : [
+      for rk, rv in vv.routes : {
+        subnet_key = rv.vpc_subnet
+        to_cidr    = rv.to_cidr
+        next_hop_set = (
+          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
+            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
+              rv.next_hop_type == "transit_gateway" ? module.transit_gateway_attachment[rv.next_hop_key].next_hop_set : (
+                rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
+              )
+            )
+          )
+        )
       }
     ]
-  )
+  ]))
 }
 
 module "vpc_routes" {
