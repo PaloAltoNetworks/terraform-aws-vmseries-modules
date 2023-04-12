@@ -57,9 +57,9 @@ body:
     label: Anything else to add?
     description: If you would like to add any more information, please add it below.
     placeholder: | 
-  Include screenshots (paste from your clipboard or drag and drop here), other relevant details about the environment you experienced the bug in, terraform debug logs or relevant outputs
-  How has this issue affected you? 
-  What are you trying to accomplish?
-  Providing context helps us come up with a solution that is useful in the real world 
-  validations:
-    required: false
+      Include screenshots (paste from your clipboard or drag and drop here), other relevant details about the environment you experienced the bug in, terraform debug logs or relevant outputs
+      How has this issue affected you? 
+      What are you trying to accomplish?
+      Providing context helps us come up with a solution that is useful in the real world 
+    validations:
+      required: false
