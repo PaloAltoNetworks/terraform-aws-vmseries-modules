@@ -11,6 +11,10 @@ Code was prepared according to presented below diagram for *combined model*.
 
 ![](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
 
+In order to execute code, values for variables needs to be provided. There were prepared 2 examples:
+- `example-natgw-lambda-vpc.tfvars` - with NAT Gateway presented in topology, where NAT Gateway is used for Lambda working in VPC for autoscaling group and for VM-Series instances, which for untrust interfaces do not public IP
+- `example-no-natgw-lambda-no-vpc.tfvars` - without NAT Gateway, where Lambda is not working in VPC and each VM-Series instance in autoscaling group has untrust interface with public IP
+
 ## Prerequisites
 
 1. Deploy Panorama e.g. by using [standalone Panorama example](../../examples/standalone_panorama)
@@ -53,7 +57,7 @@ Below there is shown example of VR configuration with static routes and path mon
 
 ## Usage
 
-1. Copy `example.tfvars` into `terraform.tfvars`
+1. Copy `example-no-natgw-lambda-no-vpc.tfvars` or `example-natgw-lambda-vpc.tfvars` into `terraform.tfvars`
 2. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
 3. Initialize Terraform: `terraform init`
 5. Prepare plan: `terraform plan`
