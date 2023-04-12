@@ -21,35 +21,30 @@ body:
   attributes:
     label: Describe the bug
     description: A clear and concise description of what is wrong.
-    placeholder: ''
   validations:
     required: true
 - type: textarea
   attributes:
     label: Expected behavior
     description: Tell us what should happen, or how it should work. 
-    placeholder: ''
   validations:
     required: true
 - type: textarea
   attributes:
     label: Current behavior
     description: Tell us what happens instead of the expected behavior. 
-    placeholder: ''
   validations:
     required: true
 - type: textarea
   attributes:
     label: Possible solution
     description: Not obligatory, but suggest a fix/reason for the bug, or ideas how to implement the addition or change.
-    placeholder: ''
   validations:
     required: false
 - type: textarea
   attributes:
     label: Steps to reproduce
     description: Provide a link to a live example, or an unambiguous set of steps to reproduce this bug. Include code to reproduce, if relevant. 
-    placeholder: ''
   validations:
     required: false
 - type: textarea
