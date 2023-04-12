@@ -44,6 +44,14 @@ resource "aws_subnet" "this" {
   ]
 }
 
+#### NACL association
+
+resource "aws_network_acl_association" "main" {
+  for_each       = var.nacl_associations
+  network_acl_id = each.value
+  subnet_id      = local.subnets[each.key].id
+}
+
 #### One route table per each subnet by default #### 
 
 data "aws_route_table" "this" {

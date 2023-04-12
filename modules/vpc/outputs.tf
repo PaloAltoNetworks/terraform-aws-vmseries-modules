@@ -33,6 +33,14 @@ output "vpn_gateway_route_table" {
   value       = var.create_vpn_gateway ? try(aws_route_table.from_vgw[0], null) : null
 }
 
+output "nacl_ids" {
+  description = "Map of NACL -> ID (newly created)."
+  value = {
+    for k, nacl in aws_network_acl.this :
+    k => nacl.id
+  }
+}
+
 output "security_group_ids" {
   description = "Map of Security Group Name -> ID (newly created)."
   value = {

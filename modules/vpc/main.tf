@@ -118,6 +118,48 @@ resource "aws_route_table_association" "from_vgw" {
 }
 
 ############################################################
+# Network ACLs
+############################################################
+
+resource "aws_network_acl" "this" {
+  for_each = var.nacls
+  vpc_id   = local.vpc.id
+
+  tags = {
+    Name = each.value.name
+  }
+}
+
+locals {
+  nacl_rules = flatten([
+    for n in keys(var.nacls) : [
+      for r in var.nacls[n].rules : {
+        nacl        = n
+        rule_number = r.rule_number
+        egress      = r.egress
+        protocol    = r.protocol
+        rule_action = r.rule_action
+        cidr_block  = r.cidr_block
+        from_port   = r.from_port
+        to_port     = r.to_port
+      }
+    ]
+  ])
+}
+
+resource "aws_network_acl_rule" "this" {
+  for_each       = { for nacl_rule in local.nacl_rules : "${nacl_rule.nacl}.${nacl_rule.rule_number}" => nacl_rule }
+  network_acl_id = aws_network_acl.this[each.value.nacl].id
+  rule_number    = each.value.rule_number
+  egress         = each.value.egress
+  protocol       = each.value.protocol
+  rule_action    = each.value.rule_action
+  cidr_block     = each.value.cidr_block
+  from_port      = each.value.from_port
+  to_port        = each.value.to_port
+}
+
+############################################################
 # Security Groups
 ############################################################
 
