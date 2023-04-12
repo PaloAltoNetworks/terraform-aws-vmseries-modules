@@ -24,7 +24,8 @@ locals {
 data "aws_subnet" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.create_subnet == false }
 
-  tags = { Name = each.value.name }
+  tags   = { Name = each.value.name }
+  vpc_id = var.vpc_id
 }
 
 #### Create Subnets ####
