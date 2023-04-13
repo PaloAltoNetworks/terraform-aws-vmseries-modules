@@ -11,7 +11,8 @@ Code was prepared according to presented below diagram for *combined model*.
 
 ![](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
 
-In order to execute code, values for variables needs to be provided. There were prepared 2 examples:
+There are two use cases supported in this example. You can select your preferred use case by using the applicable `tfvar` file for your use case.
+
 - `example-natgw-lambda-vpc.tfvars` - with NAT Gateway presented in topology, where NAT Gateway is used for Lambda working in VPC for autoscaling group and for VM-Series instances, which for untrust interfaces don't have public IP
 - `example-no-natgw-lambda-no-vpc.tfvars` - without NAT Gateway, where Lambda is not working in VPC and each VM-Series instance in autoscaling group has untrust interface with public IP
 
