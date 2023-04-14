@@ -16,6 +16,10 @@ In a nutshell it means:
 
   VM-Series instances are bootstrapped using S3 bucket based method.
 
+## Topology diagram
+
+![Topology](./docs/images/GWLB_TGW_Combined_topology.jpeg)
+
 ## Running the example
 
 To run this Terraform example copy the `example.tfvars` to `terraform.tfvars` and adjust it to your needs.
