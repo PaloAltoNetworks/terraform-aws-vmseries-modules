@@ -141,14 +141,14 @@ terraform destroy
 
 ## Traffic Validation
 
-If no errors occurred during deployment, configure the vm-series machines as expected.
-- Configure the data interface so that GWLB Health Checks work properly.
+If no errors occurred during deployment, configure the `vm-series` machines as expected.
+- Configure the `data` interface so that GWLB Health Checks work properly.
 - All data interfaces should use DHCP
-- Create subinterfaces for Inbound, Outbound and EastWest traffic
+- Create subinterfaces for `Inbound`, `Outbound` and `EastWest` traffic
 - Create appropriate zones that will be assigned to the correct subinterfaces
-- Create a Deny All rule at the very end of the rule list to eliminate unwanted traffic to the environment (In the default configuration, due to the fact that we use subinterfaces, each traffic is seen as an intrazone)
+- Create a `Deny All` rule at the very end of the rule list to eliminate unwanted traffic to the environment (In the default configuration, due to the fact that we use subinterfaces, each traffic is seen as an `intrazone`)
 - Create policies as needed
-- Make sure GWLB sees all vm-series in the target group as healthy
+- Make sure GWLB sees all `vm-series` in the target group as healthy
 - Take the NLB address and see if we are able to get the welcome page from the test app
-- Make sure all traffic is visible in the monitor tab in vm-series (check if the traffic works as expected, if it goes to the right policies)
+- Make sure all traffic is visible in the `monitor` tab in `vm-series` (check if the traffic works as expected, if it goes to the right policies)
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
