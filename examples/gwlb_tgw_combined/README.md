@@ -61,19 +61,6 @@ terraform destroy
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
-## Traffic Validation
-
-If no errors occurred during deployment, configure the `vm-series` machines as expected.
-- Configure the `data` interface so that GWLB Health Checks work properly.
-- All data interfaces should use DHCP
-- Create subinterfaces for `Inbound`, `Outbound` and `EastWest` traffic
-- Create appropriate zones that will be assigned to the correct subinterfaces
-- Create a `Deny All` rule at the very end of the rule list to eliminate unwanted traffic to the environment (In the default configuration, due to the fact that we use subinterfaces, each traffic is seen as an `intrazone`)
-- Create policies as needed
-- Make sure GWLB sees all `vm-series` in the target group as healthy
-- Take the NLB address and see if we are able to get the welcome page from the test app
-- Make sure all traffic is visible in the `monitor` tab in `vm-series` (check if the traffic works as expected, if it goes to the right policies)
-
 ## Modules
 
 | Name | Source | Version |
@@ -148,8 +135,8 @@ If no errors occurred during deployment, configure the `vm-series` machines as e
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.<br>Can be used in VM-Series configuration to balance traffic between the application instances. |
+| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.  
+<br>Can be used in VM-Series configuration to balance traffic between the application instances. |
 | <a name="output_security_gwlb_service_name"></a> [security\_gwlb\_service\_name](#output\_security\_gwlb\_service\_name) | The AWS Service Name of the created GWLB, which is suitable to use for subsequent VPC Endpoints. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
-
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

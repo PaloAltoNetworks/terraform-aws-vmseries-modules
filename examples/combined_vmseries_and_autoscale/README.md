@@ -204,5 +204,5 @@ statistic    = "Maximum"
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app_inspected_dns_name"></a> [app\_inspected\_dns\_name](#output\_app\_inspected\_dns\_name) | FQDN of App Internal Load Balancer.<br>Can be used in VM-Series configuration to balance traffic between the application instances. |
+| <a name="output_app_inspected_dns_name"></a> [app\_inspected\_dns\_name](#output\_app\_inspected\_dns\_name) | FQDN of App Internal Load Balancer.  <br>Can be used in VM-Series configuration to balance traffic between the application instances. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
