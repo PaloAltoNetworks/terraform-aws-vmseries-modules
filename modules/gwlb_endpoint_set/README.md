@@ -46,5 +46,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_endpoints"></a> [endpoints](#output\_endpoints) | Map of the created endpoints. The keys are the same as the keys of the input `subnets`. |
-| <a name="output_next_hop_set"></a> [next\_hop\_set](#output\_next\_hop\_set) | The Next Hop Set object, useful as an input to the `vpc_route` module. The intention would  <br>be to route traffic from subnets to endpoints while preventing cross-AZ traffic (so  <br>that a subnet in AZ-a only routes to an endpoint in AZ-a). Example:<pre>next_hop_set = {<br>  ids = {<br>    "us-east-1a" = "gwlbe-0ddf598f93a8ea8ae"<br>    "us-east-1b" = "gwlbe-0862c4b707b012111"<br>  }<br>  id   = null<br>  type = "vpc_endpoint"<br>}</pre> |
+| <a name="output_next_hop_set"></a> [next\_hop\_set](#output\_next\_hop\_set) | The Next Hop Set object, useful as an input to the `vpc_route` module. The intention would<br>be to route traffic from subnets to endpoints while preventing cross-AZ traffic (so<br>that a subnet in AZ-a only routes to an endpoint in AZ-a). Example:<pre>next_hop_set = {<br>  ids = {<br>    "us-east-1a" = "gwlbe-0ddf598f93a8ea8ae"<br>    "us-east-1b" = "gwlbe-0862c4b707b012111"<br>  }<br>  id   = null<br>  type = "vpc_endpoint"<br>}</pre> |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
