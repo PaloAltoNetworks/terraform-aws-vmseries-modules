@@ -18,7 +18,7 @@ In a nutshell it means:
 
 ## Topology diagram
 
-![Topology](./docs/images/GWLB_TGW_Combined_topology.jpeg)
+![GWLB_TGW_Combined_topology](https://user-images.githubusercontent.com/116259643/233025099-efeacd4b-d1c5-4cb3-a43e-859ec4613b81.jpg)
 
 ## Running the example
 
