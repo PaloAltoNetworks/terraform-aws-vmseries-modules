@@ -53,6 +53,13 @@ Below there is shown example of VR configuration with static routes and path mon
 | health_az1 | 10.100.0.0/16 | 10.100.1.1 | 11 | 10.100.1.1 |
 | health_az2 | 10.100.0.0/16 | 10.100.65.1 | 12 | 10.100.65.1 |
 </p>
+
+Described configuration was prepared for PANOS 10.2.3 in [ASG template](template-asg-path-monitoring.xml), which after importing to Panorama can be merged using command:
+
+```
+load config partial mode merge from-xpath /config/devices/entry/template/entry[@name='asg'] to-xpath /config/devices/entry/template/entry[@name='asg'] from template-asg-path-monitoring.xml
+```
+
 </details> 
 10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
