@@ -142,6 +142,46 @@ vpcs = {
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
             cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
+          health_probe_8081 = {
+            description = "Permit Port 8081 Health Probe to ALB"
+            type        = "ingress", from_port = "8081", to_port = "8081", protocol = "tcp"
+            cidr_blocks = ["10.100.6.0/24", "10.100.70.0/24"]
+          }
+          health_probe_8082 = {
+            description = "Permit Port 8082 Health Probe to ALB"
+            type        = "ingress", from_port = "8082", to_port = "8082", protocol = "tcp"
+            cidr_blocks = ["10.100.6.0/24", "10.100.70.0/24"]
+          }
+          health_probe_2021 = {
+            description = "Permit Port 2021 Health Probe to NLB"
+            type        = "ingress", from_port = "2021", to_port = "2021", protocol = "tcp"
+            cidr_blocks = ["10.100.7.0/24", "10.100.71.0/24"]
+          }
+          health_probe_2022 = {
+            description = "Permit Port 2022 Health Probe to NLB"
+            type        = "ingress", from_port = "2022", to_port = "2022", protocol = "tcp"
+            cidr_blocks = ["10.100.7.0/24", "10.100.71.0/24"]
+          }
+        }
+      }
+      application_load_balancer = {
+        name = "alb"
+        rules = {
+          http_inbound_8081 = {
+            description = "Permit incoming APP1 traffic"
+            type        = "ingress", from_port = "8081", to_port = "8081", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          http_inbound_8082 = {
+            description = "Permit incoming APP2 traffic"
+            type        = "ingress", from_port = "8082", to_port = "8082", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
         }
       }
     }
@@ -161,6 +201,10 @@ vpcs = {
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null } # AWS reccomends to always go up to the last possible AZ for GWLB service
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
       "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
+      "10.100.6.0/24"  = { az = "eu-central-1a", set = "alb", nacl = null }
+      "10.100.70.0/24" = { az = "eu-central-1b", set = "alb", nacl = null }
+      "10.100.7.0/24"  = { az = "eu-central-1a", set = "nlb", nacl = null }
+      "10.100.71.0/24" = { az = "eu-central-1b", set = "nlb", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -214,6 +258,30 @@ vpcs = {
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
+      private_app1 = {
+        vpc_subnet    = "security_vpc-private"
+        to_cidr       = "10.104.0.0/16"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway_attachment"
+      }
+      private_app2 = {
+        vpc_subnet    = "security_vpc-private"
+        to_cidr       = "10.105.0.0/16"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway_attachment"
+      }
+      alb_default = {
+        vpc_subnet    = "security_vpc-alb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      nlb_default = {
+        vpc_subnet    = "security_vpc-nlb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
     }
   }
   app1_vpc = {
@@ -258,8 +326,6 @@ vpcs = {
       "10.104.128.0/24" = { az = "eu-central-1b", set = "app1_vm", nacl = null }
       "10.104.2.0/24"   = { az = "eu-central-1a", set = "app1_lb", nacl = null }
       "10.104.130.0/24" = { az = "eu-central-1b", set = "app1_lb", nacl = null }
-      "10.104.3.0/24"   = { az = "eu-central-1a", set = "app1_gwlbe", nacl = null }
-      "10.104.131.0/24" = { az = "eu-central-1b", set = "app1_gwlbe", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -271,17 +337,11 @@ vpcs = {
         next_hop_key  = "app1"
         next_hop_type = "transit_gateway_attachment"
       }
-      gwlbe_default = {
-        vpc_subnet    = "app1_vpc-app1_gwlbe"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
-        next_hop_type = "internet_gateway"
-      }
       lb_default = {
         vpc_subnet    = "app1_vpc-app1_lb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_inbound"
-        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1"
+        next_hop_type = "transit_gateway_attachment"
       }
     }
   }
@@ -327,8 +387,6 @@ vpcs = {
       "10.105.128.0/24" = { az = "eu-central-1b", set = "app2_vm", nacl = null }
       "10.105.2.0/24"   = { az = "eu-central-1a", set = "app2_lb", nacl = null }
       "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb", nacl = null }
-      "10.105.3.0/24"   = { az = "eu-central-1a", set = "app2_gwlbe", nacl = null }
-      "10.105.131.0/24" = { az = "eu-central-1b", set = "app2_gwlbe", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -340,17 +398,11 @@ vpcs = {
         next_hop_key  = "app2"
         next_hop_type = "transit_gateway_attachment"
       }
-      gwlbe_default = {
-        vpc_subnet    = "app2_vpc-app2_gwlbe"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
-        next_hop_type = "internet_gateway"
-      }
       lb_default = {
         vpc_subnet    = "app2_vpc-app2_lb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_inbound"
-        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2"
+        next_hop_type = "transit_gateway_attachment"
       }
     }
   }
@@ -428,22 +480,6 @@ gwlb_endpoints = {
     act_as_next_hop = false
     to_vpc_subnets  = null
   }
-  app1_inbound = {
-    name            = "app1-gwlb-endpoint"
-    gwlb            = "security_gwlb"
-    vpc             = "app1_vpc"
-    vpc_subnet      = "app1_vpc-app1_gwlbe"
-    act_as_next_hop = true
-    to_vpc_subnets  = "app1_vpc-app1_lb"
-  }
-  app2_inbound = {
-    name            = "app2-gwlb-endpoint"
-    gwlb            = "security_gwlb"
-    vpc             = "app2_vpc"
-    vpc_subnet      = "app2_vpc-app2_gwlbe"
-    act_as_next_hop = true
-    to_vpc_subnets  = "app2_vpc-app2_lb"
-  }
 }
 
 ### VM-SERIES
@@ -460,8 +496,8 @@ vmseries = {
       plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
       panorama-server             = "10.255.0.10"                                                                        # TODO: update here
       auth-key                    = ""                                                                                   # TODO: update here
-      dgname                      = "combined"                                                                           # TODO: update here
-      tplname                     = "combined-stack"                                                                     # TODO: update here
+      dgname                      = "centralized"                                                                        # TODO: update here
+      tplname                     = "centralized-stack"                                                                  # TODO: update here
       dhcp-send-hostname          = "yes"                                                                                # TODO: update here
       dhcp-send-client-id         = "yes"                                                                                # TODO: update here
       dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
@@ -503,16 +539,7 @@ vmseries = {
 
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
-      inbound = {
-        app1 = {
-          gwlb_endpoint = "app1_inbound"
-          subinterface  = "ethernet1/1.11"
-        }
-        app2 = {
-          gwlb_endpoint = "app2_inbound"
-          subinterface  = "ethernet1/1.12"
-        }
-      }
+      inbound = {}
       outbound = {
         only_1_outbound = {
           gwlb_endpoint = "security_gwlb_outbound"
@@ -534,8 +561,58 @@ vmseries = {
       ntp_secondy = null           # TODO: update here
     }
 
-    application_lb = null
-    network_lb     = null
+    application_lb = {
+      name = "public-alb"
+      rules = {
+        "app1" = {
+          protocol              = "HTTP"
+          port                  = 8081
+          health_check_port     = "8081"
+          health_check_matcher  = "200"
+          health_check_path     = "/"
+          health_check_interval = 10
+          listener_rules = {
+            "1" = {
+              target_protocol = "HTTP"
+              target_port     = 8081
+              path_pattern    = ["/"]
+            }
+          }
+        }
+        "app2" = {
+          protocol              = "HTTP"
+          port                  = 8082
+          health_check_port     = "8082"
+          health_check_matcher  = "200"
+          health_check_path     = "/"
+          health_check_interval = 10
+          listener_rules = {
+            "1" = {
+              target_protocol = "HTTP"
+              target_port     = 8082
+              path_pattern    = ["/"]
+            }
+          }
+        }
+      }
+    }
+    network_lb = {
+      name = "public-nlb"
+      rules = {
+        "ssh1" = {
+          protocol    = "TCP"
+          port        = "2021"
+          target_type = "ip"
+          stickiness  = true
+        }
+        "ssh2" = {
+          protocol    = "TCP"
+          port        = "2022"
+          target_type = "ip"
+          stickiness  = true
+        }
+      }
+    }
   }
 }
 

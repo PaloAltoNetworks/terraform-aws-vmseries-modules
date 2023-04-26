@@ -210,7 +210,7 @@ module "app_lb" {
   for_each = var.spoke_lbs
 
   name        = "${var.name_prefix}${each.key}"
-  internal_lb = false
+  internal_lb = true
   subnets     = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id      = module.subnet_sets[each.value.vpc_subnet].vpc_id
 
@@ -338,4 +338,40 @@ module "vmseries" {
   iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   ssh_key_name         = var.ssh_key_name
   tags                 = var.global_tags
+}
+
+### Public ALB and NLB used in centralized model ###
+
+module "public_alb" {
+  for_each = { for k, v in var.vmseries : k => v }
+  source   = "../../modules/alb"
+
+  lb_name         = "${var.name_prefix}${each.value.application_lb.name}"
+  subnets         = { for k, v in module.subnet_sets["security_vpc-alb"].subnets : k => { id = v.id } }
+  vpc_id          = module.vpc["security_vpc"].id
+  security_groups = [module.vpc["security_vpc"].security_group_ids["application_load_balancer"]]
+  rules           = each.value.application_lb.rules
+  targets         = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
+
+  tags = var.global_tags
+}
+
+module "public_nlb" {
+  for_each = { for k, v in var.vmseries : k => v }
+  source   = "../../modules/nlb"
+
+  name        = "${var.name_prefix}${each.value.network_lb.name}"
+  internal_lb = false
+  subnets     = { for k, v in module.subnet_sets["security_vpc-nlb"].subnets : k => { id = v.id } }
+  vpc_id      = module.vpc["security_vpc"].id
+
+  balance_rules = { for k, v in each.value.network_lb.rules : k => {
+    protocol    = v.protocol
+    port        = v.port
+    target_type = v.target_type
+    stickiness  = v.stickiness
+    targets     = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
+  } }
+
+  tags = var.global_tags
 }
