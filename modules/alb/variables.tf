@@ -261,6 +261,7 @@ variable "tags" {
 
 variable "target_group_az" {
   description = "Availability Zones of Target Group ('all' for target group outside of VPC)"
+
   default     = "all"
   type        = string
 }
