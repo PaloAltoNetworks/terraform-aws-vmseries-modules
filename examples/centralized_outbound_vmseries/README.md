@@ -6,6 +6,8 @@ A Terraform example for deploying VM-Series firewalls in centralized model for o
 
 Code was prepared according to presented below diagram for *centralized model*.
 
+![](https://user-images.githubusercontent.com/9674179/234695848-6c772cbf-5ea6-4506-ae24-ba058d419742.png)
+
 ## Prerequisites
 
 Prepare Panorama in similar way as described for [Combined model example - VM-Series Auto Scaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/combined_vmseries_and_autoscale).
