@@ -8,7 +8,7 @@ Code was prepared according to presented below diagram for *centralized model*.
 
 ![](https://user-images.githubusercontent.com/9674179/234695848-6c772cbf-5ea6-4506-ae24-ba058d419742.png)
 
-Please note, that example is focused on outbound case, but in order to test traffic, it was also added public application load balanncer in front of VM-Series, for which after configuring NAT on firewall, VM in spoke VPCs can be accessed and outbound traffic between spoke VPCs can be inspected.
+Please note, that example is focused on outbound case, but in order to test traffic, it was also added public application load balancer in front of VM-Series, for which after configuring NAT on firewall, VM in spoke VPCs can be accessed and outbound traffic from spoke VPCs to Internet can be inspected.
 
 ## Prerequisites
 
