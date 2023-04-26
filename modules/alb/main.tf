@@ -241,7 +241,7 @@ resource "aws_lb_target_group_attachment" "this" {
   target_group_arn  = aws_lb_target_group.this[each.value.listener_tg_name].arn
   target_id         = each.value.ip
   port              = each.value.porta
-  availability_zone = "all"
+  availability_zone = var.target_group_az
 }
 # ######################## #
 
