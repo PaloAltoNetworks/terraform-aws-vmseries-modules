@@ -1,9 +1,10 @@
-# Combined, centralized and isolated model example - VM-Series
+# Centralized model example - outbound use case with VM-Series
 
-A Terraform example for deploying VM-Series firewalls in 3 possible models:
-- combined
-- centralized
-- isolated (distributed)
+A Terraform example for deploying VM-Series firewalls in centralized model for outbound traffic inspection.
+
+## Topology
+
+Code was prepared according to presented below diagram for *centralized model*.
 
 ## Prerequisites
 
@@ -11,15 +12,12 @@ Prepare Panorama in similar way as described for [Combined model example - VM-Se
 
 ## Usage
 
-1. Copy `example-centralized.tfvars`, `example-combined.tfvars` or `example-isolated.tfvars` into `terraform.tfvars`
+1. Copy `example.tfvars` into `terraform.tfvars`
 2. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
-3. Initialize Terraform: `terraform init -upgrade`
-4. Prepare plan: `terraform plan`
-5. Deploy infrastructure: `terraform apply -auto-approve`
-6. Destroy infrastructure if needed: `terraform destroy -auto-approve`
-7. After few minutes, check access to test application:
-   * for combined and isolated model - use value of ``app_inspected_dns_name`` in outputs to do HTTP or SSH request
-   * for centralized model - use value of ``public_alb_dns_name`` output to do HTTP on port 8081 or 8082, use value of ``public_nlb_dns_name`` output to do SSH on port 2021 or 2022
+3. Initialize Terraform: `terraform init`
+5. Prepare plan: `terraform plan`
+6. Deploy infrastructure: `terraform apply -auto-approve`
+7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
