@@ -1,11 +1,49 @@
 # Palo Alto Networks Panorama Module Example for AWS Cloud
 
-A Terraform module example for deploying a Panorama in AWS Cloud.
-
-This example can be used to familarize oneself with both Panorama and Terraform - it creates a single instance of virtualized Panorama instance in a Security VPC with a management-only interface.
+A Terraform module example for deploying a one or more instances of Panorama in one or more VPCs in AWS Cloud.
 
 **NOTE:**
 Panorama will take a serveral minutes to bootup during the initial setup.
+
+## Topology
+
+The topology consists of :
+ - VPC
+ - Panorama instance with a public IP address
+
+![]()
+
+## Prerequisites
+
+1. Prepare [panorama license](https://support.paloaltonetworks.com/)
+2. Configure the Terraform [AWS provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+
+## Usage
+
+1. Access AWS CloudShell or any other environment which has access to your AWS account
+2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules`
+3. Go to Panorama example: `cd terraform-aws-vmseries-modules/examples/panorama_standalone`
+4. Copy `example.tfvars` into `terraform.tfvars`
+5. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
+6. Initialize Terraform: `terraform init`
+7. Prepare plan: `terraform plan`
+8. Deploy infrastructure: `terraform apply -auto-approve`
+9. Destroy infrastructure if needed: `terraform destroy -auto-approve`
+
+## Configuration
+
+1. Get public IP for each Panorama instance(s): `tf output panorama_public_ips`
+2. Connect to the Panorama instance(s) via SSH using your associated private key: `ssh admin@x.x.x.x -i /PATH/TO/YOUR/KEY/id_rsa`
+3. Set `admin` password:
+
+```
+> configure
+# set mgt-config users admin password
+```
+
+## Access Panorama
+
+Use a web browser to access https://x.x.x.x and login with admin and your previously configured password
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
