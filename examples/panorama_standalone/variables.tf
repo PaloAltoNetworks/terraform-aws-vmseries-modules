@@ -1,158 +1,203 @@
-### General
-
+### GENERAL
 variable "region" {
-  description = "AWS Region."
-  default     = "us-east-1"
+  description = "AWS region used to deploy whole infrastructure"
   type        = string
 }
-
 variable "name_prefix" {
-  description = "Prefix use for creating unique names."
+  description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
   default     = ""
   type        = string
 }
-
 variable "global_tags" {
-  description = <<-EOF
-  A map of tags to assign to the resources.
-  If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level."
-  EOF
+  description = "Global tags configured for all provisioned resources"
   default     = {}
   type        = map(any)
 }
-
-### Network
-
-variable "vpc_name" {
-  description = "VPC Name."
-  default     = "security-vpc"
+variable "ssh_key_name" {
+  description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
 }
 
-variable "vpc_cidr" {
-  description = "AWS VPC Cidr block."
-  type        = string
-}
-
-variable "vpc_routes_outbound_destin_cidrs" {
-  description = "VPC Routes outbound cidr"
-  type        = list(string)
-}
-
-variable "vpc_subnets" {
-  description = "Security VPC subnets CIDR"
-  default     = {}
-  type        = map(any)
-}
-
-variable "vpc_security_groups" {
+### VPC
+variable "vpcs" {
   description = <<-EOF
-  Security VPC security groups settings.
-  Structure looks like this:
+  A map defining VPCs with security groups and subnets.
+
+  Following properties are available:
+  - `name`: VPC name
+  - `cidr`: CIDR for VPC
+  - `security_groups`: map of security groups
+  - `subnets`: map of subnets with properties:
+     - `az`: availability zone
+     - `set`: internal identifier referenced by main.tf
+  - `routes`: map of routes with properties:
+     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+
+  Example:
   ```
   {
-    security_group_name = {
-      {
-        name = "security_group_name"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
+    security_vpc = {
+      name = "security-vpc"
+      cidr = "10.100.0.0/16"
+      security_groups = {
+        panorama_mgmt = {
+          name = "panorama_mgmt"
+          rules = {
+            all_outbound = {
+              description = "Permit All traffic outbound"
+              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+              cidr_blocks = ["0.0.0.0/0"]
+            }
+            https = {
+              description = "Permit HTTPS"
+              type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+              cidr_blocks = ["130.41.247.0/24"]
+            }
+            ssh = {
+              description = "Permit SSH"
+              type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+              cidr_blocks = ["130.41.247.0/24"]
+            }
           }
-          https = {
-            description = "Permit HTTPS"
-            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          ssh = {
-            description = "Permit SSH"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
+        }
+      }
+      subnets = {
+        "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt" }
+        "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt" }
+      }
+      routes = {
+        mgmt_default = {
+          vpc_subnet    = "security_vpc-mgmt"
+          to_cidr       = "0.0.0.0/0"
+          next_hop_key  = "security_vpc"
+          next_hop_type = "internet_gateway"
         }
       }
     }
   }
   ```
   EOF
-  type        = map(any)
+  default     = {}
+  type = map(object({
+    name = string
+    cidr = string
+    security_groups = map(object({
+      name = string
+      rules = map(object({
+        description = string
+        type        = string,
+        from_port   = string
+        to_port     = string,
+        protocol    = string
+        cidr_blocks = list(string)
+      }))
+    }))
+    subnets = map(object({
+      az  = string
+      set = string
+    }))
+    routes = map(object({
+      vpc_subnet    = string
+      to_cidr       = string
+      next_hop_key  = string
+      next_hop_type = string
+    }))
+  }))
 }
 
-### Panorama
-
-variable "panorama_az" {
-  description = "Availability zone where Panorama was be deployed."
-  type        = string
-}
-
-variable "panorama_ssh_key_name" {
-  description = "SSH key used to login into Panorama EC2 server."
-  type        = string
-}
-
-variable "panorama_create_public_ip" {
-  description = "Public access to Panorama."
-  default     = false
-  type        = bool
-}
-
-variable "panorama_version" {
-  description = "Panorama OS Version."
-  default     = "10.2.0"
-  type        = string
-}
-
-variable "panorama_deployment_name" {
-  description = "Name of Panorama deployment, further use for tagging and name of Panorama instance."
-  default     = "panorama"
-  type        = string
-}
-
-variable "panorama_ebs_volumes" {
-  description = "List of Panorama volumes"
-  default     = []
-  type        = list(any)
-}
-
-variable "panorama_ebs_encrypted" {
-  description = "Whether to enable EBS encryption on volumes.."
-  default     = true
-  type        = bool
-}
-
-variable "panorama_ebs_kms_key_alias" {
-  description = "KMS key alias used for encrypting Panorama EBS."
-  default     = ""
-  type        = string
-}
-
-### IAM Instance Role
-
-variable "panorama_create_iam_instance_profile" {
-  description = "Enable creation of IAM Instance Profile and attach it to Panorama."
-  default     = false
-  type        = bool
-}
-
-variable "panorama_create_iam_role" {
-  description = "Enable creation of IAM Role for IAM Instance Profile."
-  default     = false
-  type        = bool
-}
-
-variable "panorama_iam_policy_name" {
+### PANORAMA
+variable "panorama" {
   description = <<-EOF
-If you want to use existing IAM Policy in Terraform created IAM Role, provide IAM Role name with this variable."
-EOF
-  default     = ""
-  type        = string
-}
+  A map defining Panorama instances
 
-variable "panorama_existing_iam_role_name" {
-  description = <<-EOF
-If you want to use existing IAM Role as IAM Instance Profile use this variable to provide IAM Role name."
-EOF
-  default     = ""
-  type        = string
+  Following properties are available:
+  - `instances`: map of Panorama instances
+  - `panos_version`: PAN-OS version used for Panorama
+  - `network`: definition of network settings in object with attributes:
+    - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
+    - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+    - `security_group`: security group assigned to ENI used by Panorama
+    - `create_public_ip`: true, if public IP address for management should be created
+  - `ebs`: EBS settings defined in object with attributes:
+    - `volumes`: list of EBS volumes attached to each instance
+    - `kms_key_alias`: KMS key alias used for encrypting Panorama EBS
+  - `iam`: IAM settings in object with attrbiutes:
+    - `create_role`: enable creation of IAM role
+    - `role_name`: name of the role to create or use existing one
+
+  Example:
+  ```
+  {
+    panorama = {
+      instances = {
+        "01" = { az = "eu-central-1a" }
+      }
+
+      panos_version = "10.2.3"
+
+      network = {
+        vpc              = "security_vpc"
+        vpc_subnet       = "security_vpc-mgmt"
+        security_group   = "panorama_mgmt"
+        create_public_ip = true
+      }
+
+      ebs = {
+        volumes = [
+          {
+            name            = "ebs-1"
+            ebs_device_name = "/dev/sdb"
+            ebs_size        = "2000"
+            ebs_encrypted   = true
+          },
+          {
+            name            = "ebs-2"
+            ebs_device_name = "/dev/sdc"
+            ebs_size        = "2000"
+            ebs_encrypted   = true
+          }
+        ]
+        kms_key_alias = "aws/ebs"
+      }
+
+      iam = {
+        create_role = true
+        role_name   = "panorama-read-only"
+      }
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    instances = map(object({
+      az = string
+    }))
+
+    panos_version = string
+
+    network = object({
+      vpc              = string
+      vpc_subnet       = string
+      security_group   = string
+      create_public_ip = bool
+    })
+
+    ebs = object({
+      volumes = list(object({
+        name            = string
+        ebs_device_name = string
+        ebs_size        = string
+        ebs_encrypted   = bool
+      }))
+      kms_key_alias = string
+    })
+
+    iam = object({
+      create_role = bool
+      role_name   = string
+    })
+  }))
 }
