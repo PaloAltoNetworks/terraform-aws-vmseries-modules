@@ -65,8 +65,8 @@ module "vpc_routes" {
 ### IAM ROLES AND POLICIES ###
 
 resource "aws_iam_role" "this" {
-  for_each           = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama if panorama.common.iam.create_role }
-  name               = "${var.name_prefix}${each.value.common.iam.role_name}"
+  for_each           = var.panorama
+  name               = "${var.name_prefix}${each.value.iam.role_name}"
   description        = "Allow read-only access to AWS resources."
   assume_role_policy = <<EOF
 {
@@ -87,7 +87,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "this" {
-  for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama if panorama.common.iam.create_role }
+  for_each = var.panorama
   role     = aws_iam_role.this[each.key].id
   policy   = <<EOF
 {
@@ -115,8 +115,8 @@ EOF
 
 resource "aws_iam_instance_profile" "this" {
   for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama }
-  name     = "${var.name_prefix}panorama_instance_profile"
-  role     = each.value.common.iam.create_role ? aws_iam_role.this[each.key].name : each.value.common.iam.role_name
+  name     = "${var.name_prefix}${each.key}panorama_instance_profile"
+  role     = each.value.common.iam.create_role ? aws_iam_role.this[each.value.group].name : each.value.common.iam.role_name
 }
 
 ### KMS ###

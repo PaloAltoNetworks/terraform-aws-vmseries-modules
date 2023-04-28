@@ -13,9 +13,9 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
-  security_vpc = {
-    name = "security-vpc"
-    cidr = "10.100.0.0/16"
+  management_vpc = {
+    name = "management-vpc"
+    cidr = "10.255.0.0/16"
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"
@@ -40,17 +40,17 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
-      "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt" }
-      "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt" }
+      "10.255.0.0/24" = { az = "eu-central-1a", set = "mgmt" }
+      "10.255.1.0/24" = { az = "eu-central-1b", set = "mgmt" }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
-        vpc_subnet    = "security_vpc-mgmt"
+        vpc_subnet    = "management_vpc-mgmt"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
+        next_hop_key  = "management_vpc"
         next_hop_type = "internet_gateway"
       }
     }
@@ -59,16 +59,23 @@ vpcs = {
 
 ### PANORAMA
 panorama = {
-  panorama = {
+  panorama_ha_pair = {
     instances = {
-      "01" = { az = "eu-central-1a" }
+      "primary" = {
+        az                 = "eu-central-1a"
+        private_ip_address = "10.255.0.4"
+      }
+      "secondary" = {
+        az                 = "eu-central-1b"
+        private_ip_address = "10.255.1.4"
+      }
     }
 
     panos_version = "10.2.3"
 
     network = {
-      vpc              = "security_vpc"
-      vpc_subnet       = "security_vpc-mgmt"
+      vpc              = "management_vpc"
+      vpc_subnet       = "management_vpc-mgmt"
       security_group   = "panorama_mgmt"
       create_public_ip = true
     }
@@ -93,7 +100,7 @@ panorama = {
 
     iam = {
       create_role = true
-      role_name   = "panorama-read-only"
+      role_name   = "panorama"
     }
   }
 }

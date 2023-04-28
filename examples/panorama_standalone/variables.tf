@@ -31,9 +31,10 @@ variable "vpcs" {
      - `az`: availability zone
      - `set`: internal identifier referenced by main.tf
   - `routes`: map of routes with properties:
-     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+     - `vpc_subnet`: built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `to_cidr`: destination IP range
+     - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+     - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
   Example:
   ```
@@ -113,7 +114,9 @@ variable "panorama" {
   A map defining Panorama instances
 
   Following properties are available:
-  - `instances`: map of Panorama instances
+  - `instances`: map of Panorama instances with attributes:
+    - `az`: name of the Availability Zone
+    - `private_ip_address`: private IP address for management interface
   - `panos_version`: PAN-OS version used for Panorama
   - `network`: definition of network settings in object with attributes:
     - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
@@ -130,16 +133,23 @@ variable "panorama" {
   Example:
   ```
   {
-    panorama = {
+    panorama_ha_pair = {
       instances = {
-        "01" = { az = "eu-central-1a" }
+        "primary" = {
+          az                 = "eu-central-1a"
+          private_ip_address = "10.255.0.4"
+        }
+        "secondary" = {
+          az                 = "eu-central-1b"
+          private_ip_address = "10.255.1.4"
+        }
       }
 
       panos_version = "10.2.3"
 
       network = {
-        vpc              = "security_vpc"
-        vpc_subnet       = "security_vpc-mgmt"
+        vpc              = "management_vpc"
+        vpc_subnet       = "management_vpc-mgmt"
         security_group   = "panorama_mgmt"
         create_public_ip = true
       }
@@ -173,7 +183,8 @@ variable "panorama" {
   default     = {}
   type = map(object({
     instances = map(object({
-      az = string
+      az                 = string
+      private_ip_address = string
     }))
 
     panos_version = string
