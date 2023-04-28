@@ -1,6 +1,6 @@
-# Palo Alto Networks Panorama Module Example for AWS Cloud
+# Palo Alto Networks Panorama example
 
-A Terraform module example for deploying a one or more instances of Panorama in one or more VPCs in AWS Cloud.
+A Terraform example for deploying a one or more instances of Panorama in one or more VPCs in AWS Cloud.
 
 **NOTE:**
 Panorama will take a serveral minutes to bootup during the initial setup.
@@ -8,10 +8,14 @@ Panorama will take a serveral minutes to bootup during the initial setup.
 ## Topology
 
 The topology consists of :
- - VPC
- - Panorama instance with a public IP address
+ - VPC with 2 subnets in 2 availability zones
+ - 2 Panorama instances with a public IP addresses and static private IP addresses
 
 ![](https://user-images.githubusercontent.com/9674179/235086359-e846b901-e01b-45b2-92d0-81c94b4220e9.png)
+
+## PANO-OS software version
+
+Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deployment Guide](https://www.paloaltonetworks.com/resources/guides/panorama-on-aws-deployment-guide). For more information about recommended software versions see [Support PAN-OS Software Release Guidance](https://pandocs.tech/fw/184p-link3).
 
 ## Prerequisites
 
