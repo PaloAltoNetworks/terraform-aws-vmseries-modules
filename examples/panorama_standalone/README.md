@@ -11,7 +11,7 @@ The topology consists of :
  - VPC
  - Panorama instance with a public IP address
 
-![]()
+![](https://user-images.githubusercontent.com/9674179/235086359-e846b901-e01b-45b2-92d0-81c94b4220e9.png)
 
 ## Prerequisites
 
