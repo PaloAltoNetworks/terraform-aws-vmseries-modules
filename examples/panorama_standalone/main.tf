@@ -65,7 +65,7 @@ module "vpc_routes" {
 ### IAM ROLES AND POLICIES ###
 
 resource "aws_iam_role" "this" {
-  for_each           = var.panorama
+  for_each           = var.panoramas
   name               = "${var.name_prefix}${each.value.iam.role_name}"
   description        = "Allow read-only access to AWS resources."
   assume_role_policy = <<EOF
@@ -87,7 +87,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "this" {
-  for_each = var.panorama
+  for_each = var.panoramas
   role     = aws_iam_role.this[each.key].id
   policy   = <<EOF
 {
@@ -133,7 +133,7 @@ data "aws_kms_alias" "this" {
 ### PANORAMA INSTANCES
 
 locals {
-  panorama_instances = flatten([for kv, vv in var.panorama : [for ki, vi in vv.instances : {
+  panorama_instances = flatten([for kv, vv in var.panoramas : [for ki, vi in vv.instances : {
     group              = kv
     instance           = ki
     az                 = vi.az

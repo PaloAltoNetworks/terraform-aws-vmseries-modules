@@ -109,7 +109,7 @@ variable "vpcs" {
 }
 
 ### PANORAMA
-variable "panorama" {
+variable "panoramas" {
   description = <<-EOF
   A map defining Panorama instances
 
@@ -174,7 +174,7 @@ variable "panorama" {
 
       iam = {
         create_role = true
-        role_name   = "panorama-read-only"
+        role_name   = "panorama"
       }
     }
   }

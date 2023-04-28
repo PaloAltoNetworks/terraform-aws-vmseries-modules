@@ -57,8 +57,8 @@ vpcs = {
   }
 }
 
-### PANORAMA
-panorama = {
+### PANORAMA instances
+panoramas = {
   panorama_ha_pair = {
     instances = {
       "primary" = {
