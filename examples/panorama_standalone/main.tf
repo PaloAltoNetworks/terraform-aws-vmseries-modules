@@ -133,7 +133,13 @@ data "aws_kms_alias" "this" {
 ### PANORAMA INSTANCES
 
 locals {
-  panorama_instances = flatten([for kv, vv in var.panorama : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
+  panorama_instances = flatten([for kv, vv in var.panorama : [for ki, vi in vv.instances : {
+    group              = kv
+    instance           = ki
+    az                 = vi.az
+    private_ip_address = vi.private_ip_address
+    common             = vv
+  }]])
 }
 
 module "panorama" {
@@ -143,6 +149,7 @@ module "panorama" {
   name                   = "${var.name_prefix}${each.key}"
   availability_zone      = each.value.az
   create_public_ip       = each.value.common.network.create_public_ip
+  private_ip_address     = each.value.private_ip_address
   ebs_volumes            = each.value.common.ebs.volumes
   panorama_version       = each.value.common.panos_version
   ssh_key_name           = var.ssh_key_name
