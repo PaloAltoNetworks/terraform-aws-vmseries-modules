@@ -13,7 +13,7 @@ The topology consists of :
 
 ![](https://user-images.githubusercontent.com/9674179/235086359-e846b901-e01b-45b2-92d0-81c94b4220e9.png)
 
-## PANO-OS software version
+## PAN-OS software version
 
 Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deployment Guide](https://www.paloaltonetworks.com/resources/guides/panorama-on-aws-deployment-guide). For more information about recommended software versions see [Support PAN-OS Software Release Guidance](https://pandocs.tech/fw/184p-link3).
 
