@@ -18,7 +18,7 @@ In a nutshell it means:
 
 ## Topology diagram
 
-![GWLB_TGW_Combined_topology](https://user-images.githubusercontent.com/116259643/233025099-efeacd4b-d1c5-4cb3-a43e-859ec4613b81.jpg)
+![GWLB_TGW_Combined](https://user-images.githubusercontent.com/116259643/236455100-dc2c9321-d393-47d1-adbb-162a99e39d39.jpeg)
 
 ## Running the example
 
@@ -123,6 +123,7 @@ If no errors occurred during deployment, configure the vm-series machines as exp
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.  <br>Can be used in VM-Series configuration to balance traffic between the application instances. |
+| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.  
+<br>Can be used in VM-Series configuration to balance traffic between the application instances. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
