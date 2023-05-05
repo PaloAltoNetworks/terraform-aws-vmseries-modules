@@ -1,174 +1,304 @@
-module "security_vpc" {
+module "vpc" {
   source = "../../modules/vpc"
 
-  name                    = "${var.name_prefix}${var.security_vpc_name}"
-  cidr_block              = var.security_vpc_cidr
-  security_groups         = var.security_vpc_security_groups
+  for_each = var.vpcs
+
+  name                    = "${var.name_prefix}${each.value.name}"
+  cidr_block              = each.value.cidr
+  nacls                   = each.value.nacls
+  security_groups         = each.value.security_groups
   create_internet_gateway = true
   enable_dns_hostnames    = true
   enable_dns_support      = true
   instance_tenancy        = "default"
 }
 
-module "security_subnet_sets" {
-  # The "set" here means we will repeat in each AZ an identical/similar subnet.
-  # The notion of "set" is used a lot here, it extends to nat gateways, routes, routes' next hops,
-  # gwlb endpoints and any other resources which would be a single point of failure when placed
-  # in a single AZ.
-  for_each = toset(distinct([for _, v in var.security_vpc_subnets : v.set]))
+module "subnet_sets" {
+  for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
   source   = "../../modules/subnet_set"
 
-  name                = each.key
-  vpc_id              = module.security_vpc.id
-  has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
-  cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
+  name                = split("-", each.key)[1]
+  vpc_id              = module.vpc[split("-", each.key)[0]].id
+  has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
+  nacl_associations = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          az : sv.az,
+          nacl_id : lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null)
+        } if sv.nacl != null && each.key == "${vk}-${sv.set}"
+    ]]) : i.az => i.nacl_id
+  }
+  cidrs = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          cidr : sk,
+          subnet : sv
+        } if each.key == "${vk}-${sv.set}"
+    ]]) : i.cidr => i.subnet
+  }
 }
 
 ### NATGW ###
 
 module "natgw_set" {
-  # This also a "set" and it means the same thing: we will repeat a nat gateway for each subnet (of the subnet_set).
   source = "../../modules/nat_gateway_set"
 
-  subnets = module.security_subnet_sets["natgw"].subnets
+  for_each = var.natgws
+
+  subnets = module.subnet_sets[each.value.vpc_subnet].subnets
 }
 
 ### TGW ###
-
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
-  name         = "${var.name_prefix}${var.transit_gateway_name}"
-  asn          = var.transit_gateway_asn
-  route_tables = var.transit_gateway_route_tables
+  create       = var.tgw.create
+  id           = var.tgw.id
+  name         = "${var.name_prefix}${var.tgw.name}"
+  asn          = var.tgw.asn
+  route_tables = var.tgw.route_tables
 }
 
-module "security_transit_gateway_attachment" {
+### TGW ATTACHMENTS ###
+
+module "transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  name                        = "${var.name_prefix}${var.security_vpc_tgw_attachment_name}"
-  vpc_id                      = module.security_subnet_sets["tgw_attach"].vpc_id
-  subnets                     = module.security_subnet_sets["tgw_attach"].subnets
-  transit_gateway_route_table = module.transit_gateway.route_tables["from_security_vpc"]
+  for_each = var.tgw.attachments
+
+  name                        = "${var.name_prefix}${each.value.name}"
+  vpc_id                      = module.subnet_sets[each.value.vpc_subnet].vpc_id
+  subnets                     = module.subnet_sets[each.value.vpc_subnet].subnets
+  transit_gateway_route_table = module.transit_gateway.route_tables[each.value.route_table]
   propagate_routes_to = {
-    to1 = module.transit_gateway.route_tables["from_spoke_vpc"].id
+    to1 = module.transit_gateway.route_tables[each.value.propagate_routes_to].id
   }
 }
 
 resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   transit_gateway_route_table_id = module.transit_gateway.route_tables["from_spoke_vpc"].id
-  # Next hop.
-  transit_gateway_attachment_id = module.security_transit_gateway_attachment.attachment.id
-  # Default to inspect all packets coming through TGW route table from_spoke_vpc:
-  destination_cidr_block = "0.0.0.0/0"
-  blackhole              = false
+  transit_gateway_attachment_id  = module.transit_gateway_attachment["security"].attachment.id
+  destination_cidr_block         = "0.0.0.0/0"
+  blackhole                      = false
 }
 
 ### GWLB ###
 
-module "security_gwlb" {
+module "gwlb" {
   source = "../../modules/gwlb"
 
-  name    = "${var.name_prefix}${var.gwlb_name}"
-  vpc_id  = module.security_subnet_sets["gwlb"].vpc_id
-  subnets = module.security_subnet_sets["gwlb"].subnets
+  for_each = var.gwlbs
 
-  target_instances = { for k, v in module.vmseries : k => { id = v.instance.id } }
+  name    = "${var.name_prefix}${each.value.name}"
+  vpc_id  = module.subnet_sets[each.value.vpc_subnet].vpc_id
+  subnets = module.subnet_sets[each.value.vpc_subnet].subnets
 }
 
-module "gwlbe_eastwest" {
+resource "aws_lb_target_group_attachment" "this" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => {
+    gwlb = vmseries.common.gwlb
+    id   = module.vmseries["${vmseries.group}-${vmseries.instance}"].instance.id
+  } }
+
+  target_group_arn = module.gwlb[each.value.gwlb].target_group.arn
+  target_id        = each.value.id
+}
+
+### GWLB ENDPOINTS ###
+
+module "gwlbe_endpoint" {
   source = "../../modules/gwlb_endpoint_set"
 
-  name              = "${var.name_prefix}${var.gwlb_endpoint_set_eastwest_name}"
-  gwlb_service_name = module.security_gwlb.endpoint_service.service_name
-  vpc_id            = module.security_subnet_sets["gwlbe_eastwest"].vpc_id
-  subnets           = module.security_subnet_sets["gwlbe_eastwest"].subnets
+  for_each = var.gwlb_endpoints
+
+  name              = "${var.name_prefix}${each.value.name}"
+  gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
+  vpc_id            = module.subnet_sets[each.value.vpc_subnet].vpc_id
+  subnets           = module.subnet_sets[each.value.vpc_subnet].subnets
+
+  act_as_next_hop_for = each.value.act_as_next_hop ? {
+    "from-igw-to-lb" = {
+      route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
+      to_subnets     = module.subnet_sets[each.value.to_vpc_subnets].subnets
+    }
+    # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
+    # and AWS allows their destinations to only be:
+    #     - The entire IPv4 or IPv6 CIDR block of your VPC. (Not interesting, as we always want AZ-specific next hops.)
+    #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used here.)
+    # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
+  } : {}
 }
 
-module "gwlbe_outbound" {
-  source = "../../modules/gwlb_endpoint_set"
-
-  name              = "${var.name_prefix}${var.gwlb_endpoint_set_outbound_name}"
-  gwlb_service_name = module.security_gwlb.endpoint_service.service_name
-  vpc_id            = module.security_subnet_sets["gwlbe_outbound"].vpc_id
-  subnets           = module.security_subnet_sets["gwlbe_outbound"].subnets
-}
-
+### ROUTES ###
 
 locals {
-  security_vpc_routes = concat(
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "mgmt"
-        next_hop_set = module.security_vpc.igw_as_next_hop_set
-        to_cidr      = cidr
+  vpc_routes = flatten(concat([
+    for vk, vv in var.vpcs : [
+      for rk, rv in vv.routes : {
+        subnet_key = rv.vpc_subnet
+        to_cidr    = rv.to_cidr
+        next_hop_set = (
+          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
+            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
+              rv.next_hop_type == "transit_gateway_attachment" ? module.transit_gateway_attachment[rv.next_hop_key].next_hop_set : (
+                rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
+              )
+            )
+          )
+        )
       }
-    ],
-    [for cidr in concat(var.security_vpc_routes_eastwest_cidrs, var.security_vpc_mgmt_routes_to_tgw) :
-      {
-        subnet_key   = "mgmt"
-        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_eastwest_cidrs :
-      {
-        subnet_key   = "tgw_attach"
-        next_hop_set = module.gwlbe_eastwest.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "tgw_attach"
-        next_hop_set = module.gwlbe_outbound.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "gwlbe_outbound"
-        next_hop_set = module.natgw_set.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_source_cidrs :
-      {
-        subnet_key   = "gwlbe_outbound"
-        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_eastwest_cidrs :
-      {
-        subnet_key   = "gwlbe_eastwest"
-        next_hop_set = module.security_transit_gateway_attachment.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
-      {
-        subnet_key   = "natgw"
-        next_hop_set = module.security_vpc.igw_as_next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-    [for cidr in var.security_vpc_routes_outbound_source_cidrs :
-      {
-        subnet_key   = "natgw"
-        next_hop_set = module.gwlbe_outbound.next_hop_set
-        to_cidr      = cidr
-      }
-    ],
-  )
+    ]
+  ]))
+  #vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
 }
 
-module "security_vpc_routes" {
-  for_each = { for route in local.security_vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+module "vpc_routes" {
+  for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
   source   = "../../modules/vpc_route"
 
-  route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
+  route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
+}
+
+### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
+
+locals {
+  subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  subinterface_gwlb_endpoint_inbound = { for i, j in var.vmseries : i => join(",", compact(concat(flatten([
+    for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+  ])))) }
+  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries : i => format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
+  local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i]) }
+  bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => [
+    for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
+  ] }
+}
+
+### IAM ROLES AND POLICIES ###
+
+resource "aws_iam_role" "vm_series_ec2_iam_role" {
+  name               = "${var.name_prefix}vmseries"
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Principal": {"Service": "ec2.amazonaws.com"}
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
+  role   = aws_iam_role.vm_series_ec2_iam_role.id
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:PutMetricData",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:DescribeAlarms",
+        "logs:CreateLogGroup"
+      ],
+      "Resource": [
+        "*"
+      ],
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
+
+  name = "${var.name_prefix}vmseries_instance_profile"
+  role = aws_iam_role.vm_series_ec2_iam_role.name
+}
+
+### VM-Series INSTANCES
+
+locals {
+  vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
+}
+
+module "vmseries" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
+  source   = "../../modules/vmseries"
+
+  name             = "${var.name_prefix}${each.key}"
+  vmseries_version = each.value.common.panos_version
+
+  interfaces = {
+    for k, v in each.value.common.interfaces : k => {
+      device_index       = v.device_index
+      security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
+      source_dest_check  = try(v.source_dest_check, false)
+      subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
+      create_public_ip   = try(v.create_public_ip, false)
+    }
+  }
+
+  bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.value.group])))
+
+  iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
+  ssh_key_name         = var.ssh_key_name
+  tags                 = var.global_tags
+}
+
+### SPOKE VM INSTANCES ####
+
+data "aws_ami" "this" {
+  most_recent = true # newest by time, not by version number
+
+  filter {
+    name   = "name"
+    values = ["bitnami-nginx-1.21*-linux-debian-10-x86_64-hvm-ebs-nami"]
+    # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
+  }
+
+  owners = ["979382823631"] # bitnami = 979382823631
+}
+
+resource "aws_instance" "spoke_vms" {
+  for_each = var.spoke_vms
+
+  ami                    = data.aws_ami.this.id
+  instance_type          = each.value.type
+  key_name               = var.ssh_key_name
+  subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
+  vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+}
+
+### SPOKE INBOUND APPLICATION LOAD BALANCER ###
+module "public_alb" {
+  source   = "../../modules/alb"
+  for_each = { for k, v in var.loadbalancers : k => v }
+
+  lb_name         = "${var.name_prefix}${each.value.name}"
+  subnets         = { for k, v in module.subnet_sets[each.value.subnet_sets].subnets : k => { id = v.id } }
+  vpc_id          = module.vpc[each.value.vpc].id
+  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
+  rules           = each.value.rules
+  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+
+  tags = var.global_tags
 }
