@@ -486,8 +486,17 @@ variable "vmseries" {
 
 ### ALB
 variable "loadbalancers" {
-  description = ""
-  #default = {}
+  description = <<-EOF
+  A object defining Application Load Balancer
+  Following properties are available:
+  - `name`: name of ALB
+  - `rules`: Rules defining the method of traffic balancing
+  - `vms`: Instances to be the target group for ALB
+  - `vpc`: The VPC in which the load balancer is to be run
+  - `subnet_sets`: The subnets in which the Load Balancer is to be run
+  - `security_gropus`: Security Groups to be associated with the ALB
+  ```
+  EOF
   type = object({
     application_lb = object({
       name            = string
