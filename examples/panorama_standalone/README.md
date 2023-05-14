@@ -36,7 +36,7 @@ Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deplo
 
 ## Configuration
 
-1. Get public IP for each Panorama instance(s): `tf output panorama_public_ips`
+1. Get public IP for each Panorama instance(s): `terraform output panorama_public_ips`
 2. Connect to the Panorama instance(s) via SSH using your associated private key: `ssh admin@x.x.x.x -i /PATH/TO/YOUR/KEY/id_rsa`
 3. Set `admin` password:
 
