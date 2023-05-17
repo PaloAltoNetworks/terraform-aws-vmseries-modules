@@ -1,4 +1,4 @@
-# Transit Gateway Attacjment module for VM-Series
+# Transit Gateway Attachment module for VM-Series
 
 A Terraform module for deploying AWS Transit Gateways Attachments.
 
