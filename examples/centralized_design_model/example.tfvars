@@ -195,6 +195,8 @@ vpcs = {
       "10.100.66.0/24" = { az = "eu-central-1b", set = "public", nacl = null }
       "10.100.3.0/24"  = { az = "eu-central-1a", set = "tgw_attach", nacl = null }
       "10.100.67.0/24" = { az = "eu-central-1b", set = "tgw_attach", nacl = null }
+      "10.100.4.0/24"  = { az = "eu-central-1a", set = "gwlbe_outbound", nacl = null }
+      "10.100.68.0/24" = { az = "eu-central-1b", set = "gwlbe_outbound", nacl = null }
       "10.100.5.0/24"  = { az = "eu-central-1a", set = "gwlb", nacl = null }
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null } # AWS reccomends to always go up to the last possible AZ for GWLB service
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
@@ -225,6 +227,12 @@ vpcs = {
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
+      }
+      tgw_default = {
+        vpc_subnet    = "security_vpc-tgw_attach"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_gwlb_outbound"
+        next_hop_type = "gwlbe_endpoint"
       }
       tgw_rfc1918 = {
         vpc_subnet    = "security_vpc-tgw_attach"
@@ -450,6 +458,14 @@ gwlb_endpoints = {
   # Value of `gwlb` must match key of objects stored in `gwlbs`
   # Value of `vpc` must match key of objects stored in `vpcs`
   # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+  security_gwlb_outbound = {
+    name            = "outbound-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "security_vpc"
+    vpc_subnet      = "security_vpc-gwlbe_outbound"
+    act_as_next_hop = false
+    to_vpc_subnets  = null
+  }
   security_gwlb_eastwest = {
     name            = "eastwest-gwlb-endpoint"
     gwlb            = "security_gwlb"
@@ -457,7 +473,7 @@ gwlb_endpoints = {
     vpc_subnet      = "security_vpc-gwlbe_eastwest"
     act_as_next_hop = false
     to_vpc_subnets  = null
-  }
+  }  
 }
 
 ### VM-SERIES
@@ -517,8 +533,13 @@ vmseries = {
 
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
-      inbound  = {}
-      outbound = {}
+      inbound = {}
+      outbound = {
+        only_1_outbound = {
+          gwlb_endpoint = "security_gwlb_outbound"
+          subinterface  = "ethernet1/1.20"
+        }
+      }
       eastwest = {
         only_1_eastwest = {
           gwlb_endpoint = "security_gwlb_eastwest"
