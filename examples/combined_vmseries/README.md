@@ -8,7 +8,7 @@ This guide is for technical readers, including system architects and design engi
 
 There are many design models which can be used to secure application environments in AWS. Palo Alto Networks produces [validated reference architecture design and deployment documentation](https://www.paloaltonetworks.com/resources/reference-architectures), which guides towards the best security outcomes, reducing rollout time and avoiding common integration efforts. These architectures are designed, tested, and documented to provide faster, predictable deployments.
 
-This guide follows the _centralized_ design, described in more detail in the [Reference Architecture documentation]((https://www.paloaltonetworks.com/resources/reference-architectures)).
+This guide follows the _centralized_ design, described in more detail in the [Reference Architecture documentation](https://www.paloaltonetworks.com/resources/reference-architectures).
 
 The centralized design supports interconnecting a large number of VPCs, with a scalable solution to secure outbound, inbound, and east-west traffic flows using a transit gateway to connect the VPCs. The centralized design model offers the benefits of a highly scalable design for multiple VPCs connecting to a central hub for inbound, outbound, and VPC-to-VPC traffic control and visibility. In the Centralized design model, you segment application resources across multiple VPCs that connect in a hub-and-spoke topology. The hub of the topology, or transit gateway, is the central point of connectivity between VPCs and Prisma Access or enterprise network resources attached through a VPN or AWS Direct Connect. This model has a dedicated VPC for security services where you deploy VM-Series firewalls for traffic inspection and control. The security VPC does not contain any application resources. The security VPC centralizes resources that multiple workloads can share. The TGW ensures that all spoke-to-spoke and spoke-to-enterprise traffic transits the VM-series firewalls.
 
@@ -18,7 +18,7 @@ Inbound traffic originates outside your VPCs and is destined to applications or 
 
 ## Terraform
 
-This guide introduces the Terraform code maintained within this repository, which will deploy the reference architecture described above. The VM-Series firewalls are deployed in an auto scaling group, and are automatically registered to a Gateway Load Balancer. While bootstrapping the VM-Series, there are associations made automatically between VM-Series subinterfaces and the GWLB endpoints. Each VM-Series contains multiple network interfaces created by an AWS Lambda function.
+This guide introduces the Terraform code maintained within this repository, which will deploy the reference architecture described above.
 
 ## Topology
 
@@ -127,6 +127,7 @@ If no errors occurred during deployment, configure the vm-series machines as exp
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.  <br>Can be used in VM-Series configuration to balance traffic between the application instances. |
+| <a name="output_app1_inspected_dns_name"></a> [app1\_inspected\_dns\_name](#output\_app1\_inspected\_dns\_name) | FQDN of "app1" Internal Load Balancer.  
+<br>Can be used in VM-Series configuration to balance traffic between the application instances. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
