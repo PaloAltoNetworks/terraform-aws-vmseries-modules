@@ -246,6 +246,12 @@ vpcs = {
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
       }
+      gwlbe_outbound_rfc1918 = {
+        vpc_subnet    = "security_vpc-gwlbe_outbound"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway_attachment"
+      }
       gwlbe_eastwest_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_eastwest"
         to_cidr       = "10.0.0.0/8"
@@ -473,7 +479,7 @@ gwlb_endpoints = {
     vpc_subnet      = "security_vpc-gwlbe_eastwest"
     act_as_next_hop = false
     to_vpc_subnets  = null
-  }  
+  }
 }
 
 ### VM-SERIES
