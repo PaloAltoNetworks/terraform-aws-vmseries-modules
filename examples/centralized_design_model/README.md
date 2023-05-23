@@ -1,15 +1,12 @@
-# Centralized model example - outbound use case with VM-Series
+# VM-Series Reference Architecture - Centralized Model
 
-A Terraform example for deploying VM-Series firewalls in centralized model for outbound traffic inspection.
+A Terraform example for deploying VM-Series firewalls in centralized model for inbound, outbound and east-west traffic inspection.
 
 ## Topology
 
 Code was prepared according to presented below diagram for *centralized model*.
 
 ![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/21d0f29e-d0da-4b50-a33b-e37f260e9c13)
-
-
-Please note, that example is focused on outbound case, but in order to test traffic, it was also added public application load balancer in front of VM-Series, for which after configuring NAT on firewall, VM in spoke VPCs can be accessed and outbound traffic from spoke VPCs to Internet can be inspected.
 
 ## Prerequisites
 
