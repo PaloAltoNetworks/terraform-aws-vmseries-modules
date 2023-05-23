@@ -6,7 +6,8 @@ A Terraform example for deploying VM-Series firewalls in centralized model for o
 
 Code was prepared according to presented below diagram for *centralized model*.
 
-![](https://user-images.githubusercontent.com/9674179/234695848-6c772cbf-5ea6-4506-ae24-ba058d419742.png)
+![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/21d0f29e-d0da-4b50-a33b-e37f260e9c13)
+
 
 Please note, that example is focused on outbound case, but in order to test traffic, it was also added public application load balancer in front of VM-Series, for which after configuring NAT on firewall, VM in spoke VPCs can be accessed and outbound traffic from spoke VPCs to Internet can be inspected.
 
