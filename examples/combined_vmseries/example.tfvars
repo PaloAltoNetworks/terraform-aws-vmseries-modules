@@ -119,14 +119,41 @@ vpcs = {
           }
         }
       }
+      vmseries_public = {
+        name = "vmseries_public"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          ssh = {
+            description = "Permit SSH"
+            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+        }
+      }
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
       "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt", nacl = null }
       "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt", nacl = null }
-      "10.100.1.0/24"  = { az = "eu-central-1a", set = "data", nacl = "trusted_path_monitoring" }
-      "10.100.65.0/24" = { az = "eu-central-1b", set = "data", nacl = "trusted_path_monitoring" }
+      "10.100.1.0/24"  = { az = "eu-central-1a", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.65.0/24" = { az = "eu-central-1b", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.2.0/24"  = { az = "eu-central-1a", set = "public", nacl = null }
+      "10.100.66.0/24" = { az = "eu-central-1b", set = "public", nacl = null }
       "10.100.3.0/24"  = { az = "eu-central-1a", set = "tgw_attach", nacl = null }
       "10.100.67.0/24" = { az = "eu-central-1b", set = "tgw_attach", nacl = null }
       "10.100.4.0/24"  = { az = "eu-central-1a", set = "gwlbe_outbound", nacl = null }
@@ -135,8 +162,6 @@ vpcs = {
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null }
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
       "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
-      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw", nacl = null }
-      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -147,6 +172,12 @@ vpcs = {
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
+      }
+      mgmt_panorama = {
+        vpc_subnet    = "security_vpc-mgmt"
+        to_cidr       = "10.255.0.0/16"
+        next_hop_key  = "security"
+        next_hop_type = "transit_gateway_attachment"
       }
       mgmt_rfc1918 = {
         vpc_subnet    = "security_vpc-mgmt"
@@ -166,17 +197,17 @@ vpcs = {
         next_hop_key  = "security_gwlb_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
+      public_default = {
+        vpc_subnet    = "security_vpc-public"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
       gwlbe_outbound_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_outbound"
-        to_cidr       = "10.0.0.0/8"
+        to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
-      }
-      gwlbe_outbound_default = {
-        vpc_subnet    = "security_vpc-gwlbe_outbound"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_nat_gw"
-        next_hop_type = "nat_gateway"
       }
       gwlbe_eastwest_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_eastwest"
@@ -184,21 +215,8 @@ vpcs = {
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
-      nat_default = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      nat_rfc1918 = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "10.0.0.0/8"
-        next_hop_key  = "security_gwlb_outbound"
-        next_hop_type = "gwlbe_endpoint"
-      }
     }
   }
-
   app1_vpc = {
     name  = "app1-spoke-vpc"
     cidr  = "10.104.0.0/16"
@@ -229,8 +247,8 @@ vpcs = {
           }
         }
       }
-      alb_spoke = {
-        name = "alb_spoke"
+      app1_lb = {
+        name = "app1_lb"
         rules = {
           all_outbound = {
             description = "Permit All traffic outbound"
@@ -283,6 +301,90 @@ vpcs = {
       }
     }
   }
+  app2_vpc = {
+    name  = "app2-spoke-vpc"
+    cidr  = "10.105.0.0/16"
+    nacls = {}
+    security_groups = {
+      app2_vm = {
+        name = "app2_vm"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          ssh = {
+            description = "Permit SSH"
+            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+        }
+      }
+      app2_lb = {
+        name = "app2_lb"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+        }
+      }
+    }
+    subnets = {
+      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
+      "10.105.0.0/24"   = { az = "eu-central-1a", set = "app2_vm", nacl = null }
+      "10.105.128.0/24" = { az = "eu-central-1b", set = "app2_vm", nacl = null }
+      "10.105.2.0/24"   = { az = "eu-central-1a", set = "app2_lb", nacl = null }
+      "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb", nacl = null }
+      "10.105.3.0/24"   = { az = "eu-central-1a", set = "app2_gwlbe", nacl = null }
+      "10.105.131.0/24" = { az = "eu-central-1b", set = "app2_gwlbe", nacl = null }
+    }
+    routes = {
+      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      vm_default = {
+        vpc_subnet    = "app2_vpc-app2_vm"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2"
+        next_hop_type = "transit_gateway_attachment"
+      }
+      gwlbe_default = {
+        vpc_subnet    = "app2_vpc-app2_gwlbe"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      lb_default = {
+        vpc_subnet    = "app2_vpc-app2_lb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app2_inbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
+    }
+  }
 }
 
 ### TRANSIT GATEWAY
@@ -299,7 +401,7 @@ tgw = {
     }
     "from_spoke_vpc" = {
       create = true
-      name   = "from_spoke"
+      name   = "from_spokes"
     }
   }
   attachments = {
@@ -317,17 +419,17 @@ tgw = {
       route_table         = "from_spoke_vpc"
       propagate_routes_to = "from_security_vpc"
     }
+    app2 = {
+      name                = "app2-spoke-vpc"
+      vpc_subnet          = "app2_vpc-app2_vm"
+      route_table         = "from_spoke_vpc"
+      propagate_routes_to = "from_security_vpc"
+    }
   }
 }
 
 ### NAT GATEWAY
-natgws = {
-  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-  security_nat_gw = {
-    name       = "natgw"
-    vpc_subnet = "security_vpc-natgw"
-  }
-}
+natgws = {}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -365,31 +467,13 @@ gwlb_endpoints = {
     act_as_next_hop = true
     to_vpc_subnets  = "app1_vpc-app1_lb"
   }
-}
-
-### SPOKE VMS
-spoke_vms = {
-  "app1_vm01" = {
-    az             = "eu-central-1a"
-    vpc            = "app1_vpc"
-    vpc_subnet     = "app1_vpc-app1_vm"
-    security_group = "app1_vm"
-    type           = "t2.micro"
-  }
-  "app1_vm02" = {
-    az             = "eu-central-1b"
-    vpc            = "app1_vpc"
-    vpc_subnet     = "app1_vpc-app1_vm"
-    security_group = "app1_vm"
-    type           = "t2.micro"
-  }
-}
-
-### SPOKE LOADBALANCERS
-spoke_lbs = {
-  "app1-alb" = {
-    vpc_subnet = "app1_vpc-app1_lb"
-    vms        = ["app1_vm01", "app1_vm02"]
+  app2_inbound = {
+    name            = "app2-gwlb-endpoint"
+    gwlb            = "security_gwlb"
+    vpc             = "app2_vpc"
+    vpc_subnet      = "app2_vpc-app2_gwlbe"
+    act_as_next_hop = true
+    to_vpc_subnets  = "app2_vpc-app2_lb"
   }
 }
 
@@ -404,15 +488,15 @@ vmseries = {
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
-      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable" # TODO: update here
-      panorama-server             = "10.255.0.10"                                        # TODO: update here
-      auth-key                    = ""                                                   # TODO: update here
-      dgname                      = "centralized"                                        # TODO: update here
-      tplname                     = "centralized-stack"                                  # TODO: update here
-      dhcp-send-hostname          = "yes"                                                # TODO: update here
-      dhcp-send-client-id         = "yes"                                                # TODO: update here
-      dhcp-accept-server-hostname = "yes"                                                # TODO: update here
-      dhcp-accept-server-domain   = "yes"                                                # TODO: update here
+      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
+      panorama-server             = "10.255.0.10"                                                                        # TODO: update here
+      auth-key                    = ""                                                                                   # TODO: update here
+      dgname                      = "combined"                                                                           # TODO: update here
+      tplname                     = "combined-stack"                                                                     # TODO: update here
+      dhcp-send-hostname          = "yes"                                                                                # TODO: update here
+      dhcp-send-client-id         = "yes"                                                                                # TODO: update here
+      dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
+      dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
     }
 
     panos_version = "10.2.3"        # TODO: update here
@@ -425,10 +509,10 @@ vmseries = {
     gwlb = "security_gwlb"
 
     interfaces = {
-      data = {
+      private = {
         device_index      = 0
         security_group    = "vmseries_private"
-        vpc_subnet        = "security_vpc-data"
+        vpc_subnet        = "security_vpc-private"
         create_public_ip  = false
         source_dest_check = false
       }
@@ -438,6 +522,13 @@ vmseries = {
         vpc_subnet        = "security_vpc-mgmt"
         create_public_ip  = true
         source_dest_check = true
+      }
+      public = {
+        device_index      = 2
+        security_group    = "vmseries_public"
+        vpc_subnet        = "security_vpc-public"
+        create_public_ip  = true
+        source_dest_check = false
       }
     }
 
@@ -493,11 +584,59 @@ vmseries = {
   }
 }
 
-### ALB
+### PANORAMA
+panorama = {
+  transit_gateway_attachment_id = null            # TODO: update here
+  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
+}
 
-loadbalancers = {
-  application_lb = {
-    name = "public-alb"
+### SPOKE VMS
+spoke_vms = {
+  "app1_vm01" = {
+    az             = "eu-central-1a"
+    vpc            = "app1_vpc"
+    vpc_subnet     = "app1_vpc-app1_vm"
+    security_group = "app1_vm"
+    type           = "t2.micro"
+  }
+  "app1_vm02" = {
+    az             = "eu-central-1b"
+    vpc            = "app1_vpc"
+    vpc_subnet     = "app1_vpc-app1_vm"
+    security_group = "app1_vm"
+    type           = "t2.micro"
+  }
+  "app2_vm01" = {
+    az             = "eu-central-1a"
+    vpc            = "app2_vpc"
+    vpc_subnet     = "app2_vpc-app2_vm"
+    security_group = "app2_vm"
+    type           = "t2.micro"
+  }
+  "app2_vm02" = {
+    az             = "eu-central-1b"
+    vpc            = "app2_vpc"
+    vpc_subnet     = "app2_vpc-app2_vm"
+    security_group = "app2_vm"
+    type           = "t2.micro"
+  }
+}
+
+### SPOKE LOADBALANCERS
+spoke_nlbs = {
+  "app1-nlb" = {
+    vpc_subnet = "app1_vpc-app1_lb"
+    vms        = ["app1_vm01", "app1_vm02"]
+  }
+  "app2-nlb" = {
+    vpc_subnet = "app2_vpc-app2_lb"
+    vms        = ["app2_vm01", "app2_vm02"]
+  }
+}
+
+spoke_albs = {
+  "app1-alb" = {
+    vms = ["app1_vm01", "app1_vm02"]
     rules = {
       "app1" = {
         protocol              = "HTTP"
@@ -515,9 +654,31 @@ loadbalancers = {
         }
       }
     }
-    vms             = ["app1_vm01", "app1_vm02"]
     vpc             = "app1_vpc"
-    subnet_sets     = "app1_vpc-app1_lb"
-    security_groups = "alb_spoke"
+    vpc_subnet      = "app1_vpc-app1_lb"
+    security_groups = "app1_lb"
+  }
+  "app2-alb" = {
+    vms = ["app2_vm01", "app2_vm02"]
+    rules = {
+      "app2" = {
+        protocol              = "HTTP"
+        port                  = 80
+        health_check_port     = "80"
+        health_check_matcher  = "200"
+        health_check_path     = "/"
+        health_check_interval = 10
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app2_vpc"
+    vpc_subnet      = "app2_vpc-app2_lb"
+    security_groups = "app2_lb"
   }
 }
