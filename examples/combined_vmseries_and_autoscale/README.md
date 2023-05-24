@@ -1,37 +1,35 @@
-# VM-Series Reference Architecture - Centralized Design, Combined Model, with Auto Scaling
+# Reference Architecture with Terraform: VM-Series in AWS, Centralized Design, Combined Model, with Auto Scaling
 
-## Audience
+Palo Alto Networks produces several [validated reference architecture design and deployment documentation guides](https://www.paloaltonetworks.com/resources/reference-architectures), which describe well-architected and tested deployments. When deploying VM-Series in a public cloud, the reference architectures guide users toward the best security outcomes, whilst reducing rollout time and avoiding common integration efforts.
+The Terraform code presented here will deploy Palo Alto Networks VM-Series firewalls in AWS based on the centralized design; for a discussion of other options, please see the design guide from [the reference architecture guides](https://www.paloaltonetworks.com/resources/reference-architectures).
 
-This guide is for technical readers, including system architects and design engineers, who want to deploy the Palo Alto Networks VM-Series firewalls and Panorama within a public-cloud infrastructure. This guide assumes the reader is familiar with the basic concepts of applications, networking, virtualization, security, high availability, as well as public cloud concepts with specific focus on AWS.
+## Reference Architecture Design
 
-## Introduction
+![Simplified High Level Topology Diagram]()
 
-There are many design models which can be used to secure application environments in AWS. Palo Alto Networks produces [validated reference architecture design and deployment documentation](https://www.paloaltonetworks.com/resources/reference-architectures), which guides towards the best security outcomes, reducing rollout time and avoiding common integration efforts. These architectures are designed, tested, and documented to provide faster, predictable deployments.
+This code implements:
+- a centralized design, which secures outbound, inbound, and east-west traffic flows using an AWS transit gateway (TGW). Application resources are segmented across multiple VPCs that connect in a hub-and-spoke topology, with a dedicated VPC for security services where the VM-Series are deployed
+- a combined model for inbound traffic, where an AWS gateway load balancer (GWLB) is used to forward inbound traffic to the VM-Series in the security services VPC, as well as outbound and east-west traffic
+- auto scaling for the VM-Series, where an AWS auto scaling group (ASG) is used to provision VM-Series that will scale in and out dynamically, as workload demands fluctuate
 
-This guide follows the _centralized_ design, described in more detail in the [Reference Architecture documentation](https://www.paloaltonetworks.com/resources/reference-architectures).
-- The centralized design supports interconnecting a large number of VPCs, with a scalable solution to secure outbound, inbound, and east-west traffic flows using a transit gateway to connect the VPCs. The centralized design model offers the benefits of a highly scalable design for multiple VPCs connecting to a central hub for inbound, outbound, and VPC-to-VPC traffic control and visibility. In the Centralized design model, you segment application resources across multiple VPCs that connect in a hub-and-spoke topology. The hub of the topology, or transit gateway, is the central point of connectivity between VPCs and Prisma Access or enterprise network resources attached through a VPN or AWS Direct Connect. This model has a dedicated VPC for security services where you deploy VM-Series firewalls for traffic inspection and control. The security VPC does not contain any application resources. The security VPC centralizes resources that multiple workloads can share. The TGW ensures that all spoke-to-spoke and spoke-to-enterprise traffic transits the VM-series firewalls.
+## Detailed Architecture and Design
 
-This guide follows the _combined_ model for inbound traffic.
-- Inbound traffic originates outside your VPCs and is destined to applications or services hosted within your VPCs, such as web or application servers. The combined model implements inbound security by using the VM-Series and Gateway Load Balancer (GWLB) in a Security VPC, with distributed GWLB endpoints in the application VPCs. Unlike with outbound traffic, this design option does not use the transit gateway for traffic forwarding between the security VPC and the application VPCs.
+### Centralized Design
+This design supports interconnecting a large number of VPCs, with a scalable solution to secure outbound, inbound, and east-west traffic flows using a transit gateway to connect the VPCs. The centralized design model offers the benefits of a highly scalable design for multiple VPCs connecting to a central hub for inbound, outbound, and VPC-to-VPC traffic control and visibility. In the Centralized design model, you segment application resources across multiple VPCs that connect in a hub-and-spoke topology. The hub of the topology, or transit gateway, is the central point of connectivity between VPCs and Prisma Access or enterprise network resources attached through a VPN or AWS Direct Connect. This model has a dedicated VPC for security services where you deploy VM-Series firewalls for traffic inspection and control. The security VPC does not contain any application resources. The security VPC centralizes resources that multiple workloads can share. The TGW ensures that all spoke-to-spoke and spoke-to-enterprise traffic transits the VM-series firewalls.
 
-This guide implements _auto scaling_ for the VM-Series
-- Public-cloud environments focus on scaling out a deployment instead of scaling up. This architectural difference stems primarily from the capability of public-cloud environments to dynamically increase or decrease the number of resources allocated to your environment. Using native AWS services like CloudWatch, auto scaling groups (ASG) and VM-Series automation features, the guide implements VM-Series that will scale in and out dynamically, as your protected workload demands fluctuate.
-- The VM-Series firewalls are deployed in an auto scaling group, and are automatically registered to a Gateway Load Balancer. While bootstrapping the VM-Series, there are associations made automatically between VM-Series subinterfaces and the GWLB endpoints. Each VM-Series contains multiple network interfaces created by an AWS Lambda function.
+### Combined Model for Inbound Traffic
 
-## Terraform
+Inbound traffic originates outside your VPCs and is destined to applications or services hosted within your VPCs, such as web or application servers. The combined model implements inbound security by using the VM-Series and Gateway Load Balancer (GWLB) in a Security VPC, with distributed GWLB endpoints in the application VPCs. Unlike with outbound traffic, this design option does not use the transit gateway for traffic forwarding between the security VPC and the application VPCs.
 
-This guide introduces the Terraform code maintained within this repository, which will deploy the reference architecture described above.
+![Detailed Topology Diagram](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
 
-## Topology
+### Auto Scaling VM-Series
 
-![](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
-
-There are two use cases supported in this example. You can select your preferred use case by using the applicable `tfvar` file for your use case.
-
-- `example-natgw-lambda-vpc.tfvars` - with NAT Gateway presented in topology, where NAT Gateway is used for Lambda working in VPC for autoscaling group and for VM-Series instances, which for untrust interfaces don't have public IP
-- `example-no-natgw-lambda-no-vpc.tfvars` - without NAT Gateway, where Lambda is not working in VPC and each VM-Series instance in autoscaling group has untrust interface with public IP
+Auto scaling: Public-cloud environments focus on scaling out a deployment instead of scaling up. This architectural difference stems primarily from the capability of public-cloud environments to dynamically increase or decrease the number of resources allocated to your environment. Using native AWS services like CloudWatch, auto scaling groups (ASG) and VM-Series automation features, the guide implements VM-Series that will scale in and out dynamically, as your protected workload demands fluctuate. The VM-Series firewalls are deployed in an auto scaling group, and are automatically registered to a Gateway Load Balancer. While bootstrapping the VM-Series, there are associations made automatically between VM-Series subinterfaces and the GWLB endpoints. Each VM-Series contains multiple network interfaces created by an AWS Lambda function.
 
 ## Prerequisites
+
+The following steps should be followed before deploying the Terraform code presented here.
 
 1. Deploy Panorama e.g. by using [standalone Panorama example](../../examples/standalone_panorama)
 2. Prepare device group, template, template stack in Panorama
@@ -80,6 +78,15 @@ load config partial mode merge from-xpath /config/devices/entry/template/entry[@
 
 ## Usage
 
+### NAT Gateway Option
+
+There are two use cases supported in this example. You can select your preferred use case by using the applicable `tfvars` file for your use case.
+
+- `example-natgw-lambda-vpc.tfvars` - with NAT Gateway presented in topology, where NAT Gateway is used for Lambda working in VPC for autoscaling group and for VM-Series instances, which for untrust interfaces don't have public IP
+- `example-no-natgw-lambda-no-vpc.tfvars` - without NAT Gateway, where Lambda is not working in VPC and each VM-Series instance in autoscaling group has untrust interface with public IP
+
+### Deployment Steps
+
 1. Copy `example-no-natgw-lambda-no-vpc.tfvars` or `example-natgw-lambda-vpc.tfvars` into `terraform.tfvars`
 2. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
 3. Initialize Terraform: `terraform init`
@@ -87,7 +94,9 @@ load config partial mode merge from-xpath /config/devices/entry/template/entry[@
 6. Deploy infrastructure: `terraform apply -auto-approve`
 7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
 
-## Lambda function
+## Additional Reading
+
+### Lambda function
 
 [Lambda function](../../modules/asg/lambda.py) is used to handle correct lifecycle action:
 * instance launch or
@@ -102,7 +111,7 @@ In case of destroying VM-Series, there is performed below action:
 
 Moreover having Lambda function executed while scaling out or in gives more options for extension e.g. delicesning VM-Series just after terminating instance.
 
-## Autoscaling
+### Autoscaling
 
 [AWS Auto Scaling](https://aws.amazon.com/autoscaling/) monitors VM-Series and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost. For autoscaling there are 10 metrics available from `vmseries` plugin:
 
