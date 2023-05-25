@@ -6,7 +6,6 @@ In a nutshell it means:
 
 - A single Security VPC can protect multiple Application VPCs. Therefore these form the hub and spokes model,
   where the Security VPC is the hub and the Application VPCs are the spokes.
-- This case is simplified to a single App1 VPC, but readily extendedable to multiple Application VPCs.
 - The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB).
 - The outbound dataplane traffic traverses a _single_ interface per each VM-Series, so it is in intrazone category
   instead of interzone. There is no overlay routing on VM-Series. This is a slight departure from the Reference Architecture.
