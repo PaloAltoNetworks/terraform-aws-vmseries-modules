@@ -566,24 +566,12 @@ vmseries = {
     }
 
     application_lb = {
-      name = "public-alb"
-      rules = {
-        "app1" = {
-          protocol              = "HTTP"
-          port                  = 80
-          health_check_port     = "80"
-          health_check_matcher  = "200"
-          health_check_path     = "/"
-          health_check_interval = 10
-          listener_rules = {
-            "1" = {
-              target_protocol = "HTTP"
-              target_port     = 80
-              path_pattern    = ["/"]
-            }
-          }
-        }
-      }
+      name  = null
+      rules = {}
+    }
+    network_lb = {
+      name  = null
+      rules = {}
     }
   }
 }

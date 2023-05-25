@@ -440,10 +440,10 @@ variable "vmseries" {
       rules = any
     })
 
-    #network_lb = object({
-    #  name  = string
-    #  rules = any
-    #})
+    network_lb = object({
+      name  = string
+      rules = any
+    })
   }))
 }
 
