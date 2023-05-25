@@ -17,15 +17,9 @@ In a nutshell it means:
 
 To run this Terraform example copy the `example.tfvars` to `terraform.tfvars` and adjust it to your needs.
 
-All Firewall VMs will be set up with an SSH key. There are two ways to approach this:
+All Firewall VMs will be set up with an SSH key, so fill out the `ssh_key_name` property with existing Key Pair name.
 
-- use an existing AWS Key Pair - in this case fill out the `ssh_key_name` property with existing Key Pair name
-- create a Key Pair with Terraform - for this you will need to adjust the follwing properties:
-  - `create_ssh_key` - set it to `true` to trigger Key Pair creation
-  - `ssh_key_name` - a name of the newly created Key Pair
-  - `ssh_public_key_file` - path to an SSH public key that will be used to create a Key Pair
-
-A thing worth noticing is the Gateway Load Balancer (GWLB) configuration. AWS recommends that GWLB is set up in every Availability Zone available in a particular region. This example is set up for `us-east-1` which has (at the time of writing) zones from `a` to `f`. When changing the region to one that has a different number of Availability Zones, make sure you adjust the GWLB set up accordingly. You can do it in the `security_vpc_subnets` property - add od remove subnets for the `gwlb` set.
+A thing worth noticing is the Gateway Load Balancer (GWLB) configuration. AWS recommends that GWLB is set up in every Availability Zone available in a particular region. This example is set up for `eu-central-1` which has (at the time of writing) zones from `a` to `c`. When changing the region to one that has a different number of Availability Zones, make sure you adjust the GWLB set up accordingly. You can do it in the `vpcs` property - add od remove `subnets` for the `gwlb` set.
 
 When `terraform.tfvars` is ready, run the following commands:
 
@@ -42,16 +36,16 @@ terraform destroy
 
 ## Traffic Validation
 
-If no errors occurred during deployment, configure the vm-series machines as expected.
+If no errors occurred during deployment, configure the VM-Series machines as expected.
 - Configure the data interface so that GWLB Health Checks work properly.
 - All data interfaces should use DHCP
 - Create subinterfaces for Inbound, Outbound and EastWest traffic
 - Create appropriate zones that will be assigned to the correct subinterfaces
 - Create a Deny All rule at the very end of the rule list to eliminate unwanted traffic to the environment (In the default configuration, due to the fact that we use subinterfaces, each traffic is seen as an intrazone)
 - Create policies as needed
-- Make sure GWLB sees all vm-series in the target group as healthy
-- Take the NLB address and see if we are able to get the welcome page from the test app
-- Make sure all traffic is visible in the monitor tab in vm-series (check if the traffic works as expected, if it goes to the right policies)
+- Make sure GWLB sees all VM-Series in the target group as healthy
+- Take the ALB address and see if we are able to get the welcome page from the test app
+- Make sure all traffic is visible in the monitor tab in VM-Series (check if the traffic works as expected, if it goes to the right policies)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
