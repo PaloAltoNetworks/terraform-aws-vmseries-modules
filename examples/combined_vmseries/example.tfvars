@@ -535,9 +535,13 @@ vmseries = {
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
       inbound = {
-        inbound = {
+        app1 = {
           gwlb_endpoint = "app1_inbound"
-          subinterface  = "ethernet1/1.10"
+          subinterface  = "ethernet1/1.11"
+        }
+        app2 = {
+          gwlb_endpoint = "app2_inbound"
+          subinterface  = "ethernet1/1.12"
         }
       }
       outbound = {
