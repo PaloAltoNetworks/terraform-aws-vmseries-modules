@@ -13,8 +13,6 @@ In a nutshell it means:
 - The inbound dataplane traffic _does not_ traverse TGW and only traverses GWLB. It is also intrazone, in the same manner
   as the outbound traffic.
 
-  VM-Series instances are bootstrapped using S3 bucket based method.
-
 ## Topology diagram
 
 ![GWLB_TGW_Combined](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/37a7ffc1-134a-4037-b174-5a2abe44f475)
