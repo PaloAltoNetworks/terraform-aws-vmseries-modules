@@ -26,6 +26,7 @@ module "security_subnet_sets" {
   name                = each.key
   vpc_id              = module.security_vpc.id
   has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
+  nacl_associations   = {}
   cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
 }
 
