@@ -6,12 +6,8 @@ In a nutshell it means:
 
 - A single Security VPC can protect multiple Application VPCs. Therefore these form the hub and spokes model,
   where the Security VPC is the hub and the Application VPCs are the spokes.
-- The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB).
-- The outbound dataplane traffic traverses a _single_ interface per each VM-Series, so it is in intrazone category
-  instead of interzone. There is no overlay routing on VM-Series. This is a slight departure from the Reference Architecture.
-  (It is called a one-arm mode in AWS docs.)
-- The inbound dataplane traffic _does not_ traverse TGW and only traverses GWLB. It is also intrazone, in the same manner
-  as the outbound traffic.
+- The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB). It's interzone category.
+- The inbound dataplane traffic _does not_ traverse TGW and only traverses GWLB. It's intrazone category.
 
 ## Topology diagram
 
