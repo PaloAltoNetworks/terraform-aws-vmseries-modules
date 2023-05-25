@@ -6,7 +6,7 @@ A Terraform example for deploying VM-Series firewalls in isolated model for inbo
 
 Code was prepared according to presented below diagram for *isolated model*.
 
-![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/21d0f29e-d0da-4b50-a33b-e37f260e9c13)
+![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/197dc794-335f-43d3-a955-65d7d11559b9)
 
 ## Prerequisites
 
