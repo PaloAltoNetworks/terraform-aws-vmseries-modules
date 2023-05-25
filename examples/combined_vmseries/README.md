@@ -18,7 +18,7 @@ In a nutshell it means:
 
 ## Topology diagram
 
-![GWLB_TGW_Combined](https://user-images.githubusercontent.com/116259643/236455100-dc2c9321-d393-47d1-adbb-162a99e39d39.jpeg)
+![GWLB_TGW_Combined](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/37a7ffc1-134a-4037-b174-5a2abe44f475)
 
 ## Running the example
 
