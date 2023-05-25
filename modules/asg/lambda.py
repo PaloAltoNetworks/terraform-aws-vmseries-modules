@@ -1,9 +1,12 @@
 from json import loads
 from logging import getLogger, basicConfig, INFO, DEBUG
 from os import getenv
+from xml.etree import ElementTree as et
+from xml.etree.ElementTree import Element
 
 from boto3 import client
 from botocore.exceptions import ClientError
+from botocore.config import Config
 
 
 class ConfigureLogger:
@@ -16,32 +19,44 @@ class ConfigureLogger:
 class VMSeriesInterfaceScaling(ConfigureLogger):
     def __init__(self, asg_event: dict):
         super().__init__()
-        self.ec2_client = client('ec2')
-        self.asg_client = client('autoscaling')
+
+        # Load lambda configuration from environment variable
+        region = loads(getenv('lambda_config')).get('region')
+        lambda_config = Config(
+            region_name=region
+        )
+
+        # Prepare boto3 clients for required services
+        self.ec2_client = client('ec2', config=lambda_config)
+        self.asg_client = client('autoscaling', config=lambda_config)
         self.main(asg_event)
 
     def main(self, asg_event: dict):
         """
-        Main function, is used for handle correct Lifecycle action.
+        Main function is used for handle correct lifecycle action (instance launch or instance terminate).
 
         :param asg_event: dict data from Lambda handler
         :return: none
         """
+        # Acquire information about subnets, AZ, network interfaces, instance ID and target group ARN
         instance_id = asg_event["detail"]["EC2InstanceId"]
         instance_zone, subnet_id, network_interfaces = self.inspect_ec2_instance(instance_id)
+
+        # Depending on event type, take appropriate actions
         if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
             self.logger.info("Run launch mode.")
-            self.instance_launch_actions(instance_zone, subnet_id, instance_id)
+            self.disable_source_dest_check(network_interfaces[0]['NetworkInterfaceId'])
+            self.setup_network_interfaces(instance_zone, subnet_id, instance_id)
         elif event == "EC2 Instance-terminate Lifecycle Action":
             self.logger.info("Run cleanup mode.")
-            self.instance_terminate_actions(network_interfaces, instance_id)
+            self.clean_eip(network_interfaces, instance_id)
         else:
             raise Exception(f"Event type cannot be handle! {event}")
 
-        # Complete lifecycle action
+        # For each type of event (launch, terminate), lifecycle action needs to be completed
         self.complete_lifecycle(asg_event['detail'])
 
-    def instance_launch_actions(self, instance_zone: str, subnet_id: str, instance_id: str):
+    def setup_network_interfaces(self, instance_zone: str, subnet_id: str, instance_id: str):
         """
         Main logic here is to set necessary parameters and call
         functions to create Elastic Network Interfaces (ENI) with correct config and attach it to the instance.
@@ -51,12 +66,12 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_zone: Availability zone for current instance
         :return:
         """
-
+        # Prepare interface in propriate structure
         self.logger.info(f"Instance ID: {instance_id}, Instance zone: {instance_zone}")
         self.logger.debug(f"Subnet ID of the first interface: {subnet_id}")
-
-        # Build interface settings
         interfaces = self.create_interface_settings(instance_zone)
+
+        # For each interface in the list, create and configure ENI
         for interface in interfaces:
             self.logger.info(
                 f"Found new interface to create: id={interface['index']}, subnet={interface['subnet']}, "
@@ -64,7 +79,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             self.logger.info(f"Interface structure: {interface}")
             self.create_and_configure_new_network_interface(instance_id, interface)
 
-    def instance_terminate_actions(self, network_interfaces: list, instance_id: str):
+    def clean_eip(self, network_interfaces: list, instance_id: str):
         """
         Function used for release EIP from terminated EC2 Instanced.
         Main logic here is found which ENI has EIP, disassociate EIP from it and release that address.
@@ -73,9 +88,12 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_id: EC2 Instance id
         :return: none
         """
-
+        # Search for network interfaces with EIP
         self.logger.info(f"Search for interfaces with EIP on {instance_id}")
         interface_with_associated_ip = [interface for interface in network_interfaces if interface.get('Association')]
+
+        # If EIP found for ENI, get EIP info and disassociate address
+        # In other case do nothing
         if interface_with_associated_ip:
             for interface in interface_with_associated_ip:
                 eip = interface.get('Association').get('PublicIp')
@@ -103,8 +121,11 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_zone: EC2 Instance availability zone
         :return: list of dict with interface settings
         """
-        settings = loads(getenv('lambda_config'))
+        # Load network interfaces configuration from environment variable
+        settings = loads(getenv('interfaces_config'))
         interface = {}
+
+        # For each network interface, prepare settings in a propriate structure
         for eni, sett in settings.items():
             for k, v in sett.items():
                 interface[eni] = {} if eni not in interface.keys() else interface[eni]
@@ -121,7 +142,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
     def inspect_ec2_instance(self, instance_id: str) -> tuple:
         """
-        Helper class used for return EC2 Instance data.
+        Helper class used for return EC2 Instance data: AZ, subnets, network interfaces
 
         :param instance_id: EC2 Instance id.
         :return: availability zone and subnet id of EC2 instance
@@ -159,11 +180,15 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param interface: Interface dict data
         :return: none
         """
+        # Create ENI and get its ID
         interface_id = self.create_network_interface(instance_id, interface['subnet'], interface['sg'])
+
+        # If ENI ID was returned, attach ENI to instance
         if interface_id:
             if interface['index'] != 0:
                 attachment_id = self.attach_network_interface(instance_id, interface_id, interface['index'])
                 self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
+            # If EIP is required for ENI, add public IP
             if interface['c_pub_ip']:
                 self.add_public_ip_to_eni(interface_id)
 
@@ -174,10 +199,11 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param interface_id: Network Interface id
         :return: none
         """
-
+        # Get public IP
         public_ip_allocation = self.ec2_client.allocate_address(Domain='vpc')
         self.logger.info(f"Created public ip {public_ip_allocation['PublicIp']} for {interface_id}")
 
+        # Associate public IP with ENI
         public_ip_association = self.ec2_client.associate_address(
             AllocationId=public_ip_allocation['AllocationId'],
             NetworkInterfaceId=interface_id
@@ -196,6 +222,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
         self.logger.debug(f"DEBUG: attach_interface: instance_id={instance_id}, interface_id={interface_id}, "
                           f"interface_index={index}")
+
+        # Attach ENI to EC2 instnace only if instance ID and ENI ID are not empty
         if instance_id and interface_id:
             try:
                 attach_interface_id = self.ec2_client.attach_network_interface(
@@ -213,6 +241,22 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         else:
             self.logger.error(f"Missing values for either instance_id or interface_id!")
 
+    def disable_source_dest_check(self, interface_id: str):
+        """
+        Network interfaces created by resource "aws_launch_template" by default have option
+        source/destination check enabled, but for dataplane interfaces it has to be disabled.
+
+        :param interface_id: Network interface ID
+        :return: none
+        """
+        self.logger.info(f"Disable source_dest_check for network interface {interface_id}")
+        self.ec2_client.modify_network_interface_attribute(
+                NetworkInterfaceId=interface_id,
+                SourceDestCheck={
+                    'Value': False,
+                }
+            )
+
     def modify_network_interface(self, interface_id: str, attachment_id: str, source_dest_check: bool = True):
         """
         This function modify ENI to be able to delete it on EC2 termination.
@@ -225,10 +269,14 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
         self.logger.debug(f"DEBUG: tune_interface: interface_id={interface_id}, attachment_id={attachment_id}, "
                           f"source_dest_check: {source_dest_check}")
+
+        # Modify ENI attribute in order to be able to delete it on EC2 terminations
         self.ec2_client.modify_network_interface_attribute(
             Attachment={'AttachmentId': attachment_id, 'DeleteOnTermination': True},
             NetworkInterfaceId=interface_id,
         )
+
+        # If source/destination check was defined, then change its value according to provided settings
         if not source_dest_check:
             self.ec2_client.modify_network_interface_attribute(
                 NetworkInterfaceId=interface_id,

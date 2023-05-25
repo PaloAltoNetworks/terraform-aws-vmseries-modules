@@ -17,6 +17,10 @@ data "aws_ami" "this" {
   name_regex = "^PA-VM-AWS-${var.vmseries_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 }
 
+data "aws_kms_alias" "ebs_kms" {
+  name = var.ebs_kms_id
+}
+
 locals {
   default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
@@ -31,10 +35,14 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.ssh_key_name
   tags          = var.global_tags
+  dynamic "iam_instance_profile" {
+    for_each = var.vmseries_iam_instance_profile != "" ? [1] : []
+    content {
+      name = var.vmseries_iam_instance_profile
+    }
+  }
 
-  user_data = base64encode(join("\n", compact(concat(
-    [for k, v in var.bootstrap_options : "${k}=${v}"],
-  ))))
+  user_data = base64encode(var.bootstrap_options)
 
   network_interfaces {
     device_index                = 0
@@ -48,6 +56,8 @@ resource "aws_launch_template" "this" {
 
     ebs {
       delete_on_termination = true
+      kms_key_id            = data.aws_kms_alias.ebs_kms.arn
+      encrypted             = true
     }
   }
 
@@ -66,6 +76,7 @@ resource "aws_autoscaling_group" "this" {
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
+  target_group_arns   = [var.target_group_arn]
 
   dynamic "tag" {
     for_each = var.global_tags
@@ -95,11 +106,12 @@ resource "aws_autoscaling_group" "this" {
     lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
   }
 
+  suspended_processes = var.suspended_processes
+
   depends_on = [
     aws_cloudwatch_event_target.instance_launch_event,
     aws_cloudwatch_event_target.instance_terminate_event
   ]
-
 }
 
 # IAM role that will be used for Lambda function
@@ -159,6 +171,15 @@ resource "aws_iam_role_policy" "this" {
             ],
             "Effect": "Allow",
             "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "kms:GenerateDataKey*",
+            "kms:Decrypt",
+            "kms:CreateGrant"
+          ],
+          "Resource": "*"
         }
     ]
 }
@@ -180,9 +201,14 @@ resource "aws_lambda_function" "this" {
   source_code_hash = data.archive_file.this.output_base64sha256
   runtime          = "python3.8"
   timeout          = var.lambda_timeout
+  vpc_config {
+    subnet_ids         = var.subnet_ids
+    security_group_ids = var.security_group_ids
+  }
   environment {
     variables = {
-      lambda_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
+      lambda_config     = jsonencode({ region = var.region })
+      interfaces_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
     }
   }
   tags = var.global_tags
@@ -247,4 +273,33 @@ resource "aws_cloudwatch_event_target" "instance_terminate_event" {
   rule      = aws_cloudwatch_event_rule.instance_terminate_event_rule.name
   target_id = "${var.name_prefix}asg_terminate"
   arn       = aws_lambda_function.this.arn
+}
+
+resource "aws_autoscalingplans_scaling_plan" "this" {
+  count = var.scaling_plan_enabled ? 1 : 0
+  name  = "${var.name_prefix}scaling-plan"
+  application_source {
+    dynamic "tag_filter" {
+      for_each = var.scaling_tags
+      content {
+        key    = tag_filter.key
+        values = [tag_filter.value]
+      }
+    }
+  }
+  scaling_instruction {
+    max_capacity       = var.max_size
+    min_capacity       = var.min_size
+    resource_id        = format("autoScalingGroup/%s", aws_autoscaling_group.this.name)
+    scalable_dimension = "autoscaling:autoScalingGroup:DesiredCapacity"
+    service_namespace  = "autoscaling"
+    target_tracking_configuration {
+      customized_scaling_metric_specification {
+        metric_name = var.scaling_metric_name
+        namespace   = var.scaling_cloudwatch_namespace
+        statistic   = var.scaling_statistic
+      }
+      target_value = var.scaling_target_value
+    }
+  }
 }

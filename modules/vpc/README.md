@@ -46,6 +46,8 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_network_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl) | resource |
+| [aws_network_acl_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule) | resource |
 | [aws_route_table.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
 | [aws_route_table.from_vgw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
 | [aws_route_table_association.from_igw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
@@ -75,6 +77,7 @@ No modules.
 | <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | A boolean flag to enable/disable DNS support in the VPC. [Defaults true](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#enable_dns_support). | `bool` | `null` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | VPC level [instance tenancy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#instance_tenancy). | `string` | `null` | no |
+| <a name="input_nacls"></a> [nacls](#input\_nacls) | The `nacls` variable is a map of maps, where each map represents an AWS NACL.<br><br>  Example:<pre>nacls = {<br>    trusted_path_monitoring = {<br>      name = "trusted-path-monitoring"<br>      rules = {<br>        block_outbound_icmp = {<br>          rule_number = 110<br>          egress      = true<br>          protocol    = "icmp"<br>          rule_action = "deny"<br>          cidr_block  = "10.100.1.0/24"<br>          from_port   = null<br>          to_port     = null<br>        }<br>        allow_inbound = {<br>          rule_number = 300<br>          egress      = false<br>          protocol    = "-1"<br>          rule_action = "allow"<br>          cidr_block  = "0.0.0.0/0"<br>          from_port   = null<br>          to_port     = null<br>        }<br>      }<br>    }<br>  }</pre> | `any` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the VPC to create or use. | `string` | n/a | yes |
 | <a name="input_ntp_servers"></a> [ntp\_servers](#input\_ntp\_servers) | Specify a list of NTP server addresses for DHCP options set, default to AWS provided | `list(string)` | `[]` | no |
 | <a name="input_secondary_cidr_blocks"></a> [secondary\_cidr\_blocks](#input\_secondary\_cidr\_blocks) | Secondary CIDR block to assign to a new VPC. | `list(string)` | `[]` | no |
@@ -92,6 +95,7 @@ No modules.
 | <a name="output_igw_as_next_hop_set"></a> [igw\_as\_next\_hop\_set](#output\_igw\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
 | <a name="output_internet_gateway"></a> [internet\_gateway](#output\_internet\_gateway) | The entire Internet Gateway object. It is null when `create_internet_gateway` is false. |
 | <a name="output_internet_gateway_route_table"></a> [internet\_gateway\_route\_table](#output\_internet\_gateway\_route\_table) | The Route Table object created to handle traffic from Internet Gateway (IGW). It is null when `create_internet_gateway` is false. |
+| <a name="output_nacl_ids"></a> [nacl\_ids](#output\_nacl\_ids) | Map of NACL -> ID (newly created). |
 | <a name="output_name"></a> [name](#output\_name) | The VPC Name Tag (either created or pre-existing). |
 | <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | Map of Security Group Name -> ID (newly created). |
 | <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |

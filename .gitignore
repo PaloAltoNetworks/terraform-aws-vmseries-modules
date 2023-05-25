@@ -48,3 +48,4 @@ terraform.tfvars
 terraform.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
+modules/asg/lambda_payload.zip

@@ -24,7 +24,8 @@ locals {
 data "aws_subnet" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.create_subnet == false }
 
-  tags = { Name = each.value.name }
+  tags   = { Name = each.value.name }
+  vpc_id = var.vpc_id
 }
 
 #### Create Subnets ####
@@ -41,6 +42,14 @@ resource "aws_subnet" "this" {
   depends_on = [
     var.has_secondary_cidrs
   ]
+}
+
+#### NACL association
+
+resource "aws_network_acl_association" "main" {
+  for_each       = var.nacl_associations
+  network_acl_id = each.value
+  subnet_id      = local.subnets[each.key].id
 }
 
 #### One route table per each subnet by default #### 

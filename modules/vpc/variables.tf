@@ -76,6 +76,43 @@ variable "vpc_tags" {
   default     = {}
 }
 
+variable "nacls" {
+  description = <<EOF
+  The `nacls` variable is a map of maps, where each map represents an AWS NACL.
+
+  Example:
+  ```
+  nacls = {
+    trusted_path_monitoring = {
+      name = "trusted-path-monitoring"
+      rules = {
+        block_outbound_icmp = {
+          rule_number = 110
+          egress      = true
+          protocol    = "icmp"
+          rule_action = "deny"
+          cidr_block  = "10.100.1.0/24"
+          from_port   = null
+          to_port     = null
+        }
+        allow_inbound = {
+          rule_number = 300
+          egress      = false
+          protocol    = "-1"
+          rule_action = "allow"
+          cidr_block  = "0.0.0.0/0"
+          from_port   = null
+          to_port     = null
+        }
+      }
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type        = any
+}
+
 variable "security_groups" {
   description = <<EOF
   The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.
