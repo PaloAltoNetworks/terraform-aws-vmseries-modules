@@ -331,20 +331,6 @@ module "public_nlb" {
       stickiness  = true
       targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
     }
-    "HTTP-traffic" = {
-      protocol    = "TCP"
-      port        = "80"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-    "HTTPS-traffic" = {
-      protocol    = "TCP"
-      port        = "443"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
   }
 
   tags = var.global_tags
