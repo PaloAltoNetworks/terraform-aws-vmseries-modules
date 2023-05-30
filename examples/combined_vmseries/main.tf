@@ -86,6 +86,14 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   blackhole                      = false
 }
 
+resource "aws_ec2_transit_gateway_route" "from_security_to_panorama" {
+  count                          = var.panorama_connection.transit_gateway_attachment_id != null ? 1 : 0
+  transit_gateway_route_table_id = module.transit_gateway.route_tables["from_security_vpc"].id
+  transit_gateway_attachment_id  = var.panorama_connection.transit_gateway_attachment_id
+  destination_cidr_block         = var.panorama_connection.vpc_cidr
+  blackhole                      = false
+}
+
 ### GWLB ###
 
 module "gwlb" {
@@ -289,16 +297,41 @@ resource "aws_instance" "spoke_vms" {
 }
 
 ### SPOKE INBOUND APPLICATION LOAD BALANCER ###
+
 module "public_alb" {
   source   = "../../modules/alb"
-  for_each = { for k, v in var.loadbalancers : k => v }
+  for_each = var.spoke_albs
 
-  lb_name         = "${var.name_prefix}${each.value.name}"
-  subnets         = { for k, v in module.subnet_sets[each.value.subnet_sets].subnets : k => { id = v.id } }
+  lb_name         = "${var.name_prefix}${each.key}"
+  subnets         = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id          = module.vpc[each.value.vpc].id
   security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
   rules           = each.value.rules
   targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+
+  tags = var.global_tags
+}
+
+### SPOKE INBOUND NETWORK LOAD BALANCER ###
+
+module "public_nlb" {
+  source   = "../../modules/nlb"
+  for_each = var.spoke_nlbs
+
+  name        = "${var.name_prefix}${each.key}"
+  internal_lb = false
+  subnets     = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
+  vpc_id      = module.subnet_sets[each.value.vpc_subnet].vpc_id
+
+  balance_rules = {
+    "SSH-traffic" = {
+      protocol    = "TCP"
+      port        = "22"
+      target_type = "instance"
+      stickiness  = true
+      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
+    }
+  }
 
   tags = var.global_tags
 }
