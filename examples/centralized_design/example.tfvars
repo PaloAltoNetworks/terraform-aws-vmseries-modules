@@ -617,7 +617,7 @@ vmseries = {
 }
 
 ### PANORAMA
-panorama_connection = {
+panorama_attachment = {
   transit_gateway_attachment_id = null            # TODO: update here
   vpc_cidr                      = "10.255.0.0/24" # TODO: update here
 }

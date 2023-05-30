@@ -433,7 +433,7 @@ variable "vmseries" {
 }
 
 ### PANORAMA
-variable "panorama_connection" {
+variable "panorama_attachment" {
   description = <<-EOF
   A object defining TGW attachment and CIDR for Panorama.
 
