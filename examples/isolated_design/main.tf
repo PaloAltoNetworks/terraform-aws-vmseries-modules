@@ -49,8 +49,8 @@ module "subnet_sets" {
 ### VPC PEERINGS ###
 
 resource "aws_vpc_peering_connection" "this" {
-  peer_vpc_id = var.panorama.peering_vpc_id
-  vpc_id      = module.vpc[var.panorama.security_vpc].id
+  peer_vpc_id = var.panorama_connection.peering_vpc_id
+  vpc_id      = module.vpc[var.panorama_connection.security_vpc].id
   auto_accept = true
 
   tags = {

@@ -478,7 +478,7 @@ vmseries = {
 }
 
 ### PANORAMA
-panorama = {
+panorama_connection = {
   security_vpc   = "security_vpc"
   peering_vpc_id = "vpc-123456789" # TODO: update here
   vpc_cidr       = "10.255.0.0/24" # TODO: update here
