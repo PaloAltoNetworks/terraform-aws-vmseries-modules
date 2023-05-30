@@ -269,7 +269,7 @@ variable "gwlb_endpoints" {
 }
 
 ### PANORAMA
-variable "panorama" {
+variable "panorama_connection" {
   description = <<-EOF
   A object defining TGW attachment and CIDR for Panorama.
 
