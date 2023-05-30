@@ -271,7 +271,8 @@ variable "gwlb_endpoints" {
 ### PANORAMA
 variable "panorama_connection" {
   description = <<-EOF
-  A object defining TGW attachment and CIDR for Panorama.
+  An object defining TGW attachment and CIDR for Panorama.
+
 
   Following properties are available:
   - `transit_gateway_attachment_id`: ID of attachment for Panorama
