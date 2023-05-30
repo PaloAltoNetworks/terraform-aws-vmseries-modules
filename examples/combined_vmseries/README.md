@@ -9,11 +9,17 @@ In a nutshell it means:
 - The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB). It's interzone category.
 - The inbound dataplane traffic _does not_ traverse TGW and only traverses GWLB. It's intrazone category.
 
-## Topology diagram
+## Topology
 
 ![GWLB_TGW_Combined](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/37a7ffc1-134a-4037-b174-5a2abe44f475)
 
-## Running the example
+## Prerequisites
+
+Prepare Panorama in similar way as described for [Combined model example - VM-Series Auto Scaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/combined_vmseries_and_autoscale).
+
+In example VM-Series are licensed using [Panorama-Based Software Firewall License Management `sw_fw_license`](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/license-the-vm-series-firewall/use-panorama-based-software-firewall-license-management), from which after configuring license manager values of `panorama-server`, `auth-key`, `dgname`, `tplname` can be used in `terraform.tfvars` file. Another way to bootstrap and license VM-Series is using [VM Auth Key](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/generate-the-vm-auth-key-on-panorama). This approach requires preparing license (auth code) in file stored in S3 bucket or putting it in `authcodes` option. More information can be found in [document describing how to choose a bootstrap method](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/choose-a-bootstrap-method). Please note, that other bootstrapping methods may requires additional changes in example code (e.g. adding options `vm-auth-key`, `authcodes`) and/or creating additional resources (e.g. S3 buckets).
+
+## Usage
 
 To run this Terraform example copy the `example.tfvars` to `terraform.tfvars` and adjust it to your needs.
 
