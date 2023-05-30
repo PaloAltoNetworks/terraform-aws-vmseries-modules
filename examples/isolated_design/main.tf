@@ -152,9 +152,9 @@ locals {
   ])))) }
   plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries : i => format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
   local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i]) }
-  bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => compact([
-    for k, v in j.bootstrap_options : k != "plugin-op-commands" ? try("${k}=${v}", "") : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
-  ]) }
+  bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => [
+    for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
+  ] }
 }
 
 ### IAM ROLES AND POLICIES ###

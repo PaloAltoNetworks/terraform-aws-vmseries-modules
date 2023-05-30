@@ -389,19 +389,12 @@ vmseries = {
       "02" = { az = "eu-central-1b" }
     }
 
-    # There are mutliple ways to bootstrap and license VM-Series. 
-    # While using Panorama-Based Software Firewall License Management, 
-    # values of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
-    # https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/license-the-vm-series-firewall/use-panorama-based-software-firewall-license-management
-    # While using another approach with auth codes, VM Auth Key needs to be defined in `vm-auth-key`
-    # https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/generate-the-vm-auth-key-on-panorama
-    # Please note, that in that case license (auth code) needs to provided in file stored in S3 bucket.
+    # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
       plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
       panorama-server             = ""                                                                                   # TODO: update here
       auth-key                    = ""                                                                                   # TODO: update here
-      vm-auth-key                 = null                                                                                 # TODO: update here
       dgname                      = ""                                                                                   # TODO: update here
       tplname                     = ""                                                                                   # TODO: update here
       dhcp-send-hostname          = "yes"                                                                                # TODO: update here

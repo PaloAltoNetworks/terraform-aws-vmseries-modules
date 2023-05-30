@@ -324,7 +324,6 @@ variable "vmseries" {
       plugin-op-commands          = string
       panorama-server             = string
       auth-key                    = string
-      vm-auth-key                 = string
       dgname                      = string
       tplname                     = string
       dhcp-send-hostname          = string
