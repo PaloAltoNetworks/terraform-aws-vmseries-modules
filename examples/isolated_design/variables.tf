@@ -191,7 +191,7 @@ variable "gwlb_endpoints" {
 ### PANORAMA
 variable "panorama_connection" {
   description = <<-EOF
-  A object defining TGW attachment and CIDR for Panorama.
+  A object defining VPC peering and CIDR for Panorama.
 
   Following properties are available:
   - `security_vpc`: key of the security VPC
