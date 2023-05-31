@@ -1,4 +1,4 @@
-# Reference Architecture with Terraform: VM-Series in AWS, Centralized Architecture, Combined Design Model,  Common NGFW Option
+# Reference Architecture with Terraform: VM-Series in AWS, Centralized Architecture, Combined Design Model, Common NGFW Option
 
 Palo Alto Networks produces several [validated reference architecture design and deployment documentation guides](https://www.paloaltonetworks.com/resources/reference-architectures), which describe well-architected and tested deployments. When deploying VM-Series in a public cloud, the reference architectures guide users toward the best security outcomes, whilst reducing rollout time and avoiding common integration efforts.
 The Terraform code presented here will deploy Palo Alto Networks VM-Series firewalls in AWS based on the centralized design; for a discussion of other options, please see the design guide from [the reference architecture guides](https://www.paloaltonetworks.com/resources/reference-architectures).
