@@ -26,9 +26,9 @@ Inbound traffic originates outside your VPCs and is destined to applications or 
 
 The following steps should be followed before deploying the Terraform code presented here.
 
-1. Deploy Panorama e.g. by using [standalone Panorama example](../../examples/standalone_panorama)
+1. Deploy Panorama e.g. by using [Panorama example](../../examples/panorama_standalone)
 2. Prepare device group, template, template stack in Panorama
-3. Download and install plugin `sw_fw_license` for managing licences
+3. Download and install plugin `sw_fw_license` for managing licenses
 4. Configure bootstrap definition and license manager
 5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
 6. Configure security rules and NAT rules for outbound traffic
