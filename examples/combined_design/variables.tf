@@ -268,65 +268,29 @@ variable "gwlb_endpoints" {
   }))
 }
 
-### SPOKE VMS
-variable "spoke_vms" {
+### PANORAMA
+variable "panorama_attachment" {
   description = <<-EOF
-  A map defining VMs in spoke VPCs.
+  An object defining TGW attachment and CIDR for Panorama.
+
 
   Following properties are available:
-  - `az`: name of the Availability Zone
-  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
-  - `security_group`: security group assigned to ENI used by VM
-  - `type`: EC2 type VM
+  - `transit_gateway_attachment_id`: ID of attachment for Panorama
+  - `vpc_cidr`: CIDR of the VPC, where Panorama is deployed
 
   Example:
   ```
-  spoke_vms = {
-    "app1_vm01" = {
-      az             = "eu-central-1a"
-      vpc            = "app1_vpc"
-      vpc_subnet     = "app1_vpc-app1_vm"
-      security_group = "app1_vm"
-      type           = "t2.micro"
-    }
+  panorama = {
+    transit_gateway_attachment_id = "tgw-attach-123456789"
+    vpc_cidr                      = "10.255.0.0/24"
   }
   ```
   EOF
-  default     = {}
-  type = map(object({
-    az             = string
-    vpc            = string
-    vpc_subnet     = string
-    security_group = string
-    type           = string
-  }))
-}
-
-### SPOKE LOADBALANCERS
-variable "spoke_lbs" {
-  description = <<-EOF
-  A map defining Network Load Balancers deployed in spoke VPCs.
-
-  Following properties are available:
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
-  - `vms`: keys of spoke VMs
-
-  Example:
-  ```
-  spoke_lbs = {
-    "app1-nlb" = {
-      vpc_subnet = "app1_vpc-app1_lb"
-      vms        = ["app1_vm01", "app1_vm02"]
-    }
-  }
-  ```
-  EOF
-  default     = {}
-  type = map(object({
-    vpc_subnet = string
-    vms        = list(string)
-  }))
+  default     = null
+  type = object({
+    transit_gateway_attachment_id = string
+    vpc_cidr                      = string
+  })
 }
 
 ### VM-SERIES
@@ -477,34 +441,91 @@ variable "vmseries" {
       rules = any
     })
 
-    #network_lb = object({
-    #  name  = string
-    #  rules = any
-    #})
+    network_lb = object({
+      name  = string
+      rules = any
+    })
   }))
 }
 
-### ALB
-variable "loadbalancers" {
+### SPOKE VMS
+variable "spoke_vms" {
   description = <<-EOF
-  A object defining Application Load Balancer
+  A map defining VMs in spoke VPCs.
+
   Following properties are available:
-  - `name`: name of ALB
+  - `az`: name of the Availability Zone
+  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
+  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `security_group`: security group assigned to ENI used by VM
+  - `type`: EC2 type VM
+
+  Example:
+  ```
+  spoke_vms = {
+    "app1_vm01" = {
+      az             = "eu-central-1a"
+      vpc            = "app1_vpc"
+      vpc_subnet     = "app1_vpc-app1_vm"
+      security_group = "app1_vm"
+      type           = "t2.micro"
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    az             = string
+    vpc            = string
+    vpc_subnet     = string
+    security_group = string
+    type           = string
+  }))
+}
+
+### SPOKE LOADBALANCERS
+variable "spoke_nlbs" {
+  description = <<-EOF
+  A map defining Network Load Balancers deployed in spoke VPCs.
+
+  Following properties are available:
+  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `vms`: keys of spoke VMs
+
+  Example:
+  ```
+  spoke_lbs = {
+    "app1-nlb" = {
+      vpc_subnet = "app1_vpc-app1_lb"
+      vms        = ["app1_vm01", "app1_vm02"]
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    vpc_subnet = string
+    vms        = list(string)
+  }))
+}
+
+variable "spoke_albs" {
+  description = <<-EOF
+  A map defining Application Load Balancers deployed in spoke VPCs.
+
+  Following properties are available:
   - `rules`: Rules defining the method of traffic balancing
   - `vms`: Instances to be the target group for ALB
   - `vpc`: The VPC in which the load balancer is to be run
-  - `subnet_sets`: The subnets in which the Load Balancer is to be run
+  - `vpc_subnet`: The subnets in which the Load Balancer is to be run
   - `security_gropus`: Security Groups to be associated with the ALB
   ```
   EOF
-  type = object({
-    application_lb = object({
-      name            = string
-      rules           = any
-      vms             = list(string)
-      vpc             = string
-      subnet_sets     = string
-      security_groups = string
-    })
-  })
+  type = map(object({
+    rules           = any
+    vms             = list(string)
+    vpc             = string
+    vpc_subnet      = string
+    security_groups = string
+  }))
 }

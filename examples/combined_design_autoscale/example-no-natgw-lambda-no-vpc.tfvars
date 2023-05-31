@@ -60,21 +60,6 @@ vpcs = {
       }
     }
     security_groups = {
-      lambda = {
-        name = "lambda"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          all_inbound = {
-            description = "Permit All traffic inbound"
-            type        = "ingress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        }
-      }
       vmseries_private = {
         name = "vmseries_private"
         rules = {
@@ -177,10 +162,6 @@ vpcs = {
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null }
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
       "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
-      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw", nacl = null }
-      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw", nacl = null }
-      "10.100.12.0/24" = { az = "eu-central-1a", set = "lambda", nacl = null }
-      "10.100.76.0/24" = { az = "eu-central-1b", set = "lambda", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -204,24 +185,6 @@ vpcs = {
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
-      lambda_default = {
-        vpc_subnet    = "security_vpc-lambda"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_nat_gw"
-        next_hop_type = "nat_gateway"
-      }
-      lambda_panorama = {
-        vpc_subnet    = "security_vpc-lambda"
-        to_cidr       = "10.255.0.0/16"
-        next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
-      }
-      lambda_rfc1918 = {
-        vpc_subnet    = "security_vpc-lambda"
-        to_cidr       = "10.0.0.0/8"
-        next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
-      }
       tgw_rfc1918 = {
         vpc_subnet    = "security_vpc-tgw_attach"
         to_cidr       = "10.0.0.0/8"
@@ -237,8 +200,8 @@ vpcs = {
       public_default = {
         vpc_subnet    = "security_vpc-public"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_nat_gw"
-        next_hop_type = "nat_gateway"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
       }
       gwlbe_outbound_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_outbound"
@@ -251,18 +214,6 @@ vpcs = {
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
-      }
-      nat_default = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      nat_rfc1918 = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "10.0.0.0/8"
-        next_hop_key  = "security_gwlb_outbound"
-        next_hop_type = "gwlbe_endpoint"
       }
     }
   }
@@ -438,13 +389,7 @@ tgw = {
 }
 
 ### NAT GATEWAY
-natgws = {
-  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-  security_nat_gw = {
-    name       = "natgw"
-    vpc_subnet = "security_vpc-natgw"
-  }
-}
+natgws = {}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -546,7 +491,7 @@ vmseries_asgs = {
           "publica" = "eu-central-1a",
           "publicb" = "eu-central-1b"
         }
-        create_public_ip  = false
+        create_public_ip  = true
         source_dest_check = false
       }
     }
@@ -597,7 +542,7 @@ vmseries_asgs = {
 }
 
 ### PANORAMA
-panorama = {
+panorama_attachment = {
   transit_gateway_attachment_id = null            # TODO: update here
   vpc_cidr                      = "10.255.0.0/24" # TODO: update here
 }
