@@ -87,10 +87,10 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
 }
 
 resource "aws_ec2_transit_gateway_route" "from_security_to_panorama" {
-  count                          = var.panorama_connection.transit_gateway_attachment_id != null ? 1 : 0
+  count                          = var.panorama_attachment.transit_gateway_attachment_id != null ? 1 : 0
   transit_gateway_route_table_id = module.transit_gateway.route_tables["from_security_vpc"].id
-  transit_gateway_attachment_id  = var.panorama_connection.transit_gateway_attachment_id
-  destination_cidr_block         = var.panorama_connection.vpc_cidr
+  transit_gateway_attachment_id  = var.panorama_attachment.transit_gateway_attachment_id
+  destination_cidr_block         = var.panorama_attachment.vpc_cidr
   blackhole                      = false
 }
 
