@@ -1,18 +1,41 @@
-# VM-Series Reference Architecture - Isolated Model
+# Reference Architecture with Terraform: VM-Series in AWS, Isolated Design Model, Common NGFW option
 
-A Terraform example for deploying VM-Series firewalls in isolated model for inbound and outbound traffic inspection.
+Palo Alto Networks produces several [validated reference architecture design and deployment documentation guides](https://www.paloaltonetworks.com/resources/reference-architectures), which describe well-architected and tested deployments. When deploying VM-Series in a public cloud, the reference architectures guide users toward the best security outcomes, whilst reducing rollout time and avoiding common integration efforts.
+The Terraform code presented here will deploy Palo Alto Networks VM-Series firewalls in AWS based on the centralized design; for a discussion of other options, please see the design guide from [the reference architecture guides](https://www.paloaltonetworks.com/resources/reference-architectures).
 
-## Topology
+## Reference Architecture Design
 
-Code was prepared according to presented below diagram for *isolated model*.
+![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/6574404/5199b4a8-2a59-4789-9ec0-870d97133acd)
+
+This code implements:
+- a _isolated design_, which secures outbound and inbound traffic flows using AWS Gateway Load Balancer (GWLB). Application resources are segmented across multiple VPCs that distribute traffic to the dedicated VPC for security services where the VM-Series are deployed.
+## Detailed Architecture and Design
+
+### Isolated Design
+The Isolated Design model centralizes the security instances in a dedicated security VPC, while providing one or more isolated VPCs inbound and outbound security services. This design leverages a VPC dedicated to security. In the security VPC, you deploy the VM-Series firewalls, in separate availability zones, and a GWLB to distribute traffic to the firewalls. This design uses overlay routing for outbound security on the VM-Series firewalls. Outbound traffic from instances in the isolated VPCs uses the PrivateLink connections from GWLB endpoints in the applications. VPCs to the GWLB in the security VPC to egress the AWS environment through the VM-Series firewalls. 
+
+
+Inbound traffic originates outside the VPC and is destined to applications or services hosted within your VPCs, such as web servers. This design uses the GWLB and VM-Series firewalls in the security VPC, with GWLB endpoints in the application VPCs for the transparent inspection of inbound traffic.
+
+
 
 ![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/8527796a-9e26-48bd-b903-11e118efc611)
 
 ## Prerequisites
 
-Prepare Panorama in similar way as described for [Combined model example - VM-Series Auto Scaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/combined_vmseries_and_autoscale).
+The following steps should be followed before deploying the Terraform code presented here.
+
+1. Deploy Panorama e.g. by using [Panorama example](../../examples/panorama_standalone)
+2. Prepare device group, template, template stack in Panorama
+3. Download and install plugin `sw_fw_license` for managing licenses
+4. Configure bootstrap definition and license manager
+5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
+6. Configure security rules and NAT rules for outbound traffic
+7. Configure interface management profile to enable health checks from GWLB
+8. Configure network interfaces and subinterfaces, zones and virtual router in template
 
 In example VM-Series are licensed using [Panorama-Based Software Firewall License Management `sw_fw_license`](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/license-the-vm-series-firewall/use-panorama-based-software-firewall-license-management), from which after configuring license manager values of `panorama-server`, `auth-key`, `dgname`, `tplname` can be used in `terraform.tfvars` file. Another way to bootstrap and license VM-Series is using [VM Auth Key](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/generate-the-vm-auth-key-on-panorama). This approach requires preparing license (auth code) in file stored in S3 bucket or putting it in `authcodes` option. More information can be found in [document describing how to choose a bootstrap method](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/choose-a-bootstrap-method). Please note, that other bootstrapping methods may requires additional changes in example code (e.g. adding options `vm-auth-key`, `authcodes`) and/or creating additional resources (e.g. S3 buckets).
+
 
 ## Usage
 
