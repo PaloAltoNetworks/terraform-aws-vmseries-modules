@@ -78,7 +78,6 @@ If no errors occurred during deployment, configure the VM-Series machines as exp
 - Make sure all traffic is visible in the monitor tab in VM-Series (check if the traffic works as expected, if it goes to the right policies)
 - 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
 ## Requirements
 
 | Name | Version |
