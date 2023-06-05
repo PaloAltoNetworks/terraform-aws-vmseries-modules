@@ -105,6 +105,23 @@ variable "unhealthy_threshold" {
   type        = number
 }
 
+variable "stickiness_type" {
+  description = <<-EOF
+  If `stickiness_type` is `null`, then by default the Gateway Load Balancer uses 5-tuple to maintain flow stickiness to a specific target appliance.
+  The stickiness type can be customized by using value:
+  - `source_ip_dest_ip_proto` for 3-tuple (Source IP, Destination IP and Transport Protocol)
+  - `source_ip_dest_ip` for 2-tuple (Source IP and Destination IP)
+  ```
+  EOF
+  default     = null
+  type        = string
+
+  validation {
+    condition     = (var.stickiness_type == null || contains(["source_ip_dest_ip", "source_ip_dest_ip_proto"], coalesce(var.stickiness_type, "source_ip_dest_ip_proto")))
+    error_message = "The stickiness_type value must be `null`, `source_ip_dest_ip` or `source_ip_dest_ip_proto`."
+  }
+}
+
 ##### Various categories of Tags #####
 
 variable "lb_tags" {

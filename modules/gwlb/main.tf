@@ -69,6 +69,11 @@ resource "aws_lb_target_group" "this" {
     healthy_threshold   = var.healthy_threshold
     unhealthy_threshold = var.unhealthy_threshold
   }
+
+  stickiness {
+    enabled = var.stickiness_type != null && (var.stickiness_type == "source_ip_dest_ip" || var.stickiness_type == "source_ip_dest_ip_proto")
+    type    = coalesce(var.stickiness_type, "source_ip_dest_ip_proto")
+  }
 }
 
 # Attach one or more Targets (EC2 Instances).
