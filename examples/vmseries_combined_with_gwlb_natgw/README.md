@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # Palo Alto Networks VM-Series NGFW Module Example for AWS Cloud
 
 A Terraform module example allowing to deploy two instances of the Palo Alto Networks VM-Series NGFW combined with a [Gateway Load Balancer](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/#:~:text=Gateway%20Load%20Balancer%20helps%20you,or%20down%2C%20based%20on%20demand.) and a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html) in AWS Cloud.

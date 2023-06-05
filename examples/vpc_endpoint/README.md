@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # AWS VPC Endpoints Example
 
 This example presents various AWS VPC Endpoints that are potentially usable for
