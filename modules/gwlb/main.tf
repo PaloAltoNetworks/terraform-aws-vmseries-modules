@@ -58,6 +58,14 @@ resource "aws_lb_target_group" "this" {
   # tags = merge(var.global_tags, { Name = var.name }, var.lb_target_group_tags)
   tags = var.lb_target_group_tags
 
+  dynamic "stickiness" {
+    for_each = var.stickiness_target_group != null ? [1] : []
+
+    content {
+      type = var.stickiness_target_group
+    }
+  }
+
   health_check {
     enabled             = var.health_check_enabled
     interval            = var.health_check_interval

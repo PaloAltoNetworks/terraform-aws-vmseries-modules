@@ -43,6 +43,13 @@ variable "allowed_principals" {
   type        = list(string)
 }
 
+##### Target Group #####
+variable "stickiness_target_group" {
+  description = "See the `aws` provider [documentation](  description = https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#stickiness)."
+  default     = null
+  type        = string
+}
+
 ##### Healthcheck #####
 
 variable "deregistration_delay" {
