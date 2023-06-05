@@ -71,7 +71,7 @@ resource "aws_lb_target_group" "this" {
   }
 
   stickiness {
-    enabled = var.stickiness_type != null && (var.stickiness_type == "source_ip_dest_ip" || var.stickiness_type == "source_ip_dest_ip_proto")
+    enabled = var.stickiness_type != null
     type    = coalesce(var.stickiness_type, "source_ip_dest_ip_proto")
   }
 }
