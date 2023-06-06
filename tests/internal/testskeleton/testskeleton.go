@@ -52,6 +52,7 @@ type ChangedResource struct {
 }
 type AdditionalChangesAfterDeployment struct {
 	AdditionalVarsValues map[string]interface{}
+	UseVarFiles          []string
 	FileNameWithTfCode   string
 	ChangedResources     []ChangedResource
 }
@@ -71,7 +72,7 @@ func DeployInfraCheckOutputsVerifyChanges(t *testing.T, terraformOptions *terraf
 // Function is responsible for deployment of the infrastructure, verify assert expressions,
 // verify if there are no changes in plan after deployment and destroy infrastructure
 func DeployInfraCheckOutputsVerifyChangesDeployChanges(t *testing.T, terraformOptions *terraform.Options,
-	assertList []AssertExpression, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) *terraform.Options {
+	assertList []AssertExpression, additionalChangesAfterDeployment []AdditionalChangesAfterDeployment) *terraform.Options {
 	return GenericDeployInfraAndVerifyAssertChanges(t, terraformOptions, assertList, true, additionalChangesAfterDeployment, true)
 }
 
@@ -92,7 +93,7 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 	terraformOptions *terraform.Options,
 	assertList []AssertExpression,
 	checkNoChanges bool,
-	additionalChangesAfterDeployment *AdditionalChangesAfterDeployment,
+	additionalChangesAfterDeployment []AdditionalChangesAfterDeployment,
 	destroyInfraAtEnd bool) *terraform.Options {
 	// If no Terraform options were provided, use default one
 	if terraformOptions == nil {
@@ -131,8 +132,10 @@ func GenericDeployInfraAndVerifyAssertChanges(t *testing.T,
 
 	// If there is passed structure with additional changes deployed after,
 	// then verify if changes in infrastructure are the same as expected
-	if additionalChangesAfterDeployment != nil {
-		planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, additionalChangesAfterDeployment)
+	if additionalChangesAfterDeployment != nil && len(additionalChangesAfterDeployment) > 0 {
+		for _, additionalChangeAfterDeployment := range additionalChangesAfterDeployment {
+			planAndDeployAdditionalChangesAfterDeployment(t, terraformOptions, &additionalChangeAfterDeployment)
+		}
 	}
 
 	return terraformOptions
@@ -219,21 +222,29 @@ func checkResourceChange(t *testing.T, v *tfjson.ResourceChange, changedResource
 
 // Function is doing Terraform plan after initial deployment and providing changes in variables values and resources
 func planAndDeployAdditionalChangesAfterDeployment(t *testing.T, terraformOptions *terraform.Options, additionalChangesAfterDeployment *AdditionalChangesAfterDeployment) {
+	// If var files defined, use them
+	if additionalChangesAfterDeployment.UseVarFiles != nil && len(additionalChangesAfterDeployment.UseVarFiles) > 0 {
+		terraformOptions.VarFiles = additionalChangesAfterDeployment.UseVarFiles
+	}
+
 	// Merge original variables values with additional ones
 	maps.Copy(terraformOptions.Vars, additionalChangesAfterDeployment.AdditionalVarsValues)
 
-	// Rename provided file by adding .tf extension in order to add additional resources defined in file
-	renameFileFunc := func(orgFileName string, newFileName string) {
-		err := os.Rename(orgFileName, newFileName)
-		if err != nil {
-			t.Logf("Error while preparing additional file with code to deploy: %v", err)
+	// If in structure AdditionalChangesAfterDeployment filename was provided (it's not empty), then name provided file
+	if additionalChangesAfterDeployment.FileNameWithTfCode != "" {
+		// Rename provided file by adding .tf extension in order to add additional resources defined in file
+		renameFileFunc := func(orgFileName string, newFileName string) {
+			err := os.Rename(orgFileName, newFileName)
+			if err != nil {
+				t.Logf("Error while preparing additional file with code to deploy: %v", err)
+			}
 		}
-	}
-	additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
-	renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
+		additionalFileNameWithTfExtension := additionalChangesAfterDeployment.FileNameWithTfCode + ".tf"
+		renameFileFunc(additionalChangesAfterDeployment.FileNameWithTfCode, additionalFileNameWithTfExtension)
 
-	// Always restore original file name
-	defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+		// Always restore original file name
+		defer renameFileFunc(additionalFileNameWithTfExtension, additionalChangesAfterDeployment.FileNameWithTfCode)
+	}
 
 	// Prepare plan and check changes by comparing them to expected one
 	terraformOptions.PlanFilePath = "test.plan"
