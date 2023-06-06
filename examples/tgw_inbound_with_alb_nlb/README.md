@@ -75,21 +75,22 @@ To delete all the resources created by the previous `apply` attempts, execute:
 terraform destroy
 ```
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
-## Modules
+### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
@@ -107,7 +108,7 @@ terraform destroy
 | <a name="module_transit_gateway"></a> [transit\_gateway](#module\_transit\_gateway) | ../../modules/transit_gateway | n/a |
 | <a name="module_vmseries"></a> [vmseries](#module\_vmseries) | ../../modules/vmseries | n/a |
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -115,7 +116,7 @@ terraform destroy
 | [aws_instance.app_vm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_ami.bitnami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -147,7 +148,7 @@ terraform destroy
 | <a name="input_vmseries"></a> [vmseries](#input\_vmseries) | Definition of VMSeries VMs. Please refer to [VMSeries module](../../modules/vmseries/README.md) for details | `any` | n/a | yes |
 | <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | Version of the VMSeries firewall. Please verify if the version you require is available in your region of choice. | `string` | n/a | yes |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
