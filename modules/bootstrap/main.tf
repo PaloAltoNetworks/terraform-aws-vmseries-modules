@@ -24,11 +24,22 @@ resource "aws_s3_bucket" "this" {
   tags          = var.global_tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "this" {
+  count  = var.create_bucket == true ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+
 resource "aws_s3_bucket_acl" "this" {
   count = var.create_bucket == true ? 1 : 0
 
   bucket = aws_s3_bucket.this[0].id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.this[0]]
 }
 
 resource "aws_s3_object" "bootstrap_dirs" {
