@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # Palo Alto Networks Panorama example
 
 A Terraform example for deploying a one or more instances of Panorama in one or more VPCs in AWS Cloud.
@@ -49,21 +52,22 @@ Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deplo
 
 Use a web browser to access https://x.x.x.x and login with admin and your previously configured password
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 
-## Modules
+### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
@@ -72,7 +76,7 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | ../../modules/vpc | n/a |
 | <a name="module_vpc_routes"></a> [vpc\_routes](#module\_vpc\_routes) | ../../modules/vpc_route | n/a |
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -82,7 +86,7 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 | [aws_ebs_default_kms_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ebs_default_kms_key) | data source |
 | [aws_kms_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -93,7 +97,7 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes | `string` | n/a | yes |
 | <a name="input_vpcs"></a> [vpcs](#input\_vpcs) | A map defining VPCs with security groups and subnets.<br><br>Following properties are available:<br>- `name`: VPC name<br>- `cidr`: CIDR for VPC<br>- `security_groups`: map of security groups<br>- `subnets`: map of subnets with properties:<br>   - `az`: availability zone<br>   - `set`: internal identifier referenced by main.tf<br>- `routes`: map of routes with properties:<br>   - `vpc_subnet`: built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`<br>   - `to_cidr`: destination IP range<br>   - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources<br>   - `next_hop_type`: internet\_gateway, nat\_gateway, transit\_gateway\_attachment or gwlbe\_endpoint<br><br>Example:<pre>{<br>  security_vpc = {<br>    name = "security-vpc"<br>    cidr = "10.100.0.0/16"<br>    security_groups = {<br>      panorama_mgmt = {<br>        name = "panorama_mgmt"<br>        rules = {<br>          all_outbound = {<br>            description = "Permit All traffic outbound"<br>            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"<br>            cidr_blocks = ["0.0.0.0/0"]<br>          }<br>          https = {<br>            description = "Permit HTTPS"<br>            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"<br>            cidr_blocks = ["130.41.247.0/24"]<br>          }<br>          ssh = {<br>            description = "Permit SSH"<br>            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"<br>            cidr_blocks = ["130.41.247.0/24"]<br>          }<br>        }<br>      }<br>    }<br>    subnets = {<br>      "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt" }<br>      "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt" }<br>    }<br>    routes = {<br>      mgmt_default = {<br>        vpc_subnet    = "security_vpc-mgmt"<br>        to_cidr       = "0.0.0.0/0"<br>        next_hop_key  = "security_vpc"<br>        next_hop_type = "internet_gateway"<br>      }<br>    }<br>  }<br>}</pre> | <pre>map(object({<br>    name = string<br>    cidr = string<br>    security_groups = map(object({<br>      name = string<br>      rules = map(object({<br>        description = string<br>        type        = string,<br>        from_port   = string<br>        to_port     = string,<br>        protocol    = string<br>        cidr_blocks = list(string)<br>      }))<br>    }))<br>    subnets = map(object({<br>      az  = string<br>      set = string<br>    }))<br>    routes = map(object({<br>      vpc_subnet    = string<br>      to_cidr       = string<br>      next_hop_key  = string<br>      next_hop_type = string<br>    }))<br>  }))</pre> | `{}` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|

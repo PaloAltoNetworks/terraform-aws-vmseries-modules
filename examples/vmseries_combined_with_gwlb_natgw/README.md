@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # Palo Alto Networks VM-Series NGFW Module Example for AWS Cloud
 
 A Terraform module example allowing to deploy two instances of the Palo Alto Networks VM-Series NGFW combined with a [Gateway Load Balancer](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/#:~:text=Gateway%20Load%20Balancer%20helps%20you,or%20down%2C%20based%20on%20demand.) and a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html) in AWS Cloud.
@@ -31,19 +34,20 @@ To delete all the resources created by the previous `apply` attempts, execute:
 terraform destroy
 ```
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 
-## Providers
+### Providers
 
 No providers.
 
-## Modules
+### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
@@ -55,11 +59,11 @@ No providers.
 | <a name="module_security_vpc_routes"></a> [security\_vpc\_routes](#module\_security\_vpc\_routes) | ../../modules/vpc_route | n/a |
 | <a name="module_vmseries"></a> [vmseries](#module\_vmseries) | ../../modules/vmseries | n/a |
 
-## Resources
+### Resources
 
 No resources.
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -80,7 +84,7 @@ No resources.
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | n/a | `any` | n/a | yes |
 | <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | n/a | `any` | n/a | yes |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|

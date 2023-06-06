@@ -13,6 +13,7 @@ security_vpc_cidr = "10.100.0.0/16"
 
 security_vpc_subnets = {
   "10.100.0.0/24" = { az = "us-east-1a", set = "mgmt" }
+  "10.100.1.0/24" = { az = "us-east-1a", set = "data1" }
 }
 
 security_vpc_security_groups = {
@@ -32,6 +33,16 @@ security_vpc_security_groups = {
       ssh = {
         description = "Permit SSH"
         type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    }
+  }
+  vmseries_data1 = {
+    name = "vmseries_data1"
+    rules = {
+      all_outbound = {
+        description = "Permit All traffic outbound"
+        type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
       }
     }

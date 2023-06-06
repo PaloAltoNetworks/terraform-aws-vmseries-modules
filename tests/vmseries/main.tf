@@ -26,6 +26,7 @@ module "security_subnet_sets" {
   name                = each.key
   vpc_id              = module.security_vpc.id
   has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
+  nacl_associations   = {}
   cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
 }
 
@@ -37,6 +38,15 @@ module "security_vpc_routes" {
   route_table_ids = module.security_subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
+}
+
+# Optinal S3 bucket for bootstrapping
+module "bootstrap" {
+  count              = var.use_s3_bucket_to_bootstrap ? 1 : 0
+  source             = "../../modules/bootstrap"
+  prefix             = local.bucket_name_prefix
+  global_tags        = var.global_tags
+  plugin-op-commands = var.plugin_op_commands
 }
 
 # VM-Series deployed for tests
@@ -54,7 +64,7 @@ module "vmseries" {
       security_group_ids = try([module.security_vpc.security_group_ids[v.security_group]], [])
       source_dest_check  = v.source_dest_check
       subnet_id          = module.security_subnet_sets[v.subnet].subnets[each.value.az].id
-      create_public_ip   = v.create_public_ip
+      create_public_ip   = var.override_and_disable_mgmt_create_public_ip ? false : v.create_public_ip
     }
   }
 
@@ -62,6 +72,7 @@ module "vmseries" {
 }
 
 locals {
+  bucket_name_prefix = replace(var.name_prefix, "_", "-")
   security_vpc_routes = concat(
     [for cidr in var.security_vpc_routes_outbound_destin_cidrs :
       {
