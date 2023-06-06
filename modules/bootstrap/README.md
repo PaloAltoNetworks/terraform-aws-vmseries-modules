@@ -66,8 +66,9 @@ variables and associated values.
 8. Validate the plan using the `terraform plan` command.
 9. Apply the plan using the `terraform apply` command. 
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
+### Requirements
 
 | Name | Version |
 |------|---------|
@@ -75,18 +76,18 @@ variables and associated values.
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.3.2 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
 | <a name="provider_random"></a> [random](#provider\_random) | ~> 3.3.2 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -103,7 +104,7 @@ No modules.
 | [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 | [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/s3_bucket) | data source |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -132,7 +133,7 @@ No modules.
 | <a name="input_tplname"></a> [tplname](#input\_tplname) | The Panorama template stack name. | `string` | `""` | no |
 | <a name="input_vm-auth-key"></a> [vm-auth-key](#input\_vm-auth-key) | Virtual machine authentication key. | `string` | `""` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
