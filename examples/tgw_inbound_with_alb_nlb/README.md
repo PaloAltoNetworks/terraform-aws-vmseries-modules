@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # Palo Alto Networks VM-Series NGFW - Centralized Inbound with Load Balancer
 
 ## Description
