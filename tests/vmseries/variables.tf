@@ -80,7 +80,18 @@ variable "security_vpc_security_groups" {
 }
 
 ### VM-Series
-
 variable "vmseries" {}
+variable "override_and_disable_mgmt_create_public_ip" {
+  default = false
+  type    = bool
+}
 variable "vmseries_version" {}
 variable "bootstrap_options" {}
+variable "plugin_op_commands" {
+  default = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable"
+  type    = string
+}
+variable "use_s3_bucket_to_bootstrap" {
+  default = false
+  type    = bool
+}
