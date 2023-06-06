@@ -1,21 +1,44 @@
-# VM-Series in the Centralized Design Combined Inbound Architecture
+---
+short_title: Combined Design
+type: refarch
+show_in_hub: true
+---
+# Reference Architecture with Terraform: VM-Series in AWS, Combined Design Model, Common NGFW Option
 
-Deployment of Palo Alto Networks VM-Series into a variation on one of its [Reference Architectures](https://pandocs.tech/fw/110p-prime): the *Centralized* design using *Combined Inbound Security*.
+Palo Alto Networks produces several [validated reference architecture design and deployment documentation guides](https://www.paloaltonetworks.com/resources/reference-architectures), which describe well-architected and tested deployments. When deploying VM-Series in a public cloud, the reference architectures guide users toward the best security outcomes, whilst reducing rollout time and avoiding common integration efforts.
+The Terraform code presented here will deploy Palo Alto Networks VM-Series firewalls in AWS based on the centralized design; for a discussion of other options, please see the design guide from [the reference architecture guides](https://www.paloaltonetworks.com/resources/reference-architectures).
 
-In a nutshell it means:
+## Reference Architecture Design
 
-- A single Security VPC can protect multiple Application VPCs. Therefore these form the hub and spokes model,
-  where the Security VPC is the hub and the Application VPCs are the spokes.
-- The outbound dataplane traffic traverses the transit gateway (TGW) and the gateway load balancer (GWLB). It's interzone category.
-- The inbound dataplane traffic _does not_ traverse TGW and only traverses GWLB. It's intrazone category.
+![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/6574404/5199b4a8-2a59-4789-9ec0-870d97133acd)
 
-## Topology
+This code implements:
+- a _centralized design_, which secures outbound, inbound, and east-west traffic flows using an AWS transit gateway (TGW). Application resources are segmented across multiple VPCs that connect in a hub-and-spoke topology, with a dedicated VPC for security services where the VM-Series are deployed
+- a _combined model_ for inbound traffic, where an AWS gateway load balancer (GWLB) is used to forward inbound traffic to the VM-Series in the security services VPC, as well as outbound and east-west traffic
 
-![GWLB_TGW_Combined](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/37a7ffc1-134a-4037-b174-5a2abe44f475)
+## Detailed Architecture and Design
+
+### Centralized Design
+This design supports interconnecting a large number of VPCs, with a scalable solution to secure outbound, inbound, and east-west traffic flows using a transit gateway to connect the VPCs. The centralized design model offers the benefits of a highly scalable design for multiple VPCs connecting to a central hub for inbound, outbound, and VPC-to-VPC traffic control and visibility. In the Centralized design model, you segment application resources across multiple VPCs that connect in a hub-and-spoke topology. The hub of the topology, or transit gateway, is the central point of connectivity between VPCs and Prisma Access or enterprise network resources attached through a VPN or AWS Direct Connect. This model has a dedicated VPC for security services where you deploy VM-Series firewalls for traffic inspection and control. The security VPC does not contain any application resources. The security VPC centralizes resources that multiple workloads can share. The TGW ensures that all spoke-to-spoke and spoke-to-enterprise traffic transits the VM-Series.
+
+### Combined Model for Inbound Traffic
+
+Inbound traffic originates outside your VPCs and is destined to applications or services hosted within your VPCs, such as web or application servers. The combined model implements inbound security by using the VM-Series and Gateway Load Balancer (GWLB) in a Security VPC, with distributed GWLB endpoints in the application VPCs. Unlike with outbound traffic, this design option does not use the transit gateway for traffic forwarding between the security VPC and the application VPCs.
+
+![Detailed Topology Diagram](https://github-production-user-asset-6210df.s3.amazonaws.com/9674179/240822321-37a7ffc1-134a-4037-b174-5a2abe44f475.png)
 
 ## Prerequisites
 
-Prepare Panorama in similar way as described for [Combined model example - VM-Series Auto Scaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/combined_vmseries_and_autoscale).
+The following steps should be followed before deploying the Terraform code presented here.
+
+1. Deploy Panorama e.g. by using [Panorama example](../../examples/panorama_standalone)
+2. Prepare device group, template, template stack in Panorama
+3. Download and install plugin `sw_fw_license` for managing licenses
+4. Configure bootstrap definition and license manager
+5. Configure [license API key](https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-deployment/license-the-vm-series-firewall/install-a-license-deactivation-api-key)
+6. Configure security rules and NAT rules for outbound traffic
+7. Configure interface management profile to enable health checks from GWLB
+8. Configure network interfaces and subinterfaces, zones and virtual router in template
 
 In example VM-Series are licensed using [Panorama-Based Software Firewall License Management `sw_fw_license`](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/license-the-vm-series-firewall/use-panorama-based-software-firewall-license-management), from which after configuring license manager values of `panorama-server`, `auth-key`, `dgname`, `tplname` can be used in `terraform.tfvars` file. Another way to bootstrap and license VM-Series is using [VM Auth Key](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/generate-the-vm-auth-key-on-panorama). This approach requires preparing license (auth code) in file stored in S3 bucket or putting it in `authcodes` option. More information can be found in [document describing how to choose a bootstrap method](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/choose-a-bootstrap-method). Please note, that other bootstrapping methods may requires additional changes in example code (e.g. adding options `vm-auth-key`, `authcodes`) and/or creating additional resources (e.g. S3 buckets).
 
@@ -23,9 +46,15 @@ In example VM-Series are licensed using [Panorama-Based Software Firewall Licens
 
 To run this Terraform example copy the `example.tfvars` to `terraform.tfvars` and adjust it to your needs.
 
-All Firewall VMs will be set up with an SSH key, so fill out the `ssh_key_name` property with existing Key Pair name.
+All Firewall VMs will be set up with an SSH key. There are two ways to approach this:
 
-A thing worth noticing is the Gateway Load Balancer (GWLB) configuration. AWS recommends that GWLB is set up in every Availability Zone available in a particular region. This example is set up for `eu-central-1` which has (at the time of writing) zones from `a` to `c`. When changing the region to one that has a different number of Availability Zones, make sure you adjust the GWLB set up accordingly. You can do it in the `vpcs` property - add od remove `subnets` for the `gwlb` set.
+- use an existing AWS Key Pair - in this case fill out the `ssh_key_name` property with existing Key Pair name
+- create a Key Pair with Terraform - for this you will need to adjust the follwing properties:
+  - `create_ssh_key` - set it to `true` to trigger Key Pair creation
+  - `ssh_key_name` - a name of the newly created Key Pair
+  - `ssh_public_key_file` - path to an SSH public key that will be used to create a Key Pair
+
+A thing worth noticing is the Gateway Load Balancer (GWLB) configuration. AWS recommends that GWLB is set up in every Availability Zone available in a particular region. This example is set up for `us-east-1` which has (at the time of writing) zones from `a` to `f`. When changing the region to one that has a different number of Availability Zones, make sure you adjust the GWLB set up accordingly. You can do it in the `security_vpc_subnets` property - add or remove subnets for the `gwlb` set.
 
 When `terraform.tfvars` is ready, run the following commands:
 
@@ -52,7 +81,7 @@ If no errors occurred during deployment, configure the VM-Series machines as exp
 - Make sure GWLB sees all VM-Series in the target group as healthy
 - Take the ALB address and see if we are able to get the welcome page from the test app
 - Make sure all traffic is visible in the monitor tab in VM-Series (check if the traffic works as expected, if it goes to the right policies)
-
+- 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

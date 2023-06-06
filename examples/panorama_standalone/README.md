@@ -1,3 +1,6 @@
+---
+show_in_hub: false
+---
 # Palo Alto Networks Panorama example
 
 A Terraform example for deploying a one or more instances of Panorama in one or more VPCs in AWS Cloud.
