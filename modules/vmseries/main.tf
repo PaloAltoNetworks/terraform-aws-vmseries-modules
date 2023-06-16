@@ -70,7 +70,7 @@ resource "aws_instance" "this" {
   iam_instance_profile                 = var.iam_instance_profile
   instance_type                        = var.instance_type
   key_name                             = var.ssh_key_name
-  disable_api_termination              = false
+  disable_api_termination              = var.enable_instance_termination_protection
   ebs_optimized                        = true
   instance_initiated_shutdown_behavior = "stop"
   monitoring                           = false
