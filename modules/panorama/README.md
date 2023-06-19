@@ -49,7 +49,7 @@ No modules.
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | EC2 instance type for Panorama. Default set to Palo Alto Networks recommended instance type. | `string` | `"c5.4xlarge"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name for the Panorama instance. | `string` | `"pan-panorama"` | no |
 | <a name="input_panorama_iam_role"></a> [panorama\_iam\_role](#input\_panorama\_iam\_role) | IAM Role attached to Panorama instance contained curated IAM Policy. | `string` | n/a | yes |
-| <a name="input_panorama_instance_metadata_options"></a> [panorama\_instance\_metadata\_options](#input\_panorama\_instance\_metadata\_options) | Metadata of the panorama instance | `map(any)` | `{}` | no |
+| <a name="input_panorama_instance_metadata_options"></a> [panorama\_instance\_metadata\_options](#input\_panorama\_instance\_metadata\_options) | Metadata of the panorama instance | `map(any)` | n/a | yes |
 | <a name="input_panorama_version"></a> [panorama\_version](#input\_panorama\_version) | Panorama PAN-OS Software version. List published images with:<pre>aws ec2 describe-images \\<br>--filters "Name=product-code,Values=eclz7j04vu9lf8ont8ta3n17o" "Name=name,Values=Panorama-AWS*" \\<br>--output json --query "Images[].Description" \| grep -o 'Panorama-AWS-.*' \| tr -d '",'</pre> | `string` | `"10.1.5"` | no |
 | <a name="input_private_ip_address"></a> [private\_ip\_address](#input\_private\_ip\_address) | If provided, associates a private IP address to the Panorama instance. | `string` | `null` | no |
 | <a name="input_product_code"></a> [product\_code](#input\_product\_code) | Product code for Panorama BYOL license. | `string` | `"eclz7j04vu9lf8ont8ta3n17o"` | no |

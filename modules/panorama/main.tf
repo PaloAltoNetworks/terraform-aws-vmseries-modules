@@ -29,7 +29,12 @@ resource "aws_instance" "this" {
   ebs_optimized                        = true
   monitoring                           = false
   iam_instance_profile                 = var.panorama_iam_role
-  metadata_options                     = var.panorama_instance_metadata_options
+  metadata_options {
+    http_endpoint               = try(var.panorama_instance_metadata_options.http_endpoint, "enabled")
+    http_put_response_hop_limit = try(var.panorama_instance_metadata_options["http_put_response_hop_limit"], 1)
+    http_tokens                 = try(var.panorama_instance_metadata_options["http_tokens"], "optional")
+    instance_metadata_tags      = try(var.panorama_instance_metadata_options["instance_metadata_tags"], "disabled")
+  }
 
   root_block_device {
     delete_on_termination = true

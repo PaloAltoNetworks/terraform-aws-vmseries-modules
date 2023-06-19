@@ -134,5 +134,4 @@ variable "panorama_iam_role" {
 variable "panorama_instance_metadata_options" {
   description = "Metadata of the panorama instance"
   type        = map(any)
-  default     = {}
 }
