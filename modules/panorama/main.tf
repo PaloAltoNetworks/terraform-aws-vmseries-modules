@@ -29,6 +29,7 @@ resource "aws_instance" "this" {
   ebs_optimized                        = true
   monitoring                           = false
   iam_instance_profile                 = var.panorama_iam_role
+  metadata_options                     = var.panorama_instance_metadata_options
 
   root_block_device {
     delete_on_termination = true

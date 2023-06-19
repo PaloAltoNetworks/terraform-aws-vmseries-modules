@@ -130,3 +130,9 @@ variable "panorama_iam_role" {
   description = "IAM Role attached to Panorama instance contained curated IAM Policy."
   type        = string
 }
+
+variable "panorama_instance_metadata_options" {
+  description = "Metadata of the panorama instance"
+  type        = map(any)
+  default     = {}
+}
