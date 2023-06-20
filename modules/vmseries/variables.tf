@@ -146,5 +146,5 @@ variable "enable_instance_termination_protection" {
   Whether to enable termination protection on the EC2 instance.
   EOF
   default     = false
-  type        = string
+  type        = bool
 }
