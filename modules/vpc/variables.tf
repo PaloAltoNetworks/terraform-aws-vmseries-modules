@@ -125,6 +125,7 @@ variable "security_groups" {
       - `type`: Specifies if rule will be evaluated on ingress (inbound) or egress (outbound) traffic.
       - `cidr_blocks`: List of CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress
       Determines the traffic that can leave your instance, and where it can go.
+      - `prefix_list_ids`: List of Prefix List IDs
 
 
   Example:
@@ -152,6 +153,11 @@ variable "security_groups" {
           description = "Permit SSH for VM-Series Management from known public IPs"
           type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
           cidr_blocks = ["100.100.100.100/32"]
+        }
+        https-inbound-prefix-list = {
+          description = "Permit HTTPS for VM-Series Management for IPs in managed prefix list"
+          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+          prefix_list_ids = ["pl-1a2b3c4d5e6f7g8h9i"]
         }
       }
     }

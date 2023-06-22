@@ -177,11 +177,12 @@ resource "aws_security_group" "this" {
     ]
 
     content {
-      from_port   = ingress.value.from_port
-      to_port     = ingress.value.to_port
-      protocol    = ingress.value.protocol
-      cidr_blocks = ingress.value.cidr_blocks
-      description = lookup(ingress.value, "description", "")
+      from_port       = ingress.value.from_port
+      to_port         = ingress.value.to_port
+      protocol        = ingress.value.protocol
+      cidr_blocks     = try(ingress.value.cidr_blocks, null)
+      prefix_list_ids = try(ingress.value.prefix_list_ids, null)
+      description     = lookup(ingress.value, "description", "")
     }
   }
 
@@ -193,11 +194,12 @@ resource "aws_security_group" "this" {
     ]
 
     content {
-      from_port   = egress.value.from_port
-      to_port     = egress.value.to_port
-      protocol    = egress.value.protocol
-      cidr_blocks = egress.value.cidr_blocks
-      description = lookup(egress.value, "description", "")
+      from_port       = egress.value.from_port
+      to_port         = egress.value.to_port
+      protocol        = egress.value.protocol
+      cidr_blocks     = try(egress.value.cidr_blocks, null)
+      prefix_list_ids = try(egress.value.prefix_list_ids, null)
+      description     = lookup(egress.value, "description", "")
     }
   }
 
