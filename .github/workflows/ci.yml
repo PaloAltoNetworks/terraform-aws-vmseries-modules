@@ -77,7 +77,7 @@ jobs:
           python-version: 3.8
       - name: Test with Checkov
         id: checkov
-        uses: bridgecrewio/checkov-action@v12.2398.0
+        uses: bridgecrewio/checkov-action@master
         with:
           directory: .
           framework: terraform 

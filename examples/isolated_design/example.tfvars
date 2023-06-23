@@ -8,6 +8,7 @@ global_tags = {
   Owner       = "PS Team"
 }
 
+### Fake commant
 ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
