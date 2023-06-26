@@ -78,7 +78,6 @@ runs:
       env:
         TPATH: ${{ inputs.path }}
         UUID: ${{ steps.uuid.outputs.uuid }}
-        IDEMPOTENCE: ${{ inputs.idempotence }}
       shell: bash
       run: |
         cd "$GITHUB_WORKSPACE/$TPATH"
