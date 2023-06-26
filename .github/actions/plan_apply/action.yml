@@ -1,0 +1,83 @@
+name: 'TF plan/apply'
+description: 'Runs Terraform plan and/or apply for a specified path.'
+inputs:
+  tf_version:
+    description: 'TF version used.'
+    required: true
+  path:
+    description: 'Path to Terraform module.'
+    required: true
+  do_apply:
+    description: When set to true runs also apply
+    type: boolean
+    default: false
+  idempotence:
+    description: When set to true runs plan to on already applied configuration
+    type: boolean
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.tf_version }}
+         # below settings is required for Terratest (details are in https://github.com/gruntwork-io/terratest/issues/706)
+        terraform_wrapper: false
+
+    - name: set UUID and provider values value
+      id: uuid
+      shell: bash
+      env:
+        TPATH: ${{ inputs.path }}
+      run: |
+        echo "uuid=$(uuidgen | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ env.ASSUME_ROLE }}
+        role-session-name: gh-action-role-session
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: plan infrastructure
+      id: plan
+      if: inputs.do_apply == 'false'
+      env:
+        TPATH: ${{ inputs.path }}
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        echo "::group::TERRAFORM PLAN"
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        DO_APPLY=0 make test
+        echo "::endgroup::"
+
+    - name: create infrastructure
+      id: apply
+      if: inputs.do_apply == 'true'
+      env:
+        TPATH: ${{ inputs.path }}
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        echo "::group::TERRAFORM APPLY"
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        DO_APPLY=1 make test
+        echo "::endgroup::"
+
+    - name: run destroy
+      id: destroy
+      if: always() && inputs.do_apply == 'true'
+      env:
+        TPATH: ${{ inputs.path }}
+        UUID: ${{ steps.uuid.outputs.uuid }}
+        IDEMPOTENCE: ${{ inputs.idempotence }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        echo "::group::TERRAFORM DESTROY"
+        make destroy
+        echo "::endgroup::"
