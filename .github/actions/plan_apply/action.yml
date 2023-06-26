@@ -16,6 +16,11 @@ inputs:
     type: boolean
     default: true
 
+# TODO: it's temporary solution until in repository settings -> secrets and variables -> variables
+# there will be defined new repository variable AWS_REGION
+env:
+  AWS_REGION : "us-east-1"
+
 runs:
   using: "composite"
   steps:
