@@ -36,7 +36,7 @@ func TestExampleCentralizedDesign(t *testing.T) {
 	// prepare list of items to check
 	assertList := []testskeleton.AssertExpression{}
 
-	// if DO_APPLY is not empty and equal 1, then Terraform apply is used, in other case only Terraform plan
+	// if DO_APPLY is not empty and equal true, then Terraform apply is used, in other case only Terraform plan
 	if os.Getenv("DO_APPLY") == "true" {
 		// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
 		testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
