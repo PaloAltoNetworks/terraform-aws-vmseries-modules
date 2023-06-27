@@ -21,6 +21,6 @@ jobs:
       cloud: aws
       max_parallel: 10
       tf_version: 1.2 1.3 1.4 1.5
-      do_apply: false # Temporary we don't deploy examples by setting this on `true` until we decide if we need on release deploy every example using every Terraform version
+      do_apply: true
       fail_fast: false
       apply_timeout: 120
