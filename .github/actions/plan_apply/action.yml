@@ -38,31 +38,19 @@ runs:
       env:
         AWS_REGION : "us-east-1"
 
-    - name: plan infrastructure
-      id: plan
-      if: inputs.do_apply == 'false'
+    - name: test infrastructure
+      id: test
       env:
         TPATH: ${{ inputs.path }}
+        DO_APPLY: ${{ inputs.do_apply }}
       shell: bash
       run: |
-        echo "::group::TERRAFORM PLAN"
+        echo "::group::TERRATEST"
         cd "$GITHUB_WORKSPACE/$TPATH"
-        DO_APPLY=0 make test
+        DO_APPLY=$DO_APPLY make test
         echo "::endgroup::"
 
-    - name: create infrastructure
-      id: apply
-      if: inputs.do_apply == 'true'
-      env:
-        TPATH: ${{ inputs.path }}
-      shell: bash
-      run: |
-        echo "::group::TERRAFORM APPLY"
-        cd "$GITHUB_WORKSPACE/$TPATH"
-        DO_APPLY=1 make test
-        echo "::endgroup::"
-
-    - name: run destroy
+    - name: destroy
       id: destroy
       if: always() && inputs.do_apply == 'true'
       env:
