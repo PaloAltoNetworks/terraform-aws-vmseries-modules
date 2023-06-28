@@ -24,9 +24,8 @@ func TestExampleStandaloneVmseries(t *testing.T) {
 		TerraformDir: ".",
 		VarFiles:     []string{"example.tfvars"},
 		Vars: map[string]interface{}{
-			"name_prefix":       namePrefix,
-			"ssh_key_name":      "test-ssh-key",
-			"ebs_kms_key_alias": "alias/aws/ebs",
+			"name_prefix":  namePrefix,
+			"ssh_key_name": "test-ssh-key",
 		},
 		Logger:               logger.Default,
 		Lock:                 true,
