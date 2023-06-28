@@ -336,5 +336,5 @@ module "vm_series_asg" {
   scaling_target_value         = each.value.scaling_plan.target_value
   scaling_statistic            = each.value.scaling_plan.statistic
   scaling_cloudwatch_namespace = each.value.scaling_plan.cloudwatch_namespace
-  scaling_tags                 = each.value.scaling_plan.tags
+  scaling_tags                 = merge(each.value.scaling_plan.tags, { prefix : var.name_prefix })
 }
