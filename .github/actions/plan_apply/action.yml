@@ -28,7 +28,7 @@ runs:
         terraform_wrapper: false
 
     - name: configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ env.ASSUME_ROLE }}
         role-session-name: gh-action-role-session
