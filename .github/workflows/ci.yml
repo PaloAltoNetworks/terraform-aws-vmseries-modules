@@ -79,6 +79,7 @@ jobs:
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
+          output_format: cli
           directory: .
           framework: terraform 
           compact: true
