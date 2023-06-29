@@ -140,3 +140,11 @@ variable "enable_imdsv2" {
   default     = false
   type        = string
 }
+
+variable "enable_instance_termination_protection" {
+  description = <<-EOF
+  Whether to enable termination protection on the EC2 instance.
+  EOF
+  default     = false
+  type        = bool
+}
