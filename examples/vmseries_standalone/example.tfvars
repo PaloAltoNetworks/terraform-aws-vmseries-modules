@@ -84,6 +84,7 @@ vmseries = {
     interfaces = {
       mgmt = {
         device_index      = 0
+        private_ip        = "10.100.0.4"
         security_group    = "vmseries_mgmt"
         vpc_subnet        = "security_vpc-mgmt"
         create_public_ip  = true

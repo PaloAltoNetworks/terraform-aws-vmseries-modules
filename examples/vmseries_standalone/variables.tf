@@ -159,6 +159,7 @@ variable "vmseries" {
       interfaces = {
         mgmt = {
           device_index      = 1
+          private_ip        = "10.100.0.4"
           security_group    = "vmseries_mgmt"
           vpc_subnet        = "security_vpc-mgmt"
           create_public_ip  = true
@@ -191,6 +192,7 @@ variable "vmseries" {
 
     interfaces = map(object({
       device_index      = number
+      private_ip        = string
       security_group    = string
       vpc_subnet        = string
       create_public_ip  = bool

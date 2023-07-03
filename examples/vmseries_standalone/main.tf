@@ -140,6 +140,7 @@ module "vmseries" {
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
       device_index       = v.device_index
+      private_ips        = [v.private_ip]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
