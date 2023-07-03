@@ -3,7 +3,7 @@ show_in_hub: false
 ---
 # Palo Alto Networks VM-Series example
 
-A Terraform example for deploying a one or more instances of VM-Series in one or more VPCs in AWS Cloud using the [User Data](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/choose-a-bootstrap-method) bootstrap method.
+A Terraform example for deploying a one or more instances of VM-Series in one or more VPCs in AWS Cloud.
 
 This example can be used to familarize oneself with both the VM-Series NGFW  and Terraform - it creates a single instance of virtualized firewall in a Security VPC with a management-only interface and lacks any traffic inspection.
 
@@ -26,6 +26,10 @@ The topology consists of :
 ## PAN-OS software version
 
 Example was prepared for PAN-OS in **10.2.3** version. For more information about recommended software versions see [Support PAN-OS Software Release Guidance](https://pandocs.tech/fw/184p-link3).
+
+## Bootstrap
+
+Terraform example is deploying VM-Series using the [User Data](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/choose-a-bootstrap-method) bootstrap method. More information about possible options, which can be configured in Uset Data, can be found in [table describing the bootstrap parameters](https://docs.paloaltonetworks.com/vm-series/10-2/vm-series-deployment/bootstrap-the-vm-series-firewall/create-the-init-cfgtxt-file/init-cfgtxt-file-components).
 
 ## Prerequisites
 
