@@ -12,6 +12,14 @@ For a more complex scenario of using the `vmseries` module - including traffic i
 **NOTE:**
 The Security Group attached to the Management interface uses an inbound rule allowing traffic to port `22` and `443` from `0.0.0.0/0`, which means that SSH and HTTP access to the NFGW is possible from all over the Internet. You should update the Security Group rules and limit access to the Management interface, for example - to only the public IP address from which you will connect to VM-Series.
 
+## Topology
+
+The topology consists of :
+ - VPC with 1 subnet in 1 availability zones
+ - 1 VM-Series instances with a public IP address and static private IP address
+
+ ![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/9e41457a-0465-4e73-8a4a-8ab20e4cf3ad)
+
 ## Usage
 
 Create a `terraform.tfvars` file and copy the content of `example.tfvars` into it, adjust if needed.
