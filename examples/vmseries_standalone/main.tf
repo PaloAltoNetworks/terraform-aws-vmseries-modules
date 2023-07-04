@@ -148,7 +148,7 @@ module "vmseries" {
     }
   }
 
-  bootstrap_options = join(";", compact(concat(local.bootstrap_options[each.value.group])))
+  bootstrap_options = join(";", compact(concat(local.bootstrap_options[each.value.group], ["hostname=${var.name_prefix}${each.key}"])))
 
   iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   ssh_key_name         = var.ssh_key_name

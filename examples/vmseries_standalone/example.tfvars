@@ -67,12 +67,12 @@ vmseries = {
 
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
-      mgmt-interface-swap         = "enable"
-      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
-      dhcp-send-hostname          = "yes"                                                                                # TODO: update here
-      dhcp-send-client-id         = "yes"                                                                                # TODO: update here
-      dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
-      dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
+      mgmt-interface-swap         = "disable"
+      plugin-op-commands          = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
+      dhcp-send-hostname          = "no"                                                      # TODO: update here
+      dhcp-send-client-id         = "no"                                                      # TODO: update here
+      dhcp-accept-server-hostname = "no"                                                      # TODO: update here
+      dhcp-accept-server-domain   = "no"                                                      # TODO: update here
     }
 
     panos_version = "10.2.3"        # TODO: update here
