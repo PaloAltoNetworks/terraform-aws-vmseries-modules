@@ -1,7 +1,7 @@
 module "security_vpc" {
   source = "../../modules/vpc"
 
-  name                    = var.security_vpc_name
+  name                    = "${var.name_prefix}${var.security_vpc_name}"
   cidr_block              = var.security_vpc_cidr
   security_groups         = var.security_vpc_security_groups
   create_internet_gateway = true
@@ -18,14 +18,25 @@ module "security_subnet_sets" {
   name                = each.key
   vpc_id              = module.security_vpc.id
   has_secondary_cidrs = module.security_vpc.has_secondary_cidrs
-  cidrs               = { for k, v in var.security_vpc_subnets : k => v if v.set == each.key }
+  nacl_associations = {
+    for i in flatten([
+      for k, v in var.security_vpc_subnets :
+      {
+        az : v.az,
+        nacl_id : lookup(module.security_vpc.nacl_ids, v.nacl, null)
+      } if v.nacl != null && v.set == each.key
+    ]) : i.az => i.nacl_id
+  }
+  cidrs = {
+    for k, v in var.security_vpc_subnets : k => v if v.set == each.key
+  }
 }
 
 module "vmseries" {
   for_each = var.vmseries
   source   = "../../modules/vmseries"
 
-  name              = var.name
+  name              = "${var.name_prefix}vmseries"
   ssh_key_name      = var.ssh_key_name
   bootstrap_options = var.bootstrap_options
   ebs_kms_key_alias = var.ebs_kms_key_alias

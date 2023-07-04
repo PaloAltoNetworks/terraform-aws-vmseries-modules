@@ -8,3 +8,7 @@ terraform {
     }
   }
 }
+
+provider "aws" {
+  alias = "remote"
+}

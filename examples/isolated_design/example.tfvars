@@ -167,12 +167,12 @@ vpcs = {
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
       }
-      mgmt_panorama = {
-        vpc_subnet    = "security_vpc-mgmt"
-        to_cidr       = "10.255.0.0/24"
-        next_hop_key  = "security_vpc_panorama"
-        next_hop_type = "vpc_peer"
-      }
+      # mgmt_panorama = {
+      #   vpc_subnet    = "security_vpc-mgmt"
+      #   to_cidr       = "10.255.0.0/24"
+      #   next_hop_key  = "security_vpc_panorama"
+      #   next_hop_type = "vpc_peer"
+      # }
       public_default = {
         vpc_subnet    = "security_vpc-public"
         to_cidr       = "0.0.0.0/0"
@@ -473,7 +473,7 @@ vmseries = {
 ### PANORAMA
 panorama_connection = {
   security_vpc   = "security_vpc"
-  peering_vpc_id = "vpc-123456789" # TODO: update here
+  peering_vpc_id = null            # TODO: update here
   vpc_cidr       = "10.255.0.0/24" # TODO: update here
 }
 

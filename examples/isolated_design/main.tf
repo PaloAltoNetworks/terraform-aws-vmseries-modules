@@ -49,6 +49,7 @@ module "subnet_sets" {
 ### VPC PEERINGS ###
 
 resource "aws_vpc_peering_connection" "this" {
+  count       = var.panorama_connection.peering_vpc_id != null ? 1 : 0
   peer_vpc_id = var.panorama_connection.peering_vpc_id
   vpc_id      = module.vpc[var.panorama_connection.security_vpc].id
   auto_accept = true
@@ -116,9 +117,9 @@ locals {
         next_hop_set = (
           rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
             rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : (
-              rv.next_hop_type == "vpc_peer" ? {
+              rv.next_hop_type == "vpc_peer" && var.panorama_connection.peering_vpc_id != null ? {
                 type = "vpc_peer"
-                id   = aws_vpc_peering_connection.this.id
+                id   = aws_vpc_peering_connection.this[0].id
                 ids  = {}
               } : null
             )

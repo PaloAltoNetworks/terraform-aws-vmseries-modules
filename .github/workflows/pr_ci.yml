@@ -1,0 +1,29 @@
+name: PR CI
+run-name: "CI pipeline for PR - (#${{ github.event.number }}) ${{ github.event.pull_request.title }}"
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches: ['main']
+
+jobs:
+  pr_ci_wrkflw:
+    name: Run CI
+    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/pr_ci.yml@v1.2.0
+    if: github.actor != 'dependabot[bot]'
+    secrets: inherit
+    with:
+      cloud: aws
+      tf_version: 1.2 1.3 1.4 1.5
+      do_apply: false
+      fail_fast: false
+      apply_timeout: 120
