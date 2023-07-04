@@ -1,0 +1,63 @@
+name: 'TF plan/apply'
+description: 'Runs Terraform plan and/or apply for a specified path.'
+inputs:
+  tf_version:
+    description: 'TF version used.'
+    required: true
+  path:
+    description: 'Path to Terraform module.'
+    required: true
+  do_apply:
+    description: When set to true runs also apply
+    type: boolean
+    default: false
+  idempotence:
+    description: When set to true runs plan to on already applied configuration
+    type: boolean
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.tf_version }}
+         # below settings is required for Terratest (details are in https://github.com/gruntwork-io/terratest/issues/706)
+        terraform_wrapper: false
+
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ env.ASSUME_ROLE }}
+        role-session-name: gh-action-role-session
+        aws-region: ${{ env.AWS_REGION }}
+      # TODO: it's temporary solution until in repository settings -> secrets and variables -> variables
+      # there will be defined new repository variable AWS_REGION
+      env:
+        AWS_REGION : "us-east-1"
+
+    - name: test infrastructure
+      id: test
+      env:
+        TPATH: ${{ inputs.path }}
+        DO_APPLY: ${{ inputs.do_apply }}
+      shell: bash
+      run: |
+        echo "::group::TERRATEST"
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        DO_APPLY=$DO_APPLY make test
+        echo "::endgroup::"
+
+    - name: destroy
+      id: destroy
+      if: always() && inputs.do_apply == 'true'
+      env:
+        TPATH: ${{ inputs.path }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        echo "::group::TERRAFORM DESTROY"
+        make destroy
+        echo "::endgroup::"

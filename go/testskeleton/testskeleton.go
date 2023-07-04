@@ -275,9 +275,13 @@ func PlanInfraCheckErrors(t *testing.T, terraformOptions *terraform.Options,
 
 	// Terraform initalization and plan
 	if _, err := terraform.InitAndPlanE(t, terraformOptions); err != nil {
-		// Verify errors and compare to expected results
-		assert.Error(t, err)
-		AssertErrors(t, err, assertList)
+		if len(assertList) > 0 {
+			// Verify errors and compare to expected results
+			assert.Error(t, err)
+			AssertErrors(t, err, assertList)
+		} else {
+			t.Error(noErrorsMessage)
+		}
 	} else {
 		// Fail test, if errors were expected
 		if len(assertList) > 0 {
