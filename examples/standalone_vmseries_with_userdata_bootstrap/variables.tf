@@ -1,5 +1,5 @@
 variable "region" {}
-variable "name" {}
+variable "name_prefix" {}
 variable "global_tags" {}
 variable "security_vpc_name" {}
 variable "security_vpc_cidr" {}
