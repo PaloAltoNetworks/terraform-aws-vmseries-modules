@@ -131,4 +131,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_lb_fqdn"></a> [lb\_fqdn](#output\_lb\_fqdn) | A FQDN for the Load Balancer. |
+| <a name="output_target_group"></a> [target\_group](#output\_target\_group) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

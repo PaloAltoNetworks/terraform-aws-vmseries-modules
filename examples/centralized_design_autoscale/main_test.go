@@ -12,7 +12,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestExampleIsolatedAutoscaleDesign(t *testing.T) {
+func TestExampleCentralizedAutoscaleDesign(t *testing.T) {
 	// prepare random prefix
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)

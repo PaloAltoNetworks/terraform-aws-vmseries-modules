@@ -13,6 +13,7 @@ locals {
         app_name                 = k
         port                     = l_v.target_port
         proto                    = l_v.target_protocol
+        target_type              = try(v.target_type, "ip")
         proto_v                  = try(l_v.target_protocol_version, null)
         h_ch_healthy_threshold   = try(v.health_check_healthy_threshold, null)
         h_ch_unhealthy_threshold = try(v.health_check_unhealthy_threshold, null)
@@ -50,6 +51,7 @@ locals {
       port                     = v.port
       proto                    = v.proto
       proto_v                  = v.proto_v
+      target_type              = v.target_type
       h_ch_healthy_threshold   = v.h_ch_healthy_threshold
       h_ch_unhealthy_threshold = v.h_ch_unhealthy_threshold
       h_ch_interval            = v.h_ch_interval
@@ -66,6 +68,7 @@ locals {
       port                     = v.port
       proto                    = v.proto
       proto_v                  = v.proto_v
+      target_type              = v.target_type
       h_ch_healthy_threshold   = v.h_ch_healthy_threshold
       h_ch_unhealthy_threshold = v.h_ch_unhealthy_threshold
       h_ch_interval            = v.h_ch_interval
@@ -218,7 +221,7 @@ resource "aws_lb_target_group" "this" {
   port                          = each.value.port
   protocol                      = each.value.proto
   protocol_version              = each.value.proto_v
-  target_type                   = "ip"
+  target_type                   = each.value.target_type
   load_balancing_algorithm_type = each.value.lb_algorithm
 
   health_check {

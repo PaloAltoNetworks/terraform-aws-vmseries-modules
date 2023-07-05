@@ -109,6 +109,12 @@ variable "target_group_arn" {
   default     = null
 }
 
+variable "target_group_arns" {
+  description = "ARNs of target groups for load balancers"
+  type        = list(string)
+  default     = []
+}
+
 variable "lifecycle_hook_timeout" {
   description = "How long should we wait for lambda to finish"
   type        = number
