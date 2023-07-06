@@ -331,7 +331,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         Internally function is using:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.register_targets
 
-        :param target_group_arns: ARNs of target group for GWLB
+        :param ip_target_groups: List target group to which IP of untrust interface needs to be added
         :param instance_id: EC2 Instance id
         :return: none
         """
@@ -356,7 +356,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         Internally function is using:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.deregister_targets
 
-        :param target_group_ars: ARNs of target group for GWLB
+        :param ip_target_groups: List target group to which IP of untrust interface needs to be removed
         :param instance_id: EC2 Instance id
         :return: none
         """
