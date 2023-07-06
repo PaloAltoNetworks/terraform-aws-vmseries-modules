@@ -95,12 +95,12 @@ vpcs = {
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here
           }
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here
           }
           panorama_ssh = {
             description = "Permit Panorama SSH (Optional)"
@@ -130,17 +130,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           health_probe_8081 = {
             description = "Permit Port 8081 Health Probe to ALB"
@@ -305,17 +305,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
         }
       }
@@ -366,17 +366,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
           }
         }
       }
