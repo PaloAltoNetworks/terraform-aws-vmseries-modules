@@ -325,6 +325,29 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         except ClientError as e:
             self.logger.error(f"Error completing life cycle hook for instance: {e.response['Error']['Code']}")
 
+    def ip_untrust_interface(self, instance_id: str):
+        """
+        Function is getting IP address of untrust interface (with device index equal 2).
+        Internally function is using:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2/client/describe_network_interfaces.html
+
+        :param instance_id: EC2 Instance id
+        :return: none
+        """
+        description = self.ec2_client.describe_network_interfaces(
+            Filters=[
+                {
+                    'Name': 'attachment.instance-id',
+                    'Values': [instance_id]
+                },
+                {
+                    'Name': 'attachment.device-index',
+                    'Values': ['2']
+                }
+            ]
+        )
+        return description['NetworkInterfaces'][0]['PrivateIpAddress']
+
     def register_untrust_ip_as_target(self, ip_target_groups: list, instance_id: str):
         """
         Function is registering IP of untrust interface in target groups for autoscaling.
@@ -335,8 +358,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_id: EC2 Instance id
         :return: none
         """
-        _, _, network_interfaces = self.inspect_ec2_instance(instance_id)
-        untrust_ip = network_interfaces[2]['PrivateIpAddress']
+        untrust_ip = self.ip_untrust_interface(instance_id)
 
         for target_group in ip_target_groups:
             self.logger.info(f"Register target with IP {untrust_ip} in target group {target_group['arn']}")
@@ -360,8 +382,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_id: EC2 Instance id
         :return: none
         """
-        _, _, network_interfaces = self.inspect_ec2_instance(instance_id)
-        untrust_ip = network_interfaces[2]['PrivateIpAddress']
+        untrust_ip = self.ip_untrust_interface(instance_id)
         
         for target_group in ip_target_groups:
             self.logger.info(f"Deregister target with IP {untrust_ip} in target group {target_group['arn']}")
