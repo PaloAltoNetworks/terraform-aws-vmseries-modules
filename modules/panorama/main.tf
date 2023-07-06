@@ -30,6 +30,14 @@ resource "aws_instance" "this" {
   monitoring                           = false
   iam_instance_profile                 = var.panorama_iam_role
 
+  dynamic "metadata_options" {
+    for_each = var.enable_imdsv2 ? [1] : []
+    content {
+      http_endpoint = "enabled"
+      http_tokens   = "required"
+    }
+  }
+
   root_block_device {
     delete_on_termination = true
   }
