@@ -22,6 +22,10 @@ This design supports interconnecting a large number of VPCs, with a scalable sol
 
 ![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/47d0ec0b-9080-4af2-b82b-0445e6910975)
 
+### Auto Scaling VM-Series
+
+Auto scaling: Public-cloud environments focus on scaling out a deployment instead of scaling up. This architectural difference stems primarily from the capability of public-cloud environments to dynamically increase or decrease the number of resources allocated to your environment. Using native AWS services like CloudWatch, auto scaling groups (ASG) and VM-Series automation features, the guide implements VM-Series that will scale in and out dynamically, as your protected workload demands fluctuate. The VM-Series firewalls are deployed in an auto scaling group, and are automatically registered to a Gateway Load Balancer. While bootstrapping the VM-Series, there are associations made automatically between VM-Series subinterfaces and the GWLB endpoints. Each VM-Series contains multiple network interfaces created by an AWS Lambda function.
+
 ## Prerequisites
 
 The following steps should be followed before deploying the Terraform code presented here.
@@ -45,6 +49,84 @@ In example VM-Series are licensed using [Panorama-Based Software Firewall Licens
 5. Prepare plan: `terraform plan`
 6. Deploy infrastructure: `terraform apply -auto-approve`
 7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
+
+## Additional Reading
+
+### Lambda function
+
+[Lambda function](../../modules/asg/lambda.py) is used to handle correct lifecycle action:
+* instance launch or
+* instance terminate
+
+In case of creating VM-Series, there are performed below actions, which cannot be achieved in AWS launch template:
+* change setting `source_dest_check` for first network interface (data plane)
+* setup additional network interfaces (with optional possibility to attach EIP)
+
+In case of destroying VM-Series, there is performed below action:
+* clean EIP
+
+Moreover having Lambda function executed while scaling out or in gives more options for extension e.g. delicesning VM-Series just after terminating instance.
+
+### Autoscaling
+
+[AWS Auto Scaling](https://aws.amazon.com/autoscaling/) monitors VM-Series and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost. For autoscaling there are 10 metrics available from `vmseries` plugin:
+
+- `DataPlaneCPUUtilizationPct`
+- `DataPlanePacketBufferUtilization`
+- `panGPGatewayUtilizationPct`
+- `panGPGWUtilizationActiveTunnels`
+- `panSessionActive`
+- `panSessionConnectionsPerSecond`
+- `panSessionSslProxyUtilization`
+- `panSessionThroughputKbps`
+- `panSessionThroughputPps`
+- `panSessionUtilization`
+
+Using that metrics there can be configured different [scaling plans](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan). Below there are some examples, which can be used. All examples are based on target tracking configuration in scaling plan. Below code is already embedded into [asg module](../../modules/asg/main.tf):
+
+```
+  scaling_instruction {
+    max_capacity       = var.max_size
+    min_capacity       = var.min_size
+    resource_id        = format("autoScalingGroup/%s", aws_autoscaling_group.this.name)
+    scalable_dimension = "autoscaling:autoScalingGroup:DesiredCapacity"
+    service_namespace  = "autoscaling"
+    target_tracking_configuration {
+      customized_scaling_metric_specification {
+        metric_name = var.scaling_metric_name
+        namespace   = var.scaling_cloudwatch_namespace
+        statistic   = var.scaling_statistic
+      }
+      target_value = var.scaling_target_value
+    }
+  }
+```
+
+Using metrics from ``vmseries`` plugin we can defined multiple scaling configurations e.g.:
+
+- based on number of active sessions:
+
+```
+metric_name  = "panSessionActive"
+target_value = 75
+statistic    = "Average"
+```
+
+- based on data plane CPU utilization and average value above 75%:
+
+```
+metric_name  = "DataPlaneCPUUtilizationPct"
+target_value = 75
+statistic    = "Average"
+```
+
+- based on data plane packet buffer utilization and max value above 80%
+
+```
+metric_name  = "DataPlanePacketBufferUtilization"
+target_value = 80
+statistic    = "Maximum"
+```
 
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

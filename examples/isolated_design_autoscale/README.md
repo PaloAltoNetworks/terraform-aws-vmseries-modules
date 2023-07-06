@@ -15,7 +15,6 @@ The Terraform code presented here will deploy Palo Alto Networks VM-Series firew
 This code implements:
 - an _isolated design_, which secures outbound and inbound traffic flows using AWS Gateway Load Balancer (GWLB). Application resources are segmented across multiple VPCs that distribute traffic to the dedicated VPC for security services where the VM-Series are deployed.
 
-
 ## Detailed Architecture and Design
 
 ### Isolated Design
@@ -86,6 +85,84 @@ load config partial mode merge from-xpath /config/devices/entry/template/entry[@
 5. Prepare plan: `terraform plan`
 6. Deploy infrastructure: `terraform apply -auto-approve`
 7. Destroy infrastructure if needed: `terraform destroy -auto-approve`
+
+## Additional Reading
+
+### Lambda function
+
+[Lambda function](../../modules/asg/lambda.py) is used to handle correct lifecycle action:
+* instance launch or
+* instance terminate
+
+In case of creating VM-Series, there are performed below actions, which cannot be achieved in AWS launch template:
+* change setting `source_dest_check` for first network interface (data plane)
+* setup additional network interfaces (with optional possibility to attach EIP)
+
+In case of destroying VM-Series, there is performed below action:
+* clean EIP
+
+Moreover having Lambda function executed while scaling out or in gives more options for extension e.g. delicesning VM-Series just after terminating instance.
+
+### Autoscaling
+
+[AWS Auto Scaling](https://aws.amazon.com/autoscaling/) monitors VM-Series and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost. For autoscaling there are 10 metrics available from `vmseries` plugin:
+
+- `DataPlaneCPUUtilizationPct`
+- `DataPlanePacketBufferUtilization`
+- `panGPGatewayUtilizationPct`
+- `panGPGWUtilizationActiveTunnels`
+- `panSessionActive`
+- `panSessionConnectionsPerSecond`
+- `panSessionSslProxyUtilization`
+- `panSessionThroughputKbps`
+- `panSessionThroughputPps`
+- `panSessionUtilization`
+
+Using that metrics there can be configured different [scaling plans](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan). Below there are some examples, which can be used. All examples are based on target tracking configuration in scaling plan. Below code is already embedded into [asg module](../../modules/asg/main.tf):
+
+```
+  scaling_instruction {
+    max_capacity       = var.max_size
+    min_capacity       = var.min_size
+    resource_id        = format("autoScalingGroup/%s", aws_autoscaling_group.this.name)
+    scalable_dimension = "autoscaling:autoScalingGroup:DesiredCapacity"
+    service_namespace  = "autoscaling"
+    target_tracking_configuration {
+      customized_scaling_metric_specification {
+        metric_name = var.scaling_metric_name
+        namespace   = var.scaling_cloudwatch_namespace
+        statistic   = var.scaling_statistic
+      }
+      target_value = var.scaling_target_value
+    }
+  }
+```
+
+Using metrics from ``vmseries`` plugin we can defined multiple scaling configurations e.g.:
+
+- based on number of active sessions:
+
+```
+metric_name  = "panSessionActive"
+target_value = 75
+statistic    = "Average"
+```
+
+- based on data plane CPU utilization and average value above 75%:
+
+```
+metric_name  = "DataPlaneCPUUtilizationPct"
+target_value = 75
+statistic    = "Average"
+```
+
+- based on data plane packet buffer utilization and max value above 80%
+
+```
+metric_name  = "DataPlanePacketBufferUtilization"
+target_value = 80
+statistic    = "Maximum"
+```
 
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
