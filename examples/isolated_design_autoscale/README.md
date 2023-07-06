@@ -23,7 +23,7 @@ The Isolated Design model centralizes the security instances in a dedicated secu
 
 Inbound traffic originates outside the VPC and is destined to applications or services hosted within your VPCs, such as web servers. This design uses the GWLB and VM-Series firewalls in the security VPC, with GWLB endpoints in the application VPCs for the transparent inspection of inbound traffic.
 
-![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/8527796a-9e26-48bd-b903-11e118efc611)
+![](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/06c9c5f3-eb4f-4636-bbbc-c45d0e8b0290)
 
 ### Auto Scaling VM-Series
 
