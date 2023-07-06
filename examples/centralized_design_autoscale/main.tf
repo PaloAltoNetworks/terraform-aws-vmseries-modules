@@ -327,11 +327,8 @@ module "vm_series_asg" {
       create_public_ip   = try(v.create_public_ip, false)
     }
   }
-  ebs_kms_id = each.value.ebs_kms_id
-  target_group_arns = concat([module.gwlb[each.value.gwlb].target_group.arn],
-    [for k, v in module.public_alb[each.key].target_group : v.arn],
-    [for k, v in module.public_nlb[each.key].target_group : v.arn],
-  )
+  ebs_kms_id        = each.value.ebs_kms_id
+  target_group_arn  = module.gwlb[each.value.gwlb].target_group.arn
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.key])))
 
   scaling_plan_enabled         = each.value.scaling_plan.enabled

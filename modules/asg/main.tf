@@ -76,7 +76,7 @@ resource "aws_autoscaling_group" "this" {
   desired_capacity    = var.desired_capacity
   max_size            = var.max_size
   min_size            = var.min_size
-  target_group_arns   = concat(compact([var.target_group_arn]), compact(var.target_group_arns))
+  target_group_arns   = [var.target_group_arn]
 
   dynamic "tag" {
     for_each = var.global_tags
