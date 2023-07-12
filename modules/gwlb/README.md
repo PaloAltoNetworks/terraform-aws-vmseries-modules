@@ -52,6 +52,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_allowed_principals"></a> [allowed\_principals](#input\_allowed\_principals) | List of AWS Principal ARNs who are allowed access to the GWLB Endpoint Service. For example `["arn:aws:iam::123456789000:root"]`. | `list(string)` | `[]` | no |
 | <a name="input_deregistration_delay"></a> [deregistration\_delay](#input\_deregistration\_delay) | See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#deregistration_delay). | `number` | `null` | no |
+| <a name="input_enable_lb_deletion_protection"></a> [enable\_lb\_deletion\_protection](#input\_enable\_lb\_deletion\_protection) | Whether to enable deletion protection on the gateway loadbalancer. | `bool` | `false` | no |
 | <a name="input_endpoint_service_tags"></a> [endpoint\_service\_tags](#input\_endpoint\_service\_tags) | Map of AWS tags to apply to the created GWLB Endpoint Service. These tags are applied after the `global_tags`. | `map(string)` | `{}` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of AWS tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_health_check_enabled"></a> [health\_check\_enabled](#input\_health\_check\_enabled) | See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#health_check). | `bool` | `null` | no |

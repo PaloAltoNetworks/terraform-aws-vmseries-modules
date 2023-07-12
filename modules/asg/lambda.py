@@ -29,6 +29,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         # Prepare boto3 clients for required services
         self.ec2_client = client('ec2', config=lambda_config)
         self.asg_client = client('autoscaling', config=lambda_config)
+        self.elbv2_client = client('elbv2', config=lambda_config)
         self.main(asg_event)
 
     def main(self, asg_event: dict):
@@ -42,14 +43,19 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         instance_id = asg_event["detail"]["EC2InstanceId"]
         instance_zone, subnet_id, network_interfaces = self.inspect_ec2_instance(instance_id)
 
+        # Load ARNs of target group from environment variable
+        ip_target_groups = loads(getenv('autoscaling_config')).get('ip_target_groups')
+
         # Depending on event type, take appropriate actions
         if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
             self.logger.info("Run launch mode.")
             self.disable_source_dest_check(network_interfaces[0]['NetworkInterfaceId'])
             self.setup_network_interfaces(instance_zone, subnet_id, instance_id)
+            self.register_untrust_ip_as_target(ip_target_groups, instance_id)
         elif event == "EC2 Instance-terminate Lifecycle Action":
             self.logger.info("Run cleanup mode.")
             self.clean_eip(network_interfaces, instance_id)
+            self.deregister_untrust_ip_as_target(ip_target_groups, instance_id)
         else:
             raise Exception(f"Event type cannot be handle! {event}")
 
@@ -318,6 +324,76 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             )
         except ClientError as e:
             self.logger.error(f"Error completing life cycle hook for instance: {e.response['Error']['Code']}")
+
+    def ip_untrust_interface(self, instance_id: str):
+        """
+        Function is getting IP address of untrust interface (with device index equal 2).
+        Internally function is using:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2/client/describe_network_interfaces.html
+
+        :param instance_id: EC2 Instance id
+        :return: none
+        """
+        description = self.ec2_client.describe_network_interfaces(
+            Filters=[
+                {
+                    'Name': 'attachment.instance-id',
+                    'Values': [instance_id]
+                },
+                {
+                    'Name': 'attachment.device-index',
+                    'Values': ['2']
+                }
+            ]
+        )
+        return description['NetworkInterfaces'][0]['PrivateIpAddress']
+
+    def register_untrust_ip_as_target(self, ip_target_groups: list, instance_id: str):
+        """
+        Function is registering IP of untrust interface in target groups for autoscaling.
+        Internally function is using:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.register_targets
+
+        :param ip_target_groups: List target group to which IP of untrust interface needs to be added
+        :param instance_id: EC2 Instance id
+        :return: none
+        """
+        untrust_ip = self.ip_untrust_interface(instance_id)
+
+        for target_group in ip_target_groups:
+            self.logger.info(f"Register target with IP {untrust_ip} in target group {target_group['arn']}")
+            self.elbv2_client.register_targets(
+                TargetGroupArn=target_group['arn'],
+                Targets=[
+                    {
+                        'Id': untrust_ip,
+                        'Port': int(target_group['port']),
+                    },
+                ]
+            )
+
+    def deregister_untrust_ip_as_target(self, ip_target_groups: list, instance_id: str):
+        """
+        Function is de-registering IP of untrust interface in target groups for autoscaling.
+        Internally function is using:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.deregister_targets
+
+        :param ip_target_groups: List target group to which IP of untrust interface needs to be removed
+        :param instance_id: EC2 Instance id
+        :return: none
+        """
+        untrust_ip = self.ip_untrust_interface(instance_id)
+        
+        for target_group in ip_target_groups:
+            self.logger.info(f"Deregister target with IP {untrust_ip} in target group {target_group['arn']}")
+            self.elbv2_client.deregister_targets(
+                TargetGroupArn=target_group['arn'],
+                Targets=[
+                    {
+                        'Id': untrust_ip,
+                    },
+                ]
+            )
 
 
 def lambda_handler(asg_event: dict, context: dict):

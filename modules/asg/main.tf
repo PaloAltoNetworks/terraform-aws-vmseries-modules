@@ -25,6 +25,10 @@ locals {
   default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
   default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
+
+  autoscaling_config = {
+    ip_target_groups = var.ip_target_groups
+  }
 }
 
 # Create launch template with a single interface
@@ -172,7 +176,9 @@ resource "aws_iam_role_policy" "this" {
                 "ec2:ModifyNetworkInterfaceAttribute",
                 "ec2:ReleaseAddress",
                 "autoscaling:CompleteLifecycleAction",
-                "autoscaling:DescribeAutoScalingGroups"
+                "autoscaling:DescribeAutoScalingGroups",
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:DeregisterTargets"
             ],
             "Effect": "Allow",
             "Resource": "*"
@@ -212,8 +218,9 @@ resource "aws_lambda_function" "this" {
   }
   environment {
     variables = {
-      lambda_config     = jsonencode({ region = var.region })
-      interfaces_config = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
+      lambda_config      = jsonencode({ region = var.region })
+      interfaces_config  = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
+      autoscaling_config = jsonencode(local.autoscaling_config)
     }
   }
   tags = var.global_tags
