@@ -67,6 +67,11 @@ resource "aws_launch_template" "this" {
       Name = "${var.name_prefix}vmseries"
     }
   }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
