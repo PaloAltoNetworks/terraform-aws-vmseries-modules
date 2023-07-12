@@ -177,11 +177,8 @@ variable "panoramas" {
         create_role = true
         role_name   = "panorama"
       }
-<<<<<<< HEAD
-=======
 
       enable_imdsv2 = false
->>>>>>> main
     }
   }
   ```
