@@ -40,6 +40,12 @@ variable "instance_type" {
   default     = "c5.4xlarge"
 }
 
+variable "ebs_encrypted" {
+  description = "Whether to enable EBS encryption on root volume."
+  default     = true
+  type        = bool
+}
+
 variable "availability_zone" {
   description = "Availability zone in which Panorama will be deployed."
   type        = string

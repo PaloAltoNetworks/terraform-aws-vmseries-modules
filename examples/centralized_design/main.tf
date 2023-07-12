@@ -191,6 +191,13 @@ data "aws_ami" "this" {
   owners = ["979382823631"] # bitnami = 979382823631
 }
 
+data "aws_ebs_default_kms_key" "current" {
+}
+
+data "aws_kms_alias" "current_arn" {
+  name = data.aws_ebs_default_kms_key.current.key_arn
+}
+
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
@@ -201,6 +208,12 @@ resource "aws_instance" "spoke_vms" {
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   ebs_optimized          = true
+
+  root_block_device {
+    delete_on_termination = true
+    encrypted             = true
+    kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
+  }
 
   metadata_options {
     http_endpoint = "enabled"
