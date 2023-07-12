@@ -104,9 +104,18 @@ variable "interfaces" {
 }
 
 variable "target_group_arn" {
-  description = "ARN of target group for load balancer"
+  description = "ARN of target group (type instance) for load balancer, which is used by ASG to register VM-Series instance"
   type        = string
   default     = null
+}
+
+variable "ip_target_groups" {
+  description = "Target groups (type IP) for load balancers, which are used by Lamda to register VM-Series IP of untrust interface"
+  type = list(object({
+    arn  = string
+    port = string
+  }))
+  default = []
 }
 
 variable "lifecycle_hook_timeout" {
@@ -147,7 +156,7 @@ variable "global_tags" {
 variable "lambda_timeout" {
   description = "Amount of time Lambda Function has to run in seconds."
   type        = number
-  default     = 10
+  default     = 30
 }
 
 variable "subnet_ids" {

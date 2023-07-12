@@ -129,6 +129,7 @@ variable "panoramas" {
   - `iam`: IAM settings in object with attrbiutes:
     - `create_role`: enable creation of IAM role
     - `role_name`: name of the role to create or use existing one
+  - `enable_imdsv2`: whether to enable IMDSv2 on the EC2 instance
 
   Example:
   ```
@@ -176,6 +177,11 @@ variable "panoramas" {
         create_role = true
         role_name   = "panorama"
       }
+<<<<<<< HEAD
+=======
+
+      enable_imdsv2 = false
+>>>>>>> main
     }
   }
   ```
@@ -210,5 +216,7 @@ variable "panoramas" {
       create_role = bool
       role_name   = string
     })
+
+    enable_imdsv2 = bool
   }))
 }

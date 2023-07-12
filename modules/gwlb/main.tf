@@ -7,7 +7,7 @@ resource "aws_lb" "this" {
   enable_cross_zone_load_balancing = true
   subnets                          = [for v in var.subnets : v.id]
   tags                             = merge(var.global_tags, { Name = var.name }, var.lb_tags)
-
+  enable_deletion_protection       = var.enable_lb_deletion_protection
   lifecycle {
     create_before_destroy = true
   }

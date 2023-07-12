@@ -149,3 +149,12 @@ variable "global_tags" {
   default     = {}
   type        = map(string)
 }
+
+
+variable "enable_lb_deletion_protection" {
+  description = <<-EOF
+  Whether to enable deletion protection on the gateway loadbalancer.
+  EOF
+  default     = false
+  type        = bool
+}
