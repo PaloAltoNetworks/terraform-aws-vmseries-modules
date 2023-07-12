@@ -157,6 +157,7 @@ module "panorama" {
   subnet_id              = module.subnet_sets[each.value.common.network.vpc_subnet].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.common.network.vpc].security_group_ids[each.value.common.network.security_group]]
   panorama_iam_role      = aws_iam_instance_profile.this[each.key].name
+  enable_imdsv2          = each.value.common.enable_imdsv2
 
   global_tags = var.global_tags
 

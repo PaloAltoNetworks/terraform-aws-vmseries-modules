@@ -102,5 +102,7 @@ panoramas = {
       create_role = true
       role_name   = "panorama"
     }
+
+    enable_imdsv2 = false
   }
 }
