@@ -99,7 +99,7 @@ resource "aws_iam_role_policy" "lambda_exec" {
                 "ec2:DescribeVpcs"
             ],
             "Resource": [
-                "*"
+                "arn:aws:ec2:*:*:*"
             ],
             "Effect": "Allow"
         }

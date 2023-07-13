@@ -96,7 +96,7 @@ resource "aws_iam_role_policy" "this" {
         {
             "Effect": "Allow",
             "Action": "ec2:Describe*",
-            "Resource": "*"
+            "Resource": "arn:aws:ec2:*:*:*"
         },
         {
             "Effect": "Allow",
@@ -105,7 +105,11 @@ resource "aws_iam_role_policy" "this" {
                 "cloudwatch:GetMetricStatistics",
                 "cloudwatch:Describe*"
             ],
-            "Resource": "*"
+            "Resource": [
+                "arn:aws:logs:*:*:*:*:*",
+                "arn:aws:logs:*:*:*",
+                "arn:aws:cloudwatch:*:*:*"
+            ]
         }
     ]
 }
