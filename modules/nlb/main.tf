@@ -47,7 +47,7 @@ resource "aws_lb" "this" {
   # The code below does the proper use of `subnets` and `subnet_mapping`
   # based on the use cases described above.
   #
-  # Generally, the decision is being made on a fact if we have a public Load Balancer 
+  # Generally, the decision is being made on a fact if we have a public Load Balancer
   # with dedicated EIPs or not.
   subnets = local.public_lb_with_eip ? null : [for k, v in var.subnets : v.id]
   dynamic "subnet_mapping" {
@@ -56,6 +56,16 @@ resource "aws_lb" "this" {
     content {
       subnet_id     = subnet_mapping.value.id
       allocation_id = aws_eip.this[subnet_mapping.key].id
+    }
+  }
+
+  dynamic "access_logs" {
+    for_each = var.configure_access_logs ? [1] : []
+
+    content {
+      bucket  = var.access_logs_byob ? data.aws_s3_bucket.this[0].id : aws_s3_bucket.this[0].id
+      prefix  = var.access_logs_s3_bucket_prefix
+      enabled = true
     }
   }
 

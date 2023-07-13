@@ -20,7 +20,7 @@ variable "subnets" {
   description = <<-EOF
   Map of subnets used with a Network Load Balancer. Each map's key is the availability zone name and the value is an object that has an attribute
   `id` identifying AWS subnet.
-  
+
   Examples:
 
   You can define the values directly:
@@ -33,11 +33,11 @@ variable "subnets" {
   ```
 
   You can also use output from the `subnet_sets` module:
-  
+
   ```
   subnets        = { for k, v in module.subnet_sets["untrust"].subnets : k => { id = v.id } }
   ```
-  
+
   EOF
   type = map(object({
     id = string
@@ -46,8 +46,8 @@ variable "subnets" {
 
 variable "enable_cross_zone_load_balancing" {
   description = <<-EOF
-  Enable load balancing between instances in different AZs. Defaults to `true`. 
-  Change to `false` only if absolutely necessary. By default, there is only one FW in each AZ. 
+  Enable load balancing between instances in different AZs. Defaults to `true`.
+  Change to `false` only if absolutely necessary. By default, there is only one FW in each AZ.
   Turning this off means 1:1 correlation between a public IP assigned to an AZ and a FW deployed in that AZ.
   EOF
 
@@ -62,7 +62,7 @@ variable "vpc_id" {
 
 variable "balance_rules" {
   description = <<-EOF
-  An object that contains the listener, target group, and health check configuration. 
+  An object that contains the listener, target group, and health check configuration.
   It consist of maps of applications like follows:
 
   ```
@@ -143,4 +143,45 @@ variable "tags" {
   description = "Map of AWS tags to apply to all the created resources."
   default     = {}
   type        = map(string)
+}
+
+variable "configure_access_logs" {
+  description = <<-EOF
+  Configure Load Balancer to store access logs in an S3 Bucket.
+
+  When used with `access_logs_byob` set to `false` forces creation of a new bucket.
+  If, however, `access_logs_byob` is set to `true` an existing bucket can be used.
+
+  The name of the newly created or existing bucket is controlled via `access_logs_s3_bucket_name`.
+  EOF
+  default     = false
+  type        = bool
+}
+
+variable "access_logs_byob" {
+  description = <<-EOF
+  Bring Your Own Bucket - in case you would like to re-use an existing S3 Bucket for Load Balancer's access logs.
+
+  NOTICE.
+  This code does not set up proper `Bucket Policies` for existing buckets. They have to be already in place.
+  EOF
+  default     = false
+  type        = bool
+}
+
+variable "access_logs_s3_bucket_name" {
+  description = <<-EOF
+  Name of an S3 Bucket that will be used as storage for Load Balancer's access logs.
+
+  When used with `configure_access_logs` it becomes the name of a newly created S3 Bucket.
+  When used with `access_logs_byob` it is a name of an existing bucket.
+  EOF
+  default     = "pantf-alb-access-logs-bucket"
+  type        = string
+}
+
+variable "access_logs_s3_bucket_prefix" {
+  description = "A path to a location inside a bucket under which access logs will be stored. When omitted defaults to the root folder of a bucket."
+  default     = null
+  type        = string
 }
