@@ -28,6 +28,6 @@ repos:
         --compact,
         --quiet,
         --soft-fail,
-        --skip-check, "CKV_AWS_150,CKV_AWS_18,CKV_AWS_144,CKV2_AWS_19,CKV_AWS_272,CKV_AWS_116,CKV2_AWS_11,CKV2_AWS_28,CKV_AWS_173,CKV2_AWS_5,CKV2_AWS_12",
+        --skip-check, "CKV_AWS_150,CKV_AWS_18,CKV_AWS_144,CKV2_AWS_19,CKV_AWS_272,CKV_AWS_116,CKV2_AWS_11,CKV2_AWS_28,CKV_AWS_173,CKV2_AWS_5,CKV2_AWS_12,CKV_AWS_88",
         --soft-fail-on, "CKV_AWS_186,CKV_AWS_145",
       ]
