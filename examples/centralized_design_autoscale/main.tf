@@ -325,7 +325,7 @@ resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
         "logs:CreateLogGroup"
       ],
       "Resource": [
-          "*"
+        "*"
       ],
       "Effect": "Allow"
     }
