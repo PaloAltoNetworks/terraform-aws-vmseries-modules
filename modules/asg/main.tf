@@ -190,7 +190,7 @@ resource "aws_iam_role_policy" "this" {
             "kms:Decrypt",
             "kms:CreateGrant"
           ],
-          "Resource": "arn:aws:kms:*:*:*"
+          "Resource": "*"
         }
     ]
 }
