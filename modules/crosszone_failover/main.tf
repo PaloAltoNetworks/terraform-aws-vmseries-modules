@@ -102,9 +102,10 @@ resource "aws_lambda_function" "rt_failover" {
   s3_bucket     = aws_s3_bucket.this.id
   s3_key        = aws_s3_bucket_object.this.id
   #source_code_hash = filebase64sha256("crosszone_ha_instance_id.zip")
-  runtime     = "python3.8"
-  timeout     = "30"
-  description = "Used for updating VPC RTs during PAN failover"
+  runtime                        = "python3.8"
+  timeout                        = "30"
+  description                    = "Used for updating VPC RTs during PAN failover"
+  reserved_concurrent_executions = var.reserved_concurrent_executions
   tracing_config {
     mode = "Active"
   }

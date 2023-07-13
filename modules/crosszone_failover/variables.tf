@@ -43,3 +43,9 @@ variable "lambda_file_name" {
   default     = "crosszone_ha_instance_id.zip"
   type        = string
 }
+
+variable "reserved_concurrent_executions" {
+  description = "Amount of reserved concurrent execussions for lambda function."
+  default     = 100
+  type        = number
+}
