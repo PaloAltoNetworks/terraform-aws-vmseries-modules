@@ -334,7 +334,9 @@ resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
         "cloudwatch:DescribeAlarms",
         "logs:CreateLogGroup"
       ],
-      "Resource": "*",
+      "Resource": [
+          "*"
+      ],
       "Effect": "Allow"
     }
   ]
