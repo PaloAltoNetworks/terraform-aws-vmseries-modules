@@ -61,3 +61,9 @@ variable "app_vm_type" {
   default     = "t2.micro"
   type        = string
 }
+
+variable "app_vm_iam_instance_profile" {
+  description = "IAM instance profile."
+  default     = null
+  type        = string
+}

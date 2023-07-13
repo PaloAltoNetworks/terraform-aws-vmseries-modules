@@ -101,6 +101,7 @@ resource "aws_instance" "app_vm" {
   tags                        = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   associate_public_ip_address = true
   ebs_optimized               = true
+  iam_instance_profile        = var.app_vm_iam_instance_profile
 
   root_block_device {
     delete_on_termination = true
