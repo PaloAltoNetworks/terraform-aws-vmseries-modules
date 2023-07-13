@@ -181,11 +181,7 @@ resource "aws_iam_role_policy" "this" {
                 "elasticloadbalancing:DeregisterTargets"
             ],
             "Effect": "Allow",
-            "Resource": [
-                "arn:aws:ec2:*:*:*",
-                "arn:aws:autoscaling:*:*:*",
-                "arn:aws:elasticloadbalancing:*:*:*"
-            ]
+            "Resource": "*"
         },
         {
           "Effect": "Allow",
