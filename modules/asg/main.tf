@@ -181,7 +181,11 @@ resource "aws_iam_role_policy" "this" {
                 "elasticloadbalancing:DeregisterTargets"
             ],
             "Effect": "Allow",
-            "Resource": "*"
+            "Resource": [
+                "arn:aws:ec2:*:*:*",
+                "arn:aws:autoscaling:*:*:*",
+                "arn:aws:elasticloadbalancing:*:*:*"
+            ]
         },
         {
           "Effect": "Allow",
@@ -190,7 +194,7 @@ resource "aws_iam_role_policy" "this" {
             "kms:Decrypt",
             "kms:CreateGrant"
           ],
-          "Resource": "*"
+          "Resource": "arn:aws:kms:*:*:*"
         }
     ]
 }
