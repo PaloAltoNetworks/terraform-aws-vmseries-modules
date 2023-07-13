@@ -73,7 +73,7 @@ resource "aws_ebs_volume" "this" {
 
   availability_zone = var.availability_zone
   size              = try(each.value.ebs_size, "2000")
-  encrypted         = try(each.value.ebs_encrypted, false)
+  encrypted         = true
   kms_key_id        = try(var.ebs_kms_key_alias, null)
 
   tags = merge(var.global_tags, { Name = try(each.value.name, var.name) })

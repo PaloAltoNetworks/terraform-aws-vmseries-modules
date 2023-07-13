@@ -87,7 +87,6 @@ variable "ebs_volumes" {
   - `ebs_device_name`   (Required) The EBS device name to expose to the instance (for example, /dev/sdh or xvdh). 
   See [Device Naming on Linux Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html#available-ec2-device-names) for more information.
   - `ebs_size`          (Optional) The size of the EBS volume in GiBs. Defaults to 2000 GiB.
-  - `ebs_encrypted`     (Optional) If true, the Panorama EBS volume will be encrypted.
   - `force_detach`      (Optional) Set to true if you want to force the volume to detach. Useful if previous attempts failed, but use this option only as a last resort, as this can result in data loss.
   - `skip_destroy`      (Optional) Set this to true if you do not wish to detach the volume from the instance to which it is attached at destroy time, and instead just remove the attachment from Terraform state. 
   This is useful when destroying an instance attached to third-party volumes.
@@ -103,13 +102,11 @@ variable "ebs_volumes" {
       name              = "ebs-1"
       ebs_device_name   = "/dev/sdb"
       ebs_size          = "2000"
-      ebs_encrypted     = true
     },
     {
       name              = "ebs-2"
       ebs_device_name   = "/dev/sdb"
       ebs_size          = "2000"
-      ebs_encrypted     = true
     },
     {
       name              = "ebs-3"
