@@ -93,15 +93,14 @@ data "aws_kms_alias" "current_arn" {
 resource "aws_instance" "app_vm" {
   for_each = var.app_vms
 
-  ami                         = data.aws_ami.this.id
-  instance_type               = var.app_vm_type
-  key_name                    = aws_key_pair.random_ssh_key_pair.key_name
-  subnet_id                   = module.security_subnet_sets["app_vm"].subnets[each.value.az].id
-  vpc_security_group_ids      = [module.security_vpc.security_group_ids["app_vm"]]
-  tags                        = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-  associate_public_ip_address = true
-  ebs_optimized               = true
-  iam_instance_profile        = var.app_vm_iam_instance_profile
+  ami                    = data.aws_ami.this.id
+  instance_type          = var.app_vm_type
+  key_name               = aws_key_pair.random_ssh_key_pair.key_name
+  subnet_id              = module.security_subnet_sets["app_vm"].subnets[each.value.az].id
+  vpc_security_group_ids = [module.security_vpc.security_group_ids["app_vm"]]
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  ebs_optimized          = true
+  iam_instance_profile   = var.app_vm_iam_instance_profile
 
   root_block_device {
     delete_on_termination = true
