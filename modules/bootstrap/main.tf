@@ -22,18 +22,33 @@ resource "aws_s3_bucket" "this" {
   bucket        = local.bucket_name
   force_destroy = var.force_destroy
   tags          = var.global_tags
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "this" {
+  count  = var.create_bucket == true ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  count  = var.create_bucket == true ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  count  = var.create_bucket == true ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+
+  block_public_acls   = true
+  block_public_policy = true
 }
 
 resource "aws_s3_bucket_ownership_controls" "this" {
