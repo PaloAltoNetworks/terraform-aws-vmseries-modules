@@ -29,5 +29,5 @@ repos:
         --quiet,
         --soft-fail,
         --skip-check, "CKV_AWS_150,CKV_AWS_18,CKV_AWS_144,CKV2_AWS_19,CKV_AWS_272,CKV_AWS_116,CKV2_AWS_11,CKV2_AWS_28,CKV_AWS_173,CKV2_AWS_5,CKV2_AWS_12,CKV2_AWS_1,CKV_AWS_2,CKV_AWS_126,CKV_AWS_103,CKV_AWS_123,CKV2_AWS_61,CKV2_AWS_62",
-        --soft-fail-on, "CKV_AWS_186",
+        # --soft-fail-on, "...",
       ]

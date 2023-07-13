@@ -6,7 +6,6 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "this" {
   bucket        = var.lambda_s3_bucket
-  acl           = "private"
   force_destroy = true
   tags          = merge(var.tags, { Name = var.lambda_s3_bucket })
 }
@@ -37,7 +36,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_object" "this" {
+resource "aws_s3_object" "this" {
   bucket = aws_s3_bucket.this.id
   key    = var.lambda_file_name
   acl    = "private"
@@ -114,7 +113,7 @@ resource "aws_lambda_function" "rt_failover" {
   handler       = "crosszone_ha_instance_id.lambda_handler"
   role          = aws_iam_role.lambda_exec.arn
   s3_bucket     = aws_s3_bucket.this.id
-  s3_key        = aws_s3_bucket_object.this.id
+  s3_key        = aws_s3_object.this.id
   #source_code_hash = filebase64sha256("crosszone_ha_instance_id.zip")
   runtime                        = "python3.8"
   timeout                        = "30"
