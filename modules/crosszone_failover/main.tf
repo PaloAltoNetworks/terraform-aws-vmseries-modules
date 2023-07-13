@@ -163,6 +163,10 @@ resource "aws_api_gateway_rest_api" "pan_failover" {
     ]
 }
 POLICY
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_api_gateway_resource" "pan_failover" {
@@ -234,6 +238,9 @@ resource "aws_api_gateway_deployment" "pan_failover" {
   rest_api_id = aws_api_gateway_rest_api.pan_failover.id
   stage_name  = "prod"
 
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
