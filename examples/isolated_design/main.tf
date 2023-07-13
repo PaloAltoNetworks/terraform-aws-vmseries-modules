@@ -291,7 +291,6 @@ resource "aws_instance" "spoke_vms" {
   subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-  ebs_optimized          = true
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
 
   root_block_device {
