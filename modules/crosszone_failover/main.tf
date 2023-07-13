@@ -176,10 +176,11 @@ resource "aws_api_gateway_resource" "pan_failover" {
 }
 
 resource "aws_api_gateway_method" "pan_failover" {
-  rest_api_id   = aws_api_gateway_rest_api.pan_failover.id
-  resource_id   = aws_api_gateway_resource.pan_failover.id
-  http_method   = "POST"
-  authorization = "NONE"
+  rest_api_id      = aws_api_gateway_rest_api.pan_failover.id
+  resource_id      = aws_api_gateway_resource.pan_failover.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = true
 
   request_parameters = {
     "method.request.querystring.vpc_id"          = false
