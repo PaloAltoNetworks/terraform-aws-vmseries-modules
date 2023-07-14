@@ -145,6 +145,7 @@ module "vmseries" {
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
+      eip_allocation_id  = try(v.eip_allocation_id, null)
     }
   }
 

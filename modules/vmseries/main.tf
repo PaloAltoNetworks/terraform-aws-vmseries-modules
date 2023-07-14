@@ -51,7 +51,7 @@ resource "aws_eip" "this" {
 }
 
 resource "aws_eip_association" "this" {
-  for_each = { for k, v in var.interfaces : k => v if try(v.eip_allocation_id, false) }
+  for_each = { for k, v in var.interfaces : k => v if lookup(v, "eip_allocation_id", null) != null }
 
   allocation_id        = each.value.eip_allocation_id
   network_interface_id = aws_network_interface.this[each.key].id

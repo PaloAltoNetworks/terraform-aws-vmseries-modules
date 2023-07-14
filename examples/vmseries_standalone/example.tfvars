@@ -89,6 +89,7 @@ vmseries = {
         vpc_subnet        = "security_vpc-mgmt"
         create_public_ip  = true
         source_dest_check = true
+        eip_allocation_id = null
       }
     }
   }
