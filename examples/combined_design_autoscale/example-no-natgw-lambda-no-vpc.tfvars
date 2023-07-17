@@ -540,8 +540,8 @@ vmseries_asgs = {
     }
 
     delicense = {
-      enabled        = true
-      ssm_param_name = "example_param_store_delicense" # TODO: update here
+      enabled        = false
+      ssm_param_name = null
     }
   }
 }
