@@ -4,7 +4,7 @@ from os import getenv
 from xml.etree import ElementTree as et
 from xml.etree.ElementTree import Element
 
-from boto3 import client, resource
+from boto3 import client
 from botocore.exceptions import ClientError
 from botocore.config import Config
 
@@ -30,7 +30,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
         # Prepare boto3 clients for required services
         self.ec2_client = client('ec2', config=lambda_config)
-        self.ec2_resource = resource('ec2', config=lambda_config)
         self.asg_client = client('autoscaling', config=lambda_config)
         self.elbv2_client = client('elbv2', config=lambda_config)
         self.ssm_client = client('ssm', config=lambda_config)
