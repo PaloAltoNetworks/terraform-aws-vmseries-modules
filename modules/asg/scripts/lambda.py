@@ -453,13 +453,18 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             panorama_hostname2 = panorama_config.get("panhost2")
             panorama_lm_name = panorama_config.get("panlm")
 
-            # Check if first Panorama is active - if not, the use second Panorama for de-licensing
-            if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
-                # De-license using active, first Panorama instance from Active-Passive HA cluster
-                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+            # Check if there is defined 2 Panorama server
+            if 'panhost2' in panorama_config:
+                # Check if first Panorama is active - if not, the use second Panorama for de-licensing
+                if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
+                    # De-license using active, first Panorama instance from Active-Passive HA cluster
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+                else:
+                    # De-license using active, second Panorama instance from Active-Passive HA cluster
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
             else:
-                # De-license using active, second Panorama instance from Active-Passive HA cluster
-                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
+                # De-license using the only 1 Panorama instance
+                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
 
             return delicensed
         else:
