@@ -147,9 +147,9 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-# Attach IAM Policy to IAM role for Lambda
-resource "aws_iam_role_policy" "this" {
-  name   = "${var.name_prefix}lambda_iam_policy"
+# Attach IAM policies to IAM role for Lambda
+resource "aws_iam_role_policy" "lambda_iam_policy_default" {
+  name   = "${var.name_prefix}lambda_iam_policy_default"
   role   = aws_iam_role.this.id
   policy = <<-EOF
 {
@@ -182,12 +182,33 @@ resource "aws_iam_role_policy" "this" {
                 "autoscaling:CompleteLifecycleAction",
                 "autoscaling:DescribeAutoScalingGroups",
                 "elasticloadbalancing:RegisterTargets",
-                "elasticloadbalancing:DeregisterTargets",
-                "config:GetResourceConfigHistory"
+                "elasticloadbalancing:DeregisterTargets"
             ],
             "Effect": "Allow",
             "Resource": "*"
         },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "kms:GenerateDataKey*",
+            "kms:Decrypt",
+            "kms:CreateGrant"
+          ],
+          "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
+  count  = var.delicense_enabled ? 1 : 0
+  name   = "${var.name_prefix}lambda_iam_policy_delicense"
+  role   = aws_iam_role.this.id
+  policy = <<-EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
             "Effect": "Allow",
             "Action": [
@@ -201,15 +222,6 @@ resource "aws_iam_role_policy" "this" {
             "Resource": [
                 "arn:aws:ssm:${var.region}:${local.account_id}:parameter/${var.delicense_ssm_param_name}"
             ]
-        },
-        {
-          "Effect": "Allow",
-          "Action": [
-            "kms:GenerateDataKey*",
-            "kms:Decrypt",
-            "kms:CreateGrant"
-          ],
-          "Resource": "*"
         }
     ]
 }
@@ -230,7 +242,7 @@ resource "null_resource" "python_requirements" {
 data "archive_file" "this" {
   type = "zip"
 
-  source_file = "${path.module}/scripts"
+  source_dir  = "${path.module}/scripts"
   output_path = "${path.module}/lambda_payload.zip"
 
   depends_on = [

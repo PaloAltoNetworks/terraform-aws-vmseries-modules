@@ -31,7 +31,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         # Prepare boto3 clients for required services
         self.ec2_client = client('ec2', config=lambda_config)
         self.ec2_resource = resource('ec2', config=lambda_config)
-        self.config_client = client('config', config=lambda_config)
         self.asg_client = client('autoscaling', config=lambda_config)
         self.elbv2_client = client('elbv2', config=lambda_config)
         self.ssm_client = client('ssm', config=lambda_config)
@@ -331,7 +330,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         except ClientError as e:
             self.logger.error(f"Error completing life cycle hook for instance: {e.response['Error']['Code']}")
 
-    def ip_untrust_interface(self, instance_id: str):
+    def ip_network_interface(self, instance_id: str, device_index: str):
         """
         Function is getting IP address of untrust interface (with device index equal 2).
         Internally function is using:
@@ -348,7 +347,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 },
                 {
                     'Name': 'attachment.device-index',
-                    'Values': ['2']
+                    'Values': [device_index]
                 }
             ]
         )
@@ -364,7 +363,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_id: EC2 Instance id
         :return: none
         """
-        untrust_ip = self.ip_untrust_interface(instance_id)
+        untrust_ip = self.ip_network_interface(instance_id, '2')
 
         for target_group in ip_target_groups:
             self.logger.info(f"Register target with IP {untrust_ip} in target group {target_group['arn']}")
@@ -388,7 +387,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param instance_id: EC2 Instance id
         :return: none
         """
-        untrust_ip = self.ip_untrust_interface(instance_id)
+        untrust_ip = self.ip_network_interface(instance_id, '2')
         
         for target_group in ip_target_groups:
             self.logger.info(f"Deregister target with IP {untrust_ip} in target group {target_group['arn']}")
@@ -415,39 +414,6 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         request = panorama.op(cmd=cmd, xml=xml, cmd_xml=cmd_xml)
         return et.fromstring(request)
 
-    def check_last_instance_config(self, instance_id: str) -> set:
-        """
-        This function is used in descale process, it searches for last know configuration in AWS Config, takes 4 config
-        and search for uniques ENI.
-
-        :param instance_id: EC2 Instance id
-        :return: set of ENIs
-        """
-        instance_config_history = self.config_client.get_resource_config_history(
-            resourceType='AWS::EC2::Instance',
-            resourceId=instance_id,
-            chronologicalOrder='Reverse',
-            limit=4
-        )
-        rel = [config.get("relationships") for config in instance_config_history.get("configurationItems")]
-        eni_list = [eni.get("resourceId") for eni in rel[0] if eni.get("resourceType") == "AWS::EC2::NetworkInterface"]
-        return set(eni_list)
-
-    def find_association_id(self, enis_set: set) -> str:
-        """
-        This little function gain Eni set and search for that one which has Public IP, whill should be mgmt.
-        Disclaimer: you can modify this function with
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.NetworkInterface.tag_set,
-        so it can search for specific tag instead.
-
-        :param enis_set: set of unique ids
-        :return: private ip
-        """
-        for eni in enis_set:
-            network_interface = self.ec2_resource.NetworkInterface(eni)
-            if self.ec2_resource.NetworkInterface(eni).source_dest_check:
-                return network_interface.private_ip_address
-
     def check_ssm_param(self, ssm_param_name: str) -> dict:
         """
         Helper function to check config parameter in SSM Parameter Store
@@ -473,27 +439,31 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         self.logger.info(f"Start delicense instance {instance_id}")
 
         # Find IP address of VM-Series instance managed by Panorama
-        vmseries_ip_address = self.find_association_id(self.check_last_instance_config(instance_id))
+        vmseries_ip_address = self.ip_network_interface(instance_id, '1')
         self.logger.debug(f"Found VM-Series ip: {vmseries_ip_address} ")
 
-        # Get setting required to connect to Panorama
-        ssm_param_name = loads(getenv('delicense_config')).get('ssm_param')
-        panorama_config = self.check_ssm_param(ssm_param_name)
-        panorama_username = panorama_config.get("panuser")
-        panorama_password = panorama_config.get("panpass")
-        panorama_hostname = panorama_config.get("panhost")
-        panorama_hostname2 = panorama_config.get("panhost2")
-        panorama_lm_name = panorama_config.get("panlm")
+        # Check if delicense FW or not
+        if loads(getenv('delicense_config')).get('enabled'):
+            # Get setting required to connect to Panorama
+            ssm_param_name = loads(getenv('delicense_config')).get('ssm_param')
+            panorama_config = self.check_ssm_param(ssm_param_name)
+            panorama_username = panorama_config.get("panuser")
+            panorama_password = panorama_config.get("panpass")
+            panorama_hostname = panorama_config.get("panhost")
+            panorama_hostname2 = panorama_config.get("panhost2")
+            panorama_lm_name = panorama_config.get("panlm")
 
-        # Check if first Panorama is active - if not, the use second Panorama for de-licensing
-        if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
-            # De-license using active, first Panorama instance from Active-Passive HA cluster
-            delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+            # Check if first Panorama is active - if not, the use second Panorama for de-licensing
+            if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
+                # De-license using active, first Panorama instance from Active-Passive HA cluster
+                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+            else:
+                # De-license using active, second Panorama instance from Active-Passive HA cluster
+                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
+
+            return delicensed
         else:
-            # De-license using active, second Panorama instance from Active-Passive HA cluster
-            delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
-
-        return delicensed
+            return False
 
     def check_is_active_in_ha(self, panorama_hostname, panorama_username, panorama_password) -> bool:
         """

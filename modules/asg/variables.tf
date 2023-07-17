@@ -190,6 +190,7 @@ variable "delicense_ssm_param_name" {
   {"panuser":"ACCOUNT","panpass":"PASSWORD","panhost":"IP_ADDRESS","panhost2":"IP_ADDRESS","panlm":"LICENSE_MANAGER_NAME"}"
   ```
   EOF
+  default     = null
 }
 
 variable "delicense_enabled" {

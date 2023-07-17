@@ -538,6 +538,11 @@ vmseries_asgs = {
         ManagedBy = "terraform"
       }
     }
+
+    delicense = {
+      enabled        = true
+      ssm_param_name = "example_param_store_delicense" # TODO: update here
+    }
   }
 }
 
