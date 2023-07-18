@@ -492,9 +492,9 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
             # Check if in active state
             for info in firewalls_parsed[0]:
-                if info.tag is not None and info.tag == "local-info":
+                if info.tag == "local-info":
                     for attr in info:
-                        if attr.tag is not None and attr.tag == "state":
+                        if attr.tag == "state":
                             active = "active" in attr.text
 
             # Return high-availability state
