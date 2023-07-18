@@ -231,9 +231,6 @@ EOF
 # Python external dependencies (e.g. panos libraries) are prepared according to document:
 # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
 resource "null_resource" "python_requirements" {
-  # triggers = {
-  #   always_run = timestamp()
-  # }
   provisioner "local-exec" {
     command = "pip install --upgrade --target ${path.module}/scripts -r ${path.module}/scripts/requirements.txt"
   }
