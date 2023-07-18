@@ -435,13 +435,13 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :return: True if VM-Series was de-licensed correctly, False in other case
         """
         # Check if delicense FW or not
-        if loads(getenv('delicense_config')).get('enabled'):
+        if (delicense_config := loads(getenv('delicense_config'))).get('enabled'):
             # Find IP address of VM-Series instance managed by Panorama
             vmseries_ip_address = self.ip_network_interface(instance_id, '1')
             self.logger.debug(f"Found VM-Series ID: {instance_id} IP: {vmseries_ip_address} ")
 
             # Get setting required to connect to Panorama
-            ssm_param_name = loads(getenv('delicense_config')).get('ssm_param')
+            ssm_param_name = delicense_config.get('ssm_param')
             panorama_config = self.check_ssm_param(ssm_param_name)
             panorama_username = panorama_config.get("panuser")
             panorama_password = panorama_config.get("panpass")
