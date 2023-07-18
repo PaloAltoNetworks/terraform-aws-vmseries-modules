@@ -73,8 +73,8 @@ resource "aws_ebs_volume" "this" {
 
   availability_zone = var.availability_zone
   size              = try(each.value.ebs_size, "2000")
-  encrypted         = true
-  kms_key_id        = coalesce(var.ebs_kms_key_alias, data.aws_kms_alias.current_arn[0].target_key_arn)
+  encrypted         = var.ebs_encrypted
+  kms_key_id        = var.ebs_encrypted == false ? null : coalesce(var.ebs_kms_key_alias, data.aws_kms_alias.current_arn[0].target_key_arn)
 
   tags = merge(var.global_tags, { Name = try(each.value.name, var.name) })
 }
