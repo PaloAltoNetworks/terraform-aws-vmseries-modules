@@ -78,7 +78,7 @@ An example XML configuration snippet (for PANOS 10.2.3) of the described configu
 load config partial mode merge from-xpath /config/devices/entry/template/entry[@name='asg'] to-xpath /config/devices/entry/template/entry[@name='asg'] from template-asg-path-monitoring.xml
 ```
 
-</details> 
+</details>
 10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
 ## Usage
@@ -89,6 +89,34 @@ There are two use cases supported in this example. You can select your preferred
 
 - `example-natgw-lambda-vpc.tfvars` - with NAT Gateway presented in topology, where NAT Gateway is used for Lambda working in VPC for autoscaling group and for VM-Series instances, which for untrust interfaces don't have public IP
 - `example-no-natgw-lambda-no-vpc.tfvars` - without NAT Gateway, where Lambda is not working in VPC and each VM-Series instance in autoscaling group has untrust interface with public IP
+
+### VM-Series delicensing
+
+After scale in event, VM-Series needs to be delicensed by `sw_fw_license` plugin in Panorama. There are 2 possible approaches:
+- enable option for plugin `sw_fw_license` to deactive firewall after being disconnected for `N` hours, where `1 <= N <= 24` hours
+- use event-based approach and do delicense in Lambda in Python code, just after scale in, by executing command `request plugins sw_fw_license deactivate license-manager LICENSE_MANAGER_NAME devices member VM_SERIES_SERIAL_NUMBER`
+
+Module `asg` is supporting both approaches. In `example-natgw-lambda-vpc.tfvars` Lambda is configured to be deployed in VPC and do delicense in Lambda in Python code. In `example-no-natgw-lambda-no-vpc.tfvars` Lambda is configured to be deployed outside VPC, without connection to Panorama and without executing any command on plugin `sw_fw_license`.
+
+If event-based approach is being used, then additional prerequisites - configuration of connection with both Panoramas:
+- go to **AWS Systems Manager -> Parameter Store**
+- create new parameter with type `SecureString` and data:
+```
+{
+    "panuser": "ACCOUNT",
+    "panpass": "PASSWORD",
+    "panhost": "IP_ADDRESS",
+    "panhost2": "IP_ADDRESS",
+    "panlm": "LICENSE_MANAGER_NAME"
+}
+```
+- name of the parameter needs to be used in `terraform.tfvars` e.g.
+```
+    delicense = {
+      enabled        = true
+      ssm_param_name = "NAME_OF_THE_SECURE_STRING_PARAMETER"
+    }
+```
 
 ### Deployment Steps
 
