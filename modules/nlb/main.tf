@@ -51,7 +51,7 @@ resource "aws_s3_bucket_versioning" "this" {
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   count  = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
   bucket = aws_s3_bucket.this[0].id
 
