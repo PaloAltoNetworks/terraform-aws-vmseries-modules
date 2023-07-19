@@ -187,7 +187,7 @@ variable "delicense_ssm_param_name" {
   description = <<-EOF
   Secure string in Parameter Store with value in below format:
   ```
-  {"panuser":"ACCOUNT","panpass":"PASSWORD","panhost":"IP_ADDRESS","panhost2":"IP_ADDRESS","panlm":"LICENSE_MANAGER_NAME"}"
+  {"username":"ACCOUNT","password":"PASSWORD","panorama1":"IP_ADDRESS1","panorama2":"IP_ADDRESS2","license_manager":"LICENSE_MANAGER_NAME"}"
   ```
   EOF
   default     = null

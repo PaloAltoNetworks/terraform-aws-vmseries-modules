@@ -103,11 +103,11 @@ If event-based approach is being used, then additional prerequisites - configura
 - create new parameter with type `SecureString` and data:
 ```
 {
-    "panuser": "ACCOUNT",
-    "panpass": "PASSWORD",
-    "panhost": "IP_ADDRESS",
-    "panhost2": "IP_ADDRESS",
-    "panlm": "LICENSE_MANAGER_NAME"
+    "username": "ACCOUNT",
+    "password": "PASSWORD",
+    "panorama1": "IP_ADDRESS",
+    "panorama2": "IP_ADDRESS",
+    "license_manager": "LICENSE_MANAGER_NAME"
 }
 ```
 - name of the parameter needs to be used in `terraform.tfvars` e.g.

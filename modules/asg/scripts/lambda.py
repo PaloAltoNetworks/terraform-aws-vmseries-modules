@@ -458,14 +458,14 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             # Get setting required to connect to Panorama
             ssm_param_name = delicense_config.get('ssm_param')
             panorama_config = self.check_ssm_param(ssm_param_name)
-            panorama_username = panorama_config.get("panuser")
-            panorama_password = panorama_config.get("panpass")
-            panorama_hostname = panorama_config.get("panhost")
-            panorama_hostname2 = panorama_config.get("panhost2")
-            panorama_lm_name = panorama_config.get("panlm")
+            panorama_username = panorama_config.get("username")
+            panorama_password = panorama_config.get("password")
+            panorama_hostname = panorama_config.get("panorama1")
+            panorama_hostname2 = panorama_config.get("panorama2")
+            panorama_lm_name = panorama_config.get("license_manager")
 
             # Check if there is defined 2 Panorama server
-            if 'panhost2' in panorama_config:
+            if 'panorama2' in panorama_config:
                 # Check if first Panorama is active - if not, the use second Panorama for de-licensing
                 if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
                     # De-license using active, first Panorama instance from Active-Passive HA cluster
