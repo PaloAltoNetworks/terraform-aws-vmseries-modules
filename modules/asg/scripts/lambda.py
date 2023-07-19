@@ -46,22 +46,37 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         instance_id = asg_event["detail"]["EC2InstanceId"]
         instance_zone, subnet_id, network_interfaces = self.inspect_ec2_instance(instance_id)
 
-        # Acquire information about IP of untrust interface
-        untrust_ip = self.ip_network_interface(instance_id, '2')
-
         # Load ARNs of target group from environment variable
         ip_target_groups = loads(getenv('autoscaling_config')).get('ip_target_groups')
 
         # Depending on event type, take appropriate actions
         if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
             self.logger.info("Run launch mode.")
+
+            # Disable source-destination check for first dataplane interface
             self.disable_source_dest_check(network_interfaces[0]['NetworkInterfaceId'])
+
+            # Create network interfaces for management and second dataplane interface
             self.setup_network_interfaces(instance_zone, subnet_id, instance_id)
+
+            # Acquire information about IP of untrust interface - we cannot execute earlier before creating interfaces
+            untrust_ip = self.ip_network_interface(instance_id, '2')
+
+            # Register untrust IP in target group for LB (if required)
             self.register_untrust_ip_as_target(ip_target_groups, untrust_ip)
         elif event == "EC2 Instance-terminate Lifecycle Action":
             self.logger.info("Run cleanup mode.")
+
+            # Delicense firewall using plugin sw_fw_license in Panorama (optional)
             self.delicense_fw(instance_id)
+
+            # Clean EIP (if created)
             self.clean_eip(network_interfaces, instance_id)
+
+            # Acquire information about IP of untrust interface
+            untrust_ip = self.ip_network_interface(instance_id, '2')
+
+            # Deegister untrust IP in target group for LB (if required)
             self.deregister_untrust_ip_as_target(ip_target_groups, untrust_ip)
         else:
             raise Exception(f"Event type cannot be handle! {event}")
