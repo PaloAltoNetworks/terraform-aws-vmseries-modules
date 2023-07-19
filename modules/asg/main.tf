@@ -212,8 +212,6 @@ resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
         {
             "Effect": "Allow",
             "Action": [
-                "ssm:PutParameter",
-                "ssm:DeleteParameter",
                 "ssm:DescribeParameters",
                 "ssm:GetParametersByPath",
                 "ssm:GetParameter",
