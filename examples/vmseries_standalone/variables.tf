@@ -164,6 +164,7 @@ variable "vmseries" {
           vpc_subnet        = "security_vpc-mgmt"
           create_public_ip  = true
           source_dest_check = true
+          eip_allocation_id = null
         }
       }
     }
@@ -197,6 +198,7 @@ variable "vmseries" {
       vpc_subnet        = string
       create_public_ip  = bool
       source_dest_check = bool
+      eip_allocation_id = string
     }))
   }))
 }
