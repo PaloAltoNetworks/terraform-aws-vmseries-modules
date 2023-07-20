@@ -159,6 +159,12 @@ variable "lambda_timeout" {
   default     = 30
 }
 
+variable "reserved_concurrent_executions" {
+  description = "Amount of reserved concurrent execussions for lambda function."
+  default     = 100
+  type        = number
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs associated with the Lambda function"
   type        = list(string)

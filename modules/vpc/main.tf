@@ -166,8 +166,9 @@ resource "aws_network_acl_rule" "this" {
 resource "aws_security_group" "this" {
   for_each = var.security_groups
 
-  name   = each.value.name
-  vpc_id = local.vpc.id
+  name        = each.value.name
+  description = try(each.value.description, "Security group managed by Terraform")
+  vpc_id      = local.vpc.id
 
   dynamic "ingress" {
     for_each = [

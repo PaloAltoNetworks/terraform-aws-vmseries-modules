@@ -83,17 +83,35 @@ resource "aws_key_pair" "random_ssh_key_pair" {
   public_key = tls_private_key.random_ssh_key.public_key_openssh
 }
 
+data "aws_ebs_default_kms_key" "current" {
+}
+
+data "aws_kms_alias" "current_arn" {
+  name = data.aws_ebs_default_kms_key.current.key_arn
+}
+
 resource "aws_instance" "app_vm" {
   for_each = var.app_vms
 
-  ami                         = data.aws_ami.this.id
-  instance_type               = var.app_vm_type
-  key_name                    = aws_key_pair.random_ssh_key_pair.key_name
-  subnet_id                   = module.security_subnet_sets["app_vm"].subnets[each.value.az].id
-  vpc_security_group_ids      = [module.security_vpc.security_group_ids["app_vm"]]
-  tags                        = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
-  associate_public_ip_address = true
+  ami                    = data.aws_ami.this.id
+  instance_type          = var.app_vm_type
+  key_name               = aws_key_pair.random_ssh_key_pair.key_name
+  subnet_id              = module.security_subnet_sets["app_vm"].subnets[each.value.az].id
+  vpc_security_group_ids = [module.security_vpc.security_group_ids["app_vm"]]
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  ebs_optimized          = true
+  iam_instance_profile   = var.app_vm_iam_instance_profile
 
+  root_block_device {
+    delete_on_termination = true
+    encrypted             = true
+    kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
+  }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 data "aws_network_interface" "bar" {

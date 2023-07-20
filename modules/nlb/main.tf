@@ -28,6 +28,82 @@ locals {
   }
 }
 
+# ## Access Logs Bucket ##
+# For Application Load Balancers where access logs are stored in S3 Bucket.
+data "aws_s3_bucket" "this" {
+  count = var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = var.access_logs_s3_bucket_name
+}
+
+resource "aws_s3_bucket" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket        = var.access_logs_s3_bucket_name
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  count  = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  count  = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  count  = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+  bucket = aws_s3_bucket.this[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_acl" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
+  acl    = "private"
+}
+
+data "aws_elb_service_account" "this" {}
+
+data "aws_iam_policy_document" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_elb_service_account.this.arn]
+    }
+
+    actions = ["s3:PutObject"]
+
+    resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix != null ? "${var.access_logs_s3_bucket_prefix}/" : ""}AWSLogs/*"]
+  }
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
+  policy = data.aws_iam_policy_document.this[0].json
+}
+# ######################## #
+
 resource "aws_eip" "this" {
   for_each = local.public_lb_with_eip ? var.subnets : {}
 
@@ -47,7 +123,7 @@ resource "aws_lb" "this" {
   # The code below does the proper use of `subnets` and `subnet_mapping`
   # based on the use cases described above.
   #
-  # Generally, the decision is being made on a fact if we have a public Load Balancer 
+  # Generally, the decision is being made on a fact if we have a public Load Balancer
   # with dedicated EIPs or not.
   subnets = local.public_lb_with_eip ? null : [for k, v in var.subnets : v.id]
   dynamic "subnet_mapping" {
@@ -56,6 +132,16 @@ resource "aws_lb" "this" {
     content {
       subnet_id     = subnet_mapping.value.id
       allocation_id = aws_eip.this[subnet_mapping.key].id
+    }
+  }
+
+  dynamic "access_logs" {
+    for_each = var.configure_access_logs ? [1] : []
+
+    content {
+      bucket  = var.access_logs_byob ? data.aws_s3_bucket.this[0].id : aws_s3_bucket.this[0].id
+      prefix  = var.access_logs_s3_bucket_prefix
+      enabled = true
     }
   }
 

@@ -251,6 +251,35 @@ data "aws_ami" "this" {
   owners = ["979382823631"] # bitnami = 979382823631
 }
 
+data "aws_ebs_default_kms_key" "current" {
+}
+
+data "aws_kms_alias" "current_arn" {
+  name = data.aws_ebs_default_kms_key.current.key_arn
+}
+
+resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
+  name               = "${var.name_prefix}spoke_vm"
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Principal": {"Service": "ec2.amazonaws.com"}
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
+
+  name = "${var.name_prefix}spoke_vm_instance_profile"
+  role = aws_iam_role.spoke_vm_ec2_iam_role.name
+}
+
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
@@ -260,6 +289,18 @@ resource "aws_instance" "spoke_vms" {
   subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
+
+  root_block_device {
+    delete_on_termination = true
+    encrypted             = true
+    kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
+  }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 ### SPOKE INBOUND APPLICATION LOAD BALANCER ###

@@ -71,6 +71,11 @@ resource "aws_launch_template" "this" {
       Name = "${var.name_prefix}vmseries"
     }
   }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 
 # Create autoscaling group based on launch template and ALL subnets from var.interfaces
@@ -200,13 +205,17 @@ data "archive_file" "this" {
 }
 
 resource "aws_lambda_function" "this" {
-  filename         = data.archive_file.this.output_path
-  function_name    = "${var.name_prefix}asg_actions"
-  role             = aws_iam_role.this.arn
-  handler          = "lambda.lambda_handler"
-  source_code_hash = data.archive_file.this.output_base64sha256
-  runtime          = "python3.8"
-  timeout          = var.lambda_timeout
+  filename                       = data.archive_file.this.output_path
+  function_name                  = "${var.name_prefix}asg_actions"
+  role                           = aws_iam_role.this.arn
+  handler                        = "lambda.lambda_handler"
+  source_code_hash               = data.archive_file.this.output_base64sha256
+  runtime                        = "python3.8"
+  timeout                        = var.lambda_timeout
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  tracing_config {
+    mode = "Active"
+  }
   vpc_config {
     subnet_ids         = var.subnet_ids
     security_group_ids = var.security_group_ids

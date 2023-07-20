@@ -6,12 +6,37 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "this" {
   bucket        = var.lambda_s3_bucket
-  acl           = "private"
   force_destroy = true
   tags          = merge(var.tags, { Name = var.lambda_s3_bucket })
 }
 
-resource "aws_s3_bucket_object" "this" {
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_object" "this" {
   bucket = aws_s3_bucket.this.id
   key    = var.lambda_file_name
   acl    = "private"
@@ -88,17 +113,19 @@ resource "aws_lambda_function" "rt_failover" {
   handler       = "crosszone_ha_instance_id.lambda_handler"
   role          = aws_iam_role.lambda_exec.arn
   s3_bucket     = aws_s3_bucket.this.id
-  s3_key        = aws_s3_bucket_object.this.id
+  s3_key        = aws_s3_object.this.id
   #source_code_hash = filebase64sha256("crosszone_ha_instance_id.zip")
-  runtime     = "python3.8"
-  timeout     = "30"
-  description = "Used for updating VPC RTs during PAN failover"
-
+  runtime                        = "python3.8"
+  timeout                        = "30"
+  description                    = "Used for updating VPC RTs during PAN failover"
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  tracing_config {
+    mode = "Active"
+  }
   vpc_config {
     subnet_ids         = [var.subnet_state["${var.prefix_name_tag}-lambda-1a"], var.subnet_state["${var.prefix_name_tag}-lambda-1b"]]
     security_group_ids = [var.sg_state["${var.prefix_name_tag}-pan-mgmt"]]
   }
-
 }
 
 
@@ -149,6 +176,10 @@ resource "aws_api_gateway_rest_api" "pan_failover" {
     ]
 }
 POLICY
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_api_gateway_resource" "pan_failover" {
@@ -158,10 +189,11 @@ resource "aws_api_gateway_resource" "pan_failover" {
 }
 
 resource "aws_api_gateway_method" "pan_failover" {
-  rest_api_id   = aws_api_gateway_rest_api.pan_failover.id
-  resource_id   = aws_api_gateway_resource.pan_failover.id
-  http_method   = "POST"
-  authorization = "NONE"
+  rest_api_id      = aws_api_gateway_rest_api.pan_failover.id
+  resource_id      = aws_api_gateway_resource.pan_failover.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = true
 
   request_parameters = {
     "method.request.querystring.vpc_id"          = false
@@ -220,6 +252,9 @@ resource "aws_api_gateway_deployment" "pan_failover" {
   rest_api_id = aws_api_gateway_rest_api.pan_failover.id
   stage_name  = "prod"
 
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
