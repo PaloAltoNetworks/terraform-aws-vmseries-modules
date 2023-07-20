@@ -378,4 +378,7 @@ module "vm_series_asg" {
   scaling_statistic            = each.value.scaling_plan.statistic
   scaling_cloudwatch_namespace = each.value.scaling_plan.cloudwatch_namespace
   scaling_tags                 = merge(each.value.scaling_plan.tags, { prefix : var.name_prefix })
+
+  delicense_ssm_param_name = each.value.delicense.ssm_param_name
+  delicense_enabled        = each.value.delicense.enabled
 }

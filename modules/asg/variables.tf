@@ -189,6 +189,22 @@ variable "ebs_kms_id" {
   default     = "alias/aws/ebs"
 }
 
+variable "delicense_ssm_param_name" {
+  description = <<-EOF
+  Secure string in Parameter Store with value in below format:
+  ```
+  {"username":"ACCOUNT","password":"PASSWORD","panorama1":"IP_ADDRESS1","panorama2":"IP_ADDRESS2","license_manager":"LICENSE_MANAGER_NAME"}"
+  ```
+  EOF
+  default     = null
+}
+
+variable "delicense_enabled" {
+  description = "If true, then Lambda is going to delicense FW before destroying VM-Series"
+  default     = false
+  type        = bool
+}
+
 variable "scaling_plan_enabled" {
   description = "True, if automatic dynamic scaling policy should be created"
   type        = bool

@@ -21,13 +21,22 @@ data "aws_kms_alias" "ebs_kms" {
   name = var.ebs_kms_id
 }
 
+data "aws_caller_identity" "current" {}
+
 locals {
   default_eni_subnet_names = flatten([for k, v in var.interfaces : v.subnet_id if v.device_index == 0])
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
   default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
-
+  account_id               = data.aws_caller_identity.current.account_id
   autoscaling_config = {
     ip_target_groups = var.ip_target_groups
+  }
+  delicense_config = {
+    ssm_param = var.delicense_ssm_param_name
+    enabled   = var.delicense_enabled
+  }
+  lambda_config = {
+    region = var.region
   }
 }
 
@@ -143,9 +152,9 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-# Attach IAM Policy to IAM role for Lambda
-resource "aws_iam_role_policy" "this" {
-  name   = "${var.name_prefix}lambda_iam_policy"
+# Attach IAM policies to IAM role for Lambda
+resource "aws_iam_role_policy" "lambda_iam_policy_default" {
+  name   = "${var.name_prefix}lambda_iam_policy_default"
   role   = aws_iam_role.this.id
   policy = <<-EOF
 {
@@ -197,11 +206,48 @@ resource "aws_iam_role_policy" "this" {
 EOF
 }
 
+resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
+  count  = var.delicense_enabled ? 1 : 0
+  name   = "${var.name_prefix}lambda_iam_policy_delicense"
+  role   = aws_iam_role.this.id
+  policy = <<-EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeParameters",
+                "ssm:GetParametersByPath",
+                "ssm:GetParameter",
+                "ssm:GetParameterHistory"
+            ],
+            "Resource": [
+                "arn:aws:ssm:${var.region}:${local.account_id}:parameter/${var.delicense_ssm_param_name}"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+# Python external dependencies (e.g. panos libraries) are prepared according to document:
+# https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
+resource "null_resource" "python_requirements" {
+  provisioner "local-exec" {
+    command = "pip install --upgrade --target ${path.module}/scripts -r ${path.module}/scripts/requirements.txt"
+  }
+}
+
 data "archive_file" "this" {
   type = "zip"
 
-  source_file = "${path.module}/lambda.py"
+  source_dir  = "${path.module}/scripts"
   output_path = "${path.module}/lambda_payload.zip"
+
+  depends_on = [
+    null_resource.python_requirements
+  ]
 }
 
 resource "aws_lambda_function" "this" {
@@ -222,9 +268,10 @@ resource "aws_lambda_function" "this" {
   }
   environment {
     variables = {
-      lambda_config      = jsonencode({ region = var.region })
+      lambda_config      = jsonencode(local.lambda_config)
       interfaces_config  = jsonencode({ for k, v in var.interfaces : k => v if v.device_index != 0 })
       autoscaling_config = jsonencode(local.autoscaling_config)
+      delicense_config   = jsonencode(local.delicense_config)
     }
   }
   tags = var.global_tags

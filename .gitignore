@@ -49,3 +49,8 @@ terraform.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
 modules/asg/lambda_payload.zip
+modules/asg/scripts/bin/
+modules/asg/scripts/pan/
+modules/asg/scripts/pan_os_python-1.11.0.dist-info/
+modules/asg/scripts/pan_python-0.17.0.dist-info/
+modules/asg/scripts/panos/

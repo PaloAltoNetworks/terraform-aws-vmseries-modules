@@ -538,6 +538,11 @@ vmseries_asgs = {
         ManagedBy = "terraform"
       }
     }
+
+    delicense = {
+      enabled        = false
+      ssm_param_name = null
+    }
   }
 }
 

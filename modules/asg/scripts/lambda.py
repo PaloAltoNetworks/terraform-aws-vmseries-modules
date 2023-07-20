@@ -8,6 +8,8 @@ from boto3 import client
 from botocore.exceptions import ClientError
 from botocore.config import Config
 
+from panos.panorama import Panorama
+
 
 class ConfigureLogger:
     def __init__(self, *args, **kwargs):
@@ -30,6 +32,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         self.ec2_client = client('ec2', config=lambda_config)
         self.asg_client = client('autoscaling', config=lambda_config)
         self.elbv2_client = client('elbv2', config=lambda_config)
+        self.ssm_client = client('ssm', config=lambda_config)
         self.main(asg_event)
 
     def main(self, asg_event: dict):
@@ -49,13 +52,32 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         # Depending on event type, take appropriate actions
         if (event := asg_event["detail-type"]) == "EC2 Instance-launch Lifecycle Action":
             self.logger.info("Run launch mode.")
+
+            # Disable source-destination check for first dataplane interface
             self.disable_source_dest_check(network_interfaces[0]['NetworkInterfaceId'])
+
+            # Create network interfaces for management and second dataplane interface
             self.setup_network_interfaces(instance_zone, subnet_id, instance_id)
-            self.register_untrust_ip_as_target(ip_target_groups, instance_id)
+
+            # Acquire information about IP of untrust interface - we cannot execute earlier before creating interfaces
+            untrust_ip = self.ip_network_interface(instance_id, '2')
+
+            # Register untrust IP in target group for LB (if required)
+            self.register_untrust_ip_as_target(ip_target_groups, untrust_ip)
         elif event == "EC2 Instance-terminate Lifecycle Action":
             self.logger.info("Run cleanup mode.")
+
+            # Delicense firewall using plugin sw_fw_license in Panorama (optional)
+            self.delicense_fw(instance_id)
+
+            # Clean EIP (if created)
             self.clean_eip(network_interfaces, instance_id)
-            self.deregister_untrust_ip_as_target(ip_target_groups, instance_id)
+
+            # Acquire information about IP of untrust interface
+            untrust_ip = self.ip_network_interface(instance_id, '2')
+
+            # Deegister untrust IP in target group for LB (if required)
+            self.deregister_untrust_ip_as_target(ip_target_groups, untrust_ip)
         else:
             raise Exception(f"Event type cannot be handle! {event}")
 
@@ -325,7 +347,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         except ClientError as e:
             self.logger.error(f"Error completing life cycle hook for instance: {e.response['Error']['Code']}")
 
-    def ip_untrust_interface(self, instance_id: str):
+    def ip_network_interface(self, instance_id: str, device_index: str):
         """
         Function is getting IP address of untrust interface (with device index equal 2).
         Internally function is using:
@@ -342,24 +364,22 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 },
                 {
                     'Name': 'attachment.device-index',
-                    'Values': ['2']
+                    'Values': [device_index]
                 }
             ]
         )
         return description['NetworkInterfaces'][0]['PrivateIpAddress']
 
-    def register_untrust_ip_as_target(self, ip_target_groups: list, instance_id: str):
+    def register_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
         """
         Function is registering IP of untrust interface in target groups for autoscaling.
         Internally function is using:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.register_targets
 
         :param ip_target_groups: List target group to which IP of untrust interface needs to be added
-        :param instance_id: EC2 Instance id
+        :param untrust_ip: IP of untrust interface
         :return: none
         """
-        untrust_ip = self.ip_untrust_interface(instance_id)
-
         for target_group in ip_target_groups:
             self.logger.info(f"Register target with IP {untrust_ip} in target group {target_group['arn']}")
             self.elbv2_client.register_targets(
@@ -372,18 +392,16 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 ]
             )
 
-    def deregister_untrust_ip_as_target(self, ip_target_groups: list, instance_id: str):
+    def deregister_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
         """
         Function is de-registering IP of untrust interface in target groups for autoscaling.
         Internally function is using:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/elbv2.html#ElasticLoadBalancingv2.Client.deregister_targets
 
         :param ip_target_groups: List target group to which IP of untrust interface needs to be removed
-        :param instance_id: EC2 Instance id
+        :param untrust_ip: IP of untrust interface
         :return: none
         """
-        untrust_ip = self.ip_untrust_interface(instance_id)
-        
         for target_group in ip_target_groups:
             self.logger.info(f"Deregister target with IP {untrust_ip} in target group {target_group['arn']}")
             self.elbv2_client.deregister_targets(
@@ -394,6 +412,170 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                     },
                 ]
             )
+
+    def panorama_cmd(self, panorama, cmd: str, xml: bool = True, cmd_xml: bool = True) -> Element:
+        """
+        Helper function used for call command to Panorama.
+
+        :param panorama: Panorama object
+        :param cmd: command send further to Panorama
+        :param xml: (bool) Return value should be a string
+        :param cmd_xml: (bool) True: cmd is not XML, False: cmd is XML
+        :return: Output of executed command
+        """
+        self.logger.info(f"Call Panorama with: '{cmd}' command.")
+        request = panorama.op(cmd=cmd, xml=xml, cmd_xml=cmd_xml)
+        return et.fromstring(request)
+
+    def check_ssm_param(self, ssm_param_name: str) -> dict:
+        """
+        Helper function to check config parameter in SSM Parameter Store
+
+        :ssm_param_name: Parameter name
+        :return: dict
+        """
+        ssm_param_list = self.ssm_client.get_parameter(Name=ssm_param_name, WithDecryption=True).get("Parameter").get("Value"). \
+            replace("\'", "\"")
+        return loads(ssm_param_list)
+
+    def delicense_fw(self, instance_id) -> bool:
+        """
+        Function used to de-license VM-Series using plugin sw_fw_license.
+        In order to deactivate license used by VM-Series with specified IP address, below steps are done:
+        - connect to Panorama using acquired secrets
+        - list all devices in license manager
+        - de-license only this serial number, which is matching specified IP address
+
+        :param instance_id: EC2 Instance id
+        :return: True if VM-Series was de-licensed correctly, False in other case
+        """
+        # Check if delicense FW or not
+        if (delicense_config := loads(getenv('delicense_config'))).get('enabled'):
+            # Find IP address of VM-Series instance managed by Panorama
+            vmseries_ip_address = self.ip_network_interface(instance_id, '1')
+            self.logger.debug(f"Found VM-Series ID: {instance_id} IP: {vmseries_ip_address} ")
+
+            # Get setting required to connect to Panorama
+            ssm_param_name = delicense_config.get('ssm_param')
+            panorama_config = self.check_ssm_param(ssm_param_name)
+            panorama_username = panorama_config.get("username")
+            panorama_password = panorama_config.get("password")
+            panorama_hostname = panorama_config.get("panorama1")
+            panorama_hostname2 = panorama_config.get("panorama2")
+            panorama_lm_name = panorama_config.get("license_manager")
+
+            # Check if there is defined 2 Panorama server
+            if 'panorama2' in panorama_config:
+                # Check if first Panorama is active - if not, the use second Panorama for de-licensing
+                if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
+                    # De-license using active, first Panorama instance from Active-Passive HA cluster
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+                else:
+                    # De-license using active, second Panorama instance from Active-Passive HA cluster
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
+            else:
+                # De-license using the only 1 Panorama instance
+                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+
+            return delicensed
+        else:
+            return False
+
+    def check_is_active_in_ha(self, panorama_hostname, panorama_username, panorama_password) -> bool:
+        """
+        Function used to check if provided Panorama hostname is active
+
+        :param panorama_hostname: Hostname of the Panorama server
+        :param panorama_username: Account's name
+        :param panorama_password: Account's password
+        :return: True if Panorama is active in HA cluster
+        """
+        try:
+            # Set status of active
+            active = False
+
+            # Connect to selected Panorama instance
+            self.logger.info(f"Connecting to '{panorama_hostname}' using user '{panorama_username}''")
+            panorama = Panorama(hostname=panorama_hostname,
+                                api_username=panorama_username,
+                                api_password=panorama_password)
+
+            # Check high-availability state
+            cmd = "show high-availability state"
+            firewalls_parsed = self.panorama_cmd(panorama, cmd=cmd)
+
+            # Check if in active state
+            for info in firewalls_parsed[0]:
+                if info.tag == "local-info":
+                    for attr in info:
+                        if attr.tag == "state":
+                            active = "active" in attr.text
+
+            # Return high-availability state
+            return active
+        except:
+            self.logger.info(f"Error while checking high-availability state for Panorama {panorama_hostname}")
+            return False
+
+    def request_panorama_delicense_fw(self, vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name) -> bool:
+        """
+        Function used to de-license VM-Series using plugin sw_fw_license running on Panorama server
+
+        :param vmseries_ip_address: IP address of the MGMT interface for VM-Series
+        :param panorama_hostname: Hostname of the Panorama server
+        :param panorama_username: Account's name
+        :param panorama_password: Account's password
+        :return: True if VM-Series was de-licensed correctly, False in other case
+        """
+        try:
+            # Set status of delicensing
+            delicensed = False
+
+            # Connect to selected Panorama instance
+            self.logger.info(f"Connecting to '{panorama_hostname}' using user '{panorama_username}' to license manager '{panorama_lm_name}'")
+            panorama = Panorama(hostname=panorama_hostname,
+                                api_username=panorama_username,
+                                api_password=panorama_password)
+
+            # List all devices under the configured license manager
+            cmd = f"show plugins sw_fw_license devices license-manager \"{panorama_lm_name}\""
+            firewalls_parsed = self.panorama_cmd(panorama, cmd=cmd)
+
+            # If the command succeeded, start sweeping the list of FWs
+            if firewalls_parsed.attrib["status"] == 'success':
+                do_commit = False
+                self.logger.info("Parsing firewall list")
+                for fw in firewalls_parsed[0][0]:
+                    ip_obj = fw.find("ip")
+                    # For each firewall from the list, check if IP address is matching value of vmseries_ip_address
+                    if ip_obj is not None:
+                        ip = ip_obj.text
+                        self.logger.info(f"Working on VM-Series with management IP: {ip}")
+                        if ip is not None and ip == vmseries_ip_address:
+                            serial_obj = fw.find("serial")
+                            if serial_obj is not None:
+                                serial = serial_obj.text
+                                # If IP address is the same as destroyed VM and serial is not none, then delicense firewall
+                                if serial_obj.text is not None:
+                                    self.logger.info(f"De-licensing firewall: {serial} ...")
+                                    cmd = f"request plugins sw_fw_license deactivate license-manager \"{panorama_lm_name}\" devices member \"{serial}\""
+                                    resp_parsed = self.panorama_cmd(panorama, cmd)
+                                    if resp_parsed.attrib["status"] == "success":
+                                        self.logger.info(f"De-licensing firewall: {serial} succeeded")
+                                        do_commit = True
+                                        delicensed = True
+                                    else:
+                                        self.logger.info(f"De-licensing firewall: {serial} failed")
+                # Commit changes in case we did de-license a FW
+                if do_commit:
+                    self.logger.info("Committing changes in Panorama")
+                    panorama.commit(sync=False, admins="__sw_fw_license")
+
+            # Return final result of de-licensing
+            return delicensed
+        except:
+            self.logger.info(f"Error while de-licensing VM-Series using Panorama {panorama_hostname}")
+            return False
 
 
 def lambda_handler(asg_event: dict, context: dict):
