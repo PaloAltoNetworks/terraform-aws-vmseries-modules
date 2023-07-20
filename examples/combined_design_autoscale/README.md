@@ -1,7 +1,7 @@
 ---
-short_title: Combined Design Autoscale
+short_title: Combined Design with Autoscaling
 type: refarch
-show_in_hub: false
+show_in_hub: true
 ---
 # Reference Architecture with Terraform: VM-Series in AWS, Combined Design Model, Common NGFW Option with Autoscaling
 

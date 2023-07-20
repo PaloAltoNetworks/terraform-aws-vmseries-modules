@@ -1,7 +1,7 @@
 ---
-short_title: Isolated Design Autoscale
+short_title: Isolated Design with Autoscaling
 type: refarch
-show_in_hub: false
+show_in_hub: true
 ---
 # Reference Architecture with Terraform: VM-Series in AWS, Isolated Design Model, Common NGFW option with Autoscaling
 
