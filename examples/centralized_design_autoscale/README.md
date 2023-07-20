@@ -1,5 +1,5 @@
 ---
-short_title: Centralized Design Autoscale
+short_title: Centralized Design with Autoscaling
 type: refarch
 show_in_hub: true
 ---
