@@ -1,0 +1,19 @@
+name: Orchestrator Hub Sync System Workflow
+
+permissions:
+  contents: read
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  hub_sync:
+    name: Trigger Hub Sync Workflow
+    uses: benc-uk/workflow-dispatch@v1
+    with:
+      workflow: run.yml
+      repo: PaloAltoNetworks/automation-metadata-collector
+      ref: main
+      inputs: '{"cloud-id": "aws"}'
