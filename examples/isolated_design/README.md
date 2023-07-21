@@ -11,7 +11,7 @@ The Terraform code presented here will deploy Palo Alto Networks VM-Series firew
 
 ## Reference Architecture Design
 
-![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/6574404/5199b4a8-2a59-4789-9ec0-870d97133acd)
+![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/2110772/f1dbcd98-43c4-4038-ab47-a9239d4b1e8b)
 
 This code implements:
 - an _isolated design_, which secures outbound and inbound traffic flows using AWS Gateway Load Balancer (GWLB). Application resources are segmented across multiple VPCs that distribute traffic to the dedicated VPC for security services where the VM-Series are deployed.
