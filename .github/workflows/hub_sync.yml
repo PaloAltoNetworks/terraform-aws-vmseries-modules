@@ -10,11 +10,13 @@ on:
 
 jobs:
   hub_sync:
-    name: Trigger Hub Sync Workflow
-    uses: benc-uk/workflow-dispatch@v1
-    with:
-      workflow: run.yml
-      repo: PaloAltoNetworks/automation-metadata-collector
-      ref: main
-      token: ${{ secrets.HUB_SYNC_TOKEN }}
-      inputs: '{"cloud-id": "aws"}'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Hub Sync Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: run.yml
+          repo: PaloAltoNetworks/automation-metadata-collector
+          ref: main
+          token: ${{ secrets.HUB_SYNC_TOKEN }}
+          inputs: '{"cloud-id": "aws"}'
