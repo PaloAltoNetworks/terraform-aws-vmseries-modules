@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/go/helpers"
+	"github.com/PaloAltoNetworks/terraform-modules-vmseries-tests-skeleton/pkg/helpers"
 	"github.com/PaloAltoNetworks/terraform-modules-vmseries-tests-skeleton/pkg/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
