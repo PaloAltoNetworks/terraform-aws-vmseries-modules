@@ -1,6 +1,6 @@
 module github.com/PaloAltoNetworks/terraform-aws-vmseries-modules
 
-go 1.18
+go 1.20
 
 require (
 	github.com/PaloAltoNetworks/terraform-modules-vmseries-tests-skeleton v1.0.1
