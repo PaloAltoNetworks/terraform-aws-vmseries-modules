@@ -14,6 +14,7 @@ locals {
         name     = target_name
         id       = target_id
         port     = try(v.target_port, v.port)
+        target_az = try(v.target_az, null)
       }
     ]
   ])
@@ -24,6 +25,7 @@ locals {
       app_name = v.app_name
       id       = v.id
       port     = v.port
+      target_az = v.target_az
     }
   }
 }
@@ -186,6 +188,7 @@ resource "aws_lb_target_group_attachment" "this" {
   target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
   target_id        = each.value.id
   port             = each.value.port
+  availability_zone = each.value.target_az
 }
 
 resource "aws_lb_listener" "this" {
