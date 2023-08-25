@@ -10,10 +10,11 @@ locals {
     for k, v in var.balance_rules : [
       for target_name, target_id in v.targets :
       {
-        app_name = k
-        name     = target_name
-        id       = target_id
-        port     = try(v.target_port, v.port)
+        app_name  = k
+        name      = target_name
+        id        = target_id
+        port      = try(v.target_port, v.port)
+        target_az = try(v.target_az, null)
       }
     ]
   ])
@@ -21,9 +22,10 @@ locals {
   target_attachments = {
     for v in local.fw_instance_list :
     "${v.app_name}-${v.name}" => {
-      app_name = v.app_name
-      id       = v.id
-      port     = v.port
+      app_name  = v.app_name
+      id        = v.id
+      port      = v.port
+      target_az = v.target_az
     }
   }
 }
@@ -183,9 +185,10 @@ resource "aws_lb_target_group" "this" {
 resource "aws_lb_target_group_attachment" "this" {
   for_each = local.target_attachments
 
-  target_group_arn = aws_lb_target_group.this[each.value.app_name].arn
-  target_id        = each.value.id
-  port             = each.value.port
+  target_group_arn  = aws_lb_target_group.this[each.value.app_name].arn
+  target_id         = each.value.id
+  port              = each.value.port
+  availability_zone = each.value.target_az
 }
 
 resource "aws_lb_listener" "this" {
