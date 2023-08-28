@@ -10,8 +10,9 @@ resource "aws_customer_gateway" "this" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_connection
 resource "aws_vpn_connection" "this" {
   customer_gateway_id                     = aws_customer_gateway.this.id
-  transit_gateway_id                      = var.transit_gateway_id
   type                                    = aws_customer_gateway.this.type
+  vpn_gateway_id                          = try(var.vpn_gateway_id, null)
+  transit_gateway_id                      = try(var.transit_gateway_id, null)
   static_routes_only                      = try(var.vpn_connection.static_routes_only, false)
   enable_acceleration                     = try(var.vpn_connection.enable_acceleration, false)
   local_ipv4_network_cidr                 = try(var.vpn_connection.local_ipv4_network_cidr, "0.0.0.0/0")

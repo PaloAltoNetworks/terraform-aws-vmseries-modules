@@ -101,6 +101,11 @@ variable "vpn_connection" {
   type        = any
 }
 
+variable "vpn_gateway_id" {
+  description = "Virtual Private Gateway's ID used by VPN connection"
+  type        = string
+}
+
 variable "transit_gateway_id" {
   description = "TGW's ID used by VPN connection"
   type        = string
