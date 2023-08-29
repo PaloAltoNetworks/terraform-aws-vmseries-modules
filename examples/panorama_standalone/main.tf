@@ -102,7 +102,7 @@ resource "aws_iam_role_policy" "this" {
             "Action": [
               "ec2:DescribeInstanceStatus",
               "ec2:DescribeInstances"
-            ]
+            ],
             "Resource": "*"
         },
         {
@@ -115,13 +115,13 @@ resource "aws_iam_role_policy" "this" {
             "Resource": "*"
         },
         {
-          "Action": [
-            "cloudwatch:DescribeAlarms"
-          ],
-          "Resource": [
-            "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
-          ],
-          "Effect": "Allow"
+            "Effect": "Allow",
+            "Action": [
+              "cloudwatch:DescribeAlarms"
+            ],
+            "Resource": [
+              "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
+            ]
         }
     ]
 }
