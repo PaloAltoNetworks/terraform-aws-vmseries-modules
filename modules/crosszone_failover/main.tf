@@ -49,6 +49,10 @@ resource "aws_s3_object" "this" {
 # IAM Resources
 ################
 
+data "aws_caller_identity" "this" {}
+
+data "aws_partition" "this" {}
+
 resource "aws_iam_role" "lambda_exec" {
   name = "${var.prefix_name_tag}-lambda-exec"
   path = "/"
@@ -87,12 +91,7 @@ resource "aws_iam_role_policy" "lambda_exec" {
     "Statement": [
         {
             "Action": [
-                "ec2:CreateRoute",
-                "ec2:DeleteRoute",
-                "logs:*",
                 "ec2:DescribeRouteTables",
-                "ec2:ReplaceRoute",
-                "ec2:AssociateRouteTable",
                 "ec2:DescribeSecurityGroups",
                 "ec2:DescribeSubnets",
                 "ec2:DescribeVpcs"
@@ -101,12 +100,37 @@ resource "aws_iam_role_policy" "lambda_exec" {
                 "*"
             ],
             "Effect": "Allow"
-        }
+        },
+        {
+            "Action": [
+                "ec2:CreateRoute",
+                "ec2:DeleteRoute",
+                "ec2:ReplaceRoute"
+            ],
+            "Resource": [
+                "arn:${data.aws_partition.this.partition}:ec2:${var.region}:${data.aws_caller_identity.this.account_id}:route-table/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "ec2:AssociateRouteTable",
+            ],
+            "Resource": [
+                "arn:${data.aws_partition.this.partition}:ec2:${var.region}:${data.aws_caller_identity.this.account_id}:route-table/*",
+                "arn:${data.aws_partition.this.partition}:ec2:${var.region}:${data.aws_caller_identity.this.account_id}:internet-gateway/*"
+                "arn:${data.aws_partition.this.partition}:ec2:${var.region}:${data.aws_caller_identity.this.account_id}:subnet/*"
+                "arn:${data.aws_partition.this.partition}:ec2:${var.region}:${data.aws_caller_identity.this.account_id}:vpn-gateway/*"
+            ],
+            "Effect": "Allow"
+        }         
     ]
 }
 EOF
 }
 
+
+# "logs:*",
 
 resource "aws_lambda_function" "rt_failover" {
   function_name = "${var.prefix_name_tag}-rt-failover"
