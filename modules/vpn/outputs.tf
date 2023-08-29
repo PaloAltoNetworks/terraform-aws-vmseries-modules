@@ -15,6 +15,14 @@ output "tunnel1" {
     inside_ip_address_aws : aws_vpn_connection.this.tunnel1_vgw_inside_address
     inside_ip_address_cgw : aws_vpn_connection.this.tunnel1_cgw_inside_address
     bgp_asn : aws_vpn_connection.this.tunnel1_bgp_asn
+    ipsec_policy : {
+      phase1_dh_group_numbers : one(aws_vpn_connection.this.tunnel1_phase1_dh_group_numbers)
+      phase1_encryption_algorithms : one(aws_vpn_connection.this.tunnel1_phase1_encryption_algorithms)
+      phase1_integrity_algorithms : one(aws_vpn_connection.this.tunnel1_phase1_integrity_algorithms)
+      phase2_dh_group_numbers : one(aws_vpn_connection.this.tunnel1_phase2_dh_group_numbers)
+      phase2_encryption_algorithms : one(aws_vpn_connection.this.tunnel1_phase2_encryption_algorithms)
+      phase2_integrity_algorithms : one(aws_vpn_connection.this.tunnel1_phase2_integrity_algorithms)
+    }
   }
 }
 
@@ -25,5 +33,13 @@ output "tunnel2" {
     inside_ip_address_aws : aws_vpn_connection.this.tunnel2_vgw_inside_address
     inside_ip_address_cgw : aws_vpn_connection.this.tunnel2_cgw_inside_address
     bgp_asn : aws_vpn_connection.this.tunnel2_bgp_asn
+    ipsec_policy : {
+      phase1_dh_group_numbers : one(aws_vpn_connection.this.tunnel2_phase1_dh_group_numbers)
+      phase1_encryption_algorithms : one(aws_vpn_connection.this.tunnel2_phase1_encryption_algorithms)
+      phase1_integrity_algorithms : one(aws_vpn_connection.this.tunnel2_phase1_integrity_algorithms)
+      phase2_dh_group_numbers : one(aws_vpn_connection.this.tunnel2_phase2_dh_group_numbers)
+      phase2_encryption_algorithms : one(aws_vpn_connection.this.tunnel2_phase2_encryption_algorithms)
+      phase2_integrity_algorithms : one(aws_vpn_connection.this.tunnel2_phase2_integrity_algorithms)
+    }
   }
 }
