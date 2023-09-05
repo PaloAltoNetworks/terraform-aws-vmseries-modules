@@ -264,3 +264,9 @@ variable "target_group_az" {
   default     = null
   type        = string
 }
+
+variable "target_group_prefix" {
+  description = "Prefix name of target group (if not define lb_name variable)"
+  default     = null
+  type        = string
+}

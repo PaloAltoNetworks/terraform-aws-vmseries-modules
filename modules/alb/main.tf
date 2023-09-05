@@ -243,7 +243,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = local.listener_tg
 
-  name                          = "${var.lb_name}-${each.key}"
+  name                          = var.target_group_prefix == null ? "${var.lb_name}-${each.key}" : "${var.target_group_prefix}-${each.key}"
   vpc_id                        = var.vpc_id
   port                          = each.value.port
   protocol                      = each.value.proto
