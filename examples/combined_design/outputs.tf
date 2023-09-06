@@ -20,3 +20,8 @@ output "network_load_balancers" {
   EOF
   value       = { for k, v in module.public_nlb : k => v.lb_fqdn }
 }
+
+##### General #####
+output "names" {
+  value = module.names
+}

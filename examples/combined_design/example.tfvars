@@ -1,6 +1,5 @@
 ### GENERAL
-region      = "eu-central-1" # TODO: update here
-name_prefix = "example-"     # TODO: update here
+region = "eu-central-1" # TODO: update here
 
 global_tags = {
   ManagedBy   = "terraform"
@@ -10,11 +9,53 @@ global_tags = {
 
 ssh_key_name = "example-ssh-key" # TODO: update here
 
+name_templates = {
+  name_delimiter = "-"
+  name_template = {
+    default = [
+      { prefix = "scz" },
+      { abbreviation = "__default__" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+    ]
+    index = [
+      { prefix = "scz" },
+      { abbreviation = "__default__" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+      { index = "%s" },
+    ]
+    name = [
+      { prefix = "scz" },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+    ]
+    max_32_character = [
+      { prefix = "scz" },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+    ]
+  }
+  assign_template = {
+    default                  = "name"
+    nat_gateway              = "index"
+    application_loadbalancer = "max_32_character"
+    network_loadbalancer     = "max_32_character"
+    vm                       = "index"
+    vmseries                 = "index"
+  }
+}
+
 ### VPC
 vpcs = {
   # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   security_vpc = {
-    name = "security-vpc"
+    name = "security"
     cidr = "10.100.0.0/16"
     nacls = {
       trusted_path_monitoring = {
@@ -162,6 +203,8 @@ vpcs = {
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null }
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
       "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
+      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw", nacl = null }
+      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -197,11 +240,17 @@ vpcs = {
         next_hop_key  = "security_gwlb_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
+      # public_default = {
+      #   vpc_subnet    = "security_vpc-public"
+      #   to_cidr       = "0.0.0.0/0"
+      #   next_hop_key  = "security_vpc"
+      #   next_hop_type = "internet_gateway"
+      # }
       public_default = {
         vpc_subnet    = "security_vpc-public"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_nat_gw"
+        next_hop_type = "nat_gateway"
       }
       gwlbe_outbound_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_outbound"
@@ -215,10 +264,22 @@ vpcs = {
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
+      nat_default = {
+        vpc_subnet    = "security_vpc-natgw"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      nat_rfc1918 = {
+        vpc_subnet    = "security_vpc-natgw"
+        to_cidr       = "10.0.0.0/8"
+        next_hop_key  = "security_gwlb_outbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
     }
   }
   app1_vpc = {
-    name  = "app1-spoke-vpc"
+    name  = "app1"
     cidr  = "10.104.0.0/16"
     nacls = {}
     security_groups = {
@@ -302,7 +363,7 @@ vpcs = {
     }
   }
   app2_vpc = {
-    name  = "app2-spoke-vpc"
+    name  = "app2"
     cidr  = "10.105.0.0/16"
     nacls = {}
     security_groups = {
@@ -414,13 +475,13 @@ tgw = {
       propagate_routes_to = "from_spoke_vpc"
     }
     app1 = {
-      name                = "app1-spoke-vpc"
+      name                = "app1"
       vpc_subnet          = "app1_vpc-app1_vm"
       route_table         = "from_spoke_vpc"
       propagate_routes_to = "from_security_vpc"
     }
     app2 = {
-      name                = "app2-spoke-vpc"
+      name                = "app2"
       vpc_subnet          = "app2_vpc-app2_vm"
       route_table         = "from_spoke_vpc"
       propagate_routes_to = "from_security_vpc"
@@ -429,13 +490,23 @@ tgw = {
 }
 
 ### NAT GATEWAY
-natgws = {}
+natgws = {
+  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+  security_nat_gw = {
+    name       = "natgw"
+    vpc_subnet = "security_vpc-natgw"
+    nat_gateway_names = {
+      "eu-central-1a" = "001"
+      "eu-central-1b" = "002"
+    }
+  }
+}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
   # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   security_gwlb = {
-    name       = "security-gwlb"
+    name       = "security"
     vpc_subnet = "security_vpc-gwlb"
   }
 }
@@ -444,7 +515,7 @@ gwlb_endpoints = {
   # Value of `vpc` must match key of objects stored in `vpcs`
   # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   security_gwlb_eastwest = {
-    name            = "eastwest-gwlb-endpoint"
+    name            = "eastwest"
     gwlb            = "security_gwlb"
     vpc             = "security_vpc"
     vpc_subnet      = "security_vpc-gwlbe_eastwest"
@@ -452,7 +523,7 @@ gwlb_endpoints = {
     to_vpc_subnets  = null
   }
   security_gwlb_outbound = {
-    name            = "outbound-gwlb-endpoint"
+    name            = "outbound"
     gwlb            = "security_gwlb"
     vpc             = "security_vpc"
     vpc_subnet      = "security_vpc-gwlbe_outbound"
@@ -460,7 +531,7 @@ gwlb_endpoints = {
     to_vpc_subnets  = null
   }
   app1_inbound = {
-    name            = "app1-gwlb-endpoint"
+    name            = "app1"
     gwlb            = "security_gwlb"
     vpc             = "app1_vpc"
     vpc_subnet      = "app1_vpc-app1_gwlbe"
@@ -468,7 +539,7 @@ gwlb_endpoints = {
     to_vpc_subnets  = "app1_vpc-app1_lb"
   }
   app2_inbound = {
-    name            = "app2-gwlb-endpoint"
+    name            = "app2"
     gwlb            = "security_gwlb"
     vpc             = "app2_vpc"
     vpc_subnet      = "app2_vpc-app2_gwlbe"
@@ -479,10 +550,10 @@ gwlb_endpoints = {
 
 ### VM-SERIES
 vmseries = {
-  vmseries = {
+  ngfw = {
     instances = {
-      "01" = { az = "eu-central-1a" }
-      "02" = { az = "eu-central-1b" }
+      "001" = { az = "eu-central-1a" }
+      "002" = { az = "eu-central-1b" }
     }
 
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
@@ -524,10 +595,11 @@ vmseries = {
         source_dest_check = true
       }
       public = {
-        device_index      = 2
-        security_group    = "vmseries_public"
-        vpc_subnet        = "security_vpc-public"
-        create_public_ip  = true
+        device_index   = 2
+        security_group = "vmseries_public"
+        vpc_subnet     = "security_vpc-public"
+        # create_public_ip  = true
+        create_public_ip  = false
         source_dest_check = false
       }
     }
@@ -584,28 +656,28 @@ panorama_attachment = {
 
 ### SPOKE VMS
 spoke_vms = {
-  "app1_vm01" = {
+  "app1-001" = {
     az             = "eu-central-1a"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
-  "app1_vm02" = {
+  "app1-002" = {
     az             = "eu-central-1b"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
-  "app2_vm01" = {
+  "app2-001" = {
     az             = "eu-central-1a"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
     type           = "t2.micro"
   }
-  "app2_vm02" = {
+  "app2-002" = {
     az             = "eu-central-1b"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
@@ -616,19 +688,19 @@ spoke_vms = {
 
 ### SPOKE LOADBALANCERS
 spoke_nlbs = {
-  "app1-nlb" = {
+  "app1" = {
     vpc_subnet = "app1_vpc-app1_lb"
-    vms        = ["app1_vm01", "app1_vm02"]
+    vms        = ["app1-001", "app1-002"]
   }
-  "app2-nlb" = {
+  "app2" = {
     vpc_subnet = "app2_vpc-app2_lb"
-    vms        = ["app2_vm01", "app2_vm02"]
+    vms        = ["app2-001", "app2-002"]
   }
 }
 
 spoke_albs = {
-  "app1-alb" = {
-    vms = ["app1_vm01", "app1_vm02"]
+  "app1" = {
+    vms = ["app1-001", "app1-002"]
     rules = {
       "app1" = {
         protocol              = "HTTP"
@@ -650,8 +722,8 @@ spoke_albs = {
     vpc_subnet      = "app1_vpc-app1_lb"
     security_groups = "app1_lb"
   }
-  "app2-alb" = {
-    vms = ["app2_vm01", "app2_vm02"]
+  "app2" = {
+    vms = ["app2-001", "app2-002"]
     rules = {
       "app2" = {
         protocol              = "HTTP"

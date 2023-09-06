@@ -3,16 +3,24 @@ variable "region" {
   description = "AWS region used to deploy whole infrastructure"
   type        = string
 }
-variable "name_prefix" {
-  description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
-  type        = string
-}
 variable "global_tags" {
   description = "Global tags configured for all provisioned resources"
 }
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
+}
+variable "name_templates" {
+  description = <<-EOF
+  Templates for names defined by object with 2 attributes:
+  - name_delimiter - it specifies the delimiter used between all components of the new name.
+  - name_template - a list of maps, where keys are informational only.
+  EOF
+  type = object({
+    name_delimiter  = string
+    name_template   = map(list(map(string)))
+    assign_template = map(string)
+  })
 }
 
 ### VPC
@@ -145,8 +153,9 @@ variable "natgws" {
   EOF
   default     = {}
   type = map(object({
-    name       = string
-    vpc_subnet = string
+    name              = string
+    vpc_subnet        = string
+    nat_gateway_names = map(string)
   }))
 }
 
