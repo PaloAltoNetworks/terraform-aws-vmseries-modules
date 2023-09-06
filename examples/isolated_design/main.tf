@@ -160,6 +160,10 @@ locals {
 
 ### IAM ROLES AND POLICIES ###
 
+data "aws_caller_identity" "this" {}
+
+data "aws_partition" "this" {}
+
 resource "aws_iam_role" "vm_series_ec2_iam_role" {
   name               = "${var.name_prefix}vmseries"
   assume_role_policy = <<EOF
@@ -184,20 +188,28 @@ resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
   "Statement": [
     {
       "Action": [
-        "cloudwatch:PutMetricAlarm",
-        "cloudwatch:GetMetricData",
         "cloudwatch:PutMetricData",
-        "cloudwatch:ListMetrics",
-        "cloudwatch:DescribeAlarms",
-        "logs:CreateLogGroup"
+        "cloudwatch:GetMetricData",
+        "cloudwatch:ListMetrics"
       ],
       "Resource": [
         "*"
       ],
       "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DescribeAlarms"
+      ],
+      "Resource": [
+        "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
+      ],
+      "Effect": "Allow"
     }
   ]
 }
+
 EOF
 }
 

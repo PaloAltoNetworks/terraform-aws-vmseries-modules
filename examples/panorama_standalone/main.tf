@@ -64,6 +64,10 @@ module "vpc_routes" {
 
 ### IAM ROLES AND POLICIES ###
 
+data "aws_caller_identity" "this" {}
+
+data "aws_partition" "this" {}
+
 resource "aws_iam_role" "this" {
   for_each           = var.panoramas
   name               = "${var.name_prefix}${each.value.iam.role_name}"
@@ -95,7 +99,10 @@ resource "aws_iam_role_policy" "this" {
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": "ec2:Describe*",
+            "Action": [
+              "ec2:DescribeInstanceStatus",
+              "ec2:DescribeInstances"
+            ],
             "Resource": "*"
         },
         {
@@ -103,9 +110,18 @@ resource "aws_iam_role_policy" "this" {
             "Action": [
                 "cloudwatch:ListMetrics",
                 "cloudwatch:GetMetricStatistics",
-                "cloudwatch:Describe*"
+                "cloudwatch:DescribeAlarmsForMetric"
             ],
             "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+              "cloudwatch:DescribeAlarms"
+            ],
+            "Resource": [
+              "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
+            ]
         }
     ]
 }
