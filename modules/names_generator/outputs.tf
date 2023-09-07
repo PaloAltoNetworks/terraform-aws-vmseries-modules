@@ -8,7 +8,7 @@ output "vpc_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.vpc.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.vpc.template])) > 0 ? format(
               local.name_template[var.names.vpc.template], split(var.region, v)[0]
             ) : local.name_template[var.names.vpc.template],
             "__default__",
@@ -30,7 +30,7 @@ output "internet_gateway_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.internet_gateway.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.internet_gateway.template])) > 0 ? format(
               local.name_template[var.names.internet_gateway.template], split(var.region, v)[0]
             ) : local.name_template[var.names.internet_gateway.template],
             "__default__",
@@ -52,7 +52,7 @@ output "vpn_gateway_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.vpn_gateway.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.vpn_gateway.template])) > 0 ? format(
               local.name_template[var.names.vpn_gateway.template], split(var.region, v)[0]
             ) : local.name_template[var.names.vpn_gateway.template],
             "__default__",
@@ -74,7 +74,7 @@ output "subnet_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.subnet.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.subnet.template])) > 0 ? format(
               local.name_template[var.names.subnet.template], split(var.region, v)[0]
             ) : local.name_template[var.names.subnet.template],
             "__default__",
@@ -96,7 +96,7 @@ output "route_table_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.route_table.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.route_table.template])) > 0 ? format(
               local.name_template[var.names.route_table.template], split(var.region, v)[0]
             ) : local.name_template[var.names.route_table.template],
             "__default__",
@@ -118,7 +118,7 @@ output "nat_gateway_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.nat_gateway.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.nat_gateway.template])) > 0 ? format(
               local.name_template[var.names.nat_gateway.template], split(var.region, v)[0]
             ) : local.name_template[var.names.nat_gateway.template],
             "__default__",
@@ -140,7 +140,7 @@ output "transit_gateway_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.transit_gateway.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.transit_gateway.template])) > 0 ? format(
               local.name_template[var.names.transit_gateway.template], split(var.region, v)[0]
             ) : local.name_template[var.names.transit_gateway.template],
             "__default__",
@@ -162,7 +162,7 @@ output "transit_gateway_attachment_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.transit_gateway_attachment.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.transit_gateway_attachment.template])) > 0 ? format(
               local.name_template[var.names.transit_gateway_attachment.template], split(var.region, v)[0]
             ) : local.name_template[var.names.transit_gateway_attachment.template],
             "__default__",
@@ -184,7 +184,7 @@ output "gateway_loadbalancer_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.gateway_loadbalancer.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer.template])) > 0 ? format(
               local.name_template[var.names.gateway_loadbalancer.template], split(var.region, v)[0]
             ) : local.name_template[var.names.gateway_loadbalancer.template],
             "__default__",
@@ -206,7 +206,7 @@ output "gateway_loadbalancer_target_group_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.gateway_loadbalancer_target_group.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer_target_group.template])) > 0 ? format(
               local.name_template[var.names.gateway_loadbalancer_target_group.template], split(var.region, v)[0]
             ) : local.name_template[var.names.gateway_loadbalancer_target_group.template],
             "__default__",
@@ -228,7 +228,7 @@ output "gateway_loadbalancer_endpoint_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.gateway_loadbalancer_endpoint.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer_endpoint.template])) > 0 ? format(
               local.name_template[var.names.gateway_loadbalancer_endpoint.template], split(var.region, v)[0]
             ) : local.name_template[var.names.gateway_loadbalancer_endpoint.template],
             "__default__",
@@ -250,7 +250,7 @@ output "vm_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.vm.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.vm.template])) > 0 ? format(
               local.name_template[var.names.vm.template], split(var.region, v)[0]
             ) : local.name_template[var.names.vm.template],
             "__default__",
@@ -272,7 +272,7 @@ output "vmseries_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.vmseries.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.vmseries.template])) > 0 ? format(
               local.name_template[var.names.vmseries.template], split(var.region, v)[0]
             ) : local.name_template[var.names.vmseries.template],
             "__default__",
@@ -294,7 +294,7 @@ output "application_loadbalancer_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.application_loadbalancer.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.application_loadbalancer.template])) > 0 ? format(
               local.name_template[var.names.application_loadbalancer.template], split(var.region, v)[0]
             ) : local.name_template[var.names.application_loadbalancer.template],
             "__default__",
@@ -316,7 +316,7 @@ output "application_loadbalancer_target_group_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.application_loadbalancer_target_group.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.application_loadbalancer_target_group.template])) > 0 ? format(
               local.name_template[var.names.application_loadbalancer_target_group.template], split(var.region, v)[0]
             ) : local.name_template[var.names.application_loadbalancer_target_group.template],
             "__default__",
@@ -338,7 +338,7 @@ output "network_loadbalancer_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.network_loadbalancer.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.network_loadbalancer.template])) > 0 ? format(
               local.name_template[var.names.network_loadbalancer.template], split(var.region, v)[0]
             ) : local.name_template[var.names.network_loadbalancer.template],
             "__default__",
@@ -360,7 +360,7 @@ output "network_loadbalancer_target_group_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.network_loadbalancer_target_group.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.network_loadbalancer_target_group.template])) > 0 ? format(
               local.name_template[var.names.network_loadbalancer_target_group.template], split(var.region, v)[0]
             ) : local.name_template[var.names.network_loadbalancer_target_group.template],
             "__default__",
@@ -382,7 +382,7 @@ output "iam_role_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.iam_role.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.iam_role.template])) > 0 ? format(
               local.name_template[var.names.iam_role.template], split(var.region, v)[0]
             ) : local.name_template[var.names.iam_role.template],
             "__default__",
@@ -404,7 +404,7 @@ output "iam_instance_profile_name" {
       replace(
         replace(
           replace(
-            strcontains(local.name_template[var.names.iam_instance_profile.template], "%s") ? format(
+            length(regexall("%s", local.name_template[var.names.iam_instance_profile.template])) > 0 ? format(
               local.name_template[var.names.iam_instance_profile.template], split(var.region, v)[0]
             ) : local.name_template[var.names.iam_instance_profile.template],
             "__default__",
