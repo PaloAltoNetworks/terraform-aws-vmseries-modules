@@ -142,6 +142,26 @@ output "gateway_loadbalancer_name" {
   }
 }
 
+output "gateway_loadbalancer_target_group_name" {
+  value = {
+    for k, v in var.names.gateway_loadbalancer_target_group.values : k => replace(
+      replace(
+        replace(
+          strcontains(local.name_template[var.names.gateway_loadbalancer_target_group.template], "%s") ? format(
+            local.name_template[var.names.gateway_loadbalancer_target_group.template], split(var.region, v)[0]
+          ) : local.name_template[var.names.gateway_loadbalancer_target_group.template],
+          "__default__",
+          var.abbreviations.gwlb_tg
+        ),
+        "__az_numeric__",
+        try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
+      ),
+      "__az_literal__",
+      try(split(var.region, v)[1], "")
+    )
+  }
+}
+
 output "gateway_loadbalancer_endpoint_name" {
   value = {
     for k, v in var.names.gateway_loadbalancer_endpoint.values : k => replace(
@@ -222,6 +242,26 @@ output "application_loadbalancer_name" {
   }
 }
 
+output "application_loadbalancer_target_group_name" {
+  value = {
+    for k, v in var.names.application_loadbalancer_target_group.values : k => replace(
+      replace(
+        replace(
+          strcontains(local.name_template[var.names.application_loadbalancer_target_group.template], "%s") ? format(
+            local.name_template[var.names.application_loadbalancer_target_group.template], split(var.region, v)[0]
+          ) : local.name_template[var.names.application_loadbalancer_target_group.template],
+          "__default__",
+          var.abbreviations.alb_tg
+        ),
+        "__az_numeric__",
+        try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
+      ),
+      "__az_literal__",
+      try(split(var.region, v)[1], "")
+    )
+  }
+}
+
 output "network_loadbalancer_name" {
   value = {
     for k, v in var.names.network_loadbalancer.values : k => replace(
@@ -232,6 +272,26 @@ output "network_loadbalancer_name" {
           ) : local.name_template[var.names.network_loadbalancer.template],
           "__default__",
           var.abbreviations.nlb
+        ),
+        "__az_numeric__",
+        try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
+      ),
+      "__az_literal__",
+      try(split(var.region, v)[1], "")
+    )
+  }
+}
+
+output "network_loadbalancer_target_group_name" {
+  value = {
+    for k, v in var.names.network_loadbalancer_target_group.values : k => replace(
+      replace(
+        replace(
+          strcontains(local.name_template[var.names.network_loadbalancer_target_group.template], "%s") ? format(
+            local.name_template[var.names.network_loadbalancer_target_group.template], split(var.region, v)[0]
+          ) : local.name_template[var.names.network_loadbalancer_target_group.template],
+          "__default__",
+          var.abbreviations.nlb_tg
         ),
         "__az_numeric__",
         try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")

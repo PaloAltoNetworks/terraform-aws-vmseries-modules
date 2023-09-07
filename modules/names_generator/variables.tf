@@ -49,10 +49,13 @@ variable "abbreviations" {
     tgw     = "tgw"
     tgw_att = "att"
     gwlb    = "gwlb"
+    gwlb_tg = "gwtg"
     gwlb_ep = "gwep"
     vm      = "vm"
     alb     = "alb"
+    alb_tg  = "atg"
     nlb     = "nlb"
+    nlb_tg  = "ntg"
     role    = "role"
     profile = "profile"
   }
