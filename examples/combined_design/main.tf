@@ -14,6 +14,7 @@ module "names" {
 
   name_delimiter = var.name_templates.name_delimiter
   name_template  = var.name_templates.name_template
+  abbreviations  = var.name_templates.abbreviations
   names = {
     vpc = {
       template = lookup(var.name_templates.assign_template, "vpc", lookup(var.name_templates.assign_template, "default", "default")),

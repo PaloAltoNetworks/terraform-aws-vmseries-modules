@@ -23,11 +23,32 @@ variable "name_template" {
 variable "names" {
   description = <<-EOF
   Map of names used for resources (placed in place of "%s").
-  If for resource there is no key in the map, then value for key __default__ is used
   EOF
   type = map(object({
     template : string
     values : map(string)
   }))
   default = {}
+}
+
+variable "abbreviations" {
+  description = <<-EOF
+  Map of abbreviations used for resources (placed in place of "__default__").
+  EOF
+  type        = map(string)
+  default = {
+    vpc     = "vpc"
+    snet    = "snet"
+    rt      = "rt"
+    ngw     = "ngw"
+    tgw     = "tgw"
+    tgw_att = "att"
+    gwlb    = "gwlb"
+    gwlb_ep = "gwep"
+    vm      = "vm"
+    alb     = "alb"
+    nlb     = "nlb"
+    role    = "role"
+    profile = "profile"
+  }
 }
