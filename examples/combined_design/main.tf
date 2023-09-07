@@ -29,9 +29,24 @@ module "names" {
       template = lookup(var.name_templates.assign_template, "vpc", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.vpcs : k => v.name }
     }
+    internet_gateway = {
+      template = lookup(var.name_templates.assign_template, "internet_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for k, v in var.vpcs : k => v.name }
+    }
+    vpn_gateway = {
+      template = lookup(var.name_templates.assign_template, "vpn_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for k, v in var.vpcs : k => v.name }
+    }
     subnet = {
       template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    }
+    route_table = {
+      template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
+      values = merge(
+        { for k, v in var.vpcs : k => "igw_${v.name}" },
+        { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+      )
     }
     nat_gateway = {
       template = lookup(var.name_templates.assign_template, "nat_gateway", lookup(var.name_templates.assign_template, "default", "default")),
@@ -103,14 +118,16 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name                    = module.names.vpc_name[each.key]
-  cidr_block              = each.value.cidr
-  nacls                   = each.value.nacls
-  security_groups         = each.value.security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
+  name                         = module.names.vpc_name[each.key]
+  cidr_block                   = each.value.cidr
+  nacls                        = each.value.nacls
+  security_groups              = each.value.security_groups
+  create_internet_gateway      = true
+  name_internet_gateway        = module.names.internet_gateway_name[each.key]
+  route_table_internet_gateway = module.names.route_table_name[each.key]
+  enable_dns_hostnames         = true
+  enable_dns_support           = true
+  instance_tenancy             = "default"
 }
 
 module "subnet_sets" {
