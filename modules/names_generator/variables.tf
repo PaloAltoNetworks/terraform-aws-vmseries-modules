@@ -1,3 +1,8 @@
+variable "region" {
+  description = "AWS region used to deploy whole infrastructure"
+  type        = string
+}
+
 variable "name_delimiter" {
   description = <<-EOF
   It specifies the delimiter used between all components of the new name.
@@ -50,5 +55,23 @@ variable "abbreviations" {
     nlb     = "nlb"
     role    = "role"
     profile = "profile"
+  }
+}
+
+variable "az_map_literal_to_numeric" {
+  description = <<-EOF
+  Map of number used instead of letters for AZs (placed in place of "__az_numeric__").
+  EOF
+  type        = map(string)
+  default = {
+    a = 1
+    b = 2
+    c = 3
+    d = 4
+    e = 5
+    f = 6
+    g = 7
+    h = 8
+    i = 9
   }
 }

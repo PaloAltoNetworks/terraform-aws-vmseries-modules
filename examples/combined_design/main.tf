@@ -1,7 +1,7 @@
 locals {
   subnets = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : {
     name : split("-", "${vk}-${sv.set}")[1]
-    az : substr(sv.az, -1, -1)
+    az : sv.az # substr(sv.az, -1, -1)
   }]) } : v]))
   nat_gateways = flatten([for m, n in var.natgws : [for k, v in n.nat_gateway_names : {
     key : "${m}-${k}"
@@ -12,6 +12,7 @@ locals {
 module "names" {
   source = "../../modules/names_generator"
 
+  region         = var.region
   name_delimiter = var.name_templates.name_delimiter
   name_template  = var.name_templates.name_template
   abbreviations  = var.name_templates.abbreviations
@@ -116,8 +117,8 @@ module "subnet_sets" {
         {
           cidr : sk,
           subnet : merge(sv, {
-            name             = module.names.subnet_name["${split("-", each.key)[1]}${substr(sv.az, -1, -1)}"]
-            route_table_name = module.names.route_table_name["${split("-", each.key)[1]}${substr(sv.az, -1, -1)}"]
+            name             = module.names.subnet_name["${split("-", each.key)[1]}${sv.az}"]
+            route_table_name = module.names.route_table_name["${split("-", each.key)[1]}${sv.az}"]
           })
         } if each.key == "${vk}-${sv.set}"
     ]]) : i.cidr => i.subnet
