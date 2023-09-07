@@ -17,7 +17,7 @@ func TestExampleCombinedDesign(t *testing.T) {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
 	number := random.Intn(1000)
-	namePrefix := fmt.Sprintf("terra%d-", number)
+	namePrefix := fmt.Sprintf("terra%d", number)
 
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{

@@ -3,11 +3,8 @@ variable "region" {
   description = "AWS region used to deploy whole infrastructure"
   type        = string
 }
-variable "global_tags" {
-  description = "Global tags configured for all provisioned resources"
-}
-variable "ssh_key_name" {
-  description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
+variable "name_prefix" {
+  description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
   type        = string
 }
 variable "name_templates" {
@@ -24,6 +21,13 @@ variable "name_templates" {
     assign_template = map(string)
     abbreviations   = map(string)
   })
+}
+variable "global_tags" {
+  description = "Global tags configured for all provisioned resources"
+}
+variable "ssh_key_name" {
+  description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
+  type        = string
 }
 
 ### VPC

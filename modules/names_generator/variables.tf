@@ -11,6 +11,11 @@ variable "name_delimiter" {
   default     = "-"
 }
 
+variable "name_prefix" {
+  description = "Prefix used in names for the resources"
+  type        = string
+}
+
 variable "name_template" {
   description = <<-EOF
   A list of maps, where keys are informational only.

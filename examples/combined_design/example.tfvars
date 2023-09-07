@@ -9,18 +9,19 @@ global_tags = {
 
 ssh_key_name = "example-ssh-key" # TODO: update here
 
+name_prefix = "example"
 name_templates = {
   name_delimiter = "-"
   name_template = {
     default = [
-      { prefix = "scz" },
+      { prefix = null },
       { abbreviation = "__default__" },
       { bu = "cloud" },
       { env = "tst" },
       { suffix = "ec1" },
     ]
     index = [
-      { prefix = "scz" },
+      { prefix = null },
       { abbreviation = "__default__" },
       { bu = "cloud" },
       { env = "tst" },
@@ -28,7 +29,7 @@ name_templates = {
       { index = "%s" },
     ]
     name = [
-      { prefix = "scz" },
+      { prefix = null },
       { abbreviation = "__default__" },
       { name = "%s" },
       { bu = "cloud" },
@@ -36,7 +37,7 @@ name_templates = {
       { suffix = "ec1" },
     ]
     name_with_az = [
-      { prefix = "scz" },
+      { prefix = null },
       { abbreviation = "__default__" },
       { name = "%s" },
       { bu = "cloud" },
@@ -44,13 +45,24 @@ name_templates = {
       { suffix = "ec1" },
       { az = "__az_numeric__" }, # __az_literal__, __az_numeric__
     ]
+    name_max_32_characters = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+    ]
   }
   assign_template = {
-    default     = "name"
-    subnet      = "name_with_az"
-    nat_gateway = "index"
-    vm          = "index"
-    vmseries    = "index"
+    default                               = "name"
+    subnet                                = "name_with_az"
+    nat_gateway                           = "index"
+    vm                                    = "index"
+    vmseries                              = "index"
+    application_loadbalance               = "name_max_32_characters"
+    application_loadbalancer_target_group = "name_max_32_characters"
+    network_loadbalancer                  = "name_max_32_characters"
+    network_loadbalancer_target_group     = "name_max_32_characters"
+    gateway_loadbalancer                  = "name_max_32_characters"
+    gateway_loadbalancer_target_group     = "name_max_32_characters"
   }
   abbreviations = {
     vpc     = "vpc"
