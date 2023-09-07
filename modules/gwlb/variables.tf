@@ -1,6 +1,12 @@
 variable "name" {
-  description = "Name of the created GWLB and its Target Group. Must be unique per AWS region per AWS account."
+  description = "Name of the created GWLB. Must be unique per AWS region per AWS account."
   type        = string
+}
+
+variable "tg_name" {
+  description = "Name of the created Target Group for GWLB. If not set, then value of variable name is used."
+  type        = string
+  default     = null
 }
 
 variable "vpc_id" {

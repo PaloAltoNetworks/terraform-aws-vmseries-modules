@@ -9,7 +9,7 @@ locals {
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        tg_key                   = "${k}-${l_v.target_port}"
+        tg_key                   = try(v.name, "${k}-${l_v.target_port}")
         app_name                 = k
         port                     = l_v.target_port
         proto                    = l_v.target_protocol
@@ -243,7 +243,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = local.listener_tg
 
-  name                          = "${var.lb_name}-${each.key}"
+  name                          = each.key
   vpc_id                        = var.vpc_id
   port                          = each.value.port
   protocol                      = each.value.proto
