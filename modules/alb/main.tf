@@ -9,7 +9,7 @@ locals {
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        tg_key                   = coalesce(v.name, "${k}-${l_v.target_port}")
+        tg_key                   = coalesce(try(v.name, null), "${k}-${l_v.target_port}")
         app_name                 = k
         port                     = l_v.target_port
         proto                    = l_v.target_protocol
