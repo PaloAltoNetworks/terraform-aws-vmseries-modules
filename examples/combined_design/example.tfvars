@@ -35,19 +35,40 @@ name_templates = {
       { env = "tst" },
       { suffix = "ec1" },
     ]
-    max_32_character = [
+    name_with_az = [
       { prefix = "scz" },
       { abbreviation = "__default__" },
       { name = "%s" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+      { az = "__az_numeric__" }, # __az_literal__, __az_numeric__
     ]
   }
   assign_template = {
-    default                  = "name"
-    nat_gateway              = "index"
-    application_loadbalancer = "max_32_character"
-    network_loadbalancer     = "max_32_character"
-    vm                       = "index"
-    vmseries                 = "index"
+    default     = "name"
+    subnet      = "name_with_az"
+    nat_gateway = "index"
+    vm          = "index"
+    vmseries    = "index"
+  }
+  abbreviations = {
+    vpc     = "vpc"
+    snet    = "snet"
+    rt      = "rt"
+    ngw     = "ngw"
+    tgw     = "tgw"
+    tgw_att = "att"
+    gwlb    = "gwlb"
+    gwlb_tg = "gwtg"
+    gwlb_ep = "gwep"
+    vm      = "vm"
+    alb     = "alb"
+    alb_tg  = "atg"
+    nlb     = "nlb"
+    nlb_tg  = "ntg"
+    role    = "role"
+    profile = "profile"
   }
 }
 
@@ -690,11 +711,27 @@ spoke_vms = {
 spoke_nlbs = {
   "app1" = {
     vpc_subnet = "app1_vpc-app1_lb"
-    vms        = ["app1-001", "app1-002"]
+    rules = {
+      "ssh" = {
+        protocol    = "TCP"
+        port        = "22"
+        target_type = "instance"
+        stickiness  = true
+      }
+    }
+    vms = ["app1-001", "app1-002"]
   }
   "app2" = {
     vpc_subnet = "app2_vpc-app2_lb"
-    vms        = ["app2-001", "app2-002"]
+    rules = {
+      "ssh" = {
+        protocol    = "TCP"
+        port        = "22"
+        target_type = "instance"
+        stickiness  = true
+      }
+    }
+    vms = ["app2-001", "app2-002"]
   }
 }
 
@@ -702,7 +739,7 @@ spoke_albs = {
   "app1" = {
     vms = ["app1-001", "app1-002"]
     rules = {
-      "app1" = {
+      "http" = {
         protocol              = "HTTP"
         port                  = 80
         health_check_port     = "80"
@@ -725,7 +762,7 @@ spoke_albs = {
   "app2" = {
     vms = ["app2-001", "app2-002"]
     rules = {
-      "app2" = {
+      "http" = {
         protocol              = "HTTP"
         port                  = 80
         health_check_port     = "80"

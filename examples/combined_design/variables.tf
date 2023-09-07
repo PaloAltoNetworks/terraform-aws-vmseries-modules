@@ -517,6 +517,7 @@ variable "spoke_nlbs" {
   default     = {}
   type = map(object({
     vpc_subnet = string
+    rules      = any
     vms        = list(string)
   }))
 }

@@ -7,6 +7,14 @@ locals {
     key : "${m}-${k}"
     name : v
   }]])
+  nlb_tg = flatten([for k, v in var.spoke_nlbs : [for i, r in v.rules : {
+    key   = "${k}-${i}",
+    value = "${k}-${r.port}"
+  }]])
+  alb_tg = flatten([for k, v in var.spoke_albs : [for i, r in v.rules : {
+    key   = "${k}-${i}",
+    value = "${k}-${r.port}"
+  }]])
 }
 
 module "names" {
@@ -41,6 +49,10 @@ module "names" {
       template = lookup(var.name_templates.assign_template, "gateway_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.gwlbs : k => v.name }
     }
+    gateway_loadbalancer_target_group = {
+      template = lookup(var.name_templates.assign_template, "gateway_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for k, v in var.gwlbs : k => v.name }
+    }
     gateway_loadbalancer_endpoint = {
       template = lookup(var.name_templates.assign_template, "gateway_loadbalancer_endpoint", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.gwlb_endpoints : k => v.name }
@@ -49,9 +61,17 @@ module "names" {
       template = lookup(var.name_templates.assign_template, "application_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.spoke_albs : k => k }
     }
+    application_loadbalancer_target_group = {
+      template = lookup(var.name_templates.assign_template, "application_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for _, v in local.alb_tg : v.key => v.value }
+    }
     network_loadbalancer = {
       template = lookup(var.name_templates.assign_template, "network_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.spoke_nlbs : k => k }
+    }
+    network_loadbalancer_target_group = {
+      template = lookup(var.name_templates.assign_template, "network_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for _, v in local.nlb_tg : v.key => v.value }
     }
     vm = {
       template = lookup(var.name_templates.assign_template, "vm", lookup(var.name_templates.assign_template, "default", "default")),
@@ -186,6 +206,7 @@ module "gwlb" {
   for_each = var.gwlbs
 
   name    = module.names.gateway_loadbalancer_name[each.key]
+  tg_name = module.names.gateway_loadbalancer_target_group_name[each.key]
   vpc_id  = module.subnet_sets[each.value.vpc_subnet].vpc_id
   subnets = module.subnet_sets[each.value.vpc_subnet].subnets
 }
@@ -443,8 +464,12 @@ module "public_alb" {
   subnets         = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id          = module.vpc[each.value.vpc].id
   security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
-  rules           = each.value.rules
-  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+  rules = { for k, v in each.value.rules :
+    k => merge({
+      name = module.names.application_loadbalancer_target_group_name["${each.key}-${k}"]
+    }, v)
+  }
+  targets = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
 
   tags = var.global_tags
 }
@@ -460,12 +485,13 @@ module "public_nlb" {
   subnets     = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id      = module.subnet_sets[each.value.vpc_subnet].vpc_id
 
-  balance_rules = {
-    "SSH-traffic" = {
-      protocol    = "TCP"
-      port        = "22"
-      target_type = "instance"
-      stickiness  = true
+  balance_rules = { for k, v in each.value.rules :
+    k => {
+      name        = module.names.network_loadbalancer_target_group_name["${each.key}-${k}"]
+      protocol    = v.protocol
+      port        = v.port
+      target_type = v.target_type
+      stickiness  = v.stickiness
       targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
     }
   }
