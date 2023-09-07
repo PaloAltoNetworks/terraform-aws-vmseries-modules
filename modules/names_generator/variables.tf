@@ -43,6 +43,8 @@ variable "abbreviations" {
   type        = map(string)
   default = {
     vpc     = "vpc"
+    igw     = "igw"
+    vgw     = "vgw"
     snet    = "snet"
     rt      = "rt"
     ngw     = "ngw"

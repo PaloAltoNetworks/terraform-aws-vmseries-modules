@@ -45,7 +45,7 @@ resource "aws_lb_listener" "this" {
 # Target Group
 # One target group is possible for one gwlb, or else it fails with "You cannot specify multiple target groups in a single action with a load balancer of type 'gateway'".
 resource "aws_lb_target_group" "this" {
-  name                 = try(var.tg_name, var.name)
+  name                 = coalesce(var.tg_name, var.name)
   vpc_id               = var.vpc_id
   target_type          = "instance"
   protocol             = "GENEVE"
