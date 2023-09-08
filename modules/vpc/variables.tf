@@ -126,6 +126,8 @@ variable "security_groups" {
       - `cidr_blocks`: List of CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress
       Determines the traffic that can leave your instance, and where it can go.
       - `prefix_list_ids`: List of Prefix List IDs
+      - `self`: security group itself will be added as a source to the rule.  Cannot be specified with cidr_blocks, or security_groups.
+      - `source_security_groups`: list of security group IDs to be used as a source to the rule. Cannot be specified with cidr_blocks, or self.
 
 
   Example:
@@ -153,6 +155,16 @@ variable "security_groups" {
           description = "Permit SSH for VM-Series Management from known public IPs"
           type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
           cidr_blocks = ["100.100.100.100/32"]
+        }
+        https-inbound-self = {
+          description = "Permit HTTPS from instances with the same security group"
+          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+          self        = true
+        }
+        https-inbound-security-groups = {
+          description = "Permit HTTPS traffic for the resources associated with the specified security group"
+          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+          source_security_groups = ["sg-1a2b3c4d5e6f7g8h9i"]
         }
         https-inbound-prefix-list = {
           description = "Permit HTTPS for VM-Series Management for IPs in managed prefix list"

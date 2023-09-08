@@ -98,17 +98,7 @@ variable "vpcs" {
         to_port     = string
       }))
     }))
-    security_groups = map(object({
-      name = string
-      rules = map(object({
-        description = string
-        type        = string,
-        from_port   = string
-        to_port     = string,
-        protocol    = string
-        cidr_blocks = list(string)
-      }))
-    }))
+    security_groups = any
     subnets = map(object({
       az   = string
       set  = string
