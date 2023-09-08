@@ -3,6 +3,10 @@ locals {
     name : split("-", "${vk}-${sv.set}")[1]
     az : sv.az # substr(sv.az, -1, -1)
   }]) } : v]))
+  security_groups = flatten([for m, n in var.vpcs : [for k, v in n.security_groups : {
+    key : "${m}-${k}"
+    name : v.name
+  }]])
   nat_gateways = flatten([for m, n in var.natgws : [for k, v in n.nat_gateway_names : {
     key : "${m}-${k}"
     name : v
@@ -41,6 +45,10 @@ module "names" {
     subnet = {
       template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    }
+    security_group = {
+      template = lookup(var.name_templates.assign_template, "security_group", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for _, v in local.security_groups : v.key => v.name }
     }
     route_table = {
       template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
@@ -122,7 +130,7 @@ module "vpc" {
   name                         = module.names.generated.vpc[each.key]
   cidr_block                   = each.value.cidr
   nacls                        = each.value.nacls
-  security_groups              = each.value.security_groups
+  security_groups              = { for k, v in each.value.security_groups : k => merge(v, { name : module.names.generated.security_group["${each.key}-${k}"] }) }
   create_internet_gateway      = true
   name_internet_gateway        = module.names.generated.internet_gateway[each.key]
   route_table_internet_gateway = module.names.generated.route_table[each.key]

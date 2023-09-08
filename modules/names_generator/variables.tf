@@ -92,6 +92,7 @@ variable "abbreviations" {
     internet_gateway                      = "igw"
     vpn_gateway                           = "vgw"
     subnet                                = "snet"
+    security_group                        = "sg"
     route_table                           = "rt"
     nat_gateway                           = "ngw"
     transit_gateway                       = "tgw"
