@@ -238,8 +238,6 @@ vpcs = {
       "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null }
       "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
       "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
-      "10.100.11.0/24" = { az = "eu-central-1a", set = "natgw", nacl = null }
-      "10.100.75.0/24" = { az = "eu-central-1b", set = "natgw", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -275,17 +273,11 @@ vpcs = {
         next_hop_key  = "security_gwlb_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
-      # public_default = {
-      #   vpc_subnet    = "security_vpc-public"
-      #   to_cidr       = "0.0.0.0/0"
-      #   next_hop_key  = "security_vpc"
-      #   next_hop_type = "internet_gateway"
-      # }
       public_default = {
         vpc_subnet    = "security_vpc-public"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_nat_gw"
-        next_hop_type = "nat_gateway"
+        next_hop_key  = "security_vpc"
+        next_hop_type = "internet_gateway"
       }
       gwlbe_outbound_rfc1918 = {
         vpc_subnet    = "security_vpc-gwlbe_outbound"
@@ -298,18 +290,6 @@ vpcs = {
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
-      }
-      nat_default = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      nat_rfc1918 = {
-        vpc_subnet    = "security_vpc-natgw"
-        to_cidr       = "10.0.0.0/8"
-        next_hop_key  = "security_gwlb_outbound"
-        next_hop_type = "gwlbe_endpoint"
       }
     }
   }
@@ -525,17 +505,7 @@ tgw = {
 }
 
 ### NAT GATEWAY
-natgws = {
-  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-  security_nat_gw = {
-    name       = "natgw"
-    vpc_subnet = "security_vpc-natgw"
-    nat_gateway_names = {
-      "eu-central-1a" = "001"
-      "eu-central-1b" = "002"
-    }
-  }
-}
+natgws = {}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -630,11 +600,10 @@ vmseries = {
         source_dest_check = true
       }
       public = {
-        device_index   = 2
-        security_group = "vmseries_public"
-        vpc_subnet     = "security_vpc-public"
-        # create_public_ip  = true
-        create_public_ip  = false
+        device_index      = 2
+        security_group    = "vmseries_public"
+        vpc_subnet        = "security_vpc-public"
+        create_public_ip  = true
         source_dest_check = false
       }
     }
