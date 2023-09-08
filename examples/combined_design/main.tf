@@ -119,13 +119,13 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name                         = module.names.vpc_name[each.key]
+  name                         = module.names.generated.vpc[each.key]
   cidr_block                   = each.value.cidr
   nacls                        = each.value.nacls
   security_groups              = each.value.security_groups
   create_internet_gateway      = true
-  name_internet_gateway        = module.names.internet_gateway_name[each.key]
-  route_table_internet_gateway = module.names.route_table_name[each.key]
+  name_internet_gateway        = module.names.generated.internet_gateway[each.key]
+  route_table_internet_gateway = module.names.generated.route_table[each.key]
   enable_dns_hostnames         = true
   enable_dns_support           = true
   instance_tenancy             = "default"
@@ -155,8 +155,8 @@ module "subnet_sets" {
         {
           cidr : sk,
           subnet : merge(sv, {
-            name             = module.names.subnet_name["${split("-", each.key)[1]}${sv.az}"]
-            route_table_name = module.names.route_table_name["${split("-", each.key)[1]}${sv.az}"]
+            name             = module.names.generated.subnet["${split("-", each.key)[1]}${sv.az}"]
+            route_table_name = module.names.generated.route_table["${split("-", each.key)[1]}${sv.az}"]
           })
         } if each.key == "${vk}-${sv.set}"
     ]]) : i.cidr => i.subnet
@@ -171,7 +171,7 @@ module "natgw_set" {
   for_each = var.natgws
 
   subnets           = module.subnet_sets[each.value.vpc_subnet].subnets
-  nat_gateway_names = { for k, v in each.value.nat_gateway_names : k => module.names.nat_gateway_name["${each.key}-${k}"] }
+  nat_gateway_names = { for k, v in each.value.nat_gateway_names : k => module.names.generated.nat_gateway["${each.key}-${k}"] }
 }
 
 ### TGW ###
@@ -180,7 +180,7 @@ module "transit_gateway" {
 
   create       = var.tgw.create
   id           = var.tgw.id
-  name         = module.names.transit_gateway_name["tgw"]
+  name         = module.names.generated.transit_gateway["tgw"]
   asn          = var.tgw.asn
   route_tables = var.tgw.route_tables
 }
@@ -192,7 +192,7 @@ module "transit_gateway_attachment" {
 
   for_each = var.tgw.attachments
 
-  name                        = module.names.transit_gateway_attachment_name[each.key]
+  name                        = module.names.generated.transit_gateway_attachment[each.key]
   vpc_id                      = module.subnet_sets[each.value.vpc_subnet].vpc_id
   subnets                     = module.subnet_sets[each.value.vpc_subnet].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables[each.value.route_table]
@@ -223,8 +223,8 @@ module "gwlb" {
 
   for_each = var.gwlbs
 
-  name    = module.names.gateway_loadbalancer_name[each.key]
-  tg_name = module.names.gateway_loadbalancer_target_group_name[each.key]
+  name    = module.names.generated.gateway_loadbalancer[each.key]
+  tg_name = module.names.generated.gateway_loadbalancer_target_group[each.key]
   vpc_id  = module.subnet_sets[each.value.vpc_subnet].vpc_id
   subnets = module.subnet_sets[each.value.vpc_subnet].subnets
 }
@@ -246,7 +246,7 @@ module "gwlbe_endpoint" {
 
   for_each = var.gwlb_endpoints
 
-  name              = module.names.gateway_loadbalancer_endpoint_name[each.key]
+  name              = module.names.generated.gateway_loadbalancer_endpoint[each.key]
   gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
   vpc_id            = module.subnet_sets[each.value.vpc_subnet].vpc_id
   subnets           = module.subnet_sets[each.value.vpc_subnet].subnets
@@ -322,7 +322,7 @@ data "aws_caller_identity" "this" {}
 data "aws_partition" "this" {}
 
 resource "aws_iam_role" "vm_series_ec2_iam_role" {
-  name               = module.names.iam_role_name["security"]
+  name               = module.names.generated.iam_role["security"]
   assume_role_policy = <<EOF
 {
     "Version": "2012-10-17",
@@ -372,7 +372,7 @@ EOF
 
 resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
 
-  name = module.names.iam_instance_profile_name["security"]
+  name = module.names.generated.iam_instance_profile["security"]
   role = aws_iam_role.vm_series_ec2_iam_role.name
 }
 
@@ -386,7 +386,7 @@ module "vmseries" {
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
   source   = "../../modules/vmseries"
 
-  name             = module.names.vmseries_name[each.key]
+  name             = module.names.generated.vmseries[each.key]
   vmseries_version = each.value.common.panos_version
 
   interfaces = {
@@ -428,7 +428,7 @@ data "aws_kms_alias" "current_arn" {
 }
 
 resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
-  name               = module.names.iam_role_name["spoke"]
+  name               = module.names.generated.iam_role["spoke"]
   assume_role_policy = <<EOF
 {
     "Version": "2012-10-17",
@@ -445,7 +445,7 @@ EOF
 
 resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
 
-  name = module.names.iam_instance_profile_name["spoke"]
+  name = module.names.generated.iam_instance_profile["spoke"]
   role = aws_iam_role.spoke_vm_ec2_iam_role.name
 }
 
@@ -457,7 +457,7 @@ resource "aws_instance" "spoke_vms" {
   key_name               = var.ssh_key_name
   subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
-  tags                   = merge({ Name = module.names.vm_name[each.key] }, var.global_tags)
+  tags                   = merge({ Name = module.names.generated.vm[each.key] }, var.global_tags)
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
 
   root_block_device {
@@ -478,13 +478,13 @@ module "public_alb" {
   source   = "../../modules/alb"
   for_each = var.spoke_albs
 
-  lb_name         = module.names.application_loadbalancer_name[each.key]
+  lb_name         = module.names.generated.application_loadbalancer[each.key]
   subnets         = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id          = module.vpc[each.value.vpc].id
   security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
   rules = { for k, v in each.value.rules :
     k => merge({
-      name = module.names.application_loadbalancer_target_group_name["${each.key}-${k}"]
+      name = module.names.generated.application_loadbalancer_target_group["${each.key}-${k}"]
     }, v)
   }
   targets = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
@@ -498,14 +498,14 @@ module "public_nlb" {
   source   = "../../modules/nlb"
   for_each = var.spoke_nlbs
 
-  name        = module.names.network_loadbalancer_name[each.key]
+  name        = module.names.generated.network_loadbalancer[each.key]
   internal_lb = false
   subnets     = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
   vpc_id      = module.subnet_sets[each.value.vpc_subnet].vpc_id
 
   balance_rules = { for k, v in each.value.rules :
     k => {
-      name        = module.names.network_loadbalancer_target_group_name["${each.key}-${k}"]
+      name        = module.names.generated.network_loadbalancer_target_group["${each.key}-${k}"]
       protocol    = v.protocol
       port        = v.port
       target_type = v.target_type

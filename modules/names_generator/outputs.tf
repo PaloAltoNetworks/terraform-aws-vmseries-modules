@@ -1,421 +1,57 @@
-output "name_template" {
-  value = local.name_template
-}
+output "generated" {
+  description = <<-EOF
+  Map of generated names for each kind of resources.
 
-output "vpc_name" {
-  value = {
-    for k, v in var.names.vpc.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.vpc.template])) > 0 ? format(
-              local.name_template[var.names.vpc.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.vpc.template],
-            "__default__",
-            var.abbreviations.vpc
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
+  Example:
+
+  generated = {
+      application_loadbalancer              = {
+          app1 = "example-alb-app1-cloud-tst-ec1"
+          app2 = "example-alb-app2-cloud-tst-ec1"
+      }
+      application_loadbalancer_target_group = {
+          app1-http = "example-atg-app1-80-cloud-tst"
+          app2-http = "example-atg-app2-80-cloud-tst"
+      }
+      gateway_loadbalancer                  = {
+          security_gwlb = "scz-gwlb-security-cloud-tst"
+      }
+      gateway_loadbalancer_endpoint         = {
+          app1_inbound           = "example-gwep-app1-cloud-tst-ec1"
+          app2_inbound           = "example-gwep-app2-cloud-tst-ec1"
+          security_gwlb_eastwest = "example-gwep-eastwest-cloud-tst-ec1"
+          security_gwlb_outbound = "example-gwep-outbound-cloud-tst-ec1"
+      }
   }
-}
 
-output "internet_gateway_name" {
+  EOF
   value = {
-    for k, v in var.names.internet_gateway.values : k => trim(
-      replace(
+    # for every kind of resource
+    for m, n in var.names : m => {
+      # for every resource of the same type
+      for k, v in n.values : k => trim(
         replace(
           replace(
-            length(regexall("%s", local.name_template[var.names.internet_gateway.template])) > 0 ? format(
-              local.name_template[var.names.internet_gateway.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.internet_gateway.template],
-            "__default__",
-            var.abbreviations.igw
+            replace(
+              # at first check if template contains %s - if yes, the use format function
+              length(regexall("%s", local.name_template[n.template])) > 0 ? format(
+                local.name_template[n.template], split(var.region, v)[0]
+                # if no, the just use template without format
+              ) : local.name_template[n.template],
+              # replace __default__ by abbreviations specific for resource
+              "__default__",
+              var.abbreviations[m]
+            ),
+            # replace __az_numeric__ with number for availability zone
+            "__az_numeric__",
+            try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
           ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
+          # replace __az_literal__ by letter for availability zone
+          "__az_literal__",
+          try(split(var.region, v)[1], "")
         ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "vpn_gateway_name" {
-  value = {
-    for k, v in var.names.vpn_gateway.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.vpn_gateway.template])) > 0 ? format(
-              local.name_template[var.names.vpn_gateway.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.vpn_gateway.template],
-            "__default__",
-            var.abbreviations.vgw
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "subnet_name" {
-  value = {
-    for k, v in var.names.subnet.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.subnet.template])) > 0 ? format(
-              local.name_template[var.names.subnet.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.subnet.template],
-            "__default__",
-            var.abbreviations.snet
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "route_table_name" {
-  value = {
-    for k, v in var.names.route_table.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.route_table.template])) > 0 ? format(
-              local.name_template[var.names.route_table.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.route_table.template],
-            "__default__",
-            var.abbreviations.rt
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "nat_gateway_name" {
-  value = {
-    for k, v in var.names.nat_gateway.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.nat_gateway.template])) > 0 ? format(
-              local.name_template[var.names.nat_gateway.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.nat_gateway.template],
-            "__default__",
-            var.abbreviations.ngw
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "transit_gateway_name" {
-  value = {
-    for k, v in var.names.transit_gateway.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.transit_gateway.template])) > 0 ? format(
-              local.name_template[var.names.transit_gateway.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.transit_gateway.template],
-            "__default__",
-            var.abbreviations.tgw
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "transit_gateway_attachment_name" {
-  value = {
-    for k, v in var.names.transit_gateway_attachment.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.transit_gateway_attachment.template])) > 0 ? format(
-              local.name_template[var.names.transit_gateway_attachment.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.transit_gateway_attachment.template],
-            "__default__",
-            var.abbreviations.tgw_att
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "gateway_loadbalancer_name" {
-  value = {
-    for k, v in var.names.gateway_loadbalancer.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer.template])) > 0 ? format(
-              local.name_template[var.names.gateway_loadbalancer.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.gateway_loadbalancer.template],
-            "__default__",
-            var.abbreviations.gwlb
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "gateway_loadbalancer_target_group_name" {
-  value = {
-    for k, v in var.names.gateway_loadbalancer_target_group.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer_target_group.template])) > 0 ? format(
-              local.name_template[var.names.gateway_loadbalancer_target_group.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.gateway_loadbalancer_target_group.template],
-            "__default__",
-            var.abbreviations.gwlb_tg
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "gateway_loadbalancer_endpoint_name" {
-  value = {
-    for k, v in var.names.gateway_loadbalancer_endpoint.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.gateway_loadbalancer_endpoint.template])) > 0 ? format(
-              local.name_template[var.names.gateway_loadbalancer_endpoint.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.gateway_loadbalancer_endpoint.template],
-            "__default__",
-            var.abbreviations.gwlb_ep
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "vm_name" {
-  value = {
-    for k, v in var.names.vm.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.vm.template])) > 0 ? format(
-              local.name_template[var.names.vm.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.vm.template],
-            "__default__",
-            var.abbreviations.vm
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "vmseries_name" {
-  value = {
-    for k, v in var.names.vmseries.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.vmseries.template])) > 0 ? format(
-              local.name_template[var.names.vmseries.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.vmseries.template],
-            "__default__",
-            var.abbreviations.vm
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "application_loadbalancer_name" {
-  value = {
-    for k, v in var.names.application_loadbalancer.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.application_loadbalancer.template])) > 0 ? format(
-              local.name_template[var.names.application_loadbalancer.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.application_loadbalancer.template],
-            "__default__",
-            var.abbreviations.alb
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "application_loadbalancer_target_group_name" {
-  value = {
-    for k, v in var.names.application_loadbalancer_target_group.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.application_loadbalancer_target_group.template])) > 0 ? format(
-              local.name_template[var.names.application_loadbalancer_target_group.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.application_loadbalancer_target_group.template],
-            "__default__",
-            var.abbreviations.alb_tg
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "network_loadbalancer_name" {
-  value = {
-    for k, v in var.names.network_loadbalancer.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.network_loadbalancer.template])) > 0 ? format(
-              local.name_template[var.names.network_loadbalancer.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.network_loadbalancer.template],
-            "__default__",
-            var.abbreviations.nlb
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "network_loadbalancer_target_group_name" {
-  value = {
-    for k, v in var.names.network_loadbalancer_target_group.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.network_loadbalancer_target_group.template])) > 0 ? format(
-              local.name_template[var.names.network_loadbalancer_target_group.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.network_loadbalancer_target_group.template],
-            "__default__",
-            var.abbreviations.nlb_tg
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "iam_role_name" {
-  value = {
-    for k, v in var.names.iam_role.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.iam_role.template])) > 0 ? format(
-              local.name_template[var.names.iam_role.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.iam_role.template],
-            "__default__",
-            var.abbreviations.role
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
-  }
-}
-
-output "iam_instance_profile_name" {
-  value = {
-    for k, v in var.names.iam_instance_profile.values : k => trim(
-      replace(
-        replace(
-          replace(
-            length(regexall("%s", local.name_template[var.names.iam_instance_profile.template])) > 0 ? format(
-              local.name_template[var.names.iam_instance_profile.template], split(var.region, v)[0]
-            ) : local.name_template[var.names.iam_instance_profile.template],
-            "__default__",
-            var.abbreviations.profile
-          ),
-          "__az_numeric__",
-          try(var.az_map_literal_to_numeric[split(var.region, v)[1]], "")
-        ),
-        "__az_literal__",
-        try(split(var.region, v)[1], "")
-      ),
-    var.name_delimiter)
+        # remove delimiter from the beginning and end of string (if required in some cases)
+      var.name_delimiter)
+    }
   }
 }
