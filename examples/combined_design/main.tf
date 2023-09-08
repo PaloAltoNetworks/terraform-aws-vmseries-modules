@@ -65,6 +65,10 @@ module "names" {
       template = lookup(var.name_templates.assign_template, "transit_gateway", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { "tgw" : var.tgw.name }
     }
+    transit_gateway_route_table = {
+      template = lookup(var.name_templates.assign_template, "transit_gateway_route_table", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for k, v in var.tgw.route_tables : k => v.name }
+    }
     transit_gateway_attachment = {
       template = lookup(var.name_templates.assign_template, "transit_gateway_attachment", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for k, v in var.tgw.attachments : k => v.name }
@@ -194,7 +198,7 @@ module "transit_gateway" {
   id           = var.tgw.id
   name         = module.names.generated.transit_gateway["tgw"]
   asn          = var.tgw.asn
-  route_tables = var.tgw.route_tables
+  route_tables = { for k, v in var.tgw.route_tables : k => merge(v, { name : module.names.generated.transit_gateway_route_table[k] }) }
 }
 
 ### TGW ATTACHMENTS ###

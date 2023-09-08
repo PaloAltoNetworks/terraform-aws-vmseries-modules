@@ -69,6 +69,7 @@ name_templates = {
     route_table                           = "rt"
     nat_gateway                           = "ngw"
     transit_gateway                       = "tgw"
+    transit_gateway_route_table           = "trt"
     transit_gateway_attachment            = "att"
     gateway_loadbalancer                  = "gwlb"
     gateway_loadbalancer_target_group     = "gwtg"
@@ -492,11 +493,11 @@ tgw = {
     # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
     "from_security_vpc" = {
       create = true
-      name   = "from_security"
+      name   = "security"
     }
     "from_spoke_vpc" = {
       create = true
-      name   = "from_spokes"
+      name   = "spokes"
     }
   }
   attachments = {
