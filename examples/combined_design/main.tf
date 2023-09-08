@@ -105,6 +105,10 @@ module "names" {
       template = lookup(var.name_templates.assign_template, "vmseries", lookup(var.name_templates.assign_template, "default", "default")),
       values   = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => "${vmseries.group}-${vmseries.instance}" }
     }
+    vmseries_network_interface = {
+      template = lookup(var.name_templates.assign_template, "vmseries_network_interface", lookup(var.name_templates.assign_template, "default", "default")),
+      values   = { for n in local.vmseries_network_interfaces : "${n.group}-${n.instance}-${n.nic}" => "${n.nic}-${n.instance}" }
+    }
     iam_role = {
       template = lookup(var.name_templates.assign_template, "iam_role", lookup(var.name_templates.assign_template, "default", "default")),
       values = {
@@ -387,7 +391,8 @@ resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
 ### VM-Series INSTANCES
 
 locals {
-  vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
+  vmseries_instances          = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
+  vmseries_network_interfaces = flatten([for vmseries in local.vmseries_instances : [for nic, _ in vmseries.common.interfaces : { group = vmseries.group, instance = vmseries.instance, nic = nic }]])
 }
 
 module "vmseries" {
@@ -400,6 +405,7 @@ module "vmseries" {
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
       device_index       = v.device_index
+      name               = module.names.generated.vmseries_network_interface["${each.key}-${k}"]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id

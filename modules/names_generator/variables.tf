@@ -102,6 +102,7 @@ variable "abbreviations" {
     gateway_loadbalancer_endpoint         = "gwep"
     vm                                    = "vm"
     vmseries                              = "vm"
+    vmseries_network_interface            = "nic"
     application_loadbalancer              = "alb"
     application_loadbalancer_target_group = "atg"
     network_loadbalancer                  = "nlb"
