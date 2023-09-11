@@ -13,13 +13,11 @@ variable "name_templates" {
   - name_delimiter - it specifies the delimiter used between all components of the new name.
   - name_template - a list of maps, where keys are informational only.
   - assign_template - map of templates assigned to each kind of resources
-  - abbreviations - map of abbreviation (can be undefined, then default one is used)
   EOF
   type = object({
     name_delimiter  = string
     name_template   = map(list(map(string)))
     assign_template = map(string)
-    abbreviations   = map(string)
   })
 }
 variable "global_tags" {

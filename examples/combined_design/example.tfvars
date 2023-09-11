@@ -60,30 +60,6 @@ name_templates = {
     gateway_loadbalancer                  = "name_max_32_characters"
     gateway_loadbalancer_target_group     = "name_max_32_characters"
   }
-  abbreviations = {
-    vpc                                   = "vpc"
-    internet_gateway                      = "igw"
-    vpn_gateway                           = "vgw"
-    subnet                                = "snet"
-    security_group                        = "sg"
-    route_table                           = "rt"
-    nat_gateway                           = "ngw"
-    transit_gateway                       = "tgw"
-    transit_gateway_route_table           = "trt"
-    transit_gateway_attachment            = "att"
-    gateway_loadbalancer                  = "gwlb"
-    gateway_loadbalancer_target_group     = "gwtg"
-    gateway_loadbalancer_endpoint         = "gwep"
-    vm                                    = "vm"
-    vmseries                              = "vm"
-    vmseries_network_interface            = "nic"
-    application_loadbalancer              = "alb"
-    application_loadbalancer_target_group = "atg"
-    network_loadbalancer                  = "nlb"
-    network_loadbalancer_target_group     = "ntg"
-    iam_role                              = "role"
-    iam_instance_profile                  = "profile"
-  }
 }
 
 ### VPC
