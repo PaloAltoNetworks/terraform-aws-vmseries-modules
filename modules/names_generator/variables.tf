@@ -18,15 +18,15 @@ variable "name_prefix" {
 
 variable "name_template" {
   description = <<-EOF
-  A list of maps, where keys are informational only.
+  Map of templates used to generate names. Each template is defined by list of objects. Each object contains 1 element defined by key and string value.
 
   Important:
-  1. Elements with key prefix (value is not important) will be replaced with value of the `name_prefix` variable.
-  2. %s will be eventually replaced by resource name
+  1. Elements with key `prefix` (value is not important) will be replaced with value of the `name_prefix` variable (e.g. `{ prefix = null }`)
+  2. `%s` will be eventually replaced by resource name
   3. `__default__` is a marker that we will be replaced with a default resource abbreviation, anything else will be used literally.
   4. `__az_numeric__` is a marker that will be used to replace the availability zone letter indicator with a number (e.g. a->1, b->2, ...)
   5. `__az_literal__` is a marker that will be used to replace the full availability zone name with a letter (e.g. `eu-central-1a` will become `a`)
-  6. order matters
+  6. Order matters
 
   Example:
 
