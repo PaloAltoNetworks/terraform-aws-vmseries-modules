@@ -21,7 +21,7 @@ variable "name_template" {
   A list of maps, where keys are informational only.
 
   Important:
-  1. elementy with key prefix (value is not important) will be replace by value of variable name_prefix
+  1. Elements with key prefix (value is not important) will be replaced with value of the `name_prefix` variable.
   2. %s will be eventually replaced by resource name
   3. __default__ is a marker that we will replace with a default resource abbreviation, anything else will be used literally.
   4. __az_numeric__ is a marker that we will replace letter from availability zone into number (e.g. a->1, b->2, ...)
