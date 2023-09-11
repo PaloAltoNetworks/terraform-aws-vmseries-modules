@@ -183,6 +183,8 @@ resource "aws_security_group" "this" {
       protocol        = ingress.value.protocol
       cidr_blocks     = try(ingress.value.cidr_blocks, null)
       prefix_list_ids = try(ingress.value.prefix_list_ids, null)
+      self            = try(ingress.value.self, null)
+      security_groups = try(ingress.value.source_security_groups, null)
       description     = lookup(ingress.value, "description", "")
     }
   }
