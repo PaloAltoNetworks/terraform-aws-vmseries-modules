@@ -1,3 +1,126 @@
+# Palo Alto Networks - flexible names generator
+
+A Terraform module for flexible names generation for resources created in AWS by VM-Series modules.
+
+## Usage
+
+Please take a look on ``combined_design`` example, in which module ``names_generator`` was used.
+
+In order to invoke the module to generated flexible names for all resources created by Terraform for VM-Series, it was defined map as below:
+
+```
+module "names" {
+  source = "../../modules/names_generator"
+
+  region            = var.region
+  name_prefix       = var.name_prefix
+  name_template     = var.name_templates.name_template
+  assigned_template = var.name_templates.assigned_template
+  names = {
+    vpc              = { for k, v in var.vpcs : k => v.name }
+    internet_gateway = { for k, v in var.vpcs : k => v.name }
+    vpn_gateway      = { for k, v in var.vpcs : k => v.name }
+    subnet           = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    security_group   = { for _, v in local.security_groups : v.key => v.name }
+    route_table = merge(
+      { for k, v in var.vpcs : k => "igw_${v.name}" },
+      { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    )
+    nat_gateway                           = { for _, v in local.nat_gateways : v.key => v.name }
+    transit_gateway                       = { "tgw" : var.tgw.name }
+    transit_gateway_route_table           = { for k, v in var.tgw.route_tables : k => v.name }
+    transit_gateway_attachment            = { for k, v in var.tgw.attachments : k => v.name }
+    gateway_loadbalancer                  = { for k, v in var.gwlbs : k => v.name }
+    gateway_loadbalancer_target_group     = { for k, v in var.gwlbs : k => v.name }
+    gateway_loadbalancer_endpoint         = { for k, v in var.gwlb_endpoints : k => v.name }
+    application_loadbalancer              = { for k, v in var.spoke_albs : k => k }
+    application_loadbalancer_target_group = { for _, v in local.alb_tg : v.key => v.value }
+    network_loadbalancer                  = { for k, v in var.spoke_nlbs : k => k }
+    network_loadbalancer_target_group     = { for _, v in local.nlb_tg : v.key => v.value }
+    vm                                    = { for k, v in var.spoke_vms : k => k }
+    vmseries                              = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => "${vmseries.group}-${vmseries.instance}" }
+    vmseries_network_interface            = { for n in local.vmseries_network_interfaces : "${n.group}-${n.instance}-${n.nic}" => "${n.nic}-${n.instance}" }
+    iam_role = {
+      security : "vmseries"
+      spoke : "spokevm"
+    }
+    iam_instance_profile = {
+      security : "vmseries"
+      spoke : "spokevm"
+    }
+  }
+}
+```
+
+For each kind of resource output from module was used as below for VPC:
+
+```
+module "vpc" {
+  source = "../../modules/vpc"
+
+  for_each = var.vpcs
+
+  name = module.names.generated.vpc[each.key]
+  ...
+}
+```
+
+Map of templates was defined in ``example.tfvars``:
+
+```
+name_templates = {
+  name_template = {
+    name_at_the_end = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+      { name = "%s" },
+    ]
+    name_after_abbr = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+    ]
+    name_with_az = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+      { bu = "cloud" },
+      { env = "tst" },
+      { suffix = "ec1" },
+      { az = "__az_numeric__" }, # __az_literal__, __az_numeric__
+    ]
+    name_max_32_characters = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { name = "%s" },
+      { bu = "cloud" },
+      { env = "tst" },
+    ]
+  }
+  assigned_template = {
+    default                               = "name_after_abbr"
+    subnet                                = "name_with_az"
+    nat_gateway                           = "name_at_the_end"
+    vm                                    = "name_at_the_end"
+    vmseries                              = "name_at_the_end"
+    vmseries_network_interface            = "name_at_the_end"
+    application_loadbalancer              = "name_max_32_characters"
+    application_loadbalancer_target_group = "name_max_32_characters"
+    network_loadbalancer                  = "name_max_32_characters"
+    network_loadbalancer_target_group     = "name_max_32_characters"
+    gateway_loadbalancer                  = "name_max_32_characters"
+    gateway_loadbalancer_target_group     = "name_max_32_characters"
+  }
+}
+```
+
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
 
