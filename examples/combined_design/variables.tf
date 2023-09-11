@@ -10,14 +10,12 @@ variable "name_prefix" {
 variable "name_templates" {
   description = <<-EOF
   Templates for names defined by object with 2 attributes:
-  - name_delimiter - it specifies the delimiter used between all components of the new name.
   - name_template - a list of maps, where keys are informational only.
-  - assign_template - map of templates assigned to each kind of resources
+  - assigned_template - map of templates assigned to each kind of resources
   EOF
   type = object({
-    name_delimiter  = string
-    name_template   = map(list(map(string)))
-    assign_template = map(string)
+    name_template     = map(list(map(string)))
+    assigned_template = map(string)
   })
 }
 variable "global_tags" {

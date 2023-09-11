@@ -29,15 +29,15 @@ output "generated" {
     # for every kind of resource
     for m, n in var.names : m => {
       # for every resource of the same type
-      for k, v in n.values : k => trim(
+      for k, v in n : k => trim(
         replace(
           replace(
             replace(
               # at first check if template contains %s - if yes, the use format function
-              length(regexall("%s", local.name_template[n.template])) > 0 ? format(
-                local.name_template[n.template], split(var.region, v)[0]
+              length(regexall("%s", local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))])) > 0 ? format(
+                local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))], split(var.region, v)[0]
                 # if no, the just use template without format
-              ) : local.name_template[n.template],
+              ) : local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))],
               # replace __default__ by abbreviations specific for resource
               "__default__",
               var.abbreviations[m]

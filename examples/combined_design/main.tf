@@ -24,107 +24,41 @@ locals {
 module "names" {
   source = "../../modules/names_generator"
 
-  region         = var.region
-  name_delimiter = var.name_templates.name_delimiter
-  name_prefix    = var.name_prefix
-  name_template  = var.name_templates.name_template
+  region            = var.region
+  name_prefix       = var.name_prefix
+  name_template     = var.name_templates.name_template
+  assigned_template = var.name_templates.assigned_template
   names = {
-    vpc = {
-      template = try(var.name_templates.assign_template["vpc"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.vpcs : k => v.name }
-    }
-    internet_gateway = {
-      template = try(var.name_templates.assign_template["internet_gateway"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.vpcs : k => v.name }
-    }
-    vpn_gateway = {
-      template = try(var.name_templates.assign_template["vpn_gateway"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.vpcs : k => v.name }
-    }
-    subnet = {
-      template = try(var.name_templates.assign_template["subnet"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
-    }
-    security_group = {
-      template = try(var.name_templates.assign_template["security_group"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for _, v in local.security_groups : v.key => v.name }
-    }
-    route_table = {
-      template = try(var.name_templates.assign_template["subnet"], try(var.name_templates.assign_template["default"], "default")),
-      values = merge(
-        { for k, v in var.vpcs : k => "igw_${v.name}" },
-        { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
-      )
-    }
-    nat_gateway = {
-      template = try(var.name_templates.assign_template["nat_gateway"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for _, v in local.nat_gateways : v.key => v.name }
-    }
-    transit_gateway = {
-      template = try(var.name_templates.assign_template["transit_gateway"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { "tgw" : var.tgw.name }
-    }
-    transit_gateway_route_table = {
-      template = try(var.name_templates.assign_template["transit_gateway_route_table"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.tgw.route_tables : k => v.name }
-    }
-    transit_gateway_attachment = {
-      template = try(var.name_templates.assign_template["transit_gateway_attachment"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.tgw.attachments : k => v.name }
-    }
-    gateway_loadbalancer = {
-      template = try(var.name_templates.assign_template["gateway_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.gwlbs : k => v.name }
-    }
-    gateway_loadbalancer_target_group = {
-      template = try(var.name_templates.assign_template["gateway_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.gwlbs : k => v.name }
-    }
-    gateway_loadbalancer_endpoint = {
-      template = try(var.name_templates.assign_template["gateway_loadbalancer_endpoint"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.gwlb_endpoints : k => v.name }
-    }
-    application_loadbalancer = {
-      template = try(var.name_templates.assign_template["application_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.spoke_albs : k => k }
-    }
-    application_loadbalancer_target_group = {
-      template = try(var.name_templates.assign_template["application_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for _, v in local.alb_tg : v.key => v.value }
-    }
-    network_loadbalancer = {
-      template = try(var.name_templates.assign_template["network_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.spoke_nlbs : k => k }
-    }
-    network_loadbalancer_target_group = {
-      template = try(var.name_templates.assign_template["network_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for _, v in local.nlb_tg : v.key => v.value }
-    }
-    vm = {
-      template = try(var.name_templates.assign_template["vm"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for k, v in var.spoke_vms : k => k }
-    }
-    vmseries = {
-      template = try(var.name_templates.assign_template["vmseries"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => "${vmseries.group}-${vmseries.instance}" }
-    }
-    vmseries_network_interface = {
-      template = try(var.name_templates.assign_template["vmseries_network_interface"], try(var.name_templates.assign_template["default"], "default")),
-      values   = { for n in local.vmseries_network_interfaces : "${n.group}-${n.instance}-${n.nic}" => "${n.nic}-${n.instance}" }
-    }
+    vpc              = { for k, v in var.vpcs : k => v.name }
+    internet_gateway = { for k, v in var.vpcs : k => v.name }
+    vpn_gateway      = { for k, v in var.vpcs : k => v.name }
+    subnet           = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    security_group   = { for _, v in local.security_groups : v.key => v.name }
+    route_table = merge(
+      { for k, v in var.vpcs : k => "igw_${v.name}" },
+      { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
+    )
+    nat_gateway                           = { for _, v in local.nat_gateways : v.key => v.name }
+    transit_gateway                       = { "tgw" : var.tgw.name }
+    transit_gateway_route_table           = { for k, v in var.tgw.route_tables : k => v.name }
+    transit_gateway_attachment            = { for k, v in var.tgw.attachments : k => v.name }
+    gateway_loadbalancer                  = { for k, v in var.gwlbs : k => v.name }
+    gateway_loadbalancer_target_group     = { for k, v in var.gwlbs : k => v.name }
+    gateway_loadbalancer_endpoint         = { for k, v in var.gwlb_endpoints : k => v.name }
+    application_loadbalancer              = { for k, v in var.spoke_albs : k => k }
+    application_loadbalancer_target_group = { for _, v in local.alb_tg : v.key => v.value }
+    network_loadbalancer                  = { for k, v in var.spoke_nlbs : k => k }
+    network_loadbalancer_target_group     = { for _, v in local.nlb_tg : v.key => v.value }
+    vm                                    = { for k, v in var.spoke_vms : k => k }
+    vmseries                              = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => "${vmseries.group}-${vmseries.instance}" }
+    vmseries_network_interface            = { for n in local.vmseries_network_interfaces : "${n.group}-${n.instance}-${n.nic}" => "${n.nic}-${n.instance}" }
     iam_role = {
-      template = try(var.name_templates.assign_template["iam_role"], try(var.name_templates.assign_template["default"], "default")),
-      values = {
-        security : "vmseries"
-        spoke : "spokevm"
-      }
+      security : "vmseries"
+      spoke : "spokevm"
     }
     iam_instance_profile = {
-      template = try(var.name_templates.assign_template["iam_instance_profile"], try(var.name_templates.assign_template["default"], "default")),
-      values = {
-        security : "vmseries"
-        spoke : "spokevm"
-      }
+      security : "vmseries"
+      spoke : "spokevm"
     }
   }
 }

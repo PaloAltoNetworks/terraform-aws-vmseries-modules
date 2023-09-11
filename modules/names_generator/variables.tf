@@ -55,31 +55,49 @@ variable "name_template" {
   default     = {}
 }
 
+variable "assigned_template" {
+  description = <<-EOF
+  Map of templates (used to generate names) assigned to each kind of resource.
+
+  Example:
+
+  assigned_template = {
+    default                               = "name_after_abbr"
+    subnet                                = "name_with_az"
+    nat_gateway                           = "name_at_the_end"
+    vm                                    = "name_at_the_end"
+    vmseries                              = "name_at_the_end"
+    vmseries_network_interface            = "name_at_the_end"
+    application_loadbalancer              = "name_max_32_characters"
+    application_loadbalancer_target_group = "name_max_32_characters"
+    network_loadbalancer                  = "name_max_32_characters"
+    network_loadbalancer_target_group     = "name_max_32_characters"
+    gateway_loadbalancer                  = "name_max_32_characters"
+    gateway_loadbalancer_target_group     = "name_max_32_characters"
+  }
+
+  EOF
+
+  type    = map(string)
+  default = {}
+}
+
 variable "names" {
   description = <<-EOF
-  Map of objects defining template and names used for resources.
+  Map of objects defining names used for resources.
 
   Example:
 
   names = {
-    vpc = {
-      template = lookup(var.name_templates.assign_template, "vpc", lookup(var.name_templates.assign_template, "default", "default")),
-      values   = { for k, v in var.vpcs : k => v.name }
-    }
-    gateway_loadbalancer = {
-      template = lookup(var.name_templates.assign_template, "gateway_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
-      values   = { for k, v in var.gwlbs : k => v.name }
-    }
+    vpc                  = { for k, v in var.vpcs : k => v.name }
+    gateway_loadbalancer = { for k, v in var.gwlbs : k => v.name }
   }
 
   Please take a look combined_design example, which contains full map for names.
 
   EOF
-  type = map(object({
-    template : string
-    values : map(string)
-  }))
-  default = {}
+  type        = map(map(string))
+  default     = {}
 }
 
 variable "abbreviations" {

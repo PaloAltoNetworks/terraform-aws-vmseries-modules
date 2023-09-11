@@ -11,7 +11,6 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 
 name_prefix = "example"
 name_templates = {
-  name_delimiter = "-"
   name_template = {
     name_at_the_end = [
       { prefix = null },
@@ -46,7 +45,7 @@ name_templates = {
       { env = "tst" },
     ]
   }
-  assign_template = {
+  assigned_template = {
     default                               = "name_after_abbr"
     subnet                                = "name_with_az"
     nat_gateway                           = "name_at_the_end"
