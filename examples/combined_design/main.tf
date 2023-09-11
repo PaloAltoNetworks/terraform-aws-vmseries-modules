@@ -30,97 +30,97 @@ module "names" {
   name_template  = var.name_templates.name_template
   names = {
     vpc = {
-      template = lookup(var.name_templates.assign_template, "vpc", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["vpc"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.vpcs : k => v.name }
     }
     internet_gateway = {
-      template = lookup(var.name_templates.assign_template, "internet_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["internet_gateway"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.vpcs : k => v.name }
     }
     vpn_gateway = {
-      template = lookup(var.name_templates.assign_template, "vpn_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["vpn_gateway"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.vpcs : k => v.name }
     }
     subnet = {
-      template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["subnet"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
     }
     security_group = {
-      template = lookup(var.name_templates.assign_template, "security_group", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["security_group"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for _, v in local.security_groups : v.key => v.name }
     }
     route_table = {
-      template = lookup(var.name_templates.assign_template, "subnet", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["subnet"], try(var.name_templates.assign_template["default"], "default")),
       values = merge(
         { for k, v in var.vpcs : k => "igw_${v.name}" },
         { for _, v in local.subnets : "${v.name}${v.az}" => "${v.name}${v.az}" }
       )
     }
     nat_gateway = {
-      template = lookup(var.name_templates.assign_template, "nat_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["nat_gateway"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for _, v in local.nat_gateways : v.key => v.name }
     }
     transit_gateway = {
-      template = lookup(var.name_templates.assign_template, "transit_gateway", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["transit_gateway"], try(var.name_templates.assign_template["default"], "default")),
       values   = { "tgw" : var.tgw.name }
     }
     transit_gateway_route_table = {
-      template = lookup(var.name_templates.assign_template, "transit_gateway_route_table", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["transit_gateway_route_table"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.tgw.route_tables : k => v.name }
     }
     transit_gateway_attachment = {
-      template = lookup(var.name_templates.assign_template, "transit_gateway_attachment", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["transit_gateway_attachment"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.tgw.attachments : k => v.name }
     }
     gateway_loadbalancer = {
-      template = lookup(var.name_templates.assign_template, "gateway_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["gateway_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.gwlbs : k => v.name }
     }
     gateway_loadbalancer_target_group = {
-      template = lookup(var.name_templates.assign_template, "gateway_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["gateway_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.gwlbs : k => v.name }
     }
     gateway_loadbalancer_endpoint = {
-      template = lookup(var.name_templates.assign_template, "gateway_loadbalancer_endpoint", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["gateway_loadbalancer_endpoint"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.gwlb_endpoints : k => v.name }
     }
     application_loadbalancer = {
-      template = lookup(var.name_templates.assign_template, "application_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["application_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.spoke_albs : k => k }
     }
     application_loadbalancer_target_group = {
-      template = lookup(var.name_templates.assign_template, "application_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["application_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for _, v in local.alb_tg : v.key => v.value }
     }
     network_loadbalancer = {
-      template = lookup(var.name_templates.assign_template, "network_loadbalancer", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["network_loadbalancer"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.spoke_nlbs : k => k }
     }
     network_loadbalancer_target_group = {
-      template = lookup(var.name_templates.assign_template, "network_loadbalancer_target_group", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["network_loadbalancer_target_group"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for _, v in local.nlb_tg : v.key => v.value }
     }
     vm = {
-      template = lookup(var.name_templates.assign_template, "vm", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["vm"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for k, v in var.spoke_vms : k => k }
     }
     vmseries = {
-      template = lookup(var.name_templates.assign_template, "vmseries", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["vmseries"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => "${vmseries.group}-${vmseries.instance}" }
     }
     vmseries_network_interface = {
-      template = lookup(var.name_templates.assign_template, "vmseries_network_interface", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["vmseries_network_interface"], try(var.name_templates.assign_template["default"], "default")),
       values   = { for n in local.vmseries_network_interfaces : "${n.group}-${n.instance}-${n.nic}" => "${n.nic}-${n.instance}" }
     }
     iam_role = {
-      template = lookup(var.name_templates.assign_template, "iam_role", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["iam_role"], try(var.name_templates.assign_template["default"], "default")),
       values = {
         security : "vmseries"
         spoke : "spokevm"
       }
     }
     iam_instance_profile = {
-      template = lookup(var.name_templates.assign_template, "iam_instance_profile", lookup(var.name_templates.assign_template, "default", "default")),
+      template = try(var.name_templates.assign_template["iam_instance_profile"], try(var.name_templates.assign_template["default"], "default")),
       values = {
         security : "vmseries"
         spoke : "spokevm"
