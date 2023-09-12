@@ -1,4 +1,4 @@
-package subnet
+package subnet_set
 
 import (
 	"testing"
