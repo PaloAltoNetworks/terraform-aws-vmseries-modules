@@ -3,14 +3,6 @@ variable "region" {
   type        = string
 }
 
-variable "name_delimiter" {
-  description = <<-EOF
-  It specifies the delimiter used between all components of the new name.
-  EOF
-  type        = string
-  default     = "-"
-}
-
 variable "name_prefix" {
   description = "Prefix used in names for the resources"
   type        = string
@@ -51,7 +43,7 @@ variable "name_template" {
   }
 
   EOF
-  type        = map(list(map(string)))
+  type        = map(any)
   default     = {}
 }
 

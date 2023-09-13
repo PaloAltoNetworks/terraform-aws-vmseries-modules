@@ -1,6 +1,6 @@
 ### General
 region      = "eu-central-1" # TODO: update here
-name_prefix = "example-"     # TODO: update here
+name_prefix = "fosix"        # TODO: update here
 
 global_tags = {
   ManagedBy   = "terraform"
@@ -10,12 +10,43 @@ global_tags = {
 
 ssh_key_name = "example-ssh-key" # TODO: update here
 
+name_templates = {
+  default = {
+    name_delimiter = "-"
+    parts = [
+      { prefix = null },
+      { env = "example" },
+      { bu = "cloud" },
+      { name = "%s" },
+      { abbreviation = "__default__" },
+    ]
+  }
+  subnet = {
+    name_delimiter = "-"
+    parts = [
+      { abbreviation = "__default__" },
+      { env = "example" },
+      { name = "%s" },
+    ]
+  }
+  storage = {
+    name_delimiter = ""
+    parts = [
+      { prefix = null },
+      { abbreviation = "__default__" },
+      { env = "example" },
+      { name = "%s" },
+    ]
+  }
+}
+
 ### VPC
 vpcs = {
   # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   management_vpc = {
-    name = "management-vpc"
-    cidr = "10.255.0.0/16"
+    name     = "management"
+    template = "default"
+    cidr     = "10.255.0.0/16"
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"
@@ -40,8 +71,8 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
-      "10.255.0.0/24" = { az = "eu-central-1a", set = "mgmt" }
-      "10.255.1.0/24" = { az = "eu-central-1b", set = "mgmt" }
+      "10.255.0.0/24" = { az = "eu-central-1a", set = "mgmt", template = "subnet" }
+      "10.255.1.0/24" = { az = "eu-central-1b", set = "mgmt", template = "subnet" }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -59,50 +90,50 @@ vpcs = {
 
 ### PANORAMA instances
 panoramas = {
-  panorama_ha_pair = {
-    instances = {
-      "primary" = {
-        az                 = "eu-central-1a"
-        private_ip_address = "10.255.0.4"
-      }
-      "secondary" = {
-        az                 = "eu-central-1b"
-        private_ip_address = "10.255.1.4"
-      }
-    }
+  # panorama_ha_pair = {
+  #   instances = {
+  #     "primary" = {
+  #       az                 = "eu-central-1a"
+  #       private_ip_address = "10.255.0.4"
+  #     }
+  #     "secondary" = {
+  #       az                 = "eu-central-1b"
+  #       private_ip_address = "10.255.1.4"
+  #     }
+  #   }
 
-    panos_version = "10.2.3"
+  #   panos_version = "10.2.3"
 
-    network = {
-      vpc              = "management_vpc"
-      vpc_subnet       = "management_vpc-mgmt"
-      security_group   = "panorama_mgmt"
-      create_public_ip = true
-    }
+  #   network = {
+  #     vpc              = "management_vpc"
+  #     vpc_subnet       = "management_vpc-mgmt"
+  #     security_group   = "panorama_mgmt"
+  #     create_public_ip = true
+  #   }
 
-    ebs = {
-      volumes = [
-        {
-          name            = "ebs-1"
-          ebs_device_name = "/dev/sdb"
-          ebs_size        = "2000"
-          ebs_encrypted   = true
-        },
-        {
-          name            = "ebs-2"
-          ebs_device_name = "/dev/sdc"
-          ebs_size        = "2000"
-          ebs_encrypted   = true
-        }
-      ]
-      kms_key_alias = "aws/ebs"
-    }
+  #   ebs = {
+  #     volumes = [
+  #       {
+  #         name            = "ebs-1"
+  #         ebs_device_name = "/dev/sdb"
+  #         ebs_size        = "2000"
+  #         ebs_encrypted   = true
+  #       },
+  #       {
+  #         name            = "ebs-2"
+  #         ebs_device_name = "/dev/sdc"
+  #         ebs_size        = "2000"
+  #         ebs_encrypted   = true
+  #       }
+  #     ]
+  #     kms_key_alias = "aws/ebs"
+  #   }
 
-    iam = {
-      create_role = true
-      role_name   = "panorama"
-    }
+  #   iam = {
+  #     create_role = true
+  #     role_name   = "panorama"
+  #   }
 
-    enable_imdsv2 = false
-  }
+  #   enable_imdsv2 = false
+  # }
 }
