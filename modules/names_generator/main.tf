@@ -1,13 +1,11 @@
 locals {
-  name_template = {
-    # for every kind of template
-    for k, v in var.name_template : k => join(
-      # use delimieter to concatenate all parts of name
-      v.name_delimiter,
-      # from template take all parts with 1 exception
-      flatten([for part in v.parts : [
-        for part_name, part_value in part : part_name == "prefix" ? var.name_prefix : part_value
-      ]])
-    )
-  }
+  delimiter      = var.name_template["delimiter"]
+  template_parts = var.name_template["parts"]
+  template_unabbreviated = join(
+    local.delimiter,
+    flatten([for part in local.template_parts : [
+      for part_name, part_value in part : part_name == "prefix" ? var.name_prefix : part_value
+    ]])
+  )
+  resource_name = replace(local.template_unabbreviated, "__default__", var.abbreviations[var.resource_type])
 }

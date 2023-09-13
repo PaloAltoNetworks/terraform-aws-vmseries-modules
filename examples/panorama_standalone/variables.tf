@@ -1,5 +1,7 @@
 variable "name_templates" {}
 
+variable "template_assignments" {}
+
 ### GENERAL
 variable "region" {
   description = "AWS region used to deploy whole infrastructure"

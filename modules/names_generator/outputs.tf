@@ -1,9 +1,5 @@
-output "templates" {
-  value = local.name_template
-}
-
-output "abbreviations" {
-  value = var.abbreviations
+output "template" {
+  value = local.resource_name
 }
 
 # output "generated" {

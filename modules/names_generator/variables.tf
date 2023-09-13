@@ -1,3 +1,7 @@
+variable "resource_type" {
+  type = string
+}
+
 variable "region" {
   description = "AWS region used to deploy whole infrastructure"
   type        = string
@@ -43,8 +47,7 @@ variable "name_template" {
   }
 
   EOF
-  type        = map(any)
-  default     = {}
+  type        = any
 }
 
 variable "assigned_template" {

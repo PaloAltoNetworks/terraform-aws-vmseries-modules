@@ -3,8 +3,12 @@
 module "names_generator" {
   source = "../../modules/names_generator"
 
+  # for_each = var.template_assignments
+  for_each = { for k, v in transpose(var.template_assignments) : k => v[0] }
+
+  name_template = var.name_templates[each.value]
+  resource_type = each.key
   name_prefix   = var.name_prefix
-  name_template = var.name_templates
   region        = var.region
 }
 
@@ -13,11 +17,7 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name = replace(
-    format(module.names_generator.templates[try(each.value.template, "default")], each.value.name),
-    "__default__",
-    module.names_generator.abbreviations["vpc"]
-  )
+  name                    = format(module.names_generator["vpc"].template, each.value.name)
   cidr_block              = each.value.cidr
   security_groups         = each.value.security_groups
   create_internet_gateway = true
@@ -32,11 +32,8 @@ module "subnet_sets" {
   for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
   source   = "../../modules/subnet_set"
 
-  name = replace(
-    format(module.names_generator.templates[try(each.value.template, "default")], split("-", each.key)[1]),
-    "__default__",
-    module.names_generator.abbreviations["subnet"]
-  )
+  name = format(module.names_generator["subnet"].template, split("-", each.key)[1])
+
   vpc_id              = module.vpc[split("-", each.key)[0]].id
   has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
   nacl_associations   = {}

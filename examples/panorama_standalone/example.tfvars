@@ -10,9 +10,14 @@ global_tags = {
 
 ssh_key_name = "example-ssh-key" # TODO: update here
 
+template_assignments = {
+  default = ["vpc", "security_group"]
+  subnet  = ["subnet"]
+}
+
 name_templates = {
   default = {
-    name_delimiter = "-"
+    delimiter = "-"
     parts = [
       { prefix = null },
       { env = "example" },
@@ -22,17 +27,8 @@ name_templates = {
     ]
   }
   subnet = {
-    name_delimiter = "-"
+    delimiter = "-"
     parts = [
-      { abbreviation = "__default__" },
-      { env = "example" },
-      { name = "%s" },
-    ]
-  }
-  storage = {
-    name_delimiter = ""
-    parts = [
-      { prefix = null },
       { abbreviation = "__default__" },
       { env = "example" },
       { name = "%s" },
