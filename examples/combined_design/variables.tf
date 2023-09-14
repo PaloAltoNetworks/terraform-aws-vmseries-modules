@@ -7,17 +7,6 @@ variable "name_prefix" {
   description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
   type        = string
 }
-variable "name_templates" {
-  description = <<-EOF
-  Templates for names defined by object with 2 attributes:
-  - name_template - a list of maps, where keys are informational only.
-  - assigned_template - map of templates assigned to each kind of resources
-  EOF
-  type = object({
-    name_template     = map(list(map(string)))
-    assigned_template = map(string)
-  })
-}
 variable "global_tags" {
   description = "Global tags configured for all provisioned resources"
 }
@@ -146,9 +135,8 @@ variable "natgws" {
   EOF
   default     = {}
   type = map(object({
-    name              = string
-    vpc_subnet        = string
-    nat_gateway_names = map(string)
+    name       = string
+    vpc_subnet = string
   }))
 }
 
@@ -507,7 +495,6 @@ variable "spoke_nlbs" {
   default     = {}
   type = map(object({
     vpc_subnet = string
-    rules      = any
     vms        = list(string)
   }))
 }
