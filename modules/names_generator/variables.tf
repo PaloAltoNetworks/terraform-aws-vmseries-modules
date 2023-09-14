@@ -126,6 +126,7 @@ variable "abbreviations" {
     subnet                                = "snet"
     security_group                        = "sg"
     route_table                           = "rt"
+    route_table_internet_gateway          = "rt"
     nat_gateway                           = "ngw"
     transit_gateway                       = "tgw"
     transit_gateway_route_table           = "trt"

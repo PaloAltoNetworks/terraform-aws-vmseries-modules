@@ -72,10 +72,3 @@ output "template" {
     ),
   null)
 }
-
-output "az_map_literal_to_numeric" {
-  description = <<-EOF
-  Map of number used instead of letters for AZs (placed in place of "__az_numeric__").
-  EOF
-  value       = var.az_map_literal_to_numeric
-}
