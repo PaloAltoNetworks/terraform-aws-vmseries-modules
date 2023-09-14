@@ -34,10 +34,10 @@ output "generated" {
           replace(
             replace(
               # at first check if template contains %s - if yes, the use format function
-              length(regexall("%s", local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))])) > 0 ? format(
-                local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))], split(var.region, v)[0]
+              length(regexall("%s", local.name_templates[try(var.template_assignments[m], try(var.template_assignments["default"], "default"))])) > 0 ? format(
+                local.name_templates[try(var.template_assignments[m], try(var.template_assignments["default"], "default"))], split(var.region, v)[0]
                 # if no, the just use template without format
-              ) : local.name_template[try(var.assigned_template[m], try(var.assigned_template["default"], "default"))],
+              ) : local.name_templates[try(var.template_assignments[m], try(var.template_assignments["default"], "default"))],
               # replace __default__ by abbreviations specific for resource
               "__default__",
               var.abbreviations[m]
@@ -51,7 +51,31 @@ output "generated" {
           try(split(var.region, v)[1], "")
         ),
         # remove delimiter from the beginning and end of string (if required in some cases)
-      var.name_delimiter)
+      var.name_templates[try(var.template_assignments[m], try(var.template_assignments["default"], "default"))].delimiter)
     }
   }
+}
+
+output "template" {
+  description = <<-EOF
+  Single template ready to be used with format function
+
+  Example:
+
+  EOF
+  value = try(
+    replace(
+      local.name_template,
+      # replace __default__ by abbreviations specific for resource
+      "__default__",
+      var.abbreviations[var.resource_type]
+    ),
+  null)
+}
+
+output "az_map_literal_to_numeric" {
+  description = <<-EOF
+  Map of number used instead of letters for AZs (placed in place of "__az_numeric__").
+  EOF
+  value       = var.az_map_literal_to_numeric
 }

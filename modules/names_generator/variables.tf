@@ -3,12 +3,10 @@ variable "region" {
   type        = string
 }
 
-variable "name_delimiter" {
-  description = <<-EOF
-  It specifies the delimiter used between all components of the new name.
-  EOF
+variable "resource_type" {
+  description = "Resource type e.g. VPC, subnet"
   type        = string
-  default     = "-"
+  default     = null
 }
 
 variable "name_prefix" {
@@ -17,10 +15,20 @@ variable "name_prefix" {
 }
 
 variable "name_template" {
+  description = "Single name template (see more details `name_templates`, which is a map of name templates)"
+  type = object({
+    delimiter = string
+    parts     = list(map(string))
+  })
+  default = null
+}
+
+variable "name_templates" {
   description = <<-EOF
   Map of templates used to generate names. Each template is defined by list of objects. Each object contains 1 element defined by key and string value.
 
   Important:
+  0. Delimiter specifies the delimiter used between all components of the new name.
   1. Elements with key `prefix` (value is not important) will be replaced with value of the `name_prefix` variable (e.g. `{ prefix = null }`)
   2. `%s` will be eventually replaced by resource name
   3. `__default__` is a marker that we will be replaced with a default resource abbreviation, anything else will be used literally.
@@ -31,37 +39,43 @@ variable "name_template" {
   Example:
 
   name_template = {
-    name_at_the_end = [
-      { prefix = null },
-      { abbreviation = "__default__" },
-      { bu = "cloud" },
-      { env = "tst" },
-      { suffix = "ec1" },
-      { name = "%s" },
-    ]
-    name_with_az = [
-      { prefix = null },
-      { abbreviation = "__default__" },
-      { name = "%s" },
-      { bu = "cloud" },
-      { env = "tst" },
-      { suffix = "ec1" },
-      { az = "__az_numeric__" },
-    ]
+    name_at_the_end = {
+      delimiter = "-"
+      parts = [
+        { prefix = null },
+        { abbreviation = "__default__" },
+        { bu = "cloud" },
+        { env = "tst" },
+        { suffix = "ec1" },
+        { name = "%s" },
+    ] }
+    name_after_abbr = {
+      delimiter = "-"
+      parts = [
+        { prefix = null },
+        { abbreviation = "__default__" },
+        { name = "%s" },
+        { bu = "cloud" },
+        { env = "tst" },
+        { suffix = "ec1" },
+    ] }
   }
 
   EOF
-  type        = map(list(map(string)))
-  default     = {}
+  type = map(object({
+    delimiter = string
+    parts     = list(map(string))
+  }))
+  default = {}
 }
 
-variable "assigned_template" {
+variable "template_assignments" {
   description = <<-EOF
   Map of templates (used to generate names) assigned to each kind of resource.
 
   Example:
 
-  assigned_template = {
+  template_assignments = {
     default                               = "name_after_abbr"
     subnet                                = "name_with_az"
     nat_gateway                           = "name_at_the_end"
