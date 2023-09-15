@@ -87,3 +87,9 @@ variable "global_tags" {
   default = {}
   type    = map(string)
 }
+
+variable "eip_domain" {
+  description = "Indicates if this EIP is for use in VPC"
+  default     = "vpc"
+  type        = string
+}

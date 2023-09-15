@@ -9,7 +9,7 @@ locals {
 resource "aws_eip" "this" {
   for_each = var.create_eip && var.create_nat_gateway ? var.subnets : {}
 
-  domain = "vpc"
+  domain = var.eip_domain
   tags = merge(
     var.global_tags,
     { Name = coalesce(try(var.eips[each.key].name, null), try(each.value.tags.Name, null), "natgw-${each.key}") },

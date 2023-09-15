@@ -44,7 +44,7 @@ resource "aws_network_interface" "this" {
 resource "aws_eip" "this" {
   for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) }
 
-  domain            = "vpc"
+  domain            = var.eip_domain
   network_interface = aws_network_interface.this[each.key].id
   public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
   tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
