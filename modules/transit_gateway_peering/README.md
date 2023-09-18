@@ -40,14 +40,14 @@ The static routes are currently not handled by this module.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
-| <a name="provider_aws.remote"></a> [aws.remote](#provider\_aws.remote) | ~> 4.25 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
+| <a name="provider_aws.remote"></a> [aws.remote](#provider\_aws.remote) | ~> 5.17 |
 
 ### Modules
 

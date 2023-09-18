@@ -41,13 +41,13 @@ module "nat_gateway_set" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
 
 ### Modules
 
@@ -68,6 +68,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_create_eip"></a> [create\_eip](#input\_create\_eip) | If false, does not create a new Elastic IP, but instead reads a pre-existing one. This input is ignored if `create_nat_gateway` is false. | `bool` | `true` | no |
 | <a name="input_create_nat_gateway"></a> [create\_nat\_gateway](#input\_create\_nat\_gateway) | If false, does not create a new NAT Gateway, but instead reads a pre-existing one. | `bool` | `true` | no |
+| <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | Indicates if this EIP is for use in VPC | `string` | `"vpc"` | no |
 | <a name="input_eip_tags"></a> [eip\_tags](#input\_eip\_tags) | n/a | `map(string)` | `{}` | no |
 | <a name="input_eips"></a> [eips](#input\_eips) | Optional map of Elastic IP attributes. Each key is an Availability Zone name, for example "us-east-1b". Each entry has optional attributes `name`, `public_ip`, `id`.<br>These are mainly useful to select a pre-existing Elastic IP when create\_eip is false. Example:<pre>eips = {<br>    "us-east-1a" = { id = aws_eip.a.id }<br>    "us-east-1b" = { id = aws_eip.b.id }<br>}</pre>The `name` attribute can be used both for selecting the pre-existing Elastic IP, or for customizing a newly created Elastic IP:<pre>eips = {<br>    "us-east-1a" = { name = "Alice" }<br>    "us-east-1b" = { name = "Bob" }<br>}</pre> | `map` | `{}` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | n/a | `map(string)` | `{}` | no |
