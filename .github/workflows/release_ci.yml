@@ -11,15 +11,18 @@ on:
   schedule:
     - cron: '0 1 * * 4' # this means every Thursday @1am UTC
 
+concurrency: release
+
 jobs:
   release_wrkflw:
     name: Do release
-    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/release_ci.yml@v1
+    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/release_ci.yml@v2.2
     if: github.actor != 'dependabot[bot]'
     secrets: inherit
     with:
       cloud: aws
-      max_parallel: 10
-      do_apply: true
+      validate_max_parallel: 20
+      test_max_parallel: 5
+      terratest_action: Idempotence # keep in mind that this has to start with capital letter
       fail_fast: false
       apply_timeout: 120

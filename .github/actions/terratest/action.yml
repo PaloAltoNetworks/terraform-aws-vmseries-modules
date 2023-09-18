@@ -1,0 +1,53 @@
+name: 'TF plan/apply'
+description: 'Runs Terraform plan and/or apply for a specified path.'
+inputs:
+  tf_version:
+    description: 'TF version used.'
+    required: true
+  path:
+    description: 'Path to Terraform module.'
+    required: true
+  terratest_action:
+    description: The action (name of a test in Terratest) that will be passed to the Makefile's ACTION parameter
+    type: string
+    required: true
+  pr-id:
+    description: A PR number. Optional value, you might want to use it to prefix resources created for a particular PR to identify them easly.
+    type: string
+    default: ""
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.tf_version }}
+         # below settings is required for Terratest (details are in https://github.com/gruntwork-io/terratest/issues/706)
+        terraform_wrapper: false
+
+    - name: setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ env.ASSUME_ROLE }}
+        role-session-name: gh-action-role-session
+        aws-region: ${{ env.AWS_REGION }}
+      # TODO: it's temporary solution until in repository settings -> secrets and variables -> variables
+      # there will be defined new repository variable AWS_REGION
+      env:
+        AWS_REGION : "us-east-1"
+
+    - name: ${{ inputs.terratest_action }} infrastructure
+      env:
+        TPATH: ${{ inputs.path }}
+        ACTION: ${{ inputs.terratest_action }}
+        PRID: ${{ inputs.pr-id }}
+      shell: bash
+      run: make $TPATH ACTION=$ACTION
