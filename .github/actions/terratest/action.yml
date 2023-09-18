@@ -7,14 +7,15 @@ inputs:
   path:
     description: 'Path to Terraform module.'
     required: true
-  do_apply:
-    description: When set to true runs also apply
-    type: boolean
-    default: false
-  idempotence:
-    description: When set to true runs plan to on already applied configuration
-    type: boolean
-    default: true
+  terratest_action:
+    description: The action (name of a test in Terratest) that will be passed to the Makefile's ACTION parameter
+    type: string
+    required: true
+  pr-id:
+    description: A PR number. Optional value, you might want to use it to prefix resources created for a particular PR to identify them easly.
+    type: string
+    default: ""
+    required: false
 
 runs:
   using: "composite"
@@ -27,6 +28,11 @@ runs:
          # below settings is required for Terratest (details are in https://github.com/gruntwork-io/terratest/issues/706)
         terraform_wrapper: false
 
+    - name: setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
     - name: configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -38,26 +44,10 @@ runs:
       env:
         AWS_REGION : "us-east-1"
 
-    - name: test infrastructure
-      id: test
+    - name: ${{ inputs.terratest_action }} infrastructure
       env:
         TPATH: ${{ inputs.path }}
-        DO_APPLY: ${{ inputs.do_apply }}
+        ACTION: ${{ inputs.terratest_action }}
+        PRID: ${{ inputs.pr-id }}
       shell: bash
-      run: |
-        echo "::group::TERRATEST"
-        cd "$GITHUB_WORKSPACE/$TPATH"
-        DO_APPLY=$DO_APPLY make test
-        echo "::endgroup::"
-
-    - name: destroy
-      id: destroy
-      if: always() && inputs.do_apply == 'true'
-      env:
-        TPATH: ${{ inputs.path }}
-      shell: bash
-      run: |
-        cd "$GITHUB_WORKSPACE/$TPATH"
-        echo "::group::TERRAFORM DESTROY"
-        make destroy
-        echo "::endgroup::"
+      run: make $TPATH ACTION=$ACTION
