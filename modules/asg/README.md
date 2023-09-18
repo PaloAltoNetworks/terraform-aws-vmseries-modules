@@ -14,7 +14,7 @@ For example usage, please refer to the [Examples](https://github.com/PaloAltoNet
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | ~> 2.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.25 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | 3.2.1 |
 
 ### Providers
@@ -22,7 +22,7 @@ For example usage, please refer to the [Examples](https://github.com/PaloAltoNet
 | Name | Version |
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~> 2.2 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.25 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.1 |
 
 ### Modules
