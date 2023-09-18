@@ -125,9 +125,7 @@ resource "aws_network_acl" "this" {
   for_each = var.nacls
   vpc_id   = local.vpc.id
 
-  tags = {
-    Name = each.value.name
-  }
+  tags = merge(var.global_tags, { Name = each.value.name })
 }
 
 locals {

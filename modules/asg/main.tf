@@ -132,6 +132,9 @@ resource "aws_autoscaling_group" "this" {
   ]
 }
 
+# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
+data "aws_partition" "this" {}
+
 # IAM role that will be used for Lambda function
 resource "aws_iam_role" "this" {
   name               = "${var.name_prefix}lambda_iam_role"
@@ -167,7 +170,7 @@ resource "aws_iam_role_policy" "lambda_iam_policy_default" {
                 "logs:PutLogEvents"
             ],
             "Effect": "Allow",
-            "Resource": "arn:aws:logs:*:*:*"
+            "Resource": "arn:${data.aws_partition.this.partition}:logs:*:*:*"
         },
         {
             "Action": [
@@ -223,7 +226,7 @@ resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
                 "ssm:GetParameterHistory"
             ],
             "Resource": [
-                "arn:aws:ssm:${var.region}:${local.account_id}:parameter/${var.delicense_ssm_param_name}"
+                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter/${var.delicense_ssm_param_name}"
             ]
         }
     ]

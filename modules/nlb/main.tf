@@ -83,6 +83,9 @@ resource "aws_s3_bucket_acl" "this" {
 
 data "aws_elb_service_account" "this" {}
 
+# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
+data "aws_partition" "this" {}
+
 data "aws_iam_policy_document" "this" {
   count = !var.access_logs_byob && var.configure_access_logs ? 1 : 0
 
@@ -94,7 +97,7 @@ data "aws_iam_policy_document" "this" {
 
     actions = ["s3:PutObject"]
 
-    resources = ["arn:aws:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix != null ? "${var.access_logs_s3_bucket_prefix}/" : ""}AWSLogs/*"]
+    resources = ["arn:${data.aws_partition.this.partition}:s3:::${aws_s3_bucket.this[0].id}/${var.access_logs_s3_bucket_prefix != null ? "${var.access_logs_s3_bucket_prefix}/" : ""}AWSLogs/*"]
   }
 }
 
