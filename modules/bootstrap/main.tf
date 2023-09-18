@@ -122,6 +122,9 @@ data "aws_iam_role" "this" {
   name = var.iam_role_name
 }
 
+# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
+data "aws_partition" "this" {}
+
 resource "aws_iam_role" "this" {
   count = var.create_iam_role_policy ? 1 : 0
 
@@ -156,12 +159,12 @@ resource "aws_iam_role_policy" "bootstrap" {
     {
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::${local.aws_s3_bucket.bucket}"
+      "Resource": "arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket.bucket}"
     },
     {
     "Effect": "Allow",
     "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::${local.aws_s3_bucket.bucket}/*"
+    "Resource": "arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket.bucket}/*"
     }
   ]
 }
