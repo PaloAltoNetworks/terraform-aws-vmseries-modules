@@ -24,9 +24,12 @@ resource "aws_vpc_endpoint_service" "this" {
   depends_on = [aws_lb.this]
 }
 
+# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
+data "aws_partition" "this" {}
+
 # Dedicated resource for allowing principals, this allows for adding more principals from outside this module (Onboarding new AWS accounts adhoc)
 resource "aws_vpc_endpoint_service_allowed_principal" "this" {
-  for_each                = toset(coalescelist(var.allowed_principals, ["arn:aws:iam::${data.aws_caller_identity.current.id}:root"]))
+  for_each                = toset(coalescelist(var.allowed_principals, ["arn:${data.aws_partition.this.partition}:iam::${data.aws_caller_identity.current.id}:root"]))
   vpc_endpoint_service_id = aws_vpc_endpoint_service.this.id
   principal_arn           = each.key
 }
