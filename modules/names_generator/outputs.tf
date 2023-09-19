@@ -4,19 +4,16 @@ output "names" {
 
   Example:
 
-  generated = {
-      application_loadbalancer              = {
-          app1 = "example-alb-app1-cloud-tst-ec1"
-          app2 = "example-alb-app2-cloud-tst-ec1"
+  names = {
+      vpc                           = {
+          app1_vpc     = "example-vpc-app1-cloud-tst-ec1"
+          app2_vpc     = "example-vpc-app2-cloud-tst-ec1"
+          security_vpc = "example-vpc-security-cloud-tst-ec1"
       }
-      application_loadbalancer_target_group = {
-          app1-http = "example-atg-app1-80-cloud-tst"
-          app2-http = "example-atg-app2-80-cloud-tst"
+      gateway_loadbalancer          = {
+          security_gwlb = "example-gwlb-security-cloud-tst"
       }
-      gateway_loadbalancer                  = {
-          security_gwlb = "scz-gwlb-security-cloud-tst"
-      }
-      gateway_loadbalancer_endpoint         = {
+      gateway_loadbalancer_endpoint = {
           app1_inbound           = "example-gwep-app1-cloud-tst-ec1"
           app2_inbound           = "example-gwep-app2-cloud-tst-ec1"
           security_gwlb_eastwest = "example-gwep-eastwest-cloud-tst-ec1"

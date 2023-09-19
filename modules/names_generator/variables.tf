@@ -44,6 +44,26 @@ variable "name_templates" {
         { env = "tst" },
         { suffix = "ec1" },
     ] }
+    name_with_az = {
+      delimiter = "-"
+      parts = [
+        { prefix = null },
+        { abbreviation = "__default__" },
+        { name = "%s" },
+        { bu = "cloud" },
+        { env = "tst" },
+        { suffix = "ec1" },
+        { az = "__az_numeric__" }, # __az_literal__, __az_numeric__
+    ] }
+    name_max_32_characters = {
+      delimiter = "-"
+      parts = [
+        { prefix = null },
+        { abbreviation = "__default__" },
+        { name = "%s" },
+        { bu = "cloud" },
+        { env = "tst" },
+    ] }
   }
 
   EOF
@@ -63,6 +83,7 @@ variable "template_assignments" {
   template_assignments = {
     default                               = "name_after_abbr"
     subnet                                = "name_with_az"
+    route_table                           = "name_with_az"
     nat_gateway                           = "name_at_the_end"
     vm                                    = "name_at_the_end"
     vmseries                              = "name_at_the_end"
@@ -88,8 +109,9 @@ variable "names" {
   Example:
 
   names = {
-    vpc                  = { for k, v in var.vpcs : k => v.name }
-    gateway_loadbalancer = { for k, v in var.gwlbs : k => v.name }
+    vpc                           = { for k, v in var.vpcs : k => v.name }
+    gateway_loadbalancer          = { for k, v in var.gwlbs : k => v.name }
+    gateway_loadbalancer_endpoint = { for k, v in var.gwlb_endpoints : k => v.name }
   }
 
   Please take a look combined_design example, which contains full map for names.
