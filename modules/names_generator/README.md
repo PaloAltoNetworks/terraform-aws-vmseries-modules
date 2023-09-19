@@ -1,4 +1,4 @@
-# Palo Alto Networks - flexible names generator
+# Palo Alto Networks Flexible Names Generator
 
 A Terraform module for flexible names generation for resources created in AWS by VM-Series modules.
 
@@ -6,7 +6,7 @@ A Terraform module for flexible names generation for resources created in AWS by
 
 In order to invoke the module to generated flexible names for all resources created by Terraform for VM-Series, you need to defined map e.g. as below for combined design example:
 
-```
+```hcl
 module "generator" {
   source = "../../modules/names_generator"
 
@@ -50,9 +50,9 @@ module "generator" {
 }
 ```
 
-For each kind of resource output from module was used as below for VPC:
+For each kind of resource output from module can be used e.g. as below for VPC:
 
-```
+```hcl
 module "vpc" {
   source = "../../modules/vpc"
 
@@ -65,7 +65,7 @@ module "vpc" {
 
 or GWLB and its endpoints:
 
-```
+```hcl
 module "gwlb" {
   source = "../../../modules/gwlb"
 
@@ -87,7 +87,7 @@ module "gwlbe_endpoint" {
 
 Map of templates needs to be defined in ``terraform.tfvars``:
 
-```
+```hcl
 name_templates = {
   name_at_the_end = {
     delimiter = "-"
@@ -134,7 +134,7 @@ name_templates = {
 
 Besides that for each kind template needs to be assigned (or default template needs to be used):
 
-```
+```hcl
 template_assignments = {
   default                               = "name_after_abbr"
   subnet                                = "name_with_az"
