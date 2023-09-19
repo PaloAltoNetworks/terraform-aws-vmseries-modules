@@ -3,24 +3,9 @@ variable "region" {
   type        = string
 }
 
-variable "resource_type" {
-  description = "Resource type e.g. VPC, subnet"
-  type        = string
-  default     = null
-}
-
 variable "name_prefix" {
   description = "Prefix used in names for the resources"
   type        = string
-}
-
-variable "name_template" {
-  description = "Single name template (see more details `name_templates`, which is a map of name templates)"
-  type = object({
-    delimiter = string
-    parts     = list(map(string))
-  })
-  default = null
 }
 
 variable "name_templates" {

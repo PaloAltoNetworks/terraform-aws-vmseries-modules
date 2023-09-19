@@ -1,4 +1,4 @@
-output "generated" {
+output "names" {
   description = <<-EOF
   Map of generated names for each kind of resources.
 
@@ -54,21 +54,4 @@ output "generated" {
       var.name_templates[try(var.template_assignments[m], try(var.template_assignments["default"], "default"))].delimiter)
     }
   }
-}
-
-output "template" {
-  description = <<-EOF
-  Single template ready to be used with format function
-
-  Example:
-
-  EOF
-  value = try(
-    replace(
-      local.name_template,
-      # replace __default__ by abbreviations specific for resource
-      "__default__",
-      var.abbreviations[var.resource_type]
-    ),
-  null)
 }
