@@ -9,7 +9,8 @@ locals {
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        tg_key                   = coalesce(try(v.name, null), "${k}-${l_v.target_port}")
+        tg_key                   = "${k}-${l_v.target_port}"
+        tg_name                  = try(v.name, null)
         app_name                 = k
         port                     = l_v.target_port
         proto                    = l_v.target_protocol
@@ -46,6 +47,7 @@ locals {
   listener_tg_unique = distinct([
     for v in local.rules_flattened : {
       tg_key                   = v.tg_key
+      tg_name                  = v.tg_name
       app_name                 = v.app_name
       port                     = v.port
       proto                    = v.proto
@@ -63,6 +65,7 @@ locals {
   ])
   listener_tg = {
     for v in local.listener_tg_unique : v.tg_key => {
+      name                     = v.tg_name
       port                     = v.port
       proto                    = v.proto
       proto_v                  = v.proto_v
@@ -246,7 +249,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = local.listener_tg
 
-  name                          = each.key
+  name                          = coalesce(each.value.name, "${var.lb_name}-${each.key}")
   vpc_id                        = var.vpc_id
   port                          = each.value.port
   protocol                      = each.value.proto
