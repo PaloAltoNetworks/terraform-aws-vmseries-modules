@@ -68,7 +68,7 @@ No modules.
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_has_secondary_cidrs"></a> [has\_secondary\_cidrs](#input\_has\_secondary\_cidrs) | The input that depends on the secondary CIDR ranges of the VPC `vpc_id`. The actual value (true or false) is ignored, the input is used only to delay subnet creation until the secondary CIDR ranges are processed by Terraform. | `bool` | `true` | no |
 | <a name="input_map_public_ip_on_launch"></a> [map\_public\_ip\_on\_launch](#input\_map\_public\_ip\_on\_launch) | See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet#map_public_ip_on_launch). | `bool` | `null` | no |
-| <a name="input_nacl_associations"></a> [nacl\_associations](#input\_nacl\_associations) | NACLs associations with subnets | `map(string)` | `null` | no |
+| <a name="input_nacl_associations"></a> [nacl\_associations](#input\_nacl\_associations) | NACLs associations with subnets | `map(string)` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Subnet set name, used to construct default subnet names. | `string` | `null` | no |
 | <a name="input_propagating_vgws"></a> [propagating\_vgws](#input\_propagating\_vgws) | See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table). | `list(string)` | `[]` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | Id of the VPC to create resource in. | `string` | n/a | yes |
