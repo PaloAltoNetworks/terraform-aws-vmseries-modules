@@ -10,7 +10,7 @@ import (
 
 func CreateTerraformOptions(t *testing.T) *terraform.Options {
 	// prepare random prefix
-	randomNames := testskeleton.GenerateAwRandomNames()
+	randomNames, _ := testskeleton.GenerateTerraformVarsInfo("aws")
 
 	// define options for Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
