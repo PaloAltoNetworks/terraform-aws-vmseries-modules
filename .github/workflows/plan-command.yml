@@ -32,6 +32,10 @@ on:
         description: Branch on which the tests should run
         type: string
         default: main
+      repository:
+        description: Repository on which the tests should run
+        type: string
+        required: false
 
 jobs:
   test:
