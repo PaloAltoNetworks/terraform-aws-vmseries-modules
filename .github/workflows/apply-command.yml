@@ -44,7 +44,7 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
-    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/test_command.yml@v2.2
+    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/test_command.yml@v2.3
     secrets: inherit
     with:
       paths: ${{ inputs.paths }}
@@ -52,5 +52,6 @@ jobs:
       pr-id: ${{ inputs.pr-id }}
       comment-id: ${{ inputs.comment-id }}
       branch: ${{ inputs.branch }}
+      repository: ${{ inputs.repository }}
       cloud: aws
       terratest_action: Apply
