@@ -32,6 +32,10 @@ on:
         description: Branch on which the tests should run
         type: string
         default: main
+      repository:
+        description: Repository on which the tests should run
+        type: string
+        required: false
 
 jobs:
   test:
@@ -48,5 +52,6 @@ jobs:
       pr-id: ${{ inputs.pr-id }}
       comment-id: ${{ inputs.comment-id }}
       branch: ${{ inputs.branch }}
+      repository: ${{ inputs.repository }}
       cloud: aws
       terratest_action: Plan

@@ -23,6 +23,10 @@ on:
         description: Branch on which the tests should run
         type: string
         default: main
+      repository:
+        description: Repository on which the tests should run
+        type: string
+        required: false
 
 jobs:
   init:
@@ -58,6 +62,7 @@ jobs:
     with:
       pre-commit-hooks: terraform_fmt terraform_docs terraform_tflint checkov
       branch: ${{ inputs.branch }}
+      repository: ${{ inputs.repository }}
 
   finish_comment_pr:
     name: Add a comment to originating PR
