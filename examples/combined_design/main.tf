@@ -290,7 +290,7 @@ data "aws_ami" "this" {
 
   filter {
     name   = "name"
-    values = ["bitnami-nginx-1.21*-linux-debian-10-x86_64-hvm-ebs-nami"]
+    values = ["bitnami-nginx-1.25*-linux-debian-11-x86_64-hvm-ebs-nami"]
     # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
   }
 
