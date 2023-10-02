@@ -37,6 +37,18 @@ variable "create_internet_gateway" {
   default     = false
 }
 
+variable "name_internet_gateway" {
+  description = "Name of the IGW to create or use."
+  type        = string
+  default     = null
+}
+
+variable "route_table_internet_gateway" {
+  description = "Name of route table for the IGW."
+  type        = string
+  default     = null
+}
+
 variable "create_vpn_gateway" {
   description = "When set to true, create VPN gateway and a dedicated route table."
   default     = false
@@ -46,6 +58,18 @@ variable "vpn_gateway_amazon_side_asn" {
   description = "ASN for the Amazon side of the gateway."
   default     = null
   type        = string
+}
+
+variable "name_vpn_gateway" {
+  description = "Name of the VPN gateway to create."
+  type        = string
+  default     = null
+}
+
+variable "route_table_vpn_gateway" {
+  description = "Name of the route table for VPN gateway."
+  type        = string
+  default     = null
 }
 
 variable "enable_dns_support" {

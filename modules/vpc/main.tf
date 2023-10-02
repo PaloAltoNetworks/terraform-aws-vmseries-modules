@@ -71,7 +71,7 @@ resource "aws_internet_gateway" "this" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = "${var.name}-igw" })
+  tags   = merge(var.global_tags, { Name = coalesce(var.name_internet_gateway, "${var.name}-igw") })
 }
 
 #### Associate RT to IGW for AWS Ingress Routing #### 
@@ -80,7 +80,7 @@ resource "aws_route_table" "from_igw" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = "${var.name}-igw" })
+  tags   = merge(var.global_tags, { Name = coalesce(var.route_table_internet_gateway, "${var.name}-igw") })
 }
 
 resource "aws_route_table_association" "from_igw" {
@@ -99,7 +99,7 @@ resource "aws_vpn_gateway" "this" {
 
   vpc_id          = local.vpc.id
   amazon_side_asn = var.vpn_gateway_amazon_side_asn
-  tags            = merge(var.global_tags, { Name = "${var.name}-vgw" })
+  tags            = merge(var.global_tags, { Name = coalesce(var.name_vpn_gateway, "${var.name}-vgw") })
 }
 
 #### Dedicated RT for Ingress Routing - Traffic from VGW to us #### 
@@ -107,7 +107,7 @@ resource "aws_route_table" "from_vgw" {
   count = var.create_vpn_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = "${var.name}-vgw" })
+  tags   = merge(var.global_tags, { Name = coalesce(var.route_table_vpn_gateway, "${var.name}-vgw") })
 }
 
 resource "aws_route_table_association" "from_vgw" {
