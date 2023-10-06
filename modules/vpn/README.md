@@ -1,3 +1,7 @@
+# VPN Module for AWS
+
+A Terraform module for deploying a VPN for VM-Series firewalls.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
 
