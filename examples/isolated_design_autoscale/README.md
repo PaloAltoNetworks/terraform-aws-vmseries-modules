@@ -41,8 +41,10 @@ The following steps should be followed before deploying the Terraform code prese
 7. Configure interface management profile to enable health checks from GWLB
 8. Configure network interfaces and subinterfaces, zones and virtual router in template
 9. Configure [static routes with path monitoring](https://docs.paloaltonetworks.com/pan-os/10-1/pan-os-networking-admin/static-routes/configure-path-monitoring-for-a-static-route)
-<details><summary>Details</summary>
-<p>
+10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
+
+### Details - static routes with path monitoring
+
 Using multiple template stacks, one for each AZ complicates autoscaling and the Panorama Licensing plugin configuration. The virtual router (VR) configuration combined with path monitoring outlined below avoids using AZ-specific template stacks and variables.
 
 **Virtual Router Configuration**
@@ -73,9 +75,6 @@ An example XML configuration snippet (for PANOS 10.2.3) of the described configu
 ```
 load config partial mode merge from-xpath /config/devices/entry/template/entry[@name='asg'] to-xpath /config/devices/entry/template/entry[@name='asg'] from template-asg-path-monitoring.xml
 ```
-
-</details> 
-10. Configure VPC peering between VPC with Panorama and VPC with VM-Series in autoscaling group (after deploying that example)
 
 ## Usage
 
