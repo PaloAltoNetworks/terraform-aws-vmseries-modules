@@ -25,7 +25,7 @@ variable "create" {
 }
 
 variable "service_name" {
-  description = "The exact service name. This input is ignored if `simple_service_name` is defined. Typically \"com.amazonaws.<region>.<service>\", for example: \"com.amazonaws.us-west-2.s3\""
+  description = "The exact service name. This input is ignored if `simple_service_name` is defined. Typically \"com.amazonaws.REGION.SERVICE\", for example: \"com.amazonaws.us-west-2.s3\""
   default     = null
   type        = string
 }
