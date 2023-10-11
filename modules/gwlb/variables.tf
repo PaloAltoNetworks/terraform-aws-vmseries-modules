@@ -43,6 +43,12 @@ variable "target_instances" {
   }))
 }
 
+variable "acceptance_required" {
+  description = "Whether or not VPC endpoint connection requests to the service must be accepted by the service owner - true or false"
+  default     = false
+  type        = bool
+}
+
 variable "allowed_principals" {
   description = "List of AWS Principal ARNs who are allowed access to the GWLB Endpoint Service. For example `[\"arn:aws:iam::123456789000:root\"]`."
   default     = []

@@ -16,7 +16,7 @@ resource "aws_lb" "this" {
 # The Service which accepts traffic from Endpoints ("clients") located on any VPCs.
 # One service is possible per one gwlb.
 resource "aws_vpc_endpoint_service" "this" {
-  acceptance_required        = false
+  acceptance_required        = var.acceptance_required
   gateway_load_balancer_arns = [aws_lb.this.arn]
   tags                       = merge(var.global_tags, { Name = var.name }, var.endpoint_service_tags)
 

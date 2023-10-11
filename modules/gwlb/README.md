@@ -51,6 +51,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_acceptance_required"></a> [acceptance\_required](#input\_acceptance\_required) | Whether or not VPC endpoint connection requests to the service must be accepted by the service owner - true or false | `bool` | `false` | no |
 | <a name="input_allowed_principals"></a> [allowed\_principals](#input\_allowed\_principals) | List of AWS Principal ARNs who are allowed access to the GWLB Endpoint Service. For example `["arn:aws:iam::123456789000:root"]`. | `list(string)` | `[]` | no |
 | <a name="input_deregistration_delay"></a> [deregistration\_delay](#input\_deregistration\_delay) | See the `aws` provider [documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group#deregistration_delay). | `number` | `null` | no |
 | <a name="input_enable_lb_deletion_protection"></a> [enable\_lb\_deletion\_protection](#input\_enable\_lb\_deletion\_protection) | Whether to enable deletion protection on the gateway loadbalancer. | `bool` | `false` | no |
