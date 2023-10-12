@@ -1,5 +1,5 @@
 ### General
-region      = "eu-central-1" # TODO: update here
+region      = "eu-west-1" # TODO: update here
 name_prefix = "example-"     # TODO: update here
 
 global_tags = {
@@ -187,24 +187,24 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
-      "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt", nacl = null }
-      "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt", nacl = null }
-      "10.100.1.0/24"  = { az = "eu-central-1a", set = "private", nacl = "trusted_path_monitoring" }
-      "10.100.65.0/24" = { az = "eu-central-1b", set = "private", nacl = "trusted_path_monitoring" }
-      "10.100.2.0/24"  = { az = "eu-central-1a", set = "public", nacl = null }
-      "10.100.66.0/24" = { az = "eu-central-1b", set = "public", nacl = null }
-      "10.100.3.0/24"  = { az = "eu-central-1a", set = "tgw_attach", nacl = null }
-      "10.100.67.0/24" = { az = "eu-central-1b", set = "tgw_attach", nacl = null }
-      "10.100.4.0/24"  = { az = "eu-central-1a", set = "gwlbe_outbound", nacl = null }
-      "10.100.68.0/24" = { az = "eu-central-1b", set = "gwlbe_outbound", nacl = null }
-      "10.100.5.0/24"  = { az = "eu-central-1a", set = "gwlb", nacl = null }
-      "10.100.69.0/24" = { az = "eu-central-1b", set = "gwlb", nacl = null } # AWS reccomends to always go up to the last possible AZ for GWLB service
-      "10.100.10.0/24" = { az = "eu-central-1a", set = "gwlbe_eastwest", nacl = null }
-      "10.100.74.0/24" = { az = "eu-central-1b", set = "gwlbe_eastwest", nacl = null }
-      "10.100.6.0/24"  = { az = "eu-central-1a", set = "alb", nacl = null }
-      "10.100.70.0/24" = { az = "eu-central-1b", set = "alb", nacl = null }
-      "10.100.7.0/24"  = { az = "eu-central-1a", set = "nlb", nacl = null }
-      "10.100.71.0/24" = { az = "eu-central-1b", set = "nlb", nacl = null }
+      "10.100.0.0/24"  = { az = "eu-west-1a", set = "mgmt", nacl = null }
+      "10.100.64.0/24" = { az = "eu-west-1b", set = "mgmt", nacl = null }
+      "10.100.1.0/24"  = { az = "eu-west-1a", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.65.0/24" = { az = "eu-west-1b", set = "private", nacl = "trusted_path_monitoring" }
+      "10.100.2.0/24"  = { az = "eu-west-1a", set = "public", nacl = null }
+      "10.100.66.0/24" = { az = "eu-west-1b", set = "public", nacl = null }
+      "10.100.3.0/24"  = { az = "eu-west-1a", set = "tgw_attach", nacl = null }
+      "10.100.67.0/24" = { az = "eu-west-1b", set = "tgw_attach", nacl = null }
+      "10.100.4.0/24"  = { az = "eu-west-1a", set = "gwlbe_outbound", nacl = null }
+      "10.100.68.0/24" = { az = "eu-west-1b", set = "gwlbe_outbound", nacl = null }
+      "10.100.5.0/24"  = { az = "eu-west-1a", set = "gwlb", nacl = null }
+      "10.100.69.0/24" = { az = "eu-west-1b", set = "gwlb", nacl = null } # AWS reccomends to always go up to the last possible AZ for GWLB service
+      "10.100.10.0/24" = { az = "eu-west-1a", set = "gwlbe_eastwest", nacl = null }
+      "10.100.74.0/24" = { az = "eu-west-1b", set = "gwlbe_eastwest", nacl = null }
+      "10.100.6.0/24"  = { az = "eu-west-1a", set = "alb", nacl = null }
+      "10.100.70.0/24" = { az = "eu-west-1b", set = "alb", nacl = null }
+      "10.100.7.0/24"  = { az = "eu-west-1a", set = "nlb", nacl = null }
+      "10.100.71.0/24" = { az = "eu-west-1b", set = "nlb", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -322,10 +322,10 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.104.0.0/24"   = { az = "eu-central-1a", set = "app1_vm", nacl = null }
-      "10.104.128.0/24" = { az = "eu-central-1b", set = "app1_vm", nacl = null }
-      "10.104.2.0/24"   = { az = "eu-central-1a", set = "app1_lb", nacl = null }
-      "10.104.130.0/24" = { az = "eu-central-1b", set = "app1_lb", nacl = null }
+      "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm", nacl = null }
+      "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm", nacl = null }
+      "10.104.2.0/24"   = { az = "eu-west-1a", set = "app1_lb", nacl = null }
+      "10.104.130.0/24" = { az = "eu-west-1b", set = "app1_lb", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -383,10 +383,10 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.105.0.0/24"   = { az = "eu-central-1a", set = "app2_vm", nacl = null }
-      "10.105.128.0/24" = { az = "eu-central-1b", set = "app2_vm", nacl = null }
-      "10.105.2.0/24"   = { az = "eu-central-1a", set = "app2_lb", nacl = null }
-      "10.105.130.0/24" = { az = "eu-central-1b", set = "app2_lb", nacl = null }
+      "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm", nacl = null }
+      "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm", nacl = null }
+      "10.105.2.0/24"   = { az = "eu-west-1a", set = "app2_lb", nacl = null }
+      "10.105.130.0/24" = { az = "eu-west-1b", set = "app2_lb", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -513,8 +513,8 @@ vmseries_asgs = {
         device_index   = 0
         security_group = "vmseries_private"
         subnet = {
-          "privatea" = "eu-central-1a",
-          "privateb" = "eu-central-1b"
+          "privatea" = "eu-west-1a",
+          "privateb" = "eu-west-1b"
         }
         create_public_ip  = false
         source_dest_check = false
@@ -523,8 +523,8 @@ vmseries_asgs = {
         device_index   = 1
         security_group = "vmseries_mgmt"
         subnet = {
-          "mgmta" = "eu-central-1a",
-          "mgmtb" = "eu-central-1b"
+          "mgmta" = "eu-west-1a",
+          "mgmtb" = "eu-west-1b"
         }
         create_public_ip  = true
         source_dest_check = true
@@ -533,8 +533,8 @@ vmseries_asgs = {
         device_index   = 2
         security_group = "vmseries_public"
         subnet = {
-          "publica" = "eu-central-1a",
-          "publicb" = "eu-central-1b"
+          "publica" = "eu-west-1a",
+          "publicb" = "eu-west-1b"
         }
         create_public_ip  = true
         source_dest_check = false
@@ -639,28 +639,28 @@ panorama_attachment = {
 ### SPOKE VMS
 spoke_vms = {
   "app1_vm01" = {
-    az             = "eu-central-1a"
+    az             = "eu-west-1a"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app1_vm02" = {
-    az             = "eu-central-1b"
+    az             = "eu-west-1b"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app2_vm01" = {
-    az             = "eu-central-1a"
+    az             = "eu-west-1a"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
     type           = "t2.micro"
   }
   "app2_vm02" = {
-    az             = "eu-central-1b"
+    az             = "eu-west-1b"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"

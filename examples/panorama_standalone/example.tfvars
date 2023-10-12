@@ -1,5 +1,5 @@
 ### General
-region      = "eu-central-1" # TODO: update here
+region      = "eu-west-1" # TODO: update here
 name_prefix = "example-"     # TODO: update here
 
 global_tags = {
@@ -40,8 +40,8 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
-      "10.255.0.0/24" = { az = "eu-central-1a", set = "mgmt" }
-      "10.255.1.0/24" = { az = "eu-central-1b", set = "mgmt" }
+      "10.255.0.0/24" = { az = "eu-west-1a", set = "mgmt" }
+      "10.255.1.0/24" = { az = "eu-west-1b", set = "mgmt" }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -62,11 +62,11 @@ panoramas = {
   panorama_ha_pair = {
     instances = {
       "primary" = {
-        az                 = "eu-central-1a"
+        az                 = "eu-west-1a"
         private_ip_address = "10.255.0.4"
       }
       "secondary" = {
-        az                 = "eu-central-1b"
+        az                 = "eu-west-1b"
         private_ip_address = "10.255.1.4"
       }
     }
