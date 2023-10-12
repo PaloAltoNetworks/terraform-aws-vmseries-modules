@@ -2,6 +2,7 @@
 
 A Terraform module for deploying a Crosszone Failover for VM-Series firewalls.
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
 
@@ -64,4 +65,4 @@ No modules.
 ### Outputs
 
 No outputs.
-#<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

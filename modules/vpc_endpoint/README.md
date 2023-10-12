@@ -2,6 +2,7 @@
 
 A Terraform module for deploying a VPC Endpoint for VM-Series firewalls.
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
 
@@ -53,4 +54,4 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | The created `aws_vpc_endpoint` object. Alternatively, the data resource if the input `create` is false. |
-#<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
