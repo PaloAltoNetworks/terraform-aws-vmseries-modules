@@ -1,6 +1,6 @@
 ### General
 region      = "eu-west-1" # TODO: update here
-name_prefix = "example-"     # TODO: update here
+name_prefix = "example-"  # TODO: update here
 
 global_tags = {
   ManagedBy   = "terraform"
