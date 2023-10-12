@@ -2,6 +2,7 @@
 
 A Terraform module for deploying a VPN for VM-Series firewalls.
 
+## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
 
