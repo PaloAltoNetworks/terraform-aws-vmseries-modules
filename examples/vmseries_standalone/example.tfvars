@@ -1,6 +1,6 @@
 ### GENERAL
-region      = "eu-central-1" # TODO: update here
-name_prefix = "example-"     # TODO: update here
+region      = "eu-west-1" # TODO: update here
+name_prefix = "example-"  # TODO: update here
 
 global_tags = {
   ManagedBy   = "terraform"
@@ -42,7 +42,7 @@ vpcs = {
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24" = { az = "eu-central-1a", set = "mgmt", nacl = null }
+      "10.100.0.0/24" = { az = "eu-west-1a", set = "mgmt", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -62,7 +62,7 @@ vpcs = {
 vmseries = {
   vmseries = {
     instances = {
-      "01" = { az = "eu-central-1a" }
+      "01" = { az = "eu-west-1a" }
     }
 
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
