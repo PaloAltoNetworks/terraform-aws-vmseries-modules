@@ -1,5 +1,6 @@
 # Panorama AMI ID lookup based on license type, region, version
 data "aws_ami" "this" {
+  count       = var.panorama_ami_id != null ? 0 : 1
   most_recent = true
   owners      = ["aws-marketplace"]
 
@@ -28,7 +29,7 @@ data "aws_kms_alias" "current_arn" {
 
 # Create the Panorama Instance
 resource "aws_instance" "this" {
-  ami                                  = data.aws_ami.this.id
+  ami                                  = coalesce(var.panorama_ami_id, try(data.aws_ami.this[0].id, null))
   instance_type                        = var.instance_type
   availability_zone                    = var.availability_zone
   key_name                             = var.ssh_key_name

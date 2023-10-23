@@ -34,6 +34,15 @@ variable "panorama_version" {
   default     = "10.1.5"
 }
 
+variable "panorama_ami_id" {
+  description = <<-EOF
+  Specific AMI ID to use for Panorama instance.
+  If `null` (the default), `panorama_version` and `product_code` vars are used to determine a public image to use.
+  EOF
+  type        = string
+  default     = null
+}
+
 variable "instance_type" {
   description = "EC2 instance type for Panorama. Default set to Palo Alto Networks recommended instance type."
   type        = string
