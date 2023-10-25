@@ -121,21 +121,21 @@ No modules.
 | <a name="input_dhcp_accept_server_hostname"></a> [dhcp\_accept\_server\_hostname](#input\_dhcp\_accept\_server\_hostname) | The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server. | `string` | `"yes"` | no |
 | <a name="input_dhcp_send_client_id"></a> [dhcp\_send\_client\_id](#input\_dhcp\_send\_client\_id) | The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server. | `string` | `"yes"` | no |
 | <a name="input_dhcp_send_hostname"></a> [dhcp\_send\_hostname](#input\_dhcp\_send\_hostname) | The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server. | `string` | `"yes"` | no |
-| <a name="input_dns-primary"></a> [dns-primary](#input\_dns-primary) | The IP address of the primary DNS server. | `string` | `""` | no |
-| <a name="input_dns-secondary"></a> [dns-secondary](#input\_dns-secondary) | The IP address of the secondary DNS server. | `string` | `""` | no |
+| <a name="input_dns_primary"></a> [dns\_primary](#input\_dns\_primary) | The IP address of the primary DNS server. | `string` | `""` | no |
+| <a name="input_dns_secondary"></a> [dns\_secondary](#input\_dns\_secondary) | The IP address of the secondary DNS server. | `string` | `""` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Set to false to prevent Terraform from destroying a bucket with unknown objects or locked objects. | `bool` | `true` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Map of arbitrary tags to apply to all resources. | `map(any)` | `{}` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | The hostname of the VM-series instance. | `string` | `""` | no |
 | <a name="input_iam_instance_profile_name"></a> [iam\_instance\_profile\_name](#input\_iam\_instance\_profile\_name) | Name of the instance profile to create. If empty, name will be auto-generated. | `string` | `""` | no |
 | <a name="input_iam_role_name"></a> [iam\_role\_name](#input\_iam\_role\_name) | Name of a IAM role to reuse or create (depending on `create_iam_role_policy` value). | `string` | `null` | no |
-| <a name="input_op-command-modes"></a> [op-command-modes](#input\_op-command-modes) | Set jumbo-frame and/or mgmt-interface-swap. | `string` | `""` | no |
-| <a name="input_panorama-server"></a> [panorama-server](#input\_panorama-server) | The FQDN or IP address of the primary Panorama server. | `string` | `""` | no |
-| <a name="input_panorama-server2"></a> [panorama-server2](#input\_panorama-server2) | The FQDN or IP address of the secondary Panorama server. | `string` | `""` | no |
-| <a name="input_plugin-op-commands"></a> [plugin-op-commands](#input\_plugin-op-commands) | Set plugin-op-commands. | `string` | `""` | no |
+| <a name="input_op_command_modes"></a> [op\_command\_modes](#input\_op\_command\_modes) | Set jumbo-frame and/or mgmt-interface-swap. | `string` | `""` | no |
+| <a name="input_panorama_server"></a> [panorama\_server](#input\_panorama\_server) | The FQDN or IP address of the primary Panorama server. | `string` | `""` | no |
+| <a name="input_panorama_server2"></a> [panorama\_server2](#input\_panorama\_server2) | The FQDN or IP address of the secondary Panorama server. | `string` | `""` | no |
+| <a name="input_plugin_op_commands"></a> [plugin\_op\_commands](#input\_plugin\_op\_commands) | Set plugin-op-commands. | `string` | `""` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | The prefix to use for bucket name, IAM role name, and IAM role policy name. It is allowed to use dash "-" as the last character. | `string` | `"bootstrap-"` | no |
 | <a name="input_source_root_directory"></a> [source\_root\_directory](#input\_source\_root\_directory) | The source directory to become the bucket's root directory. If empty uses `files` subdirectory of a Terraform configuration root directory. | `string` | `""` | no |
 | <a name="input_tplname"></a> [tplname](#input\_tplname) | The Panorama template stack name. | `string` | `""` | no |
-| <a name="input_vm-auth-key"></a> [vm-auth-key](#input\_vm-auth-key) | Virtual machine authentication key. | `string` | `""` | no |
+| <a name="input_vm_auth_key"></a> [vm\_auth\_key](#input\_vm\_auth\_key) | Virtual machine authentication key. | `string` | `""` | no |
 
 ### Outputs
 

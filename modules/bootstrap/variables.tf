@@ -59,55 +59,55 @@ variable "hostname" {
   type        = string
 }
 
-variable "panorama-server" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "panorama_server" {
   description = "The FQDN or IP address of the primary Panorama server."
   default     = ""
   type        = string
 }
 
-variable "panorama-server2" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "panorama_server2" {
   description = "The FQDN or IP address of the secondary Panorama server."
   default     = ""
   type        = string
 }
 
-variable "tplname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "tplname" {
   description = "The Panorama template stack name."
   default     = ""
   type        = string
 }
 
-variable "dgname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "dgname" {
   description = "The Panorama device group name."
   default     = ""
   type        = string
 }
 
-variable "dns-primary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "dns_primary" {
   description = "The IP address of the primary DNS server."
   default     = ""
   type        = string
 }
 
-variable "dns-secondary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "dns_secondary" {
   description = "The IP address of the secondary DNS server."
   default     = ""
   type        = string
 }
 
-variable "vm-auth-key" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "vm_auth_key" {
   description = "Virtual machine authentication key."
   default     = ""
   type        = string
 }
 
-variable "op-command-modes" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "op_command_modes" {
   description = "Set jumbo-frame and/or mgmt-interface-swap."
   default     = ""
   type        = string
 }
 
-variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
+variable "plugin_op_commands" {
   description = "Set plugin-op-commands."
   default     = ""
   type        = string
