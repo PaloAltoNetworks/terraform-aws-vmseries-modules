@@ -119,19 +119,27 @@ module "bootstrap" {
   iam_role_name             = "${var.name_prefix}vmseries"
   iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile"
 
-  prefix                      = var.name_prefix
-  global_tags                 = var.global_tags
-  hostname                    = "hostname=${var.name_prefix}${each.key}"
-  panorama_server             = each.value.common.bootstrap_options.panorama_server
-  panorama_server2            = each.value.common.bootstrap_options.panorama_server2
-  tplname                     = each.value.common.bootstrap_options.tplname
-  dgname                      = each.value.common.bootstrap_options.dgname
-  plugin_op_commands          = each.value.common.bootstrap_options.plugin_op_commands
-  source_root_directory       = "files-${each.key}/"
-  dhcp_send_hostname          = each.value.common.bootstrap_options.dhcp_send_hostname
-  dhcp_send_client_id         = each.value.common.bootstrap_options.dhcp_send_client_id
-  dhcp_accept_server_hostname = each.value.common.bootstrap_options.dhcp_accept_server_hostname
-  dhcp_accept_server_domain   = each.value.common.bootstrap_options.dhcp_accept_server_domain
+  prefix      = var.name_prefix
+  global_tags = var.global_tags
+
+  bootstrap_options = {
+    hostname                    = "${var.name_prefix}${each.key}"
+    panorama_server             = each.value.common.bootstrap_options.panorama_server
+    panorama_server2            = each.value.common.bootstrap_options.panorama_server2
+    tplname                     = each.value.common.bootstrap_options.tplname
+    dgname                      = each.value.common.bootstrap_options.dgname
+    dns_primary                 = null
+    dns_secondary               = null
+    auth_key                    = null
+    vm_auth_key                 = null
+    op_command_modes            = null
+    plugin_op_commands          = each.value.common.bootstrap_options.plugin_op_commands
+    dhcp_send_hostname          = each.value.common.bootstrap_options.dhcp_send_hostname
+    dhcp_send_client_id         = each.value.common.bootstrap_options.dhcp_send_client_id
+    dhcp_accept_server_hostname = each.value.common.bootstrap_options.dhcp_accept_server_hostname
+    dhcp_accept_server_domain   = each.value.common.bootstrap_options.dhcp_accept_server_domain
+  }
+  source_root_directory = "files-${each.key}/"
 }
 
 ### VM-Series INSTANCES
