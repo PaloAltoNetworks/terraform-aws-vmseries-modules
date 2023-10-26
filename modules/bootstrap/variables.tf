@@ -55,61 +55,61 @@ variable "bootstrap_directories" {
 ### Variables below go to the init-cfg.txt
 variable "hostname" {
   description = "The hostname of the VM-series instance."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "panorama_server" {
   description = "The FQDN or IP address of the primary Panorama server."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "panorama_server2" {
   description = "The FQDN or IP address of the secondary Panorama server."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "tplname" {
   description = "The Panorama template stack name."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "dgname" {
   description = "The Panorama device group name."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "dns_primary" {
   description = "The IP address of the primary DNS server."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "dns_secondary" {
   description = "The IP address of the secondary DNS server."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "vm_auth_key" {
   description = "Virtual machine authentication key."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "op_command_modes" {
   description = "Set jumbo-frame and/or mgmt-interface-swap."
-  default     = ""
+  default     = null
   type        = string
 }
 
 variable "plugin_op_commands" {
   description = "Set plugin-op-commands."
-  default     = ""
+  default     = null
   type        = string
 }
 

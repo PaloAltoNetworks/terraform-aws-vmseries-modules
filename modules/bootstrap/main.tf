@@ -88,7 +88,7 @@ resource "aws_s3_object" "init_cfg" {
     {
       "hostname"                    = var.hostname,
       "panorama-server"             = var.panorama_server,
-      "panorama-server2"            = var.panorama_server2,
+      "panorama-server-2"           = var.panorama_server2,
       "tplname"                     = var.tplname,
       "dgname"                      = var.dgname,
       "dns-primary"                 = var.dns_primary,
@@ -138,8 +138,8 @@ resource "aws_iam_role" "this" {
     {
       "Effect": "Allow",
       "Principal": {
-      "Service": "ec2.amazonaws.com"
-    },
+        "Service": "ec2.amazonaws.com"
+      },
       "Action": "sts:AssumeRole"
     }
   ]
