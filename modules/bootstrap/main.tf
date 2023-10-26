@@ -86,20 +86,20 @@ resource "aws_s3_object" "init_cfg" {
   key    = "config/init-cfg.txt"
   content = templatefile("${path.module}/init-cfg.txt.tmpl",
     {
-      "hostname"                    = var.hostname,
-      "panorama-server"             = var.panorama_server,
-      "panorama-server-2"           = var.panorama_server2,
-      "tplname"                     = var.tplname,
-      "dgname"                      = var.dgname,
-      "dns-primary"                 = var.dns_primary,
-      "dns-secondary"               = var.dns_secondary,
-      "vm-auth-key"                 = var.vm_auth_key,
-      "op-command-modes"            = var.op_command_modes,
-      "plugin-op-commands"          = var.plugin_op_commands,
-      "dhcp-send-hostname"          = var.dhcp_send_hostname,
-      "dhcp-send-client-id"         = var.dhcp_send_client_id,
-      "dhcp-accept-server-hostname" = var.dhcp_accept_server_hostname,
-      "dhcp-accept-server-domain"   = var.dhcp_accept_server_domain
+      "hostname"                    = var.bootstrap_options.hostname,
+      "panorama-server"             = var.bootstrap_options.panorama_server,
+      "panorama-server-2"           = var.bootstrap_options.panorama_server2,
+      "tplname"                     = var.bootstrap_options.tplname,
+      "dgname"                      = var.bootstrap_options.dgname,
+      "dns-primary"                 = var.bootstrap_options.dns_primary,
+      "dns-secondary"               = var.bootstrap_options.dns_secondary,
+      "vm-auth-key"                 = var.bootstrap_options.vm_auth_key,
+      "op-command-modes"            = var.bootstrap_options.op_command_modes,
+      "plugin-op-commands"          = var.bootstrap_options.plugin_op_commands,
+      "dhcp-send-hostname"          = var.bootstrap_options.dhcp_send_hostname,
+      "dhcp-send-client-id"         = var.bootstrap_options.dhcp_send_client_id,
+      "dhcp-accept-server-hostname" = var.bootstrap_options.dhcp_accept_server_hostname,
+      "dhcp-accept-server-domain"   = var.bootstrap_options.dhcp_accept_server_domain
     }
   )
 }
