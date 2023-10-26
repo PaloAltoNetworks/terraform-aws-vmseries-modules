@@ -168,12 +168,16 @@ variable "vmseries" {
     }))
 
     bootstrap_options = object({
-      mgmt-interface-swap         = string
-      plugin-op-commands          = string
-      dhcp-send-hostname          = string
-      dhcp-send-client-id         = string
-      dhcp-accept-server-hostname = string
-      dhcp-accept-server-domain   = string
+      mgmt_interface_swap         = string
+      panorama_server             = string
+      panorama_server2            = string
+      tplname                     = string
+      dgname                      = string
+      plugin_op_commands          = string
+      dhcp_send_hostname          = string
+      dhcp_send_client_id         = string
+      dhcp_accept_server_hostname = string
+      dhcp_accept_server_domain   = string
     })
 
     panos_version = string

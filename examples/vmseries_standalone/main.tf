@@ -77,25 +77,10 @@ data "aws_caller_identity" "this" {}
 
 data "aws_partition" "this" {}
 
-resource "aws_iam_role" "vm_series_ec2_iam_role" {
-  name               = "${var.name_prefix}vmseries"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Principal": {"Service": "ec2.amazonaws.com"}
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
-  role   = aws_iam_role.vm_series_ec2_iam_role.id
-  policy = <<EOF
+resource "aws_iam_role_policy" "this" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
+  role     = module.bootstrap[each.key].iam_role_name
+  policy   = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -126,20 +111,33 @@ resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
 EOF
 }
 
-resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
+### BOOTSTRAP PACKAGE
+module "bootstrap" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
+  source   = "../../modules/bootstrap"
 
-  name = "${var.name_prefix}vmseries_instance_profile"
-  role = aws_iam_role.vm_series_ec2_iam_role.name
+  iam_role_name             = "${var.name_prefix}vmseries"
+  iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile"
+
+  prefix                      = var.name_prefix
+  global_tags                 = var.global_tags
+  hostname                    = "hostname=${var.name_prefix}${each.key}"
+  panorama_server             = each.value.common.bootstrap_options.panorama_server
+  panorama_server2            = each.value.common.bootstrap_options.panorama_server2
+  tplname                     = each.value.common.bootstrap_options.tplname
+  dgname                      = each.value.common.bootstrap_options.dgname
+  plugin_op_commands          = each.value.common.bootstrap_options.plugin_op_commands
+  source_root_directory       = "files-${each.key}/"
+  dhcp_send_hostname          = each.value.common.bootstrap_options.dhcp_send_hostname
+  dhcp_send_client_id         = each.value.common.bootstrap_options.dhcp_send_client_id
+  dhcp_accept_server_hostname = each.value.common.bootstrap_options.dhcp_accept_server_hostname
+  dhcp_accept_server_domain   = each.value.common.bootstrap_options.dhcp_accept_server_domain
 }
 
 ### VM-Series INSTANCES
 
 locals {
   vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
-
-  bootstrap_options = { for i, j in var.vmseries : i => [
-    for k, v in j.bootstrap_options : "${k}=${v}"
-  ] }
 }
 
 module "vmseries" {
@@ -161,9 +159,12 @@ module "vmseries" {
     }
   }
 
-  bootstrap_options = join(";", compact(concat(local.bootstrap_options[each.value.group], ["hostname=${var.name_prefix}${each.key}"])))
+  bootstrap_options = join(";", compact(concat(
+    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap[each.key].bucket_name}"],
+    ["mgmt-interface-swap=${each.value.common.bootstrap_options.mgmt_interface_swap}"],
+  )))
 
-  iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
+  iam_instance_profile = module.bootstrap[each.key].instance_profile_name
   ssh_key_name         = var.ssh_key_name
   tags                 = var.global_tags
 }
