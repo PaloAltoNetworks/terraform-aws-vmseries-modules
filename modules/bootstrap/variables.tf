@@ -57,72 +57,30 @@ variable "bootstrap_options" {
   Object define bootstrap options used in the init-cfg.txt file.
 
   There are available bootstrap parameters:
-  - `hostname`                    - (`string`, required) The hostname of the VM-series instance.
-  - `panorama_server`             - (`string`, required) The FQDN or IP address of the primary Panorama server.
-  - `panorama_server2`            - (`string`, required) The FQDN or IP address of the secondary Panorama server.
-  - `tplname`                     - (`string`, required) The Panorama template stack name.
-  - `dgname`                      - (`string`, required) The Panorama device group name.
-  - `dns_primary`                 - (`string`, required) The IP address of the primary DNS server.
-  - `dns_secondary`               - (`string`, required) The IP address of the secondary DNS server.
-  - `auth_key`                    - (`string`, required) VM-Series authentication key generated via plugin sw_fw_license.
-  - `vm_auth_key`                 - (`string`, required) VM-Series authentication key generated on Panorama.
-  - `op_command_modes`            - (`string`, required) Set jumbo-frame and/or mgmt-interface-swap.
-  - `plugin_op_commands`          - (`string`, required) Set plugin-op-commands.
-  - `dhcp_send_hostname`          - (`string`, required) The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server.
-  - `dhcp_send_client_id`         - (`string`, required) The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server.
-  - `dhcp_accept_server_hostname` - (`string`, required) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
-  - `dhcp_accept_server_domain`   - (`string`, required) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
+  - `hostname`                    - (`string`, optional) The hostname of the VM-series instance.
+  - `panorama_server`             - (`string`, optional) The FQDN or IP address of the primary Panorama server.
+  - `panorama_server2`            - (`string`, optional) The FQDN or IP address of the secondary Panorama server.
+  - `tplname`                     - (`string`, optional) The Panorama template stack name.
+  - `dgname`                      - (`string`, optional) The Panorama device group name.
+  - `cgname`                      - (`string`, optional) The Panorama collector group name.
+  - `dns_primary`                 - (`string`, optional) The IP address of the primary DNS server.
+  - `dns_secondary`               - (`string`, optional) The IP address of the secondary DNS server.
+  - `auth_key`                    - (`string`, optional) VM-Series authentication key generated via plugin sw_fw_license.
+  - `vm_auth_key`                 - (`string`, optional) VM-Series authentication key generated on Panorama.
+  - `op_command_modes`            - (`string`, optional) Set jumbo-frame and/or mgmt-interface-swap.
+  - `plugin_op_commands`          - (`string`, optional) Set plugin-op-commands.
+  - `dhcp_send_hostname`          - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server.
+  - `dhcp_send_client_id`         - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server.
+  - `dhcp_accept_server_hostname` - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
+  - `dhcp_accept_server_domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
   EOF
   default = {
-    hostname                    = null
-    panorama_server             = null
-    panorama_server2            = null
-    tplname                     = null
-    dgname                      = null
-    dns_primary                 = null
-    dns_secondary               = null
-    auth_key                    = null
-    vm_auth_key                 = null
-    op_command_modes            = null
-    plugin_op_commands          = null
     dhcp_send_hostname          = "yes"
     dhcp_send_client_id         = "yes"
     dhcp_accept_server_hostname = "yes"
     dhcp_accept_server_domain   = "yes"
   }
-  type = object({
-    hostname                    = string
-    panorama_server             = string
-    panorama_server2            = string
-    tplname                     = string
-    dgname                      = string
-    dns_primary                 = string
-    dns_secondary               = string
-    auth_key                    = string
-    vm_auth_key                 = string
-    op_command_modes            = string
-    plugin_op_commands          = string
-    dhcp_send_hostname          = string
-    dhcp_send_client_id         = string
-    dhcp_accept_server_hostname = string
-    dhcp_accept_server_domain   = string
-  })
-  validation {
-    condition     = contains(["yes", "no"], var.bootstrap_options.dhcp_send_hostname)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_hostname."
-  }
-  validation {
-    condition     = contains(["yes", "no"], var.bootstrap_options.dhcp_send_client_id)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_client_id."
-  }
-  validation {
-    condition     = contains(["yes", "no"], var.bootstrap_options.dhcp_accept_server_hostname)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_hostname."
-  }
-  validation {
-    condition     = contains(["yes", "no"], var.bootstrap_options.dhcp_accept_server_domain)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_domain."
-  }
+  type = any
 }
 
 variable "create_bucket" {

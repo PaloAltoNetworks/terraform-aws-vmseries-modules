@@ -168,16 +168,15 @@ variable "vmseries" {
     }))
 
     bootstrap_options = object({
-      mgmt_interface_swap         = string
-      panorama_server             = string
-      panorama_server2            = string
+      mgmt-interface-swap         = string
+      panorama-server             = string
       tplname                     = string
       dgname                      = string
-      plugin_op_commands          = string
-      dhcp_send_hostname          = string
-      dhcp_send_client_id         = string
-      dhcp_accept_server_hostname = string
-      dhcp_accept_server_domain   = string
+      plugin-op-commands          = string
+      dhcp-send-hostname          = string
+      dhcp-send-client-id         = string
+      dhcp-accept-server-hostname = string
+      dhcp-accept-server-domain   = string
     })
 
     panos_version = string
@@ -187,12 +186,12 @@ variable "vmseries" {
 
     interfaces = map(object({
       device_index      = number
-      private_ip        = string
+      private_ip        = map(string)
       security_group    = string
       vpc_subnet        = string
       create_public_ip  = bool
       source_dest_check = bool
-      eip_allocation_id = string
+      eip_allocation_id = map(string)
     }))
   }))
 }

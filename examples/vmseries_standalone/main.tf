@@ -116,29 +116,13 @@ module "bootstrap" {
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
   source   = "../../modules/bootstrap"
 
-  iam_role_name             = "${var.name_prefix}vmseries"
-  iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile"
+  iam_role_name             = "${var.name_prefix}vmseries${each.value.instance}"
+  iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile${each.value.instance}"
 
   prefix      = var.name_prefix
   global_tags = var.global_tags
 
-  bootstrap_options = {
-    hostname                    = "${var.name_prefix}${each.key}"
-    panorama_server             = each.value.common.bootstrap_options.panorama_server
-    panorama_server2            = each.value.common.bootstrap_options.panorama_server2
-    tplname                     = each.value.common.bootstrap_options.tplname
-    dgname                      = each.value.common.bootstrap_options.dgname
-    dns_primary                 = null
-    dns_secondary               = null
-    auth_key                    = null
-    vm_auth_key                 = null
-    op_command_modes            = null
-    plugin_op_commands          = each.value.common.bootstrap_options.plugin_op_commands
-    dhcp_send_hostname          = each.value.common.bootstrap_options.dhcp_send_hostname
-    dhcp_send_client_id         = each.value.common.bootstrap_options.dhcp_send_client_id
-    dhcp_accept_server_hostname = each.value.common.bootstrap_options.dhcp_accept_server_hostname
-    dhcp_accept_server_domain   = each.value.common.bootstrap_options.dhcp_accept_server_domain
-  }
+  bootstrap_options     = merge(each.value.common.bootstrap_options, { hostname = "${var.name_prefix}${each.key}" })
   source_root_directory = "files-${each.key}/"
 }
 
@@ -158,18 +142,18 @@ module "vmseries" {
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
       device_index       = v.device_index
-      private_ips        = [v.private_ip]
+      private_ips        = [v.private_ip[each.value.instance]]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
-      eip_allocation_id  = try(v.eip_allocation_id, null)
+      eip_allocation_id  = try(v.eip_allocation_id[each.value.instance], null)
     }
   }
 
   bootstrap_options = join(";", compact(concat(
     ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap[each.key].bucket_name}"],
-    ["mgmt-interface-swap=${each.value.common.bootstrap_options.mgmt_interface_swap}"],
+    ["mgmt-interface-swap=${each.value.common.bootstrap_options["mgmt-interface-swap"]}"],
   )))
 
   iam_instance_profile = module.bootstrap[each.key].instance_profile_name

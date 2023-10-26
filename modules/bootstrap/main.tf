@@ -82,26 +82,9 @@ resource "aws_s3_object" "bootstrap_dirs" {
 resource "aws_s3_object" "init_cfg" {
   count = contains(fileset(local.source_root_directory, "**"), "config/init-cfg.txt") ? 0 : 1
 
-  bucket = local.aws_s3_bucket.id
-  key    = "config/init-cfg.txt"
-  content = templatefile("${path.module}/init-cfg.txt.tmpl",
-    {
-      "hostname"                    = var.bootstrap_options.hostname,
-      "panorama-server"             = var.bootstrap_options.panorama_server,
-      "panorama-server-2"           = var.bootstrap_options.panorama_server2,
-      "tplname"                     = var.bootstrap_options.tplname,
-      "dgname"                      = var.bootstrap_options.dgname,
-      "dns-primary"                 = var.bootstrap_options.dns_primary,
-      "dns-secondary"               = var.bootstrap_options.dns_secondary,
-      "vm-auth-key"                 = var.bootstrap_options.vm_auth_key,
-      "op-command-modes"            = var.bootstrap_options.op_command_modes,
-      "plugin-op-commands"          = var.bootstrap_options.plugin_op_commands,
-      "dhcp-send-hostname"          = var.bootstrap_options.dhcp_send_hostname,
-      "dhcp-send-client-id"         = var.bootstrap_options.dhcp_send_client_id,
-      "dhcp-accept-server-hostname" = var.bootstrap_options.dhcp_accept_server_hostname,
-      "dhcp-accept-server-domain"   = var.bootstrap_options.dhcp_accept_server_domain
-    }
-  )
+  bucket  = local.aws_s3_bucket.id
+  key     = "config/init-cfg.txt"
+  content = templatefile("${path.module}/init-cfg.txt.tmpl", { bootstrap_options = var.bootstrap_options })
 }
 
 locals {
