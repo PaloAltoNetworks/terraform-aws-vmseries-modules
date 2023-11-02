@@ -169,6 +169,9 @@ variable "vmseries" {
 
     bootstrap_options = object({
       mgmt-interface-swap         = string
+      panorama-server             = string
+      tplname                     = string
+      dgname                      = string
       plugin-op-commands          = string
       dhcp-send-hostname          = string
       dhcp-send-client-id         = string
@@ -183,12 +186,12 @@ variable "vmseries" {
 
     interfaces = map(object({
       device_index      = number
-      private_ip        = string
+      private_ip        = map(string)
       security_group    = string
       vpc_subnet        = string
       create_public_ip  = bool
       source_dest_check = bool
-      eip_allocation_id = string
+      eip_allocation_id = map(string)
     }))
   }))
 }

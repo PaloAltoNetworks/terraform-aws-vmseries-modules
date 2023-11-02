@@ -52,105 +52,35 @@ variable "bootstrap_directories" {
   type = list(string)
 }
 
-### Variables below go to the init-cfg.txt
-variable "hostname" {
-  description = "The hostname of the VM-series instance."
-  default     = ""
-  type        = string
-}
+variable "bootstrap_options" {
+  description = <<-EOF
+  Object define bootstrap options used in the init-cfg.txt file.
 
-variable "panorama-server" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The FQDN or IP address of the primary Panorama server."
-  default     = ""
-  type        = string
-}
-
-variable "panorama-server2" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The FQDN or IP address of the secondary Panorama server."
-  default     = ""
-  type        = string
-}
-
-variable "tplname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The Panorama template stack name."
-  default     = ""
-  type        = string
-}
-
-variable "dgname" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The Panorama device group name."
-  default     = ""
-  type        = string
-}
-
-variable "dns-primary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The IP address of the primary DNS server."
-  default     = ""
-  type        = string
-}
-
-variable "dns-secondary" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "The IP address of the secondary DNS server."
-  default     = ""
-  type        = string
-}
-
-variable "vm-auth-key" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "Virtual machine authentication key."
-  default     = ""
-  type        = string
-}
-
-variable "op-command-modes" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "Set jumbo-frame and/or mgmt-interface-swap."
-  default     = ""
-  type        = string
-}
-
-variable "plugin-op-commands" { # tflint-ignore: terraform_naming_convention # TODO rename to snake_case
-  description = "Set plugin-op-commands."
-  default     = ""
-  type        = string
-}
-
-variable "dhcp_send_hostname" {
-  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server."
-  default     = "yes"
-  type        = string
-  validation {
-    condition     = contains(["yes", "no"], var.dhcp_send_hostname)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_hostname."
+  There are available bootstrap parameters:
+  - `hostname`                    - (`string`, optional) The hostname of the VM-series instance.
+  - `panorama-server`             - (`string`, optional) The FQDN or IP address of the primary Panorama server.
+  - `panorama-server-2`           - (`string`, optional) The FQDN or IP address of the secondary Panorama server.
+  - `tplname`                     - (`string`, optional) The Panorama template stack name.
+  - `dgname`                      - (`string`, optional) The Panorama device group name.
+  - `cgname`                      - (`string`, optional) The Panorama collector group name.
+  - `dns-primary`                 - (`string`, optional) The IP address of the primary DNS server.
+  - `dns-secondary`               - (`string`, optional) The IP address of the secondary DNS server.
+  - `auth-key`                    - (`string`, optional) VM-Series authentication key generated via plugin sw_fw_license.
+  - `vm-auth-key`                 - (`string`, optional) VM-Series authentication key generated on Panorama.
+  - `op-command-modes`            - (`string`, optional) Set jumbo-frame and/or mgmt-interface-swap.
+  - `plugin-op-commands`          - (`string`, optional) Set plugin-op-commands.
+  - `dhcp-send-hostname`          - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its hostname to the DHCP server.
+  - `dhcp-send-client-id`         - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server.
+  - `dhcp-accept-server-hostname` - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
+  - `dhcp-accept-server-domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
+  EOF
+  default = {
+    dhcp-send-hostname          = "yes"
+    dhcp-send-client-id         = "yes"
+    dhcp-accept-server-hostname = "yes"
+    dhcp-accept-server-domain   = "yes"
   }
-}
-
-variable "dhcp_send_client_id" {
-  description = "The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server."
-  default     = "yes"
-  type        = string
-  validation {
-    condition     = contains(["yes", "no"], var.dhcp_send_client_id)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_send_client_id."
-  }
-}
-
-variable "dhcp_accept_server_hostname" {
-  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server."
-  default     = "yes"
-  type        = string
-  validation {
-    condition     = contains(["yes", "no"], var.dhcp_accept_server_hostname)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_hostname."
-  }
-}
-
-variable "dhcp_accept_server_domain" {
-  description = "The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server."
-  default     = "yes"
-  type        = string
-  validation {
-    condition     = contains(["yes", "no"], var.dhcp_accept_server_domain)
-    error_message = "The DHCP server determines a value of yes or no for variable dhcp_accept_server_domain."
-  }
+  type = any
 }
 
 variable "create_bucket" {

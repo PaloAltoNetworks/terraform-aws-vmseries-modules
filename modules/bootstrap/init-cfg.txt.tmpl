@@ -1,13 +1,2 @@
-type=dhcp-client
-hostname=${hostname}
-panorama-server=${panorama-server}
-panorama-server-2=${panorama-server2}
-tplname=${tplname}
-dgname=${dgname}
-vm-auth-key=${vm-auth-key}
-plugin-op-commands=${plugin-op-commands}
-op-command-modes=${op-command-modes}
-dhcp-send-hostname=${dhcp-send-hostname}
-dhcp-send-client-id=${dhcp-send-client-id}
-dhcp-accept-server-hostname=${dhcp-accept-server-hostname}
-dhcp-accept-server-domain=${dhcp-accept-server-domain}
+%{ for param, value in bootstrap_options }${param}=${value}
+%{ endfor ~}

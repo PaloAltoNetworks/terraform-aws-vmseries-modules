@@ -77,25 +77,10 @@ data "aws_caller_identity" "this" {}
 
 data "aws_partition" "this" {}
 
-resource "aws_iam_role" "vm_series_ec2_iam_role" {
-  name               = "${var.name_prefix}vmseries"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Principal": {"Service": "ec2.amazonaws.com"}
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
-  role   = aws_iam_role.vm_series_ec2_iam_role.id
-  policy = <<EOF
+resource "aws_iam_role_policy" "this" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
+  role     = module.bootstrap[each.key].iam_role_name
+  policy   = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -126,20 +111,25 @@ resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
 EOF
 }
 
-resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
+### BOOTSTRAP PACKAGE
+module "bootstrap" {
+  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
+  source   = "../../modules/bootstrap"
 
-  name = "${var.name_prefix}vmseries_instance_profile"
-  role = aws_iam_role.vm_series_ec2_iam_role.name
+  iam_role_name             = "${var.name_prefix}vmseries${each.value.instance}"
+  iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile${each.value.instance}"
+
+  prefix      = var.name_prefix
+  global_tags = var.global_tags
+
+  bootstrap_options     = merge(each.value.common.bootstrap_options, { hostname = "${var.name_prefix}${each.key}" })
+  source_root_directory = "files-${each.key}/"
 }
 
 ### VM-Series INSTANCES
 
 locals {
   vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
-
-  bootstrap_options = { for i, j in var.vmseries : i => [
-    for k, v in j.bootstrap_options : "${k}=${v}"
-  ] }
 }
 
 module "vmseries" {
@@ -152,18 +142,21 @@ module "vmseries" {
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
       device_index       = v.device_index
-      private_ips        = [v.private_ip]
+      private_ips        = [v.private_ip[each.value.instance]]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
       subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
-      eip_allocation_id  = try(v.eip_allocation_id, null)
+      eip_allocation_id  = try(v.eip_allocation_id[each.value.instance], null)
     }
   }
 
-  bootstrap_options = join(";", compact(concat(local.bootstrap_options[each.value.group], ["hostname=${var.name_prefix}${each.key}"])))
+  bootstrap_options = join(";", compact(concat(
+    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap[each.key].bucket_name}"],
+    ["mgmt-interface-swap=${each.value.common.bootstrap_options["mgmt-interface-swap"]}"],
+  )))
 
-  iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
+  iam_instance_profile = module.bootstrap[each.key].instance_profile_name
   ssh_key_name         = var.ssh_key_name
   tags                 = var.global_tags
 }

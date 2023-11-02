@@ -68,6 +68,9 @@ vmseries = {
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
       mgmt-interface-swap         = "disable"
+      panorama-server             = "10.10.0.4"                                               # TODO: update here
+      tplname                     = "aws_template"                                            # TODO: update here
+      dgname                      = "aws_device_group"                                        # TODO: update here
       plugin-op-commands          = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
       dhcp-send-hostname          = "no"                                                      # TODO: update here
       dhcp-send-client-id         = "no"                                                      # TODO: update here
@@ -83,13 +86,17 @@ vmseries = {
 
     interfaces = {
       mgmt = {
-        device_index      = 0
-        private_ip        = "10.100.0.4"
+        device_index = 0
+        private_ip = {
+          "01" = "10.100.0.4"
+        }
         security_group    = "vmseries_mgmt"
         vpc_subnet        = "security_vpc-mgmt"
         create_public_ip  = true
         source_dest_check = true
-        eip_allocation_id = null
+        eip_allocation_id = {
+          "01" = null
+        }
       }
     }
   }
