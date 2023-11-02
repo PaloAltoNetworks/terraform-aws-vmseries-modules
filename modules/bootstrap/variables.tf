@@ -75,10 +75,10 @@ variable "bootstrap_options" {
   - `dhcp-accept-server-domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
   EOF
   default = {
-    dhcp_send_hostname          = "yes"
-    dhcp_send_client_id         = "yes"
-    dhcp_accept_server_hostname = "yes"
-    dhcp_accept_server_domain   = "yes"
+    dhcp-send-hostname          = "yes"
+    dhcp-send-client-id         = "yes"
+    dhcp-accept-server-hostname = "yes"
+    dhcp-accept-server-domain   = "yes"
   }
   type = any
 }
