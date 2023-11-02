@@ -1,10 +1,13 @@
 # Palo Alto Networks Autoscaling Group Module for AWS
 
-A Terraform module for deploying VM-Series in Autoscaling group in AWS cloud. 
+A Terraform module for deploying VM-Series in Autoscaling group in AWS cloud.
 
 ## Usage
 
-For example usage, please refer to the [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/develop/examples) directory.
+For example usage, please refer to the [examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples) directory:
+- [Reference Architecture with Terraform: VM-Series in AWS, Centralized Design Model, Common NGFW option with Autoscaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/centralized_design_autoscale)
+- [Reference Architecture with Terraform: VM-Series in AWS, Combined Design Model, Common NGFW Option with Autoscaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/combined_design_autoscale)
+- [Reference Architecture with Terraform: VM-Series in AWS, Isolated Design Model, Common NGFW option with Autoscaling](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples/isolated_design_autoscale)
 
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
