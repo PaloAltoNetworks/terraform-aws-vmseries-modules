@@ -175,22 +175,22 @@ module "vpc_routes" {
 
 ### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
 
-locals {
-  subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries : i => try(join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))), [])}
-  subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries : i => try(join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))), []) }
-  subinterface_gwlb_endpoint_inbound = { for i, j in var.vmseries : i => try(join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))), []) }
-  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries : i => try(format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
-  local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i]), []) }
-  bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => try([
-    for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
-  ], []) }
-}
+# locals {
+#   subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries : i => join(",", compact(concat(flatten([
+#     for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+#   ]))))}
+#   subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries : i => try(join(",", compact(concat(flatten([
+#     for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+#   ])))), []) }
+#   subinterface_gwlb_endpoint_inbound = { for i, j in var.vmseries : i => try(join(",", compact(concat(flatten([
+#     for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
+#   ])))), []) }
+#   plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries : i => try((format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
+#   local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i])), []) }
+#   bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => try([
+#     for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}"
+#   ], []) }
+# }
 
 ### IAM ROLES AND POLICIES ###
 
@@ -257,7 +257,16 @@ resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
 
 locals {
   vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, common = vv }]])
+
+  bootstrap_options = { for i, j in var.vmseries : i => [
+    for k, v in j.bootstrap_options : "${k}=${v}"
+  ] }
 }
+
+output "bootstrap_options" {
+  value = local.bootstrap_options
+}
+
 
 module "vmseries" {
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
@@ -275,8 +284,7 @@ module "vmseries" {
       create_public_ip   = try(v.create_public_ip, false)
     }
   }
-
-  bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.value.group])))
+  bootstrap_options = join(";", compact(concat(local.bootstrap_options[each.value.group], ["hostname=${var.name_prefix}${each.key}"])))
 
   iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   ssh_key_name         = var.ssh_key_name

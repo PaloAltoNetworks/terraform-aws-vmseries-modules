@@ -76,6 +76,7 @@ resource "aws_instance" "this" {
   monitoring                           = false
 
   dynamic "metadata_options" {
+    
     for_each = var.enable_imdsv2 ? [1] : []
     content {
       http_endpoint = "enabled"
@@ -108,11 +109,12 @@ resource "aws_instance" "this" {
   # + volume_tags = {}
   volume_tags = merge(var.tags, { Name = var.name })
 
-  lifecycle {
-    ignore_changes = [
-      user_data,
-    ]
-  }
+  user_data_replace_on_change = true
+  # lifecycle {
+  #   ignore_changes = [
+  #     user_data,
+  #   ]
+  # }
 }
 
 resource "aws_network_interface_attachment" "this" {

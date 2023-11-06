@@ -387,18 +387,22 @@ variable "vmseries" {
       az = string
     }))
 
-    bootstrap_options = object({
-      mgmt-interface-swap         = string
-      plugin-op-commands          = string
-      panorama-server             = string
-      auth-key                    = string
-      dgname                      = string
-      tplname                     = string
-      dhcp-send-hostname          = string
-      dhcp-send-client-id         = string
-      dhcp-accept-server-hostname = string
-      dhcp-accept-server-domain   = string
-    })
+    bootstrap_options = map(any)
+    # object({
+    #   mgmt-interface-swap         = string
+    #   vm-series-auto-registration-pin-id = string
+    #   vm-series-auto-registration-pin-value = string
+    #   advance-routing = string
+    #   plugin-op-commands          = string
+    #   panorama-server             = string
+    #   auth-key                    = string
+    #   dgname                      = string
+    #   tplname                     = string
+    #   dhcp-send-hostname          = string
+    #   dhcp-send-client-id         = string
+    #   dhcp-accept-server-hostname = string
+    #   dhcp-accept-server-domain   = string
+    # })
 
     panos_version = string
     ebs_kms_id    = string
