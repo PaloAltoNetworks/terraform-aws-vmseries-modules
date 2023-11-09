@@ -44,6 +44,20 @@ variable "subnets" {
   }))
 }
 
+variable "security_groups" {
+  description = <<-EOF
+  A list of security group IDs to use with a Load Balancer.
+
+  If security groups are created with a [VPC module](../vpc/README.md) you can use output from that module like this:
+  ```
+  security_groups              = [module.vpc.security_group_ids["load_balancer_security_group"]]
+  ```
+  For more information on the `load_balancer_security_group` key refer to the [VPC module documentation](../vpc/README.md).
+  EOF
+  type        = list(string)
+  default     = []
+}
+
 variable "enable_cross_zone_load_balancing" {
   description = <<-EOF
   Enable load balancing between instances in different AZs. Defaults to `true`.
