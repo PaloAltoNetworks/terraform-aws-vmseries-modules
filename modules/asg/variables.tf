@@ -159,6 +159,49 @@ variable "lambda_timeout" {
   default     = 30
 }
 
+variable "lambda_execute_pip_install_once" {
+  description = <<EOF
+  Flag used in local-exec command installing Python packages required by Lambda.
+
+  If set to true, local-exec is executed only once, when all resources are created.
+  If you need to have idempotent behaviour for terraform apply every time and you have downloaded
+  all required Python packages, set it to true.
+
+  If set to false, every time it's checked if files for package pan_os_python are downloaded.
+  If not, it causes execution of local-exec command in two consecutive calls of terraform apply:
+  - first time value of installed-pan-os-python is changed from true (or empty) to false
+  - second time value of installed-pan-os-python is changed from false to true
+  In summary while executing code from scratch, two consecutive calls of terraform apply are not idempotent.
+  The third execution of terraform apply show no changes.
+  While using modules in CI/CD pipelines, when agents are selected randomly, set this value to false
+  in order to check every time, if pan_os_python package is downloaded. sdfdsf sdfvars
+  EOF
+  type        = bool
+  default     = false
+}
+
+variable "launch_template_update_default_version" {
+  description = <<EOF
+  Whether to update launch template default version each update.
+
+  If set to true, every time when e.g. bootstrap options are changed, new version is created and default version is updated.
+  If set to false, every time when e.g. bootstrap options are changed, new version is created, but default version is not changed.
+  EOF
+  type        = bool
+  default     = true
+}
+
+variable "autoscaling_group_delete_timeout" {
+  description = <<EOF
+  Timeout needed to correctly drain autoscaling group while deleting ASG.
+
+  By default in AWS timeout is set to 10 minutes, which is too low and causes issue:
+  Error: waiting for Auto Scaling Group (example-asg) drain: timeout while waiting for state to become '0' (last state: '1', timeout: 10m0s)
+  EOF
+  type        = string
+  default     = "20m"
+}
+
 variable "reserved_concurrent_executions" {
   description = "Amount of reserved concurrent execussions for lambda function."
   default     = 100
