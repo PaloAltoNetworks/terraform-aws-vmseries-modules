@@ -51,6 +51,17 @@ variable "ssh_key_name" {
   type        = string
 }
 
+variable "launch_template_update_default_version" {
+  description = <<EOF
+  Whether to update launch template default version each update.
+
+  If set to true, every time when e.g. bootstrap options are changed, new version is created and default version is updated.
+  If set to false, every time when e.g. bootstrap options are changed, new version is created, but default version is not changed.
+  EOF
+  type        = bool
+  default     = true
+}
+
 variable "bootstrap_options" {
   description = "Bootstrap options to put into userdata"
   type        = any
@@ -142,6 +153,17 @@ variable "min_size" {
   default     = 1
 }
 
+variable "delete_timeout" {
+  description = <<EOF
+  Timeout needed to correctly drain autoscaling group while deleting ASG.
+
+  By default in AWS timeout is set to 10 minutes, which is too low and causes issue:
+  Error: waiting for Auto Scaling Group (example-asg) drain: timeout while waiting for state to become '0' (last state: '1', timeout: 10m0s)
+  EOF
+  type        = string
+  default     = "20m"
+}
+
 variable "suspended_processes" {
   description = "List of processes to suspend for the Auto Scaling Group. The allowed values are Launch, Terminate, HealthCheck, ReplaceUnhealthy, AZRebalance, AlarmNotification, ScheduledActions, AddToLoadBalancer, InstanceRefresh"
   type        = list(string)
@@ -178,28 +200,6 @@ variable "lambda_execute_pip_install_once" {
   EOF
   type        = bool
   default     = false
-}
-
-variable "launch_template_update_default_version" {
-  description = <<EOF
-  Whether to update launch template default version each update.
-
-  If set to true, every time when e.g. bootstrap options are changed, new version is created and default version is updated.
-  If set to false, every time when e.g. bootstrap options are changed, new version is created, but default version is not changed.
-  EOF
-  type        = bool
-  default     = true
-}
-
-variable "autoscaling_group_delete_timeout" {
-  description = <<EOF
-  Timeout needed to correctly drain autoscaling group while deleting ASG.
-
-  By default in AWS timeout is set to 10 minutes, which is too low and causes issue:
-  Error: waiting for Auto Scaling Group (example-asg) drain: timeout while waiting for state to become '0' (last state: '1', timeout: 10m0s)
-  EOF
-  type        = string
-  default     = "20m"
 }
 
 variable "reserved_concurrent_executions" {

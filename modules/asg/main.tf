@@ -55,8 +55,8 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  user_data              = base64encode(var.bootstrap_options)
   update_default_version = var.launch_template_update_default_version
+  user_data              = base64encode(var.bootstrap_options)
 
   network_interfaces {
     device_index                = 0
@@ -126,7 +126,7 @@ resource "aws_autoscaling_group" "this" {
   }
 
   timeouts {
-    delete = var.autoscaling_group_delete_timeout
+    delete = var.delete_timeout
   }
 
   suspended_processes = var.suspended_processes
