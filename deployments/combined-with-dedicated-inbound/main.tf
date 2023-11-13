@@ -273,6 +273,7 @@ module "vmseries" {
   source   = "../../modules/vmseries"
 
   name             = "${var.name_prefix}${each.key}"
+  vmseries_ami_id = try(each.value.common.vmseries_ami_id, null)
   vmseries_version = each.value.common.panos_version
 
   interfaces = {
@@ -303,6 +304,16 @@ data "aws_ami" "this" {
   }
 
   owners = ["979382823631"] # bitnami = 979382823631
+}
+
+data "aws_ami" "amazon_linux" {
+  owners = ["amazon"]
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
 }
 
 data "aws_ebs_default_kms_key" "current" {
@@ -337,7 +348,7 @@ resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
-  ami                    = data.aws_ami.this.id
+  ami                    = data.aws_ami.amazon_linux.id
   instance_type          = each.value.type
   key_name               = var.ssh_key_name
   subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
@@ -350,6 +361,19 @@ resource "aws_instance" "spoke_vms" {
     encrypted             = true
     kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
   }
+
+  user_data = <<EOF
+#!/bin/bash
+# Install Docker (if not already installed)
+sudo yum update -y
+sudo amazon-linux-extras install docker -y
+sudo service docker start
+sudo usermod -aG docker ec2-user  # Add the user to the docker group for non-root access (optional)
+
+# Pull and run your Docker container
+sudo docker pull migara/ssl-demo-frontend
+sudo docker run -d -p 80:80 -p 443:443 migara/ssl-demo-frontend
+EOF
 
   metadata_options {
     http_endpoint = "enabled"

@@ -404,6 +404,7 @@ variable "vmseries" {
     #   dhcp-accept-server-domain   = string
     # })
 
+    vmseries_ami_id = string
     panos_version = string
     ebs_kms_id    = string
 
