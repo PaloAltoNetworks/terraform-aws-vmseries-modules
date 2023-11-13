@@ -299,7 +299,8 @@ data "aws_ami" "this" {
 
   filter {
     name   = "name"
-    values = ["bitnami-nginx-1.25*-linux-debian-11-x86_64-hvm-ebs-nami"]
+    values = ["bitnami-wordpresspro-6.3.2-13-r22-linux-debian-11-x86_64-hvm-ebs-nami"]
+
     # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
   }
 
@@ -348,7 +349,7 @@ resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
-  ami                    = data.aws_ami.amazon_linux.id
+  ami                    = data.aws_ami.this.id
   instance_type          = each.value.type
   key_name               = var.ssh_key_name
   subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
@@ -362,18 +363,18 @@ resource "aws_instance" "spoke_vms" {
     kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
   }
 
-  user_data = <<EOF
-#!/bin/bash
-# Install Docker (if not already installed)
-sudo yum update -y
-sudo amazon-linux-extras install docker -y
-sudo service docker start
-sudo usermod -aG docker ec2-user  # Add the user to the docker group for non-root access (optional)
+#   user_data = <<EOF
+# #!/bin/bash
+# # Install Docker (if not already installed)
+# sudo yum update -y
+# sudo amazon-linux-extras install docker -y
+# sudo service docker start
+# sudo usermod -aG docker ec2-user  # Add the user to the docker group for non-root access (optional)
 
-# Pull and run your Docker container
-sudo docker pull migara/ssl-demo-frontend
-sudo docker run -d -p 80:80 -p 443:443 migara/ssl-demo-frontend
-EOF
+# # Pull and run your Docker container
+# sudo docker pull migara/ssl-demo-frontend
+# sudo docker run -d -p 80:80 -p 443:443 migara/ssl-demo-frontend
+# EOF
 
   metadata_options {
     http_endpoint = "enabled"
