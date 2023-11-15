@@ -523,9 +523,10 @@ vmseries_asgs = {
     }
 
     asg = {
-      desired_cap = 0
-      min_size    = 0
-      max_size    = 4
+      desired_cap                     = 0
+      min_size                        = 0
+      max_size                        = 4
+      lambda_execute_pip_install_once = true
     }
 
     scaling_plan = {
