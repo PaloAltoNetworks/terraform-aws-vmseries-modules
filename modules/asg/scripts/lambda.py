@@ -368,7 +368,10 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 }
             ]
         )
-        return description['NetworkInterfaces'][0]['PrivateIpAddress']
+        try:
+            return description['NetworkInterfaces'][0]['PrivateIpAddress']
+        except IndexError as e:
+            return None
 
     def register_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
         """
