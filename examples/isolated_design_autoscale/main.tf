@@ -216,17 +216,18 @@ module "vm_series_asg" {
 
   for_each = var.vmseries_asgs
 
-  ssh_key_name                  = var.ssh_key_name
-  region                        = var.region
-  name_prefix                   = var.name_prefix
-  global_tags                   = var.global_tags
-  vmseries_version              = each.value.panos_version
-  max_size                      = each.value.asg.max_size
-  min_size                      = each.value.asg.min_size
-  desired_capacity              = each.value.asg.desired_cap
-  vmseries_iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
-  subnet_ids                    = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.set == "lambda"]
-  security_group_ids            = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []
+  ssh_key_name                    = var.ssh_key_name
+  region                          = var.region
+  name_prefix                     = var.name_prefix
+  global_tags                     = var.global_tags
+  vmseries_version                = each.value.panos_version
+  max_size                        = each.value.asg.max_size
+  min_size                        = each.value.asg.min_size
+  desired_capacity                = each.value.asg.desired_cap
+  lambda_execute_pip_install_once = each.value.asg.lambda_execute_pip_install_once
+  vmseries_iam_instance_profile   = aws_iam_instance_profile.vm_series_iam_instance_profile.name
+  subnet_ids                      = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.set == "lambda"]
+  security_group_ids              = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []
   interfaces = {
     for k, v in each.value.interfaces : k => {
       device_index       = v.device_index

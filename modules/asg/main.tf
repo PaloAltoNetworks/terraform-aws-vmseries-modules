@@ -55,7 +55,8 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  user_data = base64encode(var.bootstrap_options)
+  update_default_version = var.launch_template_update_default_version
+  user_data              = base64encode(var.bootstrap_options)
 
   network_interfaces {
     device_index                = 0
@@ -122,6 +123,10 @@ resource "aws_autoscaling_group" "this" {
     default_result       = "CONTINUE"
     heartbeat_timeout    = var.lifecycle_hook_timeout
     lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+  }
+
+  timeouts {
+    delete = var.delete_timeout
   }
 
   suspended_processes = var.suspended_processes
@@ -237,6 +242,10 @@ EOF
 # Python external dependencies (e.g. panos libraries) are prepared according to document:
 # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
 resource "null_resource" "python_requirements" {
+  triggers = {
+    installed-pan-os-python = fileexists("${path.module}/scripts/pan_os_python-1.11.0.dist-info/METADATA") || var.lambda_execute_pip_install_once
+  }
+
   provisioner "local-exec" {
     command = "pip install --upgrade --target ${path.module}/scripts -r ${path.module}/scripts/requirements.txt"
   }
