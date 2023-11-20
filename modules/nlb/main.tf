@@ -120,6 +120,7 @@ resource "aws_lb" "this" {
   internal                         = var.internal_lb
   load_balancer_type               = "network"
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
+  security_groups                  = var.security_groups
 
   # If we relay on AWS to manage public IPs we use `subnets` to attach a Load Balancer with a subnet.
   # We use `subnets` property also for non-public LBs.
