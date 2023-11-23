@@ -5,7 +5,7 @@ from xml.etree import ElementTree as et
 from xml.etree.ElementTree import Element
 
 from boto3 import client
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
 
 from panos.panorama import Panorama
@@ -368,7 +368,10 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 }
             ]
         )
-        return description['NetworkInterfaces'][0]['PrivateIpAddress']
+        try:
+            return description['NetworkInterfaces'][0]['PrivateIpAddress']
+        except IndexError as e:
+            return None
 
     def register_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
         """
@@ -382,15 +385,18 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
         for target_group in ip_target_groups:
             self.logger.info(f"Register target with IP {untrust_ip} in target group {target_group['arn']}")
-            self.elbv2_client.register_targets(
-                TargetGroupArn=target_group['arn'],
-                Targets=[
-                    {
-                        'Id': untrust_ip,
-                        'Port': int(target_group['port']),
-                    },
-                ]
-            )
+            try:
+                self.elbv2_client.register_targets(
+                    TargetGroupArn=target_group['arn'],
+                    Targets=[
+                        {
+                            'Id': untrust_ip,
+                            'Port': int(target_group['port']),
+                        },
+                    ]
+                )
+            except ParamValidationError as e:
+                self.logger.error(f"Unable to register target with IP {untrust_ip}")
 
     def deregister_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
         """
@@ -404,14 +410,17 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
         for target_group in ip_target_groups:
             self.logger.info(f"Deregister target with IP {untrust_ip} in target group {target_group['arn']}")
-            self.elbv2_client.deregister_targets(
-                TargetGroupArn=target_group['arn'],
-                Targets=[
-                    {
-                        'Id': untrust_ip,
-                    },
-                ]
-            )
+            try:
+                self.elbv2_client.deregister_targets(
+                    TargetGroupArn=target_group['arn'],
+                    Targets=[
+                        {
+                            'Id': untrust_ip,
+                        },
+                    ]
+                )
+            except ParamValidationError as e:
+                self.logger.error(f"Unable to deregister target with IP {untrust_ip}")
 
     def panorama_cmd(self, panorama, cmd: str, xml: bool = True, cmd_xml: bool = True) -> Element:
         """
