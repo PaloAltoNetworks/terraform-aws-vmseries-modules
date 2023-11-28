@@ -243,7 +243,7 @@ EOF
 # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
 resource "null_resource" "python_requirements" {
   triggers = {
-    installed-pan-os-python = fileexists("${path.module}/scripts/pan_os_python-1.11.0.dist-info/METADATA") || var.lambda_execute_pip_install_once
+    installed-pan-os-python = fileexists("${path.module}/scripts/pan_os_python-1.11.0.dist-info/METADATA") || var.lambda_execute_pip_install_once ? true : timestamp()
   }
 
   provisioner "local-exec" {
