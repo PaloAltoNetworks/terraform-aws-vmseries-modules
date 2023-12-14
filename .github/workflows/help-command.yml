@@ -1,6 +1,9 @@
 name: ChatOPS Help
 run-name: "Display ChatOPS help (#${{ github.event.inputs.pr-id }}) ${{ github.event.inputs.pr-title }}"
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:
