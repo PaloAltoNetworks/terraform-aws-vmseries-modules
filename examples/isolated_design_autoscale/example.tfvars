@@ -474,7 +474,7 @@ vmseries_asgs = {
       }
     }
 
-    launch_template_version = "$Default"
+    launch_template_version = "1"
 
     instance_refresh = {
       strategy = "Rolling"
