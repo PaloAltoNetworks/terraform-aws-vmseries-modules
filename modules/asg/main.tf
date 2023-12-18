@@ -108,7 +108,7 @@ resource "aws_autoscaling_group" "this" {
 
   launch_template {
     id      = aws_launch_template.this.id
-    version = "$Latest"
+    version = var.launch_template_version
   }
 
   initial_lifecycle_hook {
@@ -125,11 +125,37 @@ resource "aws_autoscaling_group" "this" {
     lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
   }
 
+  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#instance_refresh
+  dynamic "instance_refresh" {
+    for_each = var.instance_refresh != null ? { settings = var.instance_refresh } : {}
+    content {
+      strategy = instance_refresh.value.strategy
+      preferences {
+        checkpoint_delay             = instance_refresh.value.preferences.checkpoint_delay
+        checkpoint_percentages       = instance_refresh.value.preferences.checkpoint_percentages
+        instance_warmup              = instance_refresh.value.preferences.instance_warmup
+        min_healthy_percentage       = instance_refresh.value.preferences.min_healthy_percentage
+        skip_matching                = instance_refresh.value.preferences.skip_matching
+        auto_rollback                = instance_refresh.value.preferences.auto_rollback
+        scale_in_protected_instances = instance_refresh.value.preferences.scale_in_protected_instances
+        standby_instances            = instance_refresh.value.preferences.standby_instances
+      }
+      triggers = instance_refresh.value.triggers
+    }
+  }
+
   timeouts {
     delete = var.delete_timeout
   }
 
   suspended_processes = var.suspended_processes
+
+  lifecycle {
+    precondition {
+      condition     = var.instance_refresh != null ? (var.launch_template_version != "$Latest") : true
+      error_message = "The instance refresh will not start when version = $Latest is configured in the launch_template block."
+    }
+  }
 
   depends_on = [
     aws_cloudwatch_event_target.instance_launch_event,

@@ -62,6 +62,58 @@ variable "launch_template_update_default_version" {
   default     = true
 }
 
+variable "launch_template_version" {
+  description = "Launch template version to use to launch instances"
+  default     = "$Latest"
+  type        = string
+  validation {
+    condition     = can(try(tonumber(var.launch_template_version))) || contains(["$Latest", "$Default"], var.launch_template_version)
+    error_message = "Launch template version can be version number, $Latest, or $Default."
+  }
+}
+
+variable "instance_refresh" {
+  description = <<EOF
+  If this variable is configured (not null), then start an Instance Refresh when Auto Scaling Group is updated.
+
+  Instance refresh is defined by attributes:
+  - `strategy` - Strategy to use for instance refresh. The only allowed value is Rolling
+  - `preferences` - Override default parameters for Instance Refresh:
+    - `checkpoint_delay` - Number of seconds to wait after a checkpoint. Defaults to 3600.
+    - `checkpoint_percentages` - List of percentages for each checkpoint. Values must be unique and in ascending order. 
+                                 To replace all instances, the final number must be 100.
+    - `instance_warmup` - Number of seconds until a newly launched instance is configured and ready to use. 
+                          Default behavior is to use the Auto Scaling Group's health check grace period.
+    - `min_healthy_percentage` - Amount of capacity in the Auto Scaling group that must remain healthy during an instance refresh 
+                                to allow the operation to continue, as a percentage of the desired capacity of the Auto Scaling group. 
+                                Defaults to 90.
+    - `skip_matching` - Replace instances that already have your desired configuration. Defaults to false.
+    - `auto_rollback` - Automatically rollback if instance refresh fails. Defaults to false. 
+                        This option may only be set to true when specifying a launch_template or mixed_instances_policy.
+    - `scale_in_protected_instances` - Behavior when encountering instances protected from scale in are found. 
+                                       Available behaviors are Refresh, Ignore, and Wait. Default is Ignore.
+    - `standby_instances` - Behavior when encountering instances in the Standby state in are found. 
+                            Available behaviors are Terminate, Ignore, and Wait. Default is Ignore.
+  - `trigger` - Set of additional property names that will trigger an Instance Refresh. 
+                A refresh will always be triggered by a change in any of launch_configuration, launch_template, or mixed_instances_policy.
+  EOF
+  type = object({
+    strategy = string
+    preferences = object({
+      checkpoint_delay             = number
+      checkpoint_percentages       = list(number)
+      instance_warmup              = number
+      min_healthy_percentage       = number
+      skip_matching                = bool
+      auto_rollback                = bool
+      scale_in_protected_instances = string
+      standby_instances            = string
+    })
+    triggers = list(string)
+  })
+  default = null
+}
+
 variable "bootstrap_options" {
   description = "Bootstrap options to put into userdata"
   type        = any
