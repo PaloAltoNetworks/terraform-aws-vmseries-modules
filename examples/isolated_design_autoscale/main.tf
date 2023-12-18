@@ -225,6 +225,8 @@ module "vm_series_asg" {
   min_size                        = each.value.asg.min_size
   desired_capacity                = each.value.asg.desired_cap
   lambda_execute_pip_install_once = each.value.asg.lambda_execute_pip_install_once
+  instance_refresh                = each.value.instance_refresh
+  launch_template_version         = each.value.launch_template_version
   vmseries_iam_instance_profile   = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   subnet_ids                      = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.set == "lambda"]
   security_group_ids              = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []

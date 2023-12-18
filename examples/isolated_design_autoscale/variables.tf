@@ -226,6 +226,8 @@ variable "vmseries_asgs" {
     - `statistic`: statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum
     - `cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
     - `tags`: tags configured for dynamic scaling policy
+  - `launch_template_version`: launch template version to use to launch instances
+  - `instance_refresh`: instance refresh for ASG defined by several attributes (please README for module `asg` for more details)
 
   Example:
   ```
@@ -325,6 +327,23 @@ variable "vmseries_asgs" {
           ManagedBy = "terraform"
         }
       }
+
+      launch_template_version = "$Default"
+
+      instance_refresh = {
+        strategy = "Rolling"
+        preferences = {
+          checkpoint_delay             = 3600
+          checkpoint_percentages       = [50, 100]
+          instance_warmup              = 1200
+          min_healthy_percentage       = 50
+          skip_matching                = false
+          auto_rollback                = false
+          scale_in_protected_instances = "Ignore"
+          standby_instances            = "Ignore"
+        }
+        triggers = []
+      }
     }
   }
   ```
@@ -377,6 +396,23 @@ variable "vmseries_asgs" {
       statistic            = string
       cloudwatch_namespace = string
       tags                 = map(string)
+    })
+
+    launch_template_version = string
+
+    instance_refresh = object({
+      strategy = string
+      preferences = object({
+        checkpoint_delay             = number
+        checkpoint_percentages       = list(number)
+        instance_warmup              = number
+        min_healthy_percentage       = number
+        skip_matching                = bool
+        auto_rollback                = bool
+        scale_in_protected_instances = string
+        standby_instances            = string
+      })
+      triggers = list(string)
     })
   }))
 }
