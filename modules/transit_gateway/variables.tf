@@ -55,6 +55,10 @@ variable "transit_gateway_cidr_blocks" {
   description = "One or more IPv4 or IPv6 CIDR blocks for the transit gateway. Must be a size /24 CIDR block or larger for IPv4, or a size /64 CIDR block or larger for IPv6."
   default     = []
   type        = set(string)
+  validation {
+    condition = alltrue([for cidr in var.transit_gateway_cidr_blocks : can(cidrsubnet(cidr, 0, 0))])
+    error_message = "Transit gateway CIDR blocks must contain valid IPv4 or IPv6 CIDR."
+  }
 }
 
 variable "tags" {
