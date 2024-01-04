@@ -177,8 +177,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
 
         instance_info = self.ec2_client.describe_instances(InstanceIds=[instance_id])['Reservations'][0]['Instances'][0]
-        return instance_info['Placement']['AvailabilityZone'], instance_info['SubnetId'], \
-               instance_info['NetworkInterfaces']
+        return instance_info.get('Placement').get('AvailabilityZone') if 'Placement' in instance_info else None, \
+            instance_info.get('SubnetId'), instance_info.get('NetworkInterfaces')
 
     def create_network_interface(self, instance_id: str, subnet_id: str, sg_id: int) -> str:
         """
