@@ -19,6 +19,7 @@ resource "aws_ec2_transit_gateway" "this" {
   auto_accept_shared_attachments  = var.auto_accept_shared_attachments
   default_route_table_association = "disable"
   default_route_table_propagation = "disable"
+  transit_gateway_cidr_blocks     = var.transit_gateway_cidr_blocks
   dns_support                     = var.dns_support
   vpn_ecmp_support                = var.vpn_ecmp_support
   tags                            = merge(var.tags, { Name = var.name })
