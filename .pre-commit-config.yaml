@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.83.6 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+    rev: v1.86.0 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
     hooks:
       - id: terraform_fmt
       - id: terraform_docs
@@ -20,7 +20,7 @@ repos:
           --args=--only=terraform_workspace_remote,
         ]
   - repo: https://github.com/bridgecrewio/checkov.git
-    rev: '3.1.33'
+    rev: '3.1.50'
     hooks:
     - id: checkov
       verbose: true
