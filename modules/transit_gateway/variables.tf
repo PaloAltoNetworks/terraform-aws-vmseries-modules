@@ -56,7 +56,7 @@ variable "transit_gateway_cidr_blocks" {
   default     = []
   type        = set(string)
   validation {
-    condition = alltrue([for cidr in var.transit_gateway_cidr_blocks : can(cidrsubnet(cidr, 0, 0))])
+    condition     = alltrue([for cidr in var.transit_gateway_cidr_blocks : can(cidrsubnet(cidr, 0, 0))])
     error_message = "Transit gateway CIDR blocks must contain valid IPv4 or IPv6 CIDR."
   }
 }
