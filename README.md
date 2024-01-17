@@ -1,3 +1,11 @@
+> [!WARNING]  
+> This repository is now considered archived, and all future development will take place at our new location. For more details see https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/issues/421
+
+> [!IMPORTANT]
+> #### New Modules
+> - GitHub - https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules  
+> - Terraform Registry - https://registry.terraform.io/modules/PaloAltoNetworks/swfw-modules/aws/latest
+
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/PaloAltoNetworks/terraform-aws-vmseries-modules?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/PaloAltoNetworks/terraform-aws-vmseries-modules?style=flat-square)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/PaloAltoNetworks/terraform-aws-vmseries-modules/release_ci.yml?style=flat-square)
